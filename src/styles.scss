@@ -393,7 +393,8 @@ select {
         }
         .cgb-select {
           select {
-            width: 180px;
+            max-width: 220px;
+            width: 100%;
           }
         }
         .paper-id {
