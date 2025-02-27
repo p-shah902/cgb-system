@@ -8,6 +8,16 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-  <app-root></app-root>
+  <app-root id="wrapper"></app-root>
 </body>
+
+<script>
+  const $button  = document.querySelector('#sidebar-toggle');
+  const $wrapper = document.querySelector('#wrapper');
+
+  $button.addEventListener('click', (e) => {
+    e.preventDefault();
+    $wrapper.classList.toggle('toggled');
+  });
+</script>
 </html>

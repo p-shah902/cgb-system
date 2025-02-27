@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import {RoleaccessComponent} from './roleaccess/roleaccess.component';
+import {UsermanagementComponent} from './usermanagement/usermanagement.component';
+import {UserdetailsComponent} from './userdetails/userdetails.component';
 
 export const routes: Routes = [
   {
@@ -22,7 +25,19 @@ export const routes: Routes = [
     loadComponent: () => import('./template5/template5.component').then(m => m.Template5Component)
   },
   {
-    path: 'cbg',
-    loadComponent: () => import('./cbg/cbg.component').then(m => m.CbgComponent)
+    path: 'cgb',
+    loadComponent: () => import('./cgb/cgb.component').then(m => m.CgbComponent)
+  },
+  {
+    path: 'roleaccess',
+    loadComponent: () => import('./roleaccess/roleaccess.component').then(m => m.RoleaccessComponent)
+  },
+  {
+    path: 'usermanagement',
+    loadComponent: () => import('./usermanagement/usermanagement.component').then(m => m.UsermanagementComponent)
+  },
+  {
+    path: 'userdetails',
+    loadComponent: () => import('./userdetails/userdetails.component').then(m => m.UserdetailsComponent)
   },
 ];

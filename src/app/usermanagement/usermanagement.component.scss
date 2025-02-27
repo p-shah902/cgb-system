@@ -1,0 +1,70 @@
+.page-card-div {
+  padding: 20px;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  background-color: #ffffff;
+  .approach-table {
+    thead {
+      tr {
+        th {
+          padding: 15px;
+          font-weight: 500;
+          background-color: #F8F9FB;
+        }
+      }
+    }
+    tbody {
+      tr {
+        td {
+          padding: 10px 15px;
+          vertical-align: middle;
+        }
+      }
+      tr:nth-child(even) {
+        td {
+          background-color: #F8F9FB;
+        }
+      }
+    }
+  }
+  .edit-btb-div {
+    .btn {
+      background-color: #E6EFFC;
+      width: 44px;
+      height: 44px;
+    }
+  }
+  .ud-img {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    overflow: hidden;
+  }
+  @media screen and (max-width: 991px) {
+    .approach-table {
+      thead {
+        tr {
+          th {
+            padding: 10px;
+            font-size: 12px;
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            padding: 10px;
+            font-size: 12px;
+          }
+        }
+
+      }
+    }
+    .role-btn-div .btn {
+      font-size: 12px;
+    }
+  }
+}
+
