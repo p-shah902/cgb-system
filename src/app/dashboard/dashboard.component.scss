@@ -1,0 +1,42 @@
+.dash-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+
+  /* Frame 80 */
+
+  box-sizing: border-box;
+  padding: 20px;
+  gap: 20px;
+  background: #FFFFFF;
+  border: 1px solid #DCDCDC;
+  box-shadow: 0px 0px 4px rgba(0, 16, 79, 0.12);
+  border-radius: 12px;
+  .dash-icon {
+    padding: 10px;
+    width: 60px;
+    height: 60px;
+    background: #E6EFFC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .dash-detail {
+    p {
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 17px;
+      text-transform: uppercase;
+      color: #626262;
+      margin-bottom: 5px;
+    }
+    h1 {
+      font-weight: 600;
+      font-size: 32px;
+      line-height: 39px;
+      color: #1B202B;
+      margin-bottom: 0;
+    }
+  }
+}

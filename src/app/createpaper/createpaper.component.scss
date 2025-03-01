@@ -1,0 +1,106 @@
+.form-main-div {
+  .form-body {
+    .fb-title-div {
+      h4 {
+        background-color: transparent;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 22px;
+        color: #1B202B;
+      }
+    }
+    .estimate-div {
+      select {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 120px;
+        border: navajowhite;
+        background-color: #000000;
+        color: #ffffff;
+      }
+    }
+    .attach-list {
+      border: 2px dotted #BABABA;
+      padding: 10px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .attach-group {
+      label {
+        position: absolute;
+        right: 7px;
+        top: 7px;
+        color: #582AA2;
+        background-color: #E6EFFC;
+        padding: 8px 15px;
+        border-radius: 6px;
+      }
+    }
+
+    .psa-group {
+      .btn {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+      }
+    }
+    .document-attachment {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      .attach-thumb {
+        border: 1px solid #BABABA;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        p {
+          font-size: 14px;
+          line-height: 17px;
+          color: #1B202B;
+        }
+      }
+      .drag-drop {
+        border: 1px dashed #DCDCDC;
+        padding: 10px;
+        border-radius: 8px;
+        h4 {
+          font-weight: 600;
+          font-size: 16px;
+          line-height: 19px;
+          color: #1B202B;
+        }
+        label {
+          color: #582AA2;
+          background-color: #E6EFFC;
+          padding: 8px 15px;
+          border-radius: 6px;
+        }
+        p {
+
+          font-size: 14px;
+          line-height: 17px;
+          color: #1B202B;
+        }
+      }
+      @media screen and (max-width: 991px) {
+        .attach-thumb {
+          p {
+            font-size: 12px;
+          }
+        }
+        .drag-drop {
+          h4 {
+            font-size: 14px;
+          }
+          label {
+            font-size: 12px;
+          }
+          p {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}

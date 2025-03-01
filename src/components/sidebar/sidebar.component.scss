@@ -14,14 +14,14 @@
     position: fixed;
     left: 0;
     top: 0;
-  
+
     height: 100vh;
     transition: 0.3s;
-  
+
     width: 60px;
     &.expanded {
-      width: 150px;
-  
+      width: 300px;
+
       .header {
         h1 {
           margin-left: 0px;
@@ -37,7 +37,8 @@
         .link {
           .content {
             .title {
-              max-width: 100px;
+              max-width: 100%;
+              font-size: 14px;
             }
             .icon {
               margin-right: 3px;
@@ -45,65 +46,74 @@
           }
           .children {
             .content {
-              padding-left: 30px;
+              padding-left: 35px;
             }
           }
         }
       }
     }
-  
-    background: #1d1e2c;
-    color: #6d6e7e;
-  
+
+    background: #ffffff;
+    color: #626262;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.1);
     .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px;
-  
-      background: #0f1017;
-  
+      position: relative;
+      padding: 20px;
+      height: auto;
+      border-bottom: 1px solid #DCDCDC;
       h1 {
         font-size: 20px;
         color: #6d6e7e;
         margin: 0;
         flex: 1;
         transition: 0.3s;
-  
+
         margin-left: -100px;
       }
-  
+
       .chevron {
         color: #6d6e7e;
         cursor: pointer;
         transition: 0.3s;
         margin-left: -25px;
-  
+
         padding: 10px;
         min-width: 20px;
         height: 20px;
         display: block;
         text-align: center;
-  
+
         &::before {
           transition: 0.3s;
           transform: rotate(45deg);
         }
-  
+
         &:hover {
           color: white;
         }
       }
     }
-  
+
     .content {
+      padding: 15px;
       .link {
         .children {
+          position: relative;
+          &:after {
+            content: "";
+            width: 1px;
+            height: 100%;
+            background-color: #EEEEEE;
+            position: absolute;
+            left: 23px;
+            top: 0;
+          }
+
           .content {
-            background: #27283a;
+            background: #ffffff;
             // padding-left: 30px;
             padding-left: 10px;
-  
+
             &.active {
               background: #191a27;
             }
@@ -112,30 +122,32 @@
         .content {
           display: flex;
           align-items: center;
-          justify-content: center;
-          padding: 10px;
-  
+          justify-content: start;
+          padding: 15px 10px;
           cursor: pointer;
-  
           transition: 0.3s;
-  
+          border-radius: 12px;
           &:hover {
-            background: #0f1017;
+            background: #E6EFFC;
             .title {
-              color: white;
+              color: #1B202B;
             }
             svg {
-              fill: white;
+              stroke: #1B202B;
             }
           }
-  
+          .arrow.open {
+            transform: rotate(180deg);
+            transition: 0.2s;
+          }
+
           &.active {
             background: #0f1017;
             .title {
               color: white;
             }
           }
-  
+
           .icon {
             flex: 0 0 30px;
             display: flex;
@@ -145,14 +157,13 @@
           }
           .title {
             flex: 1;
-            // display: none;
             color: #6d6e7e;
             transition: 0.3s;
-            max-width: 0px;
+            max-width: 0;
             overflow: hidden;
+            font-weight: 500;
           }
         }
       }
     }
   }
-  

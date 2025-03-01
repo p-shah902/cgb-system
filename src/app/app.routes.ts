@@ -2,6 +2,9 @@ import { Routes } from '@angular/router';
 import {RoleaccessComponent} from './roleaccess/roleaccess.component';
 import {UsermanagementComponent} from './usermanagement/usermanagement.component';
 import {UserdetailsComponent} from './userdetails/userdetails.component';
+import {CreatepaperComponent} from './createpaper/createpaper.component';
+import {PreviewComponent} from './preview/preview.component';
+import {DashboardComponent} from './dashboard/dashboard.component';
 
 export const routes: Routes = [
   {
@@ -40,4 +43,25 @@ export const routes: Routes = [
     path: 'userdetails',
     loadComponent: () => import('./userdetails/userdetails.component').then(m => m.UserdetailsComponent)
   },
+  {
+    path: 'inboxoutbox',
+    loadComponent: () => import('./inboxoutbox/inboxoutbox.component').then(m => m.InboxoutboxComponent)
+  },
+  {
+    path: 'paperconfiguration',
+    loadComponent: () => import('./paperconfiguration/paperconfiguration.component').then(m => m.PaperconfigurationComponent)
+  },
+  {
+    path: 'createpaper',
+    loadComponent: () => import('./createpaper/createpaper.component').then(m => m.CreatepaperComponent)
+  },
+  {
+    path: 'preview',
+    loadComponent: () => import('./preview/preview.component').then(m => m.PreviewComponent)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
+  },
+
 ];
