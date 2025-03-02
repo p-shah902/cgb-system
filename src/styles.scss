@@ -490,7 +490,7 @@ body .form-control {
   width: 44px;
   height: 44px;
   position: relative;
-  border: 2px solid #DCDCDC;
+  border: 3px solid #DCDCDC;
   border-radius: 50%;
   padding: 0;
   display: flex;
@@ -510,6 +510,30 @@ body .form-control {
   }
   &:after {
     display: none;
+  }
+}
+.language-head-dropdown {
+  .btn {
+    height: 44px;
+    position: relative;
+    border: 3px solid #DCDCDC;
+    border-radius: 30px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.profile-dropdown-detail {
+  .profile-img {
+    border: 3px solid #DCDCDC;
+    border-radius: 50%;
+    overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
   }
 }
 .profile-dropdown-detail div span {
@@ -548,6 +572,9 @@ body .form-control {
   font-size: 24px;
   margin-bottom: 0;
   border-radius: 0;
+  border-bottom: 1px solid #DCDCDC;
+  padding: 12px 0;
+  height: 70px;
 }
 #navbar-wrapper .navbar a {
   color: #757575;
@@ -742,7 +769,7 @@ body .form-control {
   svg {
     position: absolute;
     left: 13px;
-    top: 7px;
+    top: 13px;
   }
   input {
     padding-left: 50px;

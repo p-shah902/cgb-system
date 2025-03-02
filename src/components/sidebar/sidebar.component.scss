@@ -10,6 +10,7 @@
     vertical-align: top;
     width: 0.35em;
   }
+
   .sidebar {
     position: fixed;
     left: 0;
@@ -17,8 +18,8 @@
 
     height: 100vh;
     transition: 0.3s;
-
-    width: 60px;
+    z-index: 99;
+    width: 70px;
     &.expanded {
       width: 300px;
 
@@ -39,6 +40,7 @@
             .title {
               max-width: 100%;
               font-size: 14px;
+              display: block;
             }
             .icon {
               margin-right: 3px;
@@ -59,8 +61,8 @@
     .header {
       position: relative;
       padding: 20px;
-      height: auto;
       border-bottom: 1px solid #DCDCDC;
+      height: 70px;
       h1 {
         font-size: 20px;
         color: #6d6e7e;
@@ -95,7 +97,7 @@
     }
 
     .content {
-      padding: 15px;
+      padding: 15px 0;
       .link {
         .children {
           position: relative;
@@ -165,5 +167,14 @@
           }
         }
       }
+      .title {
+        display: none;
+      }
     }
   }
+.expanded {
+  .content {
+    padding: 15px;
+
+  }
+}
