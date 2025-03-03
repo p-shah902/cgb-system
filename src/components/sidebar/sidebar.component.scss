@@ -20,6 +20,7 @@
     transition: 0.3s;
     z-index: 99;
     width: 70px;
+    overflow: auto;
     &.expanded {
       width: 300px;
 

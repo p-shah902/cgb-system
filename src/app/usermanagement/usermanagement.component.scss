@@ -42,6 +42,32 @@
     background-color: #ffffff;
     overflow: hidden;
   }
+  .user-action-dropdown {
+    .dropdown-toggle {
+      &:after {
+        display: none;
+      }
+    }
+    .action-menu {
+      padding: 10px;
+      background: #FFFFFF;
+      border-right: 1px solid #DCDCDC;
+      box-shadow: 0px 0px 4px rgba(0, 16, 79, 0.12);
+      border-radius: 8px;
+      left: auto;
+      right: 0;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+      min-width: 107px;
+      .links {
+        background-color: #F0F0F0;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+    }
+  }
   @media screen and (max-width: 991px) {
     .approach-table {
       thead {
