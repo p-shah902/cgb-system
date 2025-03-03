@@ -923,6 +923,54 @@ hr {
 .main-content.expanded {
   padding-left: 300px;
 }
+.custom-modal {
+  width: 100%!important;
+  max-width: 735px;
+  .modal-content {
+    padding: 10px 20px;
+    .modal-header {
+      border-bottom: 1px solid #DCDCDC;
+      padding: 15px 0;
+      h4 {
+        font-weight: 600;
+        font-size: 24px;
+        line-height: 120%;
+        color: #1B202B;
+      }
+    }
+    .modal-body {
+      padding: 15px 0;
+      .permission-div {
+        table {
+          thead {
+            th {
+              font-weight: 400;
+              font-size: 16px;
+              padding:  5px 0;
+            }
+          }
+          tbody {
+            td {
+              font-weight: 400;
+              font-size: 14px;
+              padding:  10px 0;
+            }
+          }
+        }
+      }
+    }
+
+    .modal-footer {
+      .btn {
+        min-width: 120px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+
+}
 @media (min-width: 992px) {
   #sidebar-wrapper {
     width: 300px;
@@ -1029,6 +1077,15 @@ hr {
 }
 
 
+@media screen and (max-width: 1023px) {
+  .main-content.expanded {
+    padding-left: 80px;
+
+  }
+  .main-content {
+    padding-left: 250px;
+  }
+}
 @media screen and (max-width: 991px) {
   .form-group {
     label {

@@ -68,6 +68,23 @@
       }
     }
   }
+  .approach-table {
+    thead {
+      tr {
+        th {
+          font-size: 14px;
+        }
+      }
+    }
+    tbody {
+      tr {
+        td {
+          font-size: 14px;
+        }
+      }
+
+    }
+  }
   @media screen and (max-width: 991px) {
     .approach-table {
       thead {

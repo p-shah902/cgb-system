@@ -185,3 +185,58 @@
 
   }
 }
+
+@media screen and (max-width: 1023px) {
+  .sidebar.expanded {
+    width: 80px;
+    .header {
+      svg {
+        display: none;
+      }
+      .btn {
+        svg {
+          display: block;
+        }
+      }
+    }
+    .content {
+
+      .link {
+        .content {
+          padding: 15px 0;
+          .title {
+            display: none;
+          }
+        }
+
+      }
+    }
+  }
+
+  .sidebar {
+    width: 250px;
+    .content {
+      .link {
+        .content {
+          .title {
+            display: block;
+            max-width: 100%;
+            font-size: 13px;
+          }
+
+        }
+        .children {
+          .content {
+            padding-left: 35px;
+          }
+        }
+
+      }
+
+    }
+  }
+
+
+
+
+}
