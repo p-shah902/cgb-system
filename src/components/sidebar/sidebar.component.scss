@@ -99,6 +99,7 @@
     .content {
       padding: 15px 0;
       .link {
+        text-decoration: none;
         .children {
           position: relative;
           &:after {
@@ -169,6 +170,11 @@
       }
       .title {
         display: none;
+      }
+      .arrow {
+        svg {
+          width: 12px;
+        }
       }
     }
   }
