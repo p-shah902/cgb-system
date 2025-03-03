@@ -37,7 +37,9 @@ select {
   background-position: right 15px center;
   background-repeat: no-repeat;
 }
-
+a {
+  text-decoration: none;
+}
 .radio-box {
   input {
     position: absolute;
@@ -196,6 +198,8 @@ select {
   }
   .form-body {
     border: 1px solid #DCDCDC;
+    border-radius: 12px;
+    overflow: hidden;
     .cost-table-div {
       td {
         input {
@@ -404,7 +408,8 @@ select {
         }
         .paper-id {
           p {
-            width: 200px;
+            width: 100%;
+            margin: 0;
           }
         }
       }
@@ -762,7 +767,13 @@ body .form-control {
     border-color: #DCDCDC;
     background-color: #F2F2F2;
   }
-
+  div {
+    display: block;
+    width: 100%;
+  }
+}
+.cgb-td {
+  width: 185px;
 }
 .cgb-vote {
   background-color: #ffffff;
@@ -772,6 +783,10 @@ body .form-control {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  font-size: 14px;
+  .btn {
+    font-size: 14px;
+  }
 }
 .fh-search {
   position: relative;

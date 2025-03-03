@@ -15,72 +15,91 @@
                 EN
               </button>
             </div>
-            <div class="btn-group pull-right top-head-dropdown">
-              <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div ngbDropdown class="btn-group pull-right top-head-dropdown">
+              <button type="button" class="btn btn-default dropdown-toggle" ngbDropdownToggle>
                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M16.2499 20.5834C16.2499 22.3783 14.7949 23.8334 12.9999 23.8334C11.205 23.8334 9.74994 22.3783 9.74994 20.5834M14.9462 6.75852C15.4179 6.27111 15.7083 5.607 15.7083 4.87508C15.7083 3.37931 14.4957 2.16675 12.9999 2.16675C11.5042 2.16675 10.2916 3.37931 10.2916 4.87508C10.2916 5.607 10.5819 6.27111 11.0537 6.75852M19.4999 12.1334C19.4999 10.6394 18.8151 9.2065 17.5961 8.15005C16.3772 7.09359 14.7238 6.50008 12.9999 6.50008C11.276 6.50008 9.62273 7.09359 8.40375 8.15005C7.18476 9.2065 6.49994 10.6394 6.49994 12.1334C6.49994 14.6054 5.88692 16.4132 5.12201 17.7068C4.25022 19.1812 3.81433 19.9184 3.83155 20.0944C3.85124 20.2959 3.8875 20.3595 4.05089 20.479C4.19371 20.5834 4.91124 20.5834 6.34631 20.5834H19.6536C21.0886 20.5834 21.8062 20.5834 21.949 20.479C22.1124 20.3595 22.1486 20.2959 22.1683 20.0944C22.1856 19.9184 21.7497 19.1812 20.8779 17.7068C20.113 16.4132 19.4999 14.6054 19.4999 12.1334Z" stroke="#151515" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span class="nt-cunt">10</span>
               </button>
-              <ul class="dropdown-menu dropdown-menu-right">
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">You have <b>3 new themes</b> trending</div>
-                    <div class="top-text-light">15 minutes ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">New asset recommendations in <b>Gaming Laptop</b></div>
-                    <div class="top-text-light">2 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">New asset recommendations in <b>5 themes</b></div>
-                    <div class="top-text-light">4 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">Assets specifications modified in themes</div>
-                    <div class="top-text-light">4 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">We crawled <b>www.dell.com</b> successfully</div>
-                    <div class="top-text-light">5 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">Next crawl scheduled on <b>10 Oct 2016</b></div>
-                    <div class="top-text-light">6 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">You have an update for <b>www.dell.com</b></div>
-                    <div class="top-text-light">7 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading"><b>"Gaming Laptop"</b> is now trending</div>
-                    <div class="top-text-light">7 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="top-text-block">
-                    <div class="top-text-heading">New asset recommendations in <b>Gaming Laptop</b></div>
-                    <div class="top-text-light">7 hours ago</div>
-                  </a>
-                </li>
-                <li>
-                  <div class="loader-topbar"></div>
-                </li>
-              </ul>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu dropdown-menu-right nty-dropdown-div">
+                <div class="nty-head">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="m-0">Notification</h4>
+                    <button class="btn p-0 w-auto border-0 text-decoration-underline">
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+                <div class="nty-body">
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+                      <span class="unread">
+
+                      </span>
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+                      <span class="unread">
+
+                      </span>
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                </div>
+                <div class="nty-foot">
+                  <button class="btn p-0 border-0 w-100 m-0">View All</button>
+                </div>
+
+
+              </div>
             </div>
             <div class="dropdown profile-dropdown">
               <div class="profile-dropdown-detail">
@@ -93,6 +112,7 @@
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>

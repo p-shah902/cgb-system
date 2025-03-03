@@ -1,0 +1,72 @@
+.nty-dropdown-div {
+  width: 370px;
+  right: 0;
+  left: auto;
+  background: #FFFFFF;
+  box-shadow: 0px 0px 4px rgba(0, 16, 79, 0.12);
+  border-radius: 12px;
+  padding: 15px;
+  .nty-head {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #DCDCDC;
+    h4 {
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 22px;
+      color: #1B202B;
+    }
+    .btn {
+      font-size: 14px;
+      line-height: 17px;
+      color: #1B202B;
+    }
+  }
+  .nty-body {
+    max-height: 300px;
+    overflow: auto;
+    .top-text-block {
+      position: relative;
+      padding-right: 15px;
+      margin-bottom: 15px;
+      a {
+        text-decoration: none;
+        .top-text-heading {
+          font-size: 16px;
+          line-height: 19px;
+          color: #1B202B;
+          margin-bottom: 5px;
+        }
+        .top-text-light {
+          font-weight: 400;
+          font-size: 12px;
+          line-height: 15px;
+          color: #626262;
+        }
+        .unread {
+          width: 10px;
+          height: 10px;
+          background-color: #582AA2;
+          display: block;
+          border-radius: 50%;
+          position: absolute;
+          top: 0;
+          right: 10px;
+        }
+      }
+
+    }
+  }
+  .nty-foot {
+    border-top: 1px solid #DCDCDC;
+    padding-top: 10px;
+    .btn {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 19px;
+      align-items: center;
+      text-decoration-line: underline;
+      color: #582AA2;
+      text-align: center;
+    }
+  }
+}
