@@ -5,6 +5,9 @@ import {UserdetailsComponent} from './userdetails/userdetails.component';
 import {CreatepaperComponent} from './createpaper/createpaper.component';
 import {PreviewComponent} from './preview/preview.component';
 import {DashboardComponent} from './dashboard/dashboard.component';
+import {PaperStatusComponent} from './paper-status/paper-status.component';
+import {ApprovePaperComponent} from './approve-paper/approve-paper.component';
+import {ApproveRequestComponent} from './approve-request/approve-request.component';
 
 export const routes: Routes = [
   {
@@ -62,6 +65,14 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
+  },
+  {
+    path: 'paper-status',
+    loadComponent: () => import('./paper-status/paper-status.component').then(m => m.PaperStatusComponent)
+  },
+{
+    path: 'approve-request',
+    loadComponent: () => import('./approve-request/approve-request.component').then(m => m.ApproveRequestComponent)
   },
 
 ];

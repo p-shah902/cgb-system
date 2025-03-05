@@ -487,19 +487,8 @@ body .form-control {
   }
 }
 
-.profile-dropdown-detail {
-  display: flex;
-  gap: 15px;
-  text-align: left;
-  align-items: center;
-}
-.profile-dropdown-detail div p {
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 22px;
-  color: #1B202B;
-  margin-bottom: 0;
-}
+
+
 .top-head-dropdown .btn {
   width: 44px;
   height: 44px;
@@ -538,28 +527,8 @@ body .form-control {
     justify-content: center;
   }
 }
-.profile-dropdown-detail {
-  .profile-img {
-    border: 3px solid #DCDCDC;
-    border-radius: 50%;
-    overflow: hidden;
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
-    overflow: hidden;
-    img {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-  }
-}
-.profile-dropdown-detail div span {
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 17px;
-  color: #626262;
-}
+
+
 .sidebar-nav > li > a:hover, .sidebar-nav > li.active > a {
   text-decoration: none;
   color: var(--primary-color);
@@ -609,35 +578,7 @@ body .form-control {
   position: absolute;
   margin-right: -250px;
 }
-.smd-box h6 {
-  font-size: 14px;
-  line-height: 16px;
-  color: var(--gray-color2);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.smd-box {
-  padding: 15px;
-}
-.toggled .smd-box {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-.toggled .smd-box span{
-  display: none;
-}
-.toggled .sidebar-nav > li a {
-  justify-content: center;
-}
-.toggled .smd-box h6 {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.sidebar-menu-div {
-  overflow: auto;
-  height: 90vh;
-}
+
 #sidebar-toggle {
   position: relative;
   right: 0;
@@ -653,18 +594,11 @@ body .form-control {
   z-index: 99;
   top: 0;
 }
-.toggled #sidebar-toggle {
-  transform: rotate(180deg);
-}
+
 .lg-small {
   display: none;
 }
-.toggled .lg-large {
-  display: none;
-}
-.toggled .lg-small {
-  display: block;
-}
+
 .navbar-search .form-control {
   //background-image: url("../images/search-icon.svg");
   background-repeat: no-repeat;
@@ -694,47 +628,60 @@ body .form-control {
 .wt-li-line {
   color: var(--border-color);
 }
+
 .profile-dropdown-detail {
   display: flex;
   gap: 15px;
   text-align: left;
+  align-items: center;
+  div {
+    p {
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 22px;
+      color: #1B202B;
+      margin-bottom: 0;
+    }
+    span {
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 17px;
+      color: #626262;
+    }
+  }
+  .profile-img {
+    border: 3px solid #DCDCDC;
+    border-radius: 50%;
+    overflow: hidden;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  }
 }
-.profile-dropdown-detail div p {
-  font-weight: bold;
-  font-size: 15px;
-}
-.profile-dropdown-detail div span {
-  font-size: 13px;
-  color: var(--gray-color);
-  display: block;
-}
+
 .profile-dropdown button {
   padding: 0;
   box-shadow: none;
   display: flex;
   align-items: center;
 }
-.profile-dropdown .dropdown-menu li .dropdown-item {
-  display: flex;
-  gap: 10px;
-}
-.profile-dropdown .dropdown-menu li .dropdown-item div b {
-  display: block;
-  color: var(--body-color);
-  font-size: 14px;
-}
-.profile-dropdown .dropdown-menu li .dropdown-item div span {
-  display: block;
-  font-size: 14px;
-}
+
 .navbar-profile-div {
   display: flex;
   gap: 15px;
   align-items: center;
 }
-.profile-dropdown .dropdown-menu {
-  right: 0;
-  left: auto;
+.profile-dropdown {
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+  }
 }
 /* Sidebar Css End */
 
@@ -801,6 +748,12 @@ body .form-control {
   }
   input {
     padding-left: 50px;
+  }
+}
+.filter-btn-div {
+  .btn {
+    height: 47px;
+    background-color: #ffffff;
   }
 }
 .btn-outline-secondary {
@@ -976,7 +929,15 @@ hr {
     width: 300px;
   }
 }
+@media screen and (max-width: 1023px) {
+  .main-content.expanded {
+    padding-left: 80px;
 
+  }
+  .main-content {
+    padding-left: 250px;
+  }
+}
 @media screen and (max-width: 991px) {
   .form-header {
     .fh-title {
@@ -1074,19 +1035,6 @@ hr {
       }
     }
   }
-}
-
-
-@media screen and (max-width: 1023px) {
-  .main-content.expanded {
-    padding-left: 80px;
-
-  }
-  .main-content {
-    padding-left: 250px;
-  }
-}
-@media screen and (max-width: 991px) {
   .form-group {
     label {
       font-size: 12px;
@@ -1099,6 +1047,11 @@ hr {
     .ff-btn-list .btn {
       padding: 12px 15px;
       font-size: 12px;
+    }
+  }
+  .profile-dropdown-detail {
+    .text-start {
+      display: none;
     }
   }
 }

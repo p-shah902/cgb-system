@@ -133,3 +133,38 @@
     }
   }
 }
+
+@media screen and (max-width: 991px) {
+  .nty-dropdown-div {
+    width: 300px;
+    right: -110px;
+    left: auto;
+    padding: 10px;
+    .nty-head {
+      h4 {
+        font-size: 14px;
+      }
+      .btn {
+        font-size: 12px;
+      }
+    }
+    .nty-body {
+      .top-text-block {
+        a {
+          .top-text-heading {
+            font-size: 14px;
+          }
+          .top-text-light {
+            font-size: 12px;
+          }
+        }
+
+      }
+    }
+    .nty-foot {
+      .btn {
+        font-size: 14px;
+      }
+    }
+  }
+}
