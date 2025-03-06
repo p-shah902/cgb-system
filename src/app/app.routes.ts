@@ -8,6 +8,8 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 import {PaperStatusComponent} from './paper-status/paper-status.component';
 import {ApprovePaperComponent} from './approve-paper/approve-paper.component';
 import {ApproveRequestComponent} from './approve-request/approve-request.component';
+import {LoginComponent} from './login/login.component';
+import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
 
 export const routes: Routes = [
   {
@@ -74,5 +76,12 @@ export const routes: Routes = [
     path: 'approve-request',
     loadComponent: () => import('./approve-request/approve-request.component').then(m => m.ApproveRequestComponent)
   },
-
+  {
+    path: 'login',
+    loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
 ];
