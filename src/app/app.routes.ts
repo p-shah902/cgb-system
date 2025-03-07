@@ -13,23 +13,23 @@ import {ForgotPasswordComponent} from './forgot-password/forgot-password.compone
 
 export const routes: Routes = [
   {
-    path: 'template1',
+    path: 'approach-to-market',
     loadComponent: () => import('./template1/template1.component').then(m => m.Template1Component)
   },
   {
-    path: 'template2',
+    path: 'contract-award',
     loadComponent: () => import('./template2/template2.component').then(m => m.Template2Component)
   },
   {
-    path: 'template3',
+    path: 'contract-variation-or-amendment-approval',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component)
   },
   {
-    path: 'template4',
+    path: 'approval-of-sale-disposal-form',
     loadComponent: () => import('./template4/template4.component').then(m => m.Template4Component)
   },
   {
-    path: 'template5',
+    path: 'info-note',
     loadComponent: () => import('./template5/template5.component').then(m => m.Template5Component)
   },
   {
@@ -72,7 +72,7 @@ export const routes: Routes = [
     path: 'paper-status',
     loadComponent: () => import('./paper-status/paper-status.component').then(m => m.PaperStatusComponent)
   },
-{
+  {
     path: 'approve-request',
     loadComponent: () => import('./approve-request/approve-request.component').then(m => m.ApproveRequestComponent)
   },
