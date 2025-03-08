@@ -31,11 +31,11 @@ export class HeaderComponent implements OnInit {
   formatTitle(url: string): string {
     const segments = url.split('/').filter(segment => segment);
     let formatted = segments[segments.length - 1]
-      .replace(/-/g, ' ')
-      .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      ?.replace(/-/g, ' ')
+      ?.toLowerCase()
+      ?.split(' ')
+      ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      ?.join(' ');
     return formatted;
   }
 }
