@@ -1,13 +1,11 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-md-8">
+    <div [ngClass]="isExpanded ? 'col-md-8' : 'col-md-12'">
       <div class="form-main-div">
         <div class="form-header mb-4">
           <div class="row align-items-center">
             <div class="col-md-6">
               <div class="d-flex gap-3 align-items-center">
-
-
                 <div class="form-group mb-3 mb-sm-3 mb-md-0">
                   <select class="form-control">
                     <option>1. General Information</option>
@@ -17,14 +15,8 @@
                     <option>5. Cost Sharing Methodology</option>
                     <option>6. Consultation</option>
                     <option>7. Attachments</option>
-
                   </select>
                 </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="fh-action d-flex gap-3 justify-content-end">
                 <div class="fh-search">
                   <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -34,6 +26,12 @@
 
                   <input class="form-control" placeholder="Search Field" />
                 </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="fh-action d-flex gap-3 justify-content-end">
+
                 <button class="btn btn-light" (click)="openModal()">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -50,7 +48,11 @@
                   </svg>
                   Export
                 </button>
+                <button class="btn btn-toggle" (click)="toggleComments()">
+                  {{ isExpanded ? 'Hide Comments' : 'Show Comments' }}
+                </button>
               </div>
+
             </div>
           </div>
         </div>
@@ -1305,12 +1307,12 @@
       </div>
     </div>
     <div class="col-md-4">
-      <div class="form-main-div">
+      <div class="form-main-div" *ngIf="isExpanded">
         <div class="form-header mb-4">
           <div class="row align-items-center">
             <div class="col-md-12">
-              <div class="fh-title">
-                <h3>Comments</h3>
+              <div class="fh-title d-flex justify-content-between align-items-center">
+                <h3> Comments</h3>
               </div>
             </div>
           </div>
@@ -1323,42 +1325,15 @@
             <div class="vb-detail">
               <h6>Martin Gurly <span>(Secretary)</span></h6>
               <p>
-                the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever
-                since the 1500s, when an unknown printer took a galley of type and scrambled
+                The printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever
+                since the 1500s.
               </p>
               <small>29 Min Ago</small>
             </div>
           </div>
-          <div class="visitor-box mb-3">
-            <div class="vb-img">
-              <img src="/img/visitor.png" alt="visitor" class="img-fluid">
-            </div>
-            <div class="vb-detail">
-              <h6>Martin Gurly <span>(Secretary)</span></h6>
-              <p>
-                the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever
-                since the 1500s, when an unknown printer took a galley of type and scrambled
-              </p>
-              <small>29 Min Ago</small>
-            </div>
-          </div>
-          <div class="visitor-box mb-3">
-            <div class="vb-img">
-              <img src="/img/visitor.png" alt="visitor" class="img-fluid">
-            </div>
-            <div class="vb-detail">
-              <h6>Martin Gurly <span>(Secretary)</span></h6>
-              <p>
-                the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever
-                since the 1500s, when an unknown printer took a galley of type and scrambled
-              </p>
-              <small>29 Min Ago</small>
-            </div>
-          </div>
+
           <div class="chat-input-group position-relative">
             <textarea class="form-control" placeholder="Write comment here"></textarea>
-
-
             <button class="btn">
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -1371,7 +1346,6 @@
             </button>
           </div>
         </div>
-
       </div>
     </div>
   </div>

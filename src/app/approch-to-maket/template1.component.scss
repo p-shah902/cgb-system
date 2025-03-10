@@ -10,6 +10,19 @@
   overflow: auto;
 }
 
+.btn-toggle {
+  background: #582AA2;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn-toggle:hover {
+  background: #451c82;
+}
+
 .document-attachment {
   display: flex;
   gap: 20px;
@@ -54,6 +67,8 @@
       color: #1B202B;
     }
   }
+
+
 
   @media screen and (max-width: 991px) {
     .attach-thumb {

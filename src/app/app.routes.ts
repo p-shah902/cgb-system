@@ -14,7 +14,7 @@ import {ForgotPasswordComponent} from './forgot-password/forgot-password.compone
 export const routes: Routes = [
   {
     path: 'approach-to-market',
-    loadComponent: () => import('./template1/template1.component').then(m => m.Template1Component)
+    loadComponent: () => import('./approch-to-maket/template1.component').then(m => m.Template1Component)
   },
   {
     path: 'contract-award',

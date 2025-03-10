@@ -65,23 +65,13 @@ export class Template1Component {
   constructor() {
     console.log("Editor instance: ", this.Editor);
   }
-  isCollapsed = false; // Controls the collapse state
+  isExpanded: boolean = true; // Default expanded
 
-  visitors = [
-    {
-      name: 'Martin Gurly',
-      role: 'Secretary',
-      message: 'The printing and typesetting industry. Lorem Ipsum has been the standard dummy text...',
-      timeAgo: '29 Min Ago'
-    },
-    {
-      name: 'John Doe',
-      role: 'Manager',
-      message: 'Lorem Ipsum has been used since the 1500s...',
-      timeAgo: '45 Min Ago'
-    }
-  ];
+  toggleComments() {
+    this.isExpanded = !this.isExpanded;
+  }
 
+  
   openModal() {
     const modalRef = this._mdlSvc.open(DummyCompComponent);
     modalRef.result.then((result) => {
