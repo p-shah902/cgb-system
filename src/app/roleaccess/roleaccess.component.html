@@ -6,7 +6,7 @@
           <div class="row align-items-center">
             <div class="col-6">
               <div class="fh-title">
-                <h3>Approach to Market</h3>
+                <h3>Role Access</h3>
               </div>
 
             </div>
@@ -25,7 +25,7 @@
           </div>
         </div>
         <div class="page-card-body">
-          <div class="table-responsive">
+          <!--<div class="table-responsive">
             <div class="approach-table custom-table">
               <table class="table">
                 <thead>
@@ -263,7 +263,736 @@
               </table>
 
             </div>
+          </div>-->
+          <div class="role-access-table">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+              <thead>
+                <tr>
+                  <th width="28%">
+                    <small>Roles</small>
+                  </th>
+                  <th width="12%">
+                    <small>Roles</small>
+                    System Admin
+                  </th>
+                  <th width="12%">
+                    <small>Roles</small>
+                    CAM
+                  </th>
+                  <th width="12%">
+                    <small>Roles</small>
+                    Pre-CGB Member
+                  </th>
+                  <th width="12%">
+                    <small>Roles</small>
+                    Partner
+                  </th>
+                  <th width="12%">
+                    <small>Roles</small>
+                    New Role
+                  </th>
+                  <th class="text-end" width="12%">
+                    <div class="pe-3">
+                    Edit
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td class="p-0" colspan="7">
+                  <div class="custom-accordion" ngbAccordion>
+                    <div ngbAccordionItem [collapsed]="false">
+                      <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
 
+                          Paper
+
+                        </button>
+                        <button class="btn btn-edit">
+                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="5.81818" fill="#F1EBFA"/>
+                            <rect x="0.363636" y="0.363636" width="31.2727" height="31.2727" rx="5.45455" stroke="#1B202B" stroke-opacity="0.5" stroke-width="0.727273"/>
+                            <path d="M18.5009 10.4551L17.3665 11.5895L20.4134 14.6363L21.5477 13.502C22.1337 12.916 22.1337 11.9668 21.5477 11.3809L20.6243 10.4551C20.0384 9.86914 19.0891 9.86914 18.5032 10.4551H18.5009ZM16.8368 12.1191L11.3735 17.5848C11.1298 17.8285 10.9516 18.1309 10.8532 18.4613L10.0235 21.2809C9.96493 21.4801 10.0188 21.6934 10.1641 21.8387C10.3095 21.984 10.5227 22.0379 10.7196 21.9816L13.5391 21.152C13.8696 21.0535 14.172 20.8754 14.4157 20.6316L19.8837 15.166L16.8368 12.1191Z" stroke="#0C0C0C" stroke-width="1.02857"/>
+                          </svg>
+
+                        </button>
+                      </h2>
+                      <div ngbAccordionCollapse>
+                        <div ngbAccordionBody class="p-0">
+                          <ng-template>
+                            <table class="table table-borderless">
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    All Access</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    General Information </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    Procurement Details</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    Supplier Award Recommendation</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    Cost Allocation and JV Approval</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    Cost Sharing Methodology</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    Consultation</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+                            </table>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-0" colspan="7">
+                  <div class="custom-accordion" ngbAccordion>
+                    <div ngbAccordionItem [collapsed]="false">
+                      <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                          User Management
+                        </button>
+                        <button class="btn btn-edit">
+                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="5.81818" fill="#F1EBFA"/>
+                            <rect x="0.363636" y="0.363636" width="31.2727" height="31.2727" rx="5.45455" stroke="#1B202B" stroke-opacity="0.5" stroke-width="0.727273"/>
+                            <path d="M18.5009 10.4551L17.3665 11.5895L20.4134 14.6363L21.5477 13.502C22.1337 12.916 22.1337 11.9668 21.5477 11.3809L20.6243 10.4551C20.0384 9.86914 19.0891 9.86914 18.5032 10.4551H18.5009ZM16.8368 12.1191L11.3735 17.5848C11.1298 17.8285 10.9516 18.1309 10.8532 18.4613L10.0235 21.2809C9.96493 21.4801 10.0188 21.6934 10.1641 21.8387C10.3095 21.984 10.5227 22.0379 10.7196 21.9816L13.5391 21.152C13.8696 21.0535 14.172 20.8754 14.4157 20.6316L19.8837 15.166L16.8368 12.1191Z" stroke="#0C0C0C" stroke-width="1.02857"/>
+                          </svg>
+
+                        </button>
+                      </h2>
+                      <div ngbAccordionCollapse>
+                        <div ngbAccordionBody class="p-0">
+                          <ng-template>
+                            <table class="table table-borderless">
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    All Access</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+
+                            </table>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-0" colspan="7">
+                  <div class="custom-accordion" ngbAccordion>
+                    <div ngbAccordionItem [collapsed]="false">
+                      <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                          Vendor Management
+                        </button>
+                        <button class="btn btn-edit">
+                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="5.81818" fill="#F1EBFA"/>
+                            <rect x="0.363636" y="0.363636" width="31.2727" height="31.2727" rx="5.45455" stroke="#1B202B" stroke-opacity="0.5" stroke-width="0.727273"/>
+                            <path d="M18.5009 10.4551L17.3665 11.5895L20.4134 14.6363L21.5477 13.502C22.1337 12.916 22.1337 11.9668 21.5477 11.3809L20.6243 10.4551C20.0384 9.86914 19.0891 9.86914 18.5032 10.4551H18.5009ZM16.8368 12.1191L11.3735 17.5848C11.1298 17.8285 10.9516 18.1309 10.8532 18.4613L10.0235 21.2809C9.96493 21.4801 10.0188 21.6934 10.1641 21.8387C10.3095 21.984 10.5227 22.0379 10.7196 21.9816L13.5391 21.152C13.8696 21.0535 14.172 20.8754 14.4157 20.6316L19.8837 15.166L16.8368 12.1191Z" stroke="#0C0C0C" stroke-width="1.02857"/>
+                          </svg>
+
+                        </button>
+                      </h2>
+                      <div ngbAccordionCollapse>
+                        <div ngbAccordionBody class="p-0">
+                          <ng-template>
+                            <table class="table table-borderless">
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    All Access</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+
+                            </table>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-0" colspan="7">
+                  <div class="custom-accordion" ngbAccordion>
+                    <div ngbAccordionItem [collapsed]="false">
+                      <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                          CGB Management
+                        </button>
+                        <button class="btn btn-edit">
+                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="5.81818" fill="#F1EBFA"/>
+                            <rect x="0.363636" y="0.363636" width="31.2727" height="31.2727" rx="5.45455" stroke="#1B202B" stroke-opacity="0.5" stroke-width="0.727273"/>
+                            <path d="M18.5009 10.4551L17.3665 11.5895L20.4134 14.6363L21.5477 13.502C22.1337 12.916 22.1337 11.9668 21.5477 11.3809L20.6243 10.4551C20.0384 9.86914 19.0891 9.86914 18.5032 10.4551H18.5009ZM16.8368 12.1191L11.3735 17.5848C11.1298 17.8285 10.9516 18.1309 10.8532 18.4613L10.0235 21.2809C9.96493 21.4801 10.0188 21.6934 10.1641 21.8387C10.3095 21.984 10.5227 22.0379 10.7196 21.9816L13.5391 21.152C13.8696 21.0535 14.172 20.8754 14.4157 20.6316L19.8837 15.166L16.8368 12.1191Z" stroke="#0C0C0C" stroke-width="1.02857"/>
+                          </svg>
+
+                        </button>
+                      </h2>
+                      <div ngbAccordionCollapse>
+                        <div ngbAccordionBody class="p-0">
+                          <ng-template>
+                            <table class="table table-borderless">
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    All Access</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+
+                            </table>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-0" colspan="7">
+                  <div class="custom-accordion" ngbAccordion>
+                    <div ngbAccordionItem [collapsed]="false">
+                      <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                          Reporting & Analytics
+                        </button>
+                        <button class="btn btn-edit">
+                          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="5.81818" fill="#F1EBFA"/>
+                            <rect x="0.363636" y="0.363636" width="31.2727" height="31.2727" rx="5.45455" stroke="#1B202B" stroke-opacity="0.5" stroke-width="0.727273"/>
+                            <path d="M18.5009 10.4551L17.3665 11.5895L20.4134 14.6363L21.5477 13.502C22.1337 12.916 22.1337 11.9668 21.5477 11.3809L20.6243 10.4551C20.0384 9.86914 19.0891 9.86914 18.5032 10.4551H18.5009ZM16.8368 12.1191L11.3735 17.5848C11.1298 17.8285 10.9516 18.1309 10.8532 18.4613L10.0235 21.2809C9.96493 21.4801 10.0188 21.6934 10.1641 21.8387C10.3095 21.984 10.5227 22.0379 10.7196 21.9816L13.5391 21.152C13.8696 21.0535 14.172 20.8754 14.4157 20.6316L19.8837 15.166L16.8368 12.1191Z" stroke="#0C0C0C" stroke-width="1.02857"/>
+                          </svg>
+
+                        </button>
+                      </h2>
+                      <div ngbAccordionCollapse>
+                        <div ngbAccordionBody class="p-0">
+                          <ng-template>
+                            <table class="table table-borderless">
+                              <tr>
+                                <td width="28%">
+                                  <div class="ps-5">
+                                    All Access</div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+                                  <div class="form-check-list d-flex gap-3 flex-wrap">
+                                    <div class="form-check-box position-relative">
+                                      <input type="checkbox">
+                                      <label><span class="opacity-0">1</span></label>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td width="12%">
+
+                                </td>
+                              </tr>
+
+                            </table>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            </div>
           </div>
         </div>
       </div>

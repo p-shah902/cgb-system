@@ -1,11 +1,11 @@
 import {Component, inject} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AddNewRoleComponent} from '../add-new-role/add-new-role.component';
-
+import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-roleaccess',
   standalone: true,
-  imports: [],
+  imports: [NgbAccordionModule],
   templateUrl: './roleaccess.component.html',
   styleUrl: './roleaccess.component.scss'
 })
