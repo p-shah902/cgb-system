@@ -1,0 +1,21 @@
+export interface VendorDetail{
+      id: number,
+      vendorName:string,
+      taxId: string,
+      sapId: string,
+      countryId: number,
+      isActive: boolean,
+      contactPerson: string,
+      contactEmail: string,
+      contactPhone: string,
+      avatarPath: string,
+      isCGBRegistered: boolean,
+      approvalStatus: string,
+      createdBy: number,
+      createdDate: string,
+      modifiedBy: number,
+      modifiedDate: string,
+      country: any,
+      createdUser: any,
+      modifiedUser: any
+}
