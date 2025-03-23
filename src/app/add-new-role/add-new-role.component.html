@@ -3,28 +3,32 @@
   <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
 </div>
 <div class="modal-body">
-  <form>
+  <form [formGroup]="roleForm">
     <div class="modal-form">
       <div class="form-group mb-3">
         <label>Role Name</label>
-        <input class="form-control" placeholder="Enter Role Name"/>
+        <input class="form-control" placeholder="Enter Role Name" formControlName="roleName"/>
       </div>
       <div class="form-group mb-3">
         <label>Access to</label>
-        <select class="form-control">
-          <option>Paper</option>
+        <select class="form-control" formControlName="accessTo" multiple>
+          <option *ngFor="let type of accessTypes" [value]="type.typeId">{{type.typeName}}</option>
         </select>
       </div>
-      <div class="form-group mb-3">
+      <div class="form-group mb-3" *ngIf="showSectionDropdown">
         <label>Section</label>
-        <select class="form-control">
+        <select class="form-control" formControlName="section" multiple>
           <option>All Access</option>
+          <option *ngFor="let particular of selectedParticulars" [value]="particular.particularsId">
+            {{particular.particularsName}}
+          </option>
         </select>
       </div>
       <div class="form-group mb-3">
         <label>Action</label>
-        <select class="form-control">
-          <option>Read Only</option>
+        <select class="form-control" formControlName="action">
+          <option value="Read">Read Only</option>
+          <option value="Read Write">Read Write</option>
         </select>
       </div>
       <!--<div class="permission-div">
@@ -172,7 +176,7 @@
       <button class="btn btn-outline-dark" (click)="activeModal.close('Save click')">
         Cancel
       </button>
-      <button class="btn btn-primary">
+      <button class="btn btn-primary" (click)="save()" [disabled]="roleForm.invalid">
         Save
       </button>
     </div>
