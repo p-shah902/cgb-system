@@ -10,11 +10,13 @@
     <div class="lf-form">
       <div class="form-group mb-3">
         <label>Email address</label>
-        <input type="email" class="form-control" placeholder="Enter email address"/>
+        <input type="email" class="form-control" placeholder="Enter email address" 
+        [(ngModel)]="email" (ngModelChange)="onEmailChange()"/>
       </div>
       <div class="form-group mb-3">
         <label>Password</label>
-        <input type="password" class="form-control" placeholder="Enter password"/>
+        <input type="password" class="form-control" [(ngModel)]="password" placeholder="Enter password"
+        (ngModelChange)="onPasswordChange()"/>
       </div>
       <div class="frg-pass">
         <a href="/forgot-password" class="btn p-0 text-decoration-underline">
@@ -22,7 +24,8 @@
         </a>
       </div>
       <div class="lf-btn-div">
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" (click)="onSubmit()"
+        [disabled]="!isFormValid">
           SIGNIN
         </button>
         <p class="text-center my-3">
