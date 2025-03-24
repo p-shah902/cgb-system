@@ -103,4 +103,16 @@ export const routes: Routes = [
     path: 'dictionaries-edit',
     loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
   },
+  {
+    path: 'threshold',
+    loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent)
+  },
+  {
+    path: 'internal-add',
+    loadComponent: () => import('./internal-add/internal-add.component').then(m => m.InternalAddComponent)
+  },
+  {
+    path: 'threshold-add',
+    loadComponent: () => import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
+  },
 ];
