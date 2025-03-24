@@ -95,4 +95,12 @@ export const routes: Routes = [
     path: 'vendor-detail',
     loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
   },
+  {
+    path: 'dictionaries-list',
+    loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent)
+  },
+  {
+    path: 'dictionaries-edit',
+    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
+  },
 ];
