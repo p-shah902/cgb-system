@@ -45,7 +45,7 @@ export class RoleaccessComponent implements OnInit {
     // this.getUserRoleList();
     // this.loadUserParticulars();
 
-    
+
     // console.log('Updated User Roles:',this.authGuard.getUserRoles());
     this.authService.userRoleAccess$.subscribe(userRoles => {
       this.userRoleAccesses = userRoles;
@@ -100,7 +100,7 @@ export class RoleaccessComponent implements OnInit {
 
   transformUserRoleAccesses(userRoleAccesses: UserRoleAccess[]): ParticularType[] {
     const typeMap = new Map<number, ParticularType>();
-  
+
     userRoleAccesses.forEach(access => {
       if (!typeMap.has(access.typeId)) {
         typeMap.set(access.typeId, {
@@ -109,18 +109,18 @@ export class RoleaccessComponent implements OnInit {
           particulars: [],
         });
       }
-  
+
       const particularType = typeMap.get(access.typeId)!;
-      
+
       if (!particularType.particulars.some(p => p.particularsId === access.particularsId)) {
         particularType.particulars.push({
           particularsId: access.particularsId,
           particularsName: access.particularsName,
-          description: "", 
+          description: "",
         });
       }
     });
-  
+
     return Array.from(typeMap.values());
   }
 
@@ -134,11 +134,11 @@ export class RoleaccessComponent implements OnInit {
     const existsIndex = this.userRoleAccesses.findIndex(
       (r) => r.roleId === userRole.roleId && r.typeId === particularType.typeId && r.particularsId === particular.particularsId
     );
-    
+
     console.log('existIndex',existsIndex);
     if (event.target.checked) {
       if (existsIndex === -1) {
-        
+
         this.userRoleAccesses.push({
           roleId: userRole.roleId,
           roleName: userRole.roleName,
@@ -147,7 +147,7 @@ export class RoleaccessComponent implements OnInit {
           particularsId: particular.particularsId,
           particularsName: particular.particularsName,
           isWriteAccess: true,
-          isReadAccess: false 
+          isReadAccess: false
         });
       }
     }else {
@@ -161,14 +161,14 @@ export class RoleaccessComponent implements OnInit {
 
   transformToUpsertPayload(): UpsertUserRolesPaylod[] {
     const roleMap = new Map<number, UpsertUserRolesPaylod>();
-  
+
     this.userRoleAccesses.forEach((access) => {
       console.log('access',access);
       if (!roleMap.has(access.roleId)) {
         roleMap.set(access.roleId, {
           roleId: access.roleId,
           roleName: access.roleName,
-          description: "", 
+          description: "",
           accessId: [],
           sectionId: [],
           isReadAccess: false,

@@ -1,7 +1,6 @@
-
-<app-sidebar (toggleSidebar)="sideBarExpanded = $event" style="width: 0;"/>
-<div class="main-content" [ngClass]="{'expanded': sideBarExpanded}">
-  <app-header id="navbar-wrapper"/>
+<app-sidebar *ngIf="authService.isAuthenticated" (toggleSidebar)="sideBarExpanded = $event" style="width: 0;"/>
+<div [ngClass]="{'expanded': sideBarExpanded, 'main-content': authService.isAuthenticated}">
+  <app-header id="navbar-wrapper" *ngIf="authService.isAuthenticated"/>
   <div class="p-3">
     <router-outlet/>
   </div>
