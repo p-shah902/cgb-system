@@ -10,6 +10,8 @@ import {ApprovePaperComponent} from './approve-paper/approve-paper.component';
 import {ApproveRequestComponent} from './approve-request/approve-request.component';
 import {LoginComponent} from './login/login.component';
 import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
+import {VendorsComponent} from './vendors/vendors.component';
+import {VendorDetailComponent} from './vendor-detail/vendor-detail.component';
 
 export const routes: Routes = [
   {
@@ -83,5 +85,14 @@ export const routes: Routes = [
   {
     path: 'forgot-password',
     loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+
+  {
+    path: 'vendors',
+    loadComponent: () => import('./vendors/vendors.component').then(m => m.VendorsComponent)
+  },
+  {
+    path: 'vendor-detail',
+    loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
   },
 ];
