@@ -28,7 +28,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
+                <tr *ngFor="let vendor of vendorDetails; let i = index">
                   <td>
                     <div class="form-check-list d-flex gap-3 flex-wrap">
                       <div class="form-check-box position-relative">
@@ -38,24 +38,24 @@
                     </div>
                   </td>
                   <td>
-                    001
+                    {{vendor.id}}
                   </td>
                   <td>
                     <div class="user-div d-flex align-items-center gap-3">
                       <div class="ud-detail">
-                        <p class="mb-0">ABC Suppliers Ltd.</p>
+                        <p class="mb-0">{{vendor.vendorName}}</p>
                       </div>
                     </div>
                   </td>
-                  <td>TX-12345</td>
-                  <td>SAP-56789</td>
-                  <td>UK</td>
+                  <td>{{vendor.taxId}}</td>
+                  <td>{{vendor.sapId}}</td>
+                  <td>{{vendor.country}}</td>
                   <td>
                     <div class="vendore-status">
-                      <label>Active</label>
+                      <label> {{ vendor.isActive ? 'Active' : 'Inactive' }}</label>
                     </div>
                   </td>
-                  <td>16 Mar 2022</td>
+                  <td>{{vendor.modifiedDate| date: 'dd MMMM yyyy'}}</td>
                   <td>
                     <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
                       <button type="button" class="btn" id="dropdownBasic1" ngbDropdownToggle>
