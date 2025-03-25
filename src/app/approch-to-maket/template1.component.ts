@@ -1,11 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
-import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
-import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {Component, inject} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
+import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
+import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
+import {FormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+
 @Component({
   selector: 'app-template1',
   standalone: true,
@@ -15,7 +16,9 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 })
 export class Template1Component {
   generalInfoForm!: FormGroup;
-  constructor(private fb: FormBuilder) { }
+
+  constructor(private fb: FormBuilder) {
+  }
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
@@ -27,42 +30,84 @@ export class Template1Component {
     }).then(this._setupEditor.bind(this));
 
     this.generalInfoForm = this.fb.group({
-      provisionOf: ['', Validators.required],
-      cgbItemRef: [{ value: '', disabled: true }],
-      cgbCirculationDate: [{ value: '', disabled: true }],
-      whyIsThisWorkRequired: ['', Validators.required],
-      scopeOfWork: [''],
-      globalCgb: ['', Validators.required],
-      bltMember: ['', Validators.required],
-      operatingFunction: ['', Validators.required],
-      subsector: ['', Validators.required],
-      sourcingType: ['', Validators.required],
-      contractAccountableManager: [{ value: '', disabled: true }],
-      vp1: ['', Validators.required],
-      procurementSpa: ['', Validators.required],
-      pdm: ['', Validators.required],
-      contractValueUsd: ['', Validators.required],
-      originalCurrency: [''],
-      exchangeRate: [{ value: '', disabled: true }],
-      contractValueOriginalCurrency: [{ value: '', disabled: true }],
-      contractStartDate: ['', Validators.required],
-      contractEndDate: ['', Validators.required],
-      phca: [''],
-      psaJv: [''],
-      ltcc: [''],
-      ltccNote: [''],
-      alignedWithGovernmentRep: ['', Validators.required],
-      governmentRepComment: [''],
-      conflictOfInterest: ['', Validators.required],
-      conflictOfInterestComments: [''],
-      nationalContent: ['']
+      generalInfo: this.fb.group({
+        provisionOf: ['', Validators.required],
+        cgbItemRef: [{value: '', disabled: true}],
+        cgbCirculationDate: [{value: '', disabled: true}],
+        whyIsThisWorkRequired: ['', Validators.required],
+        scopeOfWork: [''],
+        globalCgb: ['', Validators.required],
+        bltMember: ['', Validators.required],
+        operatingFunction: ['', Validators.required],
+        subsector: ['', Validators.required],
+        sourcingType: ['', Validators.required],
+        contractAccountableManager: [{value: '', disabled: true}],
+        vp1: ['', Validators.required],
+        procurementSpa: ['', Validators.required],
+        pdm: ['', Validators.required],
+        contractValueUsd: ['', Validators.required],
+        originalCurrency: [''],
+        exchangeRate: [{value: '', disabled: true}],
+        contractValueOriginalCurrency: [{value: '', disabled: true}],
+        contractStartDate: ['', Validators.required],
+        contractEndDate: ['', Validators.required],
+        phca: ['yes'],
+        psaJv: [''],
+        ltcc: ['yes'],
+        ltccNote: [''],
+        alignedWithGovernmentRep: ['yes', Validators.required],
+        governmentRepComment: [''],
+        conflictOfInterest: ['yes', Validators.required],
+        conflictOfInterestComments: [''],
+        nationalContent: ['']
+      }),
+      procurementDetails: this.fb.group({
+        remunerationType: ['', Validators.required],
+        contractManagementLevel: ['', Validators.required],
+        sourcingRigor: ['', Validators.required],
+        SourcingStrategy: [''],
+        risks: this.fb.array([]),
+        inviteToBid: this.fb.array([]),
+        notificationSentOnDate: [''],
+        responseReceivedDate: [''],
+        socarResponse: [''],
+        qualificationExercise: [''],
+      }),
+      valueDelivery: this.fb.group({
+        age: ['', Validators.required],
+        country: ['', Validators.required]
+      }),
+      costAllocation: this.fb.group({
+        age: ['', Validators.required],
+        country: ['', Validators.required]
+      }),
+      costSharing: this.fb.group({
+        age: ['', Validators.required],
+        country: ['', Validators.required]
+      }),
+      consultation: this.fb.group({
+        consultation: this.fb.array([]),
+      })
+
     });
   }
+
   onSubmit(): void {
+    console.log("=========", this.generalInfoForm.value);
+
     if (this.generalInfoForm.valid) {
       console.log(this.generalInfoForm.value);
     } else {
       console.log("Form is invalid");
+    }
+  }
+
+  scrollToSection(event: Event) {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    const section = document.getElementById(selectedValue);
+
+    if (section) {
+      section.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
   }
 
@@ -96,7 +141,7 @@ export class Template1Component {
         supportAllValues: true
       },
       ui: {
-        viewportOffset: { top: 50, bottom: 50 }  // Adjust editor's viewport
+        viewportOffset: {top: 50, bottom: 50}  // Adjust editor's viewport
       }
     };
   }
@@ -108,6 +153,30 @@ export class Template1Component {
 
   toggleComments() {
     this.isExpanded = !this.isExpanded;
+  }
+
+  get risks(): FormArray {
+    return this.generalInfoForm.get('procurementDetails.risks') as FormArray;
+  }
+
+  addRow() {
+    this.risks.push(
+      this.fb.group({
+        id: this.generateId(),
+        risk: ['', Validators.required],
+        mitigation: ['', Validators.required]
+      })
+    );
+  }
+
+  removeRow(index: number) {
+    if (this.risks.length > 1) {
+      this.risks.removeAt(index);
+    }
+  }
+
+  generateId(): string {
+    return (this.risks.length + 1).toString().padStart(3, '0'); // Auto-numbering (001, 002, etc.)
   }
 
 
