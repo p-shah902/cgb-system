@@ -20,7 +20,7 @@ export class UserService {
   getUserDetailsList():Observable<ApiResponse<UserDetails[]>>{
       return this.http.get<ApiResponse<UserDetails[]>>(getUserListUri).pipe(
         tap(response=>{
-          if(response.success && response.data)
+          if(response.status && response.data)
           {
             this.userListSubject.next(response.data);
           }

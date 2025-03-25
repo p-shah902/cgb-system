@@ -3,7 +3,7 @@ export interface ApiResponse<T> {
     errorMessages: any;
     exception: any;
     data: T;
-    success: boolean;
+    status: boolean;
   }
 
 

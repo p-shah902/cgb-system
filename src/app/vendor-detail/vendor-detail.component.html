@@ -2,7 +2,8 @@
   <div class="row">
     <div class="col-md-12 col-lg-12 col-xl-8">
       <div class="page-card-div mb-4">
-        <div class="page-card-body">
+        <div class="page-card-body">  
+        <form [formGroup]="vendorForm">
           <div class="mb-4">
             <div class="fh-title mb-4">
               <h3>Basic Information</h3>
@@ -11,26 +12,26 @@
 
             <div class="form-group mb-3">
               <label>Vendor Name</label>
-              <input type="text" class="form-control" placeholder="Enter Full Name"/>
+              <input type="text" class="form-control" placeholder="Enter Full Name" formControlName="vendorName"/>
             </div>
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>Tax ID</label>
-                  <input type="text" class="form-control" placeholder="Enter Tax ID"/>
+                  <input type="text" class="form-control" placeholder="Enter Tax ID" formControlName="taxId"/>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>SAP ID</label>
-                  <input type="text" class="form-control" placeholder="Entre Sap ID"/>
+                  <input type="text" class="form-control" placeholder="Entre Sap ID" formControlName="sapId"/>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>Country</label>
-                  <select class="form-control">
-                    <option>Select Country</option>
+                  <select class="form-control" formControlName="country">
+                    <option *ngFor="let country of countryDetails" [value]="country">{{country.countryName}}</option>
                   </select>
                 </div>
               </div>
@@ -39,11 +40,11 @@
                   <label>Status</label>
                   <div class="form-radio d-flex gap-3">
                     <div class="radio-box position-relative">
-                      <input type="radio" name="status-radio" checked>
+                      <input type="radio" name="isActive" formControlName="isActive" [value]="true" checked>
                       <label>Yes</label>
                     </div>
                     <div class="radio-box position-relative">
-                      <input type="radio" name="status-radio">
+                      <input type="radio" name="isActive" formControlName="isActive" [value]="false">
                       <label>No</label>
                     </div>
                   </div>
@@ -61,11 +62,11 @@
                   <label>Registered with CGB?</label>
                   <div class="form-radio d-flex gap-3">
                     <div class="radio-box position-relative">
-                      <input type="radio" name="register-cgb-radio" checked>
+                      <input type="radio" name="isCGBRegistered" formControlName="isCGBRegistered" [value]="true" checked>
                       <label>Yes</label>
                     </div>
                     <div class="radio-box position-relative">
-                      <input type="radio" name="register-cgb-radio">
+                      <input type="radio" name="isCGBRegistered" formControlName="isCGBRegistered" [value]="false">
                       <label>No</label>
                     </div>
                   </div>
@@ -74,8 +75,9 @@
               <div class="col-md-8">
                 <div class="form-group mb-3">
                   <label>Vendor Approval Status</label>
-                  <select class="form-control">
-                    <option>Select Country</option>
+                  <select class="form-control" formControlName="approvalStatus">
+                    <option value="Approved">Approved</option>
+                    <option value="Pending">Pending</option>
                   </select>
                 </div>
               </div>
@@ -121,7 +123,7 @@
                       </p>
                     </div>
                     <div class="drag-drop text-center bg-white">
-                      <input type="file" id="document-upload" class="d-none">
+                      <input type="file" id="document-upload" class="d-none" (change)="onFileSelected($event)">
                       <h4>Drag & Drop</h4>
                       <p>Or</p>
                       <label for="document-upload">
@@ -136,13 +138,14 @@
               </div>
             </div>
           </div>
+        </form>
           <hr/>
           <div class="fb-form pt-0">
             <div class="ff-btn-list d-flex gap-3 justify-content-end">
-              <button class="btn btn-outline-dark">
+              <button class="btn btn-outline-dark" (click)="resetForm()">
                 Discard
               </button>
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" (click)="submitVendor()">
                 Save Changes
               </button>
             </div>

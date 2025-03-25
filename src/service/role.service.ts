@@ -24,7 +24,7 @@ export class RoleService {
     return this.http.get<ApiResponse<ParticularType[]>>(`${getUserParticularsListUri}/${typeId}`)
             .pipe(
               tap(response=>{
-                if(response.success && response.data)
+                if(response.status && response.data)
                 {
                   this.userParticularsSubject.next(response.data);
                 }
@@ -52,7 +52,7 @@ export class RoleService {
     return this.http.get<ApiResponse<UserRole[]>>(getUserRolesUri)
             .pipe(
               tap(response=>{
-                if(response.success && response.data)
+                if(response.status && response.data)
                 {
                   this.userRoleListSubject.next(response.data);
                 }

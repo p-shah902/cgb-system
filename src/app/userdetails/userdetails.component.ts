@@ -9,7 +9,7 @@ import {
 import { UserDetails } from '../../models/user';
 import { UserService } from '../../service/user.service';
 import { DepartmentDetails } from '../../models/department';
-import { DepartmentService } from '../../service/department.service';
+import { Generalervice } from '../../service/general.service';
 import { UserRole } from '../../models/role';
 import { RoleService } from '../../service/role.service';
 import { CommonModule } from '@angular/common';
@@ -26,11 +26,12 @@ export class UserdetailsComponent implements OnInit {
   userDetail: UserDetails;
   departments: DepartmentDetails[] = [];
   userRoles: UserRole[] = [];
+  isEditMode = false;
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private departmentService: DepartmentService,
+    private departmentService: Generalervice,
     private roleService: RoleService
   ) {
     this.userForm = this.fb.group({
@@ -65,8 +66,17 @@ export class UserdetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadRole();
     this.loadDepartment();
+    this.loadRole();  
+
+    if (this.userDetail) {
+      this.isEditMode = true;
+      this.userForm.patchValue({
+        ...this.userDetail,
+        role: this.userRoles.find(role => role.id === this.userDetail?.roleId) || null,
+        department: this.departments.find(dept => dept.id === this.userDetail?.departmentId) || null
+      });
+    }
   }
 
   addUserDetails(): void {
@@ -93,24 +103,32 @@ export class UserdetailsComponent implements OnInit {
           console.log(`Invalid field: ${key}`, control.errors);
         }
       });
+      return;
     }
-
-    this.resetForm();
   }
 
   resetForm(): void {
-    this.userForm.reset({
-      id: 0,
-      role: this.userRoles.length > 0 ? this.userRoles[0] : null, 
-      dept: this.departments.length > 0 ? this.departments[0] : null,
-      isActive: true,
-      isViewPaper: false,
-      isEditPaper: false,
-      isAssignRoles: false,
-      isTOPTUser: true,
-      createdDate: new Date().toISOString(),
-      modifiedDate: new Date().toISOString(),
-    });
+    if (this.isEditMode && this.userDetail) {
+      this.userForm.patchValue({
+        ...this.userDetail,
+        role: this.userRoles.find(role => role.id === this.userDetail?.roleId) || null,
+        department: this.departments.find(dept => dept.id === this.userDetail?.departmentId) || null
+      });
+    } 
+    else{
+      this.userForm.reset({
+        id: 0,
+        role: this.userRoles.length > 0 ? this.userRoles[0] : null, 
+        dept: this.departments.length > 0 ? this.departments[0] : null,
+        isActive: true,
+        isViewPaper: false,
+        isEditPaper: false,
+        isAssignRoles: false,
+        isTOPTUser: true,
+        createdDate: new Date().toISOString(),
+        modifiedDate: new Date().toISOString(),
+      });
+    }
 
     this.mapFormValues();
   }
@@ -118,7 +136,7 @@ export class UserdetailsComponent implements OnInit {
   loadDepartment() {
     this.departmentService.getDepartMentDetails().subscribe({
       next: (reponse) => {
-        if (reponse.success && reponse.data) {
+        if (reponse.status && reponse.data) {
           
           this.departments = reponse.data;
           console.log('department:', this.departments);
@@ -137,7 +155,7 @@ export class UserdetailsComponent implements OnInit {
   loadRole() {
     this.roleService.getUserRolesList().subscribe({
       next: (reponse) => {
-        if (reponse.success && reponse.data) {
+        if (reponse.status && reponse.data) {
           
           this.userRoles = reponse.data;
           console.log('user roles:', this.userRoles);
