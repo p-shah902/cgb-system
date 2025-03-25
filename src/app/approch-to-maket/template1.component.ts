@@ -45,7 +45,7 @@ export class Template1Component {
         vp1: ['', Validators.required],
         procurementSpa: ['', Validators.required],
         pdm: ['', Validators.required],
-        contractValueUsd: ['', Validators.required],
+        contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
         exchangeRate: [{value: '', disabled: true}],
         contractValueOriginalCurrency: [{value: '', disabled: true}],
@@ -90,7 +90,10 @@ export class Template1Component {
       })
 
     });
-  }
+
+    // Initialize with one row to prevent errors
+    this.addRow();
+    this.addBidRow();  }
 
   onSubmit(): void {
     console.log("=========", this.generalInfoForm.value);
@@ -159,24 +162,52 @@ export class Template1Component {
     return this.generalInfoForm.get('procurementDetails.risks') as FormArray;
   }
 
+  // Getter for inviteToBid FormArray
+  get inviteToBid(): FormArray {
+    return this.generalInfoForm.get('procurementDetails.inviteToBid') as FormArray;
+  }
+
+  // Add a new risk row
   addRow() {
     this.risks.push(
       this.fb.group({
-        id: this.generateId(),
+        id: this.generateId(this.risks.length),
         risk: ['', Validators.required],
         mitigation: ['', Validators.required]
       })
     );
   }
 
+  // Remove a risk row
   removeRow(index: number) {
     if (this.risks.length > 1) {
       this.risks.removeAt(index);
     }
   }
 
-  generateId(): string {
-    return (this.risks.length + 1).toString().padStart(3, '0'); // Auto-numbering (001, 002, etc.)
+  // Generate ID dynamically (001, 002, etc.)
+  generateId(index: number): string {
+    return (index + 1).toString().padStart(3, '0');
+  }
+
+  // Add a new inviteToBid row
+  addBidRow() {
+    this.inviteToBid.push(
+      this.fb.group({
+        fullName: ['', Validators.required],
+        localJV: [false], // Checkbox
+        country: ['', Validators.required],
+        parentCompany: [''],
+        remarks: ['']
+      })
+    );
+  }
+
+  // Remove an inviteToBid row
+  removeBidRow(index: number) {
+    if (this.inviteToBid.length > 1) {
+      this.inviteToBid.removeAt(index);
+    }
   }
 
 

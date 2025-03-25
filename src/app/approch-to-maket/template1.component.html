@@ -63,19 +63,21 @@
           <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
             <div class="fb-form" formGroupName="generalInfo">
               <div class="row">
-                <div class="col-sm-6 col-md-4">
+                <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
                     <input type="text" class="form-control" placeholder="Enter Title" formControlName="provisionOf"/>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+              </div>
+              <div class="row">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB Item Ref </label>
                     <input type="text" class="form-control" placeholder="Enter" formControlName="cgbItemRef"/>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB Circulation Date</label>
                     <div class="date-input position-relative">
@@ -195,13 +197,13 @@
                                 </div>
                 -->
 
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Contract Value (USD)*</label>
-                    <input type="text" class="form-control" placeholder="0000.0" formControlName="contractValueUsd"/>
+                    <input type="number" class="form-control" placeholder="0000.0" formControlName="contractValueUsd" min="0" step="0.01"/>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Original Currency</label>
                     <select class="form-control" formControlName="originalCurrency">
@@ -214,13 +216,13 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-2">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
                     <input type="text" class="form-control" placeholder="0.00" formControlName="exchangeRate"/>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Contract Value (Original Currency)*</label>
                     <input type="text" class="form-control" placeholder="0000.0"
@@ -423,30 +425,33 @@
                             <th>ID</th>
                             <th>Risks</th>
                             <th>Mitigations</th>
-                            <th class="border-0 bg-transparent" width="8%"></th>
+                            <th>Action</th>
                           </tr>
                           </thead>
-                          <tbody>
-                          <tr>
-                            <td>001</td>
-                            <td><input type="text" class="form-control border-0 p-0 shadow-none"
-                                       placeholder="Enter here"/></td>
-                            <td><input type="text" class="form-control border-0 p-0 shadow-none"
-                                       placeholder="Enter here"/></td>
-                            <td class="border-0 py-0">
+                          <tbody formArrayName="risks">
+                          <tr *ngFor="let risk of risks.controls; let i = index" [formGroupName]="i">
+                            <td>{{ generateId(i) }}</td>
+                            <td>
+                              <input type="text" class="form-control border-0 p-0 shadow-none"
+                                     placeholder="Enter here" formControlName="risk" />
+                            </td>
+                            <td>
+                              <input type="text" class="form-control border-0 p-0 shadow-none"
+                                     placeholder="Enter here" formControlName="mitigation" />
+                            </td>
+                            <td>
                               <div class="krt-action">
-                                <button class="btn btn-outline-danger mx-auto">
+                                <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)" [disabled]="risks.length <= 1">
                                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                        xmlns="http://www.w3.org/2000/svg">
                                     <path
                                       d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                                      fill="#EC4747"/>
+                                      fill="#EC4747" />
                                   </svg>
                                 </button>
                               </div>
                             </td>
                           </tr>
-
                           </tbody>
                         </table>
 
@@ -454,7 +459,7 @@
 
                     </div>
                     <div class="add-row-btn-div">
-                      <button class="btn p-0">
+                      <button class="btn p-0" type="button" (click)="addRow()">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round"/>
@@ -489,40 +494,43 @@
                             <th>Action</th>
                           </tr>
                           </thead>
-                          <tbody>
-                          <tr>
-                            <td>Enter Full legal Entity Name 1</td>
-                            <td><input type="text" class="form-control border-0 p-0 shadow-none"
-                                       placeholder="Enter here" type="checkbox"/></td>
-                            <td><input type="text" class="form-control border-0 p-0 shadow-none"
-                                       placeholder="Enter here"/></td>
-                            <td><input type="text" class="form-control border-0 p-0 shadow-none"
-                                       placeholder="Enter here"/></td>
-                            <td><input type="text" class="form-control border-0 p-0 shadow-none"
-                                       placeholder="Enter Remark"/></td>
-
-                            <td class="border-0 py-0">
+                          <tbody formArrayName="inviteToBid">
+                          <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
+                            <td>
+                              <input type="text" class="form-control" formControlName="fullName" placeholder="Enter full name" />
+                            </td>
+                            <td class="text-center align-middle">
+                              <input type="checkbox" formControlName="localJV" />
+                            </td>
+                            <td>
+                              <input type="text" class="form-control" formControlName="country" placeholder="Enter country" />
+                            </td>
+                            <td>
+                              <input type="text" class="form-control" formControlName="parentCompany" placeholder="Enter parent company" />
+                            </td>
+                            <td>
+                              <input type="text" class="form-control" formControlName="remarks" placeholder="Enter remark" />
+                            </td>
+                            <td>
                               <div class="krt-action">
-                                <button class="btn btn-outline-danger mx-auto">
-                                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                       xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                                      fill="#EC4747"/>
-                                  </svg>
-                                </button>
-                              </div>
+
+                              <button class="btn p-0" type="button" (click)="removeBidRow(i)" [disabled]="inviteToBid.length <= 1">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
+                                    fill="#EC4747" />
+                                </svg>
+                              </button></div>
                             </td>
                           </tr>
-
                           </tbody>
                         </table>
-
                       </div>
-
                     </div>
+
                     <div class="add-row-btn-div">
-                      <button class="btn p-0">
+                      <button class="btn p-0" type="button" (click)="addBidRow()">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round"/>
@@ -530,9 +538,9 @@
                         Add New Row
                       </button>
                     </div>
+
                   </div>
                 </div>
-
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
@@ -1130,23 +1138,7 @@
                       <div class="form-radio-custom-width form-radio">
                         <div class="row">
 
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" checked>
-                              <label>Yes
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                       xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525"/>
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
+                                                   <div class="col">
                             <div class="radio-box position-relative">
                               <input type="radio" name="Inventory-radio" checked>
                               <label>Yes
