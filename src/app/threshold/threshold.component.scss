@@ -3,6 +3,48 @@
   border: 1px solid #DCDCDC;
   border-radius: 12px;
   background-color: #ffffff;
+  .custom-nav-div {
+    .nav.nav-tabs {
+      display: flex;
+      border: 1px solid #E8E8E8;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 350px;
+      .nav-item {
+        flex: 0 0 50%;
+        .nav-link {
+          border: none;
+          font-size: 14px;
+          font-weight: 500;
+          color: #1B202B;
+          padding: 15px 20px;
+          display: flex;
+          gap: 10px;
+          width: 100%;
+          border-radius: 0;
+          text-align: center;
+          justify-content: center;
+          &.active {
+            background-color: #582AA2;
+            color: #ffffff;
+
+          }
+          span {
+            background-color: #EC4747;
+            color: #ffffff;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
   .approach-table {
     thead {
       tr {
@@ -70,7 +112,6 @@
       }
     }
   }
-
   @media screen and (max-width: 991px) {
     .approach-table {
       thead {
@@ -96,4 +137,3 @@
     }
   }
 }
-

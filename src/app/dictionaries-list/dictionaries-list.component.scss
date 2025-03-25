@@ -1,0 +1,97 @@
+.page-card-div {
+  padding: 20px;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  background-color: #ffffff;
+  .dictionaries-detail {
+    .nav {
+      flex: 0 0 200px;
+      gap: 10px;
+      .nav-link {
+        background-color: #E8E8E8;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 17px;
+        color: #1B202B;
+        padding: 15px 5px;
+        &.active {
+          background-color: #1B202B;
+          color: #ffffff;
+        }
+      }
+    }
+    .tab-content {
+      width: 100%;
+      .dict-table-div {
+        border: 1px solid #BABABA;
+        border-radius: 15px;
+        overflow: hidden;
+        .table {
+          margin-bottom: 0;
+          thead {
+            tr {
+              th {
+                border-color: #BABABA;
+                font-weight: 600;
+                font-size: 14px;
+                line-height: 17px;
+                color: #787878;
+                background-color: #F8F9FB;
+                padding: 15px;
+              }
+            }
+          }
+          tbody {
+            tr {
+              td {
+                border-color: #BABABA;
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 17px;
+                color: #1B202B;
+                vertical-align: middle;
+                background-color: #F8F9FB;
+                padding: 15px;
+                .vendore-status {
+                  label {
+                    font-weight: 600;
+                    font-size: 14px;
+                    line-height: 150%;
+                    padding: 5px 10px;
+                    border-radius: 30px;
+                    &.active {
+                      background-color: #B2DAC0;
+                      color: #007007;
+                    }
+                  }
+                }
+
+                .edit-btn-div {
+                  .btn {
+                    background-color: #F0F0F0;
+                    width: 30px;
+                    height: 30px;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  }
+                }
+              }
+              &:last-child {
+                td {
+                  border-bottom: none;
+                }
+              }
+            }
+          }
+        }
+      }
+
+    }
+  }
+  @media screen and (max-width: 991px) {
+
+  }
+}
+

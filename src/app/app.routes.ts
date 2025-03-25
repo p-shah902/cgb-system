@@ -114,6 +114,26 @@ export const routes: Routes = [
     loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
   },
   {
+    path: 'dictionaries-list',
+    loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent)
+  },
+  {
+    path: 'dictionaries-edit',
+    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
+  },
+  {
+    path: 'threshold',
+    loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent)
+  },
+  {
+    path: 'internal-add',
+    loadComponent: () => import('./internal-add/internal-add.component').then(m => m.InternalAddComponent)
+  },
+  {
+    path: 'threshold-add',
+    loadComponent: () => import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
+  },
+  {
     path: 'temp',
     loadComponent: () => import('./add-new-role/add-new-role.component').then(m =>m.AddNewRoleComponent)
   },
