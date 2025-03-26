@@ -6,6 +6,9 @@ import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import {CURRENCY_LIST} from '../../utils/constant';
+import {UserService} from '../../service/user.service';
+import {UserDetails} from '../../models/user';
 
 @Component({
   selector: 'app-template1',
@@ -16,6 +19,8 @@ import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule} from
 })
 export class Template1Component {
   generalInfoForm!: FormGroup;
+  private readonly userService=inject(UserService);
+  userDetails:UserDetails[]=[];
 
   constructor(private fb: FormBuilder) {
   }
@@ -30,28 +35,33 @@ export class Template1Component {
       premium: true
     }).then(this._setupEditor.bind(this));
 
+    this.loadUserDetails();
+
+
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
-        provisionOf: ['', Validators.required],
-        cgbItemRef: [{value: '', disabled: true}],
+        paperProvision: ['', Validators.required],
+        cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: '', disabled: true}],
         whyIsThisWorkRequired: ['', Validators.required],
         scopeOfWork: [''],
         globalCgb: ['', Validators.required],
-        bltMember: ['', Validators.required],
+        bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
         subsector: ['', Validators.required],
         sourcingType: ['', Validators.required],
         contractAccountableManager: [{value: '', disabled: true}],
-        vp1: ['', Validators.required],
-        procurementSpa: ['', Validators.required],
-        pdm: ['', Validators.required],
+        vp1: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        procurementSpa: [[], Validators.required],
+        pdm: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
-        exchangeRate: [{value: '', disabled: true}],
-        contractValueOriginalCurrency: [{value: '', disabled: true}],
+        exchangeRate: [{ value: 0, disabled: true }], // Number input
+        contractValueOriginalCurrency: [{ value: 0, disabled: true }], // Number input
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', Validators.required],
+        isIFRS16: [false],
+        isGIAAPCheck: [false],
         phca: ['yes'],
         psaJv: [[], Validators.required],
         ltcc: ['yes'],
@@ -60,7 +70,7 @@ export class Template1Component {
         governmentRepComment: [''],
         conflictOfInterest: ['yes', Validators.required],
         conflictOfInterestComments: [''],
-        nationalContent: ['']
+        strategyDescription: ['']
       }),
       procurementDetails: this.fb.group({
         remunerationType: ['', Validators.required],
@@ -74,6 +84,7 @@ export class Template1Component {
         responseReceivedDate: [''],
         socarResponse: [''],
         qualificationExercise: [''],
+
       }),
       valueDelivery: this.fb.group({
         age: ['', Validators.required],
@@ -95,7 +106,48 @@ export class Template1Component {
 
     // Initialize with one row to prevent errors
     this.addRow();
-    this.addBidRow();  }
+    this.addBidRow();
+    // Subscribe to changes in originalCurrency or contractValueUsd
+    this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
+      this.updateExchangeRate();
+    });
+
+    this.generalInfoForm.get('generalInfo.contractValueUsd')?.valueChanges.subscribe(() => {
+      this.updateContractValueOriginalCurrency();
+    });
+  }
+
+  loadUserDetails(){
+    this.userService.getUserDetailsList().subscribe({
+      next: (response)=>{
+        if(response.status && response.data)
+        {
+          this.userDetails=response.data;
+          console.log('user details',this.userDetails);
+        }
+      },error:(error)=>{
+        console.log('error',error);
+      }
+    })
+  }
+
+
+  updateExchangeRate() {
+    const originalCurrency = this.generalInfoForm.get('generalInfo.originalCurrency')?.value;
+    const currency = CURRENCY_LIST.find(c => c.code === originalCurrency);
+    const exchangeRate = currency ? currency.rate : 0;
+
+    this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(exchangeRate);
+    this.updateContractValueOriginalCurrency();
+  }
+
+  updateContractValueOriginalCurrency() {
+    const contractValueUsd = Number(this.generalInfoForm.get('generalInfo.contractValueUsd')?.value) || 0;
+    const exchangeRate = Number(this.generalInfoForm.get('generalInfo.exchangeRate')?.value) || 0;
+
+    const convertedValue = contractValueUsd * exchangeRate;
+    this.generalInfoForm.get('generalInfo.contractValueOriginalCurrency')?.setValue(convertedValue);
+  }
 
   onSubmit(): void {
     console.log("=========", this.generalInfoForm.value);

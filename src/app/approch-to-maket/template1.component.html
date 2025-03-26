@@ -66,7 +66,7 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
-                    <input type="text" class="form-control" placeholder="Enter Title" formControlName="provisionOf"/>
+                    <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"/>
                   </div>
                 </div>
               </div>
@@ -74,7 +74,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB Item Ref </label>
-                    <input type="text" class="form-control" placeholder="Enter" formControlName="cgbItemRef"/>
+                    <input type="text" class="form-control" placeholder="Enter" formControlName="cgbItemRefNo"/>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
@@ -119,8 +119,12 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
-                    <input type="text" class="form-control" formControlName="bltMember"
-                           placeholder="Enter Member Name"/>
+                    <select class="form-control" formControlName="bltMember">
+                      <option [value]="null">Select Status</option>
+                      <option *ngFor="let user of userDetails" [value]="user.id">
+                        {{ user.displayName }}
+                      </option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -167,24 +171,39 @@
                 </div>
               </div> -->
                 <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>VP-1* </label>
-                    <input type="text" class="form-control" placeholder="Enter Sub-sector" formControlName="vp1"/>
+                    <div class="form-group mb-3">
+                      <label>VP-1* </label>
+                      <select class="form-control" formControlName="vp1">
+                        <option [value]="null">Select Status</option>
+                        <option *ngFor="let user of userDetails" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </select>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Procurement SPA*</label>
+                      <select class="form-control" formControlName="procurementSpa" multiple>
+                          <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'Procurement Tag'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA* </label>
-                    <select class="form-control" formControlName="procurementSpa">
-                      <option value="">Select Status</option>
-
+                    <label>PDM*</label>
+                    <select class="form-control" formControlName="pdm">
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
                     </select>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>PDM* </label>
-                    <input type="text" class="form-control" placeholder="Enter Sub-sector" formControlName="pdm"/>
                   </div>
                 </div>
 
@@ -197,13 +216,13 @@
                                 </div>
                 -->
 
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Value (USD)*</label>
+                    <label>Total Award Value (USD)*</label>
                     <input type="number" class="form-control" placeholder="0000.0" formControlName="contractValueUsd" min="0" step="0.01"/>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Original Currency</label>
                     <select class="form-control" formControlName="originalCurrency">
@@ -216,13 +235,13 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
                     <input type="text" class="form-control" placeholder="0.00" formControlName="exchangeRate"/>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value (Original Currency)*</label>
                     <input type="text" class="form-control" placeholder="0000.0"
@@ -230,7 +249,7 @@
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
-                  <label class="mb-2">Contract Value*</label>
+                  <label class="mb-2">Contract Duration</label>
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
@@ -318,20 +337,20 @@
                               formControlName="governmentRepComment"></textarea>
                   </div>
                 </div>
-                <!-- <div class="col-md-12">
+               <div class="col-md-12">
                 <div class="form-group mb-3">
                   <div class="form-check-list d-flex gap-3 flex-wrap">
                     <div class="form-check-box position-relative">
-                      <input type="checkbox" name="lt-check">
+                      <input type="checkbox" name="lt-check" formControlName="isIFRS16">
                       <label>IFRS16 Impact Compliance</label>
                     </div>
                     <div class="form-check-box position-relative">
-                      <input type="checkbox" name="lt-check">
+                      <input type="checkbox" name="lt-check" formControlName="isGIAAPCheck">
                       <label>GIAAP Compliance Check</label>
                     </div>
                   </div>
                 </div>
-              </div> -->
+              </div>
                 <div class="col-sm-6 col-md-6 mt-3">
                   <div class="form-group mb-3">
                     <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
@@ -357,7 +376,7 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>National Content</label>
+                    <label>Strategy Description</label>
                     <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config"
                               formControlName="nationalContent">
                     </ckeditor>
