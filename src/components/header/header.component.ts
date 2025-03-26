@@ -1,7 +1,8 @@
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import {NgbDropdownModule} from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../service/auth.service';
+import {LoginUser} from '../../models/user';
 
 @Component({
   selector: 'app-header',
@@ -12,8 +13,10 @@ import {AuthService} from '../../service/auth.service';
 })
 export class HeaderComponent implements OnInit {
   pageTitle: string = '';
+  loggedInUser: LoginUser | null = null;
 
-  constructor(private router: Router, public authService: AuthService) { }
+  constructor(private router: Router, public authService: AuthService) {
+  }
 
   ngOnInit() {
     this.router.events.subscribe(() => {
@@ -21,6 +24,12 @@ export class HeaderComponent implements OnInit {
     });
 
     this.setPageTitle();
+
+    this.authService.userDetails$.subscribe(value => {
+      if (value) {
+        this.loggedInUser = value;
+      }
+    })
   }
 
   setPageTitle() {

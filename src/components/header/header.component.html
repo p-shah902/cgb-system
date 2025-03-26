@@ -113,14 +113,14 @@
                   <img src="/img/visitor.png" alt="visitor" class="img-fluid">
                 </div>
                 <div class="text-start">
-                  <p>Martin Gurly</p>
-                  <span>Secretary</span>
+                  <p>{{ loggedInUser?.displayName }}</p>
+                  <span>{{ loggedInUser?.roleName }}</span>
                 </div>
               </div>
               <div class="profile-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
                 <div class="pfl-head">
-                  <h5>Martin Gurly</h5>
-                  <p>Martin.gurly_email.com</p>
+                  <h5>{{ loggedInUser?.displayName }}</h5>
+                  <p>{{ loggedInUser?.email }}</p>
                 </div>
                 <div class="pfl-body">
                   <a href="#">

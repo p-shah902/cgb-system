@@ -87,7 +87,7 @@ export class RoleaccessComponent implements OnInit {
   getRolesChecked(role: UserRole, access: ParticularType, particular: Particular) {
     let accessData = this.userRoleAccesses.find(f => f.accessId === access.typeId && f.particularId === particular.particularsId);
     if (accessData) {
-      return accessData.usersAceess.find(f => f.roleId === role.id);
+      return accessData.usersAceess.find(f => f.roleId === role.id && f.isWriteAccess);
     }
     return false
   }
