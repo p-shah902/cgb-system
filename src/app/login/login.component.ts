@@ -1,7 +1,7 @@
-import { Component, inject, Inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../service/auth.service';
-import { Router } from '@angular/router';
+import {Component, inject, Inject} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {AuthService} from '../../service/auth.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,17 +17,17 @@ export class LoginComponent {
   //   private router: Router
   // ) {}
 
-  authService=inject(AuthService);
-  router=inject(Router);
+  authService = inject(AuthService);
+  router = inject(Router);
 
-  email:string='';
-  password:string='';
+  email: string = '';
+  password: string = '';
   isFormValid: boolean = false;
 
   onEmailChange(): void {
     this.validateForm();
   }
-  
+
   onPasswordChange(): void {
     this.validateForm();
   }
@@ -38,7 +38,7 @@ export class LoginComponent {
     this.isFormValid = emailRegex.test(this.email) && this.password.length > 4;
   }
 
-  onSubmit(){
+  onSubmit() {
     console.log(this.email);
     console.log(this.password);
 
@@ -48,21 +48,20 @@ export class LoginComponent {
 
     this.authService.login(this.email, this.password).subscribe({
       next: (response) => {
-        console.log(response);
-        if (response.success === false) {
+        if (!response.status) {
           return;
         }
-        
-        this.router.navigate(['/temp1']);
+
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         console.error('Login error:', error);
       }
     });
 
-    
-    this.email="";
-    this.password="";
+
+    this.email = "";
+    this.password = "";
   }
 
 }

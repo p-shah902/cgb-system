@@ -65,9 +65,9 @@ export interface UserRoleAccess {
 }
 
 export interface AuthResponse {
-  token: string;
-  userRoleAccesses: UserRoleAccess[];
-  success: boolean;
+  message: string,
+  data: any,
+  status: boolean;
 }
 
 // export

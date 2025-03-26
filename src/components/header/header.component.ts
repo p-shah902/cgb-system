@@ -1,6 +1,7 @@
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import {AuthService} from '../../service/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class HeaderComponent implements OnInit {
   pageTitle: string = '';
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, public authService: AuthService) { }
 
   ngOnInit() {
     this.router.events.subscribe(() => {

@@ -27,7 +27,6 @@ import {Console} from 'console';
 export class RoleaccessComponent implements OnInit {
   private readonly _mdlSvc = inject(NgbModal);
   private readonly roleService = inject(RoleService);
-  private readonly authService = inject(AuthService);
 
   newRole() {
     const modalRef = this._mdlSvc.open(AddNewRoleComponent, {centered: true, modalDialogClass: 'custom-modal'});
