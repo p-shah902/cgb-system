@@ -22,6 +22,7 @@ import { NavigationExtras, Router } from '@angular/router';
 export class VendorsComponent implements OnInit {
 
   private readonly vendorService=inject(VendorService);
+  private readonly router=inject(Router);
 
   vendorDetails:VendorDetail[]=[];
 
@@ -52,5 +53,10 @@ export class VendorsComponent implements OnInit {
     });
     console.log('vendore Details2');
   }
+
+  nevigate(){
+    this.router.navigate(['/vendor-detail']);
+  }
+
 
 }
