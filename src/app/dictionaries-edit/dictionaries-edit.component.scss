@@ -1,0 +1,119 @@
+.page-card-div {
+  padding: 20px;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  background-color: #ffffff;
+  .form-switch {
+    .form-check-input {
+      width: 40px;
+      height: 20px;
+      &:checked {
+        background-color: #582aa2;
+        border-color: #582aa2;
+      }
+    }
+  }
+
+  .avtar-box {
+    display: flex;
+    gap: 20px;
+    .avtar-img {
+      flex: 0 0 90px;
+      height: 90px;
+      width: 90px;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    .avtar-btn-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      .btn {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1B202B;
+      }
+    }
+
+  }
+}
+
+
+.document-attachment {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+
+  .attach-thumb {
+    border: 1px solid #BABABA;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+
+    p {
+      font-size: 14px;
+      line-height: 17px;
+      color: #1B202B;
+    }
+  }
+
+  .drag-drop {
+    border: 1px dashed #DCDCDC;
+    padding: 10px;
+    border-radius: 8px;
+
+    h4 {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 19px;
+      color: #1B202B;
+    }
+
+    label {
+      color: #582AA2;
+      background-color: #E6EFFC;
+      padding: 8px 15px;
+      border-radius: 6px;
+    }
+
+    p {
+
+      font-size: 14px;
+      line-height: 17px;
+      color: #1B202B;
+    }
+  }
+
+
+
+  @media screen and (max-width: 991px) {
+    .attach-thumb {
+      p {
+        font-size: 12px;
+      }
+    }
+
+    .drag-drop {
+      h4 {
+        font-size: 14px;
+      }
+
+      label {
+        font-size: 12px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+}

@@ -104,7 +104,6 @@ export const routes: Routes = [
     loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
 
-
   {
     path: 'vendors',
     loadComponent: () => import('./vendors/vendors.component').then(m => m.VendorsComponent)
@@ -121,5 +120,25 @@ export const routes: Routes = [
     path: 'temp1',
     loadComponent: () => import('./roleaccess/roleaccess.component').then(m =>m.RoleaccessComponent),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'dictionaries-list',
+    loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent)
+  },
+  {
+    path: 'dictionaries-edit',
+    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
+  },
+  {
+    path: 'threshold',
+    loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent)
+  },
+  {
+    path: 'internal-add',
+    loadComponent: () => import('./internal-add/internal-add.component').then(m => m.InternalAddComponent)
+  },
+  {
+    path: 'threshold-add',
+    loadComponent: () => import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
   },
 ];
