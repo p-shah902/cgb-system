@@ -104,6 +104,7 @@ export const routes: Routes = [
     loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
 
+
   {
     path: 'vendors',
     loadComponent: () => import('./vendors/vendors.component').then(m => m.VendorsComponent)
@@ -111,15 +112,6 @@ export const routes: Routes = [
   {
     path: 'vendor-detail',
     loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
-  },
-  {
-    path: 'temp',
-    loadComponent: () => import('./add-new-role/add-new-role.component').then(m =>m.AddNewRoleComponent)
-  },
-  {
-    path: 'temp1',
-    loadComponent: () => import('./roleaccess/roleaccess.component').then(m =>m.RoleaccessComponent),
-    canActivate: [AuthGuard]
   },
   {
     path: 'dictionaries-list',
@@ -140,5 +132,14 @@ export const routes: Routes = [
   {
     path: 'threshold-add',
     loadComponent: () => import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
+  },
+  {
+    path: 'temp',
+    loadComponent: () => import('./add-new-role/add-new-role.component').then(m =>m.AddNewRoleComponent)
+  },
+  {
+    path: 'temp1',
+    loadComponent: () => import('./roleaccess/roleaccess.component').then(m =>m.RoleaccessComponent),
+    canActivate: [AuthGuard]
   },
 ];
