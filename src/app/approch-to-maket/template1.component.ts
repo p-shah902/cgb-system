@@ -22,6 +22,7 @@ export class Template1Component {
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
+  public psaJvOptions = ['ACG', 'Shah Deniz', 'SCP', 'BTC', 'Sh-Asiman', 'BP Group'];
 
   public ngOnInit(): void {
     loadCKEditorCloud({
@@ -52,7 +53,7 @@ export class Template1Component {
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', Validators.required],
         phca: ['yes'],
-        psaJv: [''],
+        psaJv: [[], Validators.required],
         ltcc: ['yes'],
         ltccNote: [''],
         alignedWithGovernmentRep: ['yes', Validators.required],
@@ -68,6 +69,7 @@ export class Template1Component {
         SourcingStrategy: [''],
         risks: this.fb.array([]),
         inviteToBid: this.fb.array([]),
+        sourceJustification: [''],
         notificationSentOnDate: [''],
         responseReceivedDate: [''],
         socarResponse: [''],

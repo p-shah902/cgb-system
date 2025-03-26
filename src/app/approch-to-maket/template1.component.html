@@ -246,7 +246,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PHCA </label>
                     <div class="form-radio d-flex gap-3">
@@ -261,20 +261,17 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PSA/JV</label>
-                    <select class="form-control" formControlName="psaJv">
-                      <option value="">Select Status</option>
-                      <option value="ACG"> ACG</option>
-                      <option value="Shah Deniz"> Shah Deniz</option>
-                      <option value="SCP"> SCP</option>
-                      <option value="BTC"> BTC</option>
-                      <option value="Sh-Asiman"> Sh-Asiman</option>
-                      <option value="BP Group"> BP Group</option>
+                    <select class="form-control" formControlName="psaJv" multiple>
+                      <option *ngFor="let option of psaJvOptions" [value]="option">
+                        {{ option }}
+                      </option>
                     </select>
                   </div>
                 </div>
+
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Long-Term Commercial Commitment (LTCC) </label>
@@ -377,40 +374,39 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Remuneration Type*</label>
-                    <select class="form-control">
-                      <option>Select Status</option>
-                      <option>Lump Sum</option>
-                      <option>Reimbursable</option>
-                      <option>Other</option>
+                    <select class="form-control" formControlName="remunerationType">
+                      <option value="">Select Status</option>
+                      <option value="Lump Sum">Lump Sum</option>
+                      <option value="Reimbursable">Reimbursable</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Proposed Contract Management Level*</label>
-                    <select class="form-control">
-                      <option>Select Status</option>
-                      <option>Transactional</option>
-                      <option>Core</option>
-                      <option>Strategic</option>
+                    <select class="form-control" formControlName="contractManagementLevel">
+                      <option value="">Select Status</option>
+                      <option value="Transactional">Transactional</option>
+                      <option value="Core">Core</option>
+                      <option value="Strategic">Strategic</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Sourcing Rigor*</label>
-                    <select class="form-control">
-                      <option>Select Status</option>
-                      <option>Tactical</option>
-                      <option>Standard</option>
-
+                    <select class="form-control" formControlName="sourcingRigor">
+                      <option value="">Select Status</option>
+                      <option value="Tactical">Tactical</option>
+                      <option value="Standard">Standard</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Sourcing Strategy</label>
-                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config" formControlName="SourcingStrategy">
                     </ckeditor>
                   </div>
                 </div>
@@ -473,7 +469,7 @@
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Single Source Justification</label>
-                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config" formControlName="sourceJustification">
                     </ckeditor>
                   </div>
                 </div>
@@ -546,7 +542,7 @@
                   <div class="form-group mb-3">
                     <label>SOCAR notification sent on</label>
                     <div class="date-input position-relative">
-                      <input type="date" class="form-control" placeholder=""/>
+                      <input type="date" class="form-control" placeholder="" formControlName="notificationSentOnDate"/>
                     </div>
                   </div>
                 </div>
@@ -554,20 +550,20 @@
                   <div class="form-group mb-3">
                     <label>SOCAR Response Received Date</label>
                     <div class="date-input position-relative">
-                      <input type="date" class="form-control" placeholder=""/>
+                      <input type="date" class="form-control" placeholder="" formControlName="responseReceivedDate"/>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>SOCAR’s response</label>
-                    <textarea type="text" class="form-control" placeholder="Write Description"></textarea>
+                    <textarea type="text" class="form-control" placeholder="Write Description" formControlName="socarResponse"></textarea>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Results of Pre-qualification Exercise</label>
-                    <textarea type="text" class="form-control" placeholder="Write Description"></textarea>
+                    <textarea type="text" class="form-control" placeholder="Write Description" formControlName="qualificationExercise"></textarea>
                   </div>
                 </div>
 
@@ -757,8 +753,7 @@
                   </tr>
 
                   <tr>
-                    <td><b>Contract
-                      Committee</b></td>
+                    <td><b>Contract Committee</b></td>
                     <td>
 
                     </td>
@@ -801,13 +796,10 @@
                       </div>
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
                     </td>
                   </tr>
 
