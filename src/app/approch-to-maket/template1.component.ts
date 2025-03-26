@@ -45,15 +45,15 @@ export class Template1Component {
         cgbCirculationDate: [{value: '', disabled: true}],
         whyIsThisWorkRequired: ['', Validators.required],
         scopeOfWork: [''],
-        globalCgb: ['', Validators.required],
+        globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
-        subsector: ['', Validators.required],
+        subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        contractAccountableManager: [{value: '', disabled: true}],
-        vp1: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
-        procurementSpa: [[], Validators.required],
-        pdm: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        camUserId: [{value: '', disabled: true}],
+        vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        procurementSPAUsers: [[], Validators.required],
+        pdManagerName: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
         exchangeRate: [{ value: 0, disabled: true }], // Number input
@@ -62,41 +62,67 @@ export class Template1Component {
         contractEndDate: ['', Validators.required],
         isIFRS16: [false],
         isGIAAPCheck: [false],
-        phca: ['yes'],
-        psaJv: [[], Validators.required],
-        ltcc: ['yes'],
-        ltccNote: [''],
-        alignedWithGovernmentRep: ['yes', Validators.required],
-        governmentRepComment: [''],
-        conflictOfInterest: ['yes', Validators.required],
-        conflictOfInterestComments: [''],
+        isPHCA:  [false],
+        psajv: [[], Validators.required],
+        isLTCC: [false],
+        ltccNotes: [''],
+        isGovtReprAligned: [false],
+        govtReprAlignedComment: [''],
+        isConflictOfInterest: [false],
+        conflictOfInterestComment: [''],
         strategyDescription: ['']
       }),
       procurementDetails: this.fb.group({
         remunerationType: ['', Validators.required],
-        contractManagementLevel: ['', Validators.required],
+        contractMgmtLevel: ['', Validators.required],
         sourcingRigor: ['', Validators.required],
-        SourcingStrategy: [''],
+        singleSourceJustification: [''],
         risks: this.fb.array([]),
         inviteToBid: this.fb.array([]),
         sourceJustification: [''],
-        notificationSentOnDate: [''],
-        responseReceivedDate: [''],
-        socarResponse: [''],
-        qualificationExercise: [''],
-
+        socaRsentOn: [''],
+        socaRreceivedOn: [''],
+        socarDescription: [''],
+        preQualificationResult: [''],
       }),
       valueDelivery: this.fb.group({
-        age: ['', Validators.required],
-        country: ['', Validators.required]
+        costReductionPercent: [null],
+        costReductionRemarks: [null],
+        operatingEfficiencyValue: [null],
+        operatingEfficiencyPercent: [null],
+        operatingEfficiencyRemarks: [null],
+        costAvoidanceValue: [null],
+        costAvoidancePercent: [null],
+        costAvoidanceRemarks: [null],
       }),
       costAllocation: this.fb.group({
-        age: ['', Validators.required],
-        country: ['', Validators.required]
+        contractCommittee_SDCC: [false],
+        contractCommittee_SCP_Co_CC: [false],
+        contractCommittee_SCP_Co_CCInfoNote: [false],
+        contractCommittee_BTC_CC: [false],
+        contractCommittee_BTC_CCInfoNote: [false],
+        contractCommittee_CGB: [false], //TODO discuss
+        coVenturers_CMC: [false],
+        coVenturers_SDMC: [false],
+        coVenturers_SCP: [false],
+        coVenturers_SCP_Board: [false],
+        steeringCommittee_SC: [false],
+        isACG: [{ value: false, disabled: true }],
+        isShah:  [{ value: false, disabled: true }],
+        isSCP:  [{ value: false, disabled: true }],
+        isBTC:  [{ value: false, disabled: true }],
+        isAsiman:  [{ value: false, disabled: true }],
+        isBPGroup:  [{ value: false, disabled: true }],
       }),
       costSharing: this.fb.group({
-        age: ['', Validators.required],
-        country: ['', Validators.required]
+        isCapex: [false],
+        isFixOpex: [false],
+        isVariableOpex: [false],
+        isInventoryItems: [false],
+        capexMethodology: [''],
+        fixOpexMethodology: [''],
+        variableOpexMethodology: [''],
+        inventoryItemsMethodology: ['']
       }),
       consultation: this.fb.group({
         consultation: this.fb.array([]),
@@ -115,7 +141,37 @@ export class Template1Component {
     this.generalInfoForm.get('generalInfo.contractValueUsd')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
     });
+
+    }
+
+  onSelectChange(event: any) {
+    const selectedOptions = Array.from(event.target.selectedOptions)
+      .map((option) => (option as HTMLOptionElement).text);
+
+    this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedOptions);
+
+    const costAllocationControl = this.generalInfoForm.get('costAllocation');
+    if (costAllocationControl) {
+      const mapping: { [key: string]: string } = {
+        "ACG": "isACG",
+        "Shah Deniz": "isShah",
+        "SCP": "isSCP",
+        "BTC": "isBTC",
+        "Sh-Asiman": "isAsiman",
+        "BP Group": "isBPGroup"
+      };
+
+      Object.keys(mapping).forEach((key) => {
+        const controlName = mapping[key];
+        const isSelected = selectedOptions.includes(key);
+        costAllocationControl.get(controlName)?.setValue(isSelected);
+      });
+    }
+
+
   }
+
+
 
   loadUserDetails(){
     this.userService.getUserDetailsList().subscribe({

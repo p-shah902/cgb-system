@@ -108,7 +108,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
-                    <select class="form-control" formControlName="globalCgb">
+                    <select class="form-control" formControlName="globalCGB">
                       <option value="">Select Status</option>
                       <option value="Approved">Approved</option>
                       <option value="Pending Approval">Pending Approval</option>
@@ -142,7 +142,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
-                    <input type="text" class="form-control" formControlName="subsector" placeholder="Enter Sub-sector"/>
+                    <input type="text" class="form-control" formControlName="subSector" placeholder="Enter Sub-sector"/>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -160,7 +160,7 @@
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager*</label>
                     <input type="text" class="form-control" placeholder="Enter Sub-sector"
-                           formControlName="contractAccountableManager"/>
+                           formControlName="camUserId"/>
                   </div>
                 </div>
 
@@ -173,7 +173,7 @@
                 <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>VP-1* </label>
-                      <select class="form-control" formControlName="vp1">
+                      <select class="form-control" formControlName="vP1UserId">
                         <option [value]="null">Select Status</option>
                         <option *ngFor="let user of userDetails" [value]="user.id">
                           {{ user.displayName }}
@@ -184,7 +184,7 @@
                 <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>Procurement SPA*</label>
-                      <select class="form-control" formControlName="procurementSpa" multiple>
+                      <select class="form-control" formControlName="procurementSPAUsers" multiple>
                           <ng-container *ngFor="let user of userDetails">
                           <option *ngIf="user.roleName === 'Procurement Tag'" [value]="user.id">
                             {{ user.displayName }}
@@ -196,7 +196,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>PDM*</label>
-                    <select class="form-control" formControlName="pdm">
+                    <select class="form-control" formControlName="pdManagerName">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
@@ -270,11 +270,11 @@
                     <label>PHCA </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" formControlName="phca" name="phca-radio" value="yes">
+                        <input type="radio" formControlName="isPHCA" name="phca-radio" [value]="true">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" formControlName="phca" name="phca-radio" value="no">
+                        <input type="radio" formControlName="isPHCA" name="phca-radio" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -283,7 +283,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PSA/JV</label>
-                    <select class="form-control" formControlName="psaJv" multiple>
+                    <select class="form-control" formControlName="psaJv" multiple (change)="onSelectChange($event)">
                       <option *ngFor="let option of psaJvOptions" [value]="option">
                         {{ option }}
                       </option>
@@ -296,11 +296,11 @@
                     <label>Long-Term Commercial Commitment (LTCC) </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="ltcc-radio" formControlName="ltcc" value="yes" checked>
+                        <input type="radio" name="ltcc-radio" formControlName="isLTCC" [value]="true">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="ltcc-radio" formControlName="ltcc" value="no">
+                        <input type="radio" name="ltcc-radio" formControlName="isLTCC" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -310,7 +310,7 @@
                   <div class="form-group mb-3">
                     <label>LTCC Note</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
-                              formControlName="ltccNote"></textarea>
+                              formControlName="ltccNotes"></textarea>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
@@ -318,12 +318,12 @@
                     <label>Aligned with Government Representative* </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="awgr-radio" value="yes" formControlName="alignedWithGovernmentRep"
-                               checked>
+                        <input type="radio" name="awgr-radio" [value]="true" formControlName="isGovtReprAligned"
+                               >
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="awgr-radio" formControlName="alignedWithGovernmentRep" value="no">
+                        <input type="radio" name="awgr-radio" formControlName="isGovtReprAligned" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -334,7 +334,7 @@
                   <div class="form-group mb-3">
                     <label>Government Representative Comment</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
-                              formControlName="governmentRepComment"></textarea>
+                              formControlName="govtReprAlignedComment"></textarea>
                   </div>
                 </div>
                <div class="col-md-12">
@@ -356,12 +356,12 @@
                     <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="conflictOfInterest" checked formControlName="conflictOfInterest"
+                        <input type="radio" name="conflictOfInterest" checked formControlName="isConflictOfInterest"
                                value="Yes">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="conflictOfInterest" formControlName="conflictOfInterest" value="No">
+                        <input type="radio" name="conflictOfInterest" formControlName="isConflictOfInterest" value="No">
                         <label>No</label>
                       </div>
                     </div>
@@ -371,14 +371,14 @@
                   <div class="form-group mb-3">
                     <label>Conflict of Interest Comments</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
-                              formControlName="conflictOfInterestComments"></textarea>
+                              formControlName="conflictOfInterestComment"></textarea>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Strategy Description</label>
                     <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config"
-                              formControlName="nationalContent">
+                              formControlName="strategyDescription">
                     </ckeditor>
                   </div>
                 </div>
@@ -404,7 +404,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Proposed Contract Management Level*</label>
-                    <select class="form-control" formControlName="contractManagementLevel">
+                    <select class="form-control" formControlName="contractMgmtLevel">
                       <option value="">Select Status</option>
                       <option value="Transactional">Transactional</option>
                       <option value="Core">Core</option>
@@ -425,7 +425,7 @@
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Sourcing Strategy</label>
-                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config" formControlName="SourcingStrategy">
+                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config" formControlName="sourcingStrategy">
                     </ckeditor>
                   </div>
                 </div>
@@ -488,7 +488,7 @@
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Single Source Justification</label>
-                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config" formControlName="sourceJustification">
+                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config" formControlName="singleSourceJustification">
                     </ckeditor>
                   </div>
                 </div>
@@ -561,7 +561,7 @@
                   <div class="form-group mb-3">
                     <label>SOCAR notification sent on</label>
                     <div class="date-input position-relative">
-                      <input type="date" class="form-control" placeholder="" formControlName="notificationSentOnDate"/>
+                      <input type="date" class="form-control" placeholder="" formControlName="socaRsentOn"/>
                     </div>
                   </div>
                 </div>
@@ -569,20 +569,20 @@
                   <div class="form-group mb-3">
                     <label>SOCAR Response Received Date</label>
                     <div class="date-input position-relative">
-                      <input type="date" class="form-control" placeholder="" formControlName="responseReceivedDate"/>
+                      <input type="date" class="form-control" placeholder="" formControlName="socaRreceivedOn"/>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>SOCAR’s response</label>
-                    <textarea type="text" class="form-control" placeholder="Write Description" formControlName="socarResponse"></textarea>
+                    <textarea type="text" class="form-control" placeholder="Write Description" formControlName="socarDescription"></textarea>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Results of Pre-qualification Exercise</label>
-                    <textarea type="text" class="form-control" placeholder="Write Description" formControlName="qualificationExercise"></textarea>
+                    <textarea type="text" class="form-control" placeholder="Write Description" formControlName="preQualificationResult"></textarea>
                   </div>
                 </div>
 
@@ -598,17 +598,17 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="Value"/>
+                      <input type="number" min="0" class="form-control" placeholder="Value" formControlName="costReductionValue"/>
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="%"/>
+                      <input type="number" min="0" max="100" class="form-control" placeholder="%" formControlName="costReductionPercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="Remark"/>
+                      <input type="text" class="form-control" placeholder="Remark" formControlName="costReductionRemarks"/>
                     </div>
                   </div>
                 </div>
@@ -618,17 +618,17 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="Value"/>
+                      <input type="number" min="0" class="form-control" placeholder="Value" formControlName="operatingEfficiencyValue"/>
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="%"/>
+                      <input type="number" min="0" max="100" class="form-control" placeholder="%" formControlName="operatingEfficiencyPercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="Remark"/>
+                      <input type="text" class="form-control" placeholder="Remark" formControlName="operatingEfficiencyRemarks"/>
                     </div>
                   </div>
                 </div>
@@ -638,17 +638,17 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="Value"/>
+                      <input type="number" min="0" class="form-control" placeholder="Value" formControlName="costAvoidanceValue"/>
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="%"/>
+                      <input type="number" min="0" max="100" class="form-control" placeholder="%" formControlName="costAvoidancePercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input type="text" class="form-control" placeholder="Remark"/>
+                      <input type="text" class="form-control" placeholder="Remark" formControlName="costAvoidanceRemarks"/>
                     </div>
                   </div>
                 </div>
@@ -667,7 +667,7 @@
                     <th>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input  formControlName="isACG"   type="checkbox">
                           <label>ACG</label>
                         </div>
                       </div>
@@ -675,7 +675,7 @@
                     <th>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="isShah" type="checkbox">
                           <label>Shah
                             Deniz</label>
                         </div>
@@ -684,7 +684,7 @@
                     <th>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="isSCP" type="checkbox">
                           <label>SCP</label>
                         </div>
                       </div>
@@ -692,7 +692,7 @@
                     <th>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="isBTC" type="checkbox">
                           <label>BTC</label>
                         </div>
                       </div>
@@ -700,7 +700,7 @@
                     <th>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="isAsiman" type="checkbox">
                           <label>Sh-Asiman</label>
                         </div>
                       </div>
@@ -708,7 +708,7 @@
                     <th>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="isBPGroup" type="checkbox">
                           <label>BP
                             Group</label>
                         </div>
@@ -779,7 +779,7 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="contractCommittee_SDCC" type="checkbox">
                           <label>SDCC</label>
                         </div>
                       </div>
@@ -787,11 +787,11 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="contractCommittee_SCP_Co_CC" type="checkbox">
                           <label>SCP Co CC</label>
                         </div>
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">
                           <label>SCP Co CC</label>
                         </div>
                         <div class="info-label position-relative">
@@ -802,11 +802,11 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="contractCommittee_BTC_CC" type="checkbox">
                           <label>BTC CC</label>
                         </div>
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">
                           <label>BTC CC </label>
                         </div>
                         <div class="info-label position-relative">
@@ -828,7 +828,7 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="coVenturers_CMC" type="checkbox">
                           <label>CMC</label>
                         </div>
                       </div>
@@ -836,7 +836,7 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="coVenturers_SDMC" type="checkbox">
                           <label>SDMC</label>
                         </div>
                       </div>
@@ -844,7 +844,7 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="coVenturers_SCP" type="checkbox">
                           <label>SCP</label>
                         </div>
                       </div>
@@ -852,7 +852,7 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="coVenturers_SCP_Board" type="checkbox">
                           <label>SCP Board</label>
                         </div>
                       </div>
@@ -874,7 +874,7 @@
                     <td>
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input formControlName="steeringCommittee_SC" type="checkbox">
                           <label>SCP Board</label>
                         </div>
                       </div>
@@ -915,7 +915,7 @@
                     <th width="15%">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input type="checkbox" formControlName="isCapex">
                           <label><b class="text-dark">Capex</b></label>
                         </div>
                       </div>
@@ -925,7 +925,7 @@
                         <div class="row">
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
+                              <input type="radio" name="capex-radio" value="1a" formControlName="capexMethodology">
                               <label>1a
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -941,7 +941,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
+                              <input type="radio" name="capex-radio" value="1b" formControlName="capexMethodology">
                               <label>1b
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -957,7 +957,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
+                              <input type="radio" name="capex-radio" value="1c" formControlName="capexMethodology">
                               <label>1c
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -973,7 +973,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
+                              <input type="radio" name="capex-radio" value="1d" formControlName="capexMethodology">
                               <label>1d
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -989,7 +989,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
+                              <input type="radio" name="capex-radio" value="1e" formControlName="capexMethodology">
                               <label>1e
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1013,7 +1013,7 @@
                     <th width="15%">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input type="checkbox" formControlName="isFixOpex">
                           <label><b class="text-dark">Fixed Opex</b></label>
                         </div>
                       </div>
@@ -1023,7 +1023,7 @@
                         <div class="row">
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" checked>
+                              <input type="radio" name="Fixed-radio" value="2a" formControlName="fixOpexMethodology">
                               <label>2a
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1039,7 +1039,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" checked>
+                              <input type="radio" name="Fixed-radio" value="2b" formControlName="fixOpexMethodology">
                               <label>2b
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1055,8 +1055,8 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" checked>
-                              <label>3c
+                              <input type="radio" name="Fixed-radio" value="2c" formControlName="fixOpexMethodology">
+                              <label>2c
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
                                        xmlns="http://www.w3.org/2000/svg">
@@ -1071,8 +1071,8 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>4d
+                              <input type="radio" name="Fixed-radio" value="2d" formControlName="fixOpexMethodology">
+                              <label>2d
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
                                        xmlns="http://www.w3.org/2000/svg">
@@ -1094,7 +1094,7 @@
                     <th width="15%">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input type="checkbox" formControlName="isVariableOpex">
                           <label><b class="text-dark">Variable Opex</b></label>
                         </div>
                       </div>
@@ -1116,7 +1116,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Variable-radio" checked>
+                              <input type="radio" name="Variable-radio" value="2d" formControlName="variableOpexMethodology">
                               <label>2d
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1140,7 +1140,7 @@
                     <th width="15%">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
+                          <input type="checkbox" formControlName="isInventoryItems">
                           <label><b class="text-dark">Inventory Items</b></label>
                         </div>
                       </div>
@@ -1151,7 +1151,7 @@
 
                                                    <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" checked>
+                              <input type="radio" name="Inventory-radio" value="Yes" formControlName="inventoryItemsMethodology">
                               <label>Yes
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1167,7 +1167,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" checked>
+                              <input type="radio" name="Inventory-radio" value="No" formControlName="inventoryItemsMethodology">
                               <label>No
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
