@@ -113,14 +113,14 @@
                   <img src="/img/visitor.png" alt="visitor" class="img-fluid">
                 </div>
                 <div class="text-start">
-                  <p>Martin Gurly</p>
-                  <span>Secretary</span>
+                  <p>{{ loggedInUser?.displayName }}</p>
+                  <span>{{ loggedInUser?.roleName }}</span>
                 </div>
               </div>
               <div class="profile-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
                 <div class="pfl-head">
-                  <h5>Martin Gurly</h5>
-                  <p>Martin.gurly_email.com</p>
+                  <h5>{{ loggedInUser?.displayName }}</h5>
+                  <p>{{ loggedInUser?.email }}</p>
                 </div>
                 <div class="pfl-body">
                   <a href="#">
@@ -147,7 +147,7 @@
                   </a>
                 </div>
                 <div class="pfl-footer">
-                  <a href="#">
+                  <a href="/login" (click)="authService.logout()">
                     <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M8.58862 14.8226C8.58862 14.6429 8.51725 14.4706 8.39021 14.3436C8.26317 14.2165 8.09087 14.1452 7.9112 14.1452H2.49185C2.43196 14.1452 2.37453 14.1214 2.33218 14.079C2.28983 14.0367 2.26604 13.9792 2.26604 13.9194V3.08065C2.26604 3.02076 2.28983 2.96332 2.33218 2.92098C2.37453 2.87863 2.43196 2.85484 2.49185 2.85484H7.9112C8.09087 2.85484 8.26317 2.78347 8.39021 2.65643C8.51725 2.52939 8.58862 2.35708 8.58862 2.17742C8.58862 1.99776 8.51725 1.82545 8.39021 1.69841C8.26317 1.57137 8.09087 1.5 7.9112 1.5H2.49185C1.61933 1.5 0.911204 2.20813 0.911204 3.08065V13.9194C0.911204 14.3386 1.07774 14.7406 1.37416 15.037C1.67059 15.3335 2.07264 15.5 2.49185 15.5H7.9112C8.09087 15.5 8.26317 15.4286 8.39021 15.3016C8.51725 15.1745 8.58862 15.0022 8.58862 14.8226Z"

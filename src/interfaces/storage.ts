@@ -1,4 +1,5 @@
 export enum Storage {
-    TOKEN = 'token',
-    USER_ROLE_ACCESS='userRoleAccesses'
+    TOKEN = 'paper_token',
+    USER_ROLE_ACCESS='paper_userRoleAccesses',
+    USER_DETAILS='paper_user'
 }
