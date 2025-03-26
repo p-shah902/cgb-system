@@ -86,7 +86,7 @@ export class AddNewRoleComponent  implements OnInit{
   loadUserParticulars(){
     this.roleService.getUserParticularsList(0).subscribe({
       next: (response) => {
-        if (response.success && response.data) {
+        if (response.status && response.data) {
           this.accessTypes = response.data;
           if (this.accessTypes.length > 0) {
             this.roleForm.patchValue({

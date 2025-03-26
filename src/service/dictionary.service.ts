@@ -26,7 +26,7 @@ export class DictionaryService {
         .get<ApiResponse<Item[]>>(getDictionaryItemsListUri)
         .pipe(
           tap((response)=>{
-            if(response.success&&response.data)
+            if(response.status&&response.data)
             {
               this.itemDetailSubject.next(response.data);
             }
@@ -40,7 +40,7 @@ export class DictionaryService {
         .get<ApiResponse<DictionaryDetail[]>>(getDictionaryListByItemNameUri,{params})
         .pipe(
           tap((response)=>{
-            if(response.success&&response.data)
+            if(response.status&&response.data)
             {
               this.dictionaryDetailSubject.next(response.data);
             }

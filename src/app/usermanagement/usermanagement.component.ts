@@ -23,7 +23,7 @@ export class UsermanagementComponent implements OnInit{
   loadUserDetails(){
     this.userService.getUserDetailsList().subscribe({
       next: (response)=>{
-        if(response.success && response.data)
+        if(response.status && response.data)
         {
           this.userDetails=response.data;
           console.log('user details',this.userDetails);

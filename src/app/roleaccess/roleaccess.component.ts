@@ -87,7 +87,7 @@ export class RoleaccessComponent implements OnInit {
   loadUserParticulars(){
     this.roleService.getUserParticularsList(0).subscribe({
       next: (response) => {
-        if (response.success && response.data) {
+        if (response.status && response.data) {
           this.accessTypes = response.data;
           console.log('AccessType',this.accessTypes);
         }

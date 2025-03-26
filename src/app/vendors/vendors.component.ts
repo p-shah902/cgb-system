@@ -4,6 +4,7 @@ import { VendorService } from '../../service/vendor.service';
 import { VendorDetail } from '../../models/vendor';
 import { CommonModule } from '@angular/common';
 import { ApiResponse } from '../../models/role';
+import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
   selector: 'app-vendors',
@@ -24,9 +25,14 @@ export class VendorsComponent implements OnInit {
 
   vendorDetails:VendorDetail[]=[];
 
+  constructor(){
+    console.log('vendore Details');
+  }
+
 
   ngOnInit(): void {
       this.loadVendoreDetails();
+      console.log(this.vendorDetails);
   }
 
   loadVendoreDetails()
@@ -34,17 +40,17 @@ export class VendorsComponent implements OnInit {
     
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
-        if (reponse.success && reponse.data) {
+        if (reponse.status && reponse.data) {
           
           this.vendorDetails = reponse.data;
-          console.log('user roles:', this.vendorDetails);
+          console.log('vendor:', this.vendorDetails);
         }
       },
       error: (error) => {
         console.log('error', error);
       },
     });
+    console.log('vendore Details2');
   }
-
 
 }
