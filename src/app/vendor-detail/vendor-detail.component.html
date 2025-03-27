@@ -1,7 +1,7 @@
 <!-- Toasts Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
-  <ngb-toast 
-    *ngFor="let toast of toastService.toasts" 
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
     [class]="'bg-' + toast.type"
     [autohide]="true"
     [delay]="5000"
@@ -16,7 +16,7 @@
   <div class="row">
     <div class="col-md-12 col-lg-12 col-xl-8">
       <div class="page-card-div mb-4">
-        <div class="page-card-body">  
+        <div class="page-card-body">
         <form [formGroup]="vendorForm">
           <div class="mb-4">
             <div class="fh-title mb-4">
@@ -160,8 +160,9 @@
               <button class="btn btn-outline-dark" (click)="resetForm()">
                 Discard
               </button>
-              <button 
-                  class="btn btn-primary" 
+              <button
+                  class="btn btn-primary"
+                  type="button"
                   (click)="submitVendor()"
                   [disabled]="isSubmitting"
               >

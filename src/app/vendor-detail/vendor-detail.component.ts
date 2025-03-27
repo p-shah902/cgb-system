@@ -18,7 +18,7 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class VendorDetailComponent  implements OnInit{
 
-  vendorDetail: VendorDetail|null=null; 
+  vendorDetail: VendorDetail|null=null;
 
   vendorForm!: FormGroup;
   originalVendorDetail!: VendorDetail;
@@ -67,7 +67,7 @@ export class VendorDetailComponent  implements OnInit{
     this.vendorForm.patchValue({
       ...vendor
   });
-    this.originalVendorDetail = { ...vendor }; 
+    this.originalVendorDetail = { ...vendor };
   }
 
   private resetToDefault(): void {
@@ -115,17 +115,17 @@ export class VendorDetailComponent  implements OnInit{
       this.fileError = 'File is required.';
       return;
     }
-  
+
     if (file.size > 10 * 1024 * 1024) {
       this.selectedFile = null;
       this.fileError = 'File size must not exceed 10MB.';
       return;
     }
-  
+
     this.selectedFile = file;
     this.fileError = null;
 
- 
+
 }
 
   private mapFormValues(): VendorDetail {
@@ -140,7 +140,7 @@ export class VendorDetailComponent  implements OnInit{
   }
 
   submitVendor(): void {
-    
+
     if (this.vendorForm.invalid || this.fileError) {
 
       console.log('Form is invalid');
@@ -150,7 +150,7 @@ export class VendorDetailComponent  implements OnInit{
         console.log(`Invalid field: ${key}`, control.errors);
       }
     });
-      
+
     this.toastService.show('Please Fill All Required Fields', 'danger');
     return;
     }
@@ -167,6 +167,7 @@ export class VendorDetailComponent  implements OnInit{
         }
       },
       error: (error) => {
+        this.isSubmitting = false;
         console.log('Error', error);
         this.toastService.show('Failed to save vendor details','danger');
       },complete: () => {
@@ -181,7 +182,7 @@ export class VendorDetailComponent  implements OnInit{
     this.countryService.getCountryDetails().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          
+
           this.countryDetails = reponse.data;
           console.log('country:', this.countryDetails);
         }
