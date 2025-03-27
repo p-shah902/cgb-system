@@ -5,18 +5,20 @@ import { VendorService } from '../../service/vendor.service';
 import { VendorDetail } from '../../models/vendor';
 import { Generalervice } from '../../service/general.service';
 import { CountryDetail } from '../../models/general';
-import { Router } from '@angular/router';
+import { ToastService } from '../../service/toast.service';
+import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 @Component({
   selector: 'app-vendor-detail',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule,CommonModule],
+  imports: [FormsModule, ReactiveFormsModule,CommonModule,NgbToastModule],
   templateUrl: './vendor-detail.component.html',
   styleUrl: './vendor-detail.component.scss'
 })
 export class VendorDetailComponent  implements OnInit{
 
-  vendorDetail: VendorDetail|null=null; 
+  vendorDetail: VendorDetail|null=null;
 
   vendorForm!: FormGroup;
   originalVendorDetail!: VendorDetail;
@@ -25,7 +27,9 @@ export class VendorDetailComponent  implements OnInit{
   fileError: string | null = null;
   countryDetails:CountryDetail[]=[];
 
-  constructor(private fb: FormBuilder,
+  isSubmitting=false;
+
+  constructor(private fb: FormBuilder,public toastService:ToastService,
      private vendorService: VendorService,private countryService:Generalervice) {
 
     this.vendorForm = this.fb.group({
@@ -33,7 +37,7 @@ export class VendorDetailComponent  implements OnInit{
       vendorName: ['', Validators.required],
       taxId: ['', Validators.required],
       sapId: ['', Validators.required],
-      country: [null, Validators.required],
+      countryId: [0, Validators.min(1)],
       isActive: [true],
       contactPerson: ['Temp', Validators.required],
       contactEmail: ['Temp@gmail.com', [Validators.required, Validators.email]],
@@ -61,9 +65,9 @@ export class VendorDetailComponent  implements OnInit{
 
   private setVendorData(vendor: VendorDetail): void {
     this.vendorForm.patchValue({
-      ...vendor,
-      country:this.countryDetails.find(country=>country.id===vendor.countryId)||null});
-    this.originalVendorDetail = { ...vendor }; 
+      ...vendor
+  });
+    this.originalVendorDetail = { ...vendor };
   }
 
   private resetToDefault(): void {
@@ -72,7 +76,7 @@ export class VendorDetailComponent  implements OnInit{
       vendorName: '',
       taxId: '',
       sapId: '',
-      countryId: this.countryDetails.length>0?this.countryDetails[0].id:1,
+      countryId:0,
       isActive: true,
       contactPerson: 'Temp',
       contactEmail: 'Temp@gmail.com',
@@ -89,8 +93,7 @@ export class VendorDetailComponent  implements OnInit{
       modifiedUser: null
     };
     this.vendorForm.patchValue({
-      ...this.originalVendorDetail,
-        country:this.countryDetails.find(country=>country.id==this.originalVendorDetail.countryId)||null
+      ...this.originalVendorDetail
     });
   }
 
@@ -98,7 +101,6 @@ export class VendorDetailComponent  implements OnInit{
     if (this.editMode) {
       this.vendorForm.patchValue({
         ...this.originalVendorDetail,
-        country:this.countryDetails.find(country=>country.id==this.originalVendorDetail.countryId)||null
       });
     } else {
       this.resetToDefault();
@@ -113,17 +115,17 @@ export class VendorDetailComponent  implements OnInit{
       this.fileError = 'File is required.';
       return;
     }
-  
+
     if (file.size > 10 * 1024 * 1024) {
       this.selectedFile = null;
       this.fileError = 'File size must not exceed 10MB.';
       return;
     }
-  
+
     this.selectedFile = file;
     this.fileError = null;
 
- 
+
 }
 
   private mapFormValues(): VendorDetail {
@@ -131,36 +133,46 @@ export class VendorDetailComponent  implements OnInit{
     console.log('form Vale',formValues);
     return {
       ...formValues,
-      countryId:formValues.country?.id || 0,
+      countryId:formValues.countryId,
       createdDate: new Date().toISOString(),
       modifiedDate: new Date().toISOString()
     };
   }
 
   submitVendor(): void {
-    
+
     if (this.vendorForm.invalid || this.fileError) {
-        console.log('Form is invalid');
-        Object.keys(this.vendorForm.controls).forEach((key) => {
-        const control = this.vendorForm.get(key);
-        if (control && control.invalid) {
-          console.log(`Invalid field: ${key}`, control.errors);
-        }
-      });
-      return;
+
+      console.log('Form is invalid');
+      Object.keys(this.vendorForm.controls).forEach((key) => {
+      const control = this.vendorForm.get(key);
+      if (control && control.invalid) {
+        console.log(`Invalid field: ${key}`, control.errors);
+      }
+    });
+
+    this.toastService.show('Please Fill All Required Fields', 'danger');
+    return;
     }
+    if (this.isSubmitting) return;
 
     const vendorData = this.mapFormValues();
     console.log('vendor Details',vendorData);
+    console.log('file',this.selectedFile);
+    this.isSubmitting = true;
     this.vendorService.upsertVendorDetail(vendorData, this.selectedFile).subscribe({
       next: (response) => {
-        if (response.success === false) {
-          console.log('Error Accured');
+        if (response&&response.status) {
+          this.toastService.show('Vendor details saved successfully', 'success');
         }
       },
       error: (error) => {
+        this.isSubmitting = false;
         console.log('Error', error);
-      },
+        this.toastService.show('Failed to save vendor details','danger');
+      },complete: () => {
+        this.isSubmitting = false;
+      }
     });
 
     this.resetToDefault();
@@ -170,13 +182,9 @@ export class VendorDetailComponent  implements OnInit{
     this.countryService.getCountryDetails().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          
+
           this.countryDetails = reponse.data;
           console.log('country:', this.countryDetails);
-
-          if (this.countryDetails.length > 0) {
-            this.vendorForm.patchValue({ country: this.countryDetails[0] });
-          }
         }
       },
       error: (error) => {

@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { DictionaryDetail, Item } from '../models/dictionary';
 import { ApiResponse } from '../models/role';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { getDictionaryItemsListUri, getDictionaryListByItemNameUri } from '../utils/api/api';
+import { getDictionaryItemsListUri, getDictionaryListByItemNameUri, upsertDictionariesUri } from '../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -47,4 +47,16 @@ export class DictionaryService {
           })
         );
     }
+
+     upsertDictionary(upsertPayload:DictionaryDetail):Observable<ApiResponse<any>>{
+          return this.http.post<ApiResponse<any>>(upsertDictionariesUri,upsertPayload).pipe(
+                tap(response => {
+                  console.log(response);
+                  if (response && response.status) {
+      
+                    console.log('Dictionary Added');
+                  }
+                })
+              );
+        }
 }

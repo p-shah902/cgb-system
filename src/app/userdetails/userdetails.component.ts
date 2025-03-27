@@ -13,11 +13,14 @@ import { Generalervice } from '../../service/general.service';
 import { UserRole } from '../../models/role';
 import { RoleService } from '../../service/role.service';
 import { CommonModule } from '@angular/common';
+import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../service/toast.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-userdetails',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule,CommonModule],
+  imports: [FormsModule, ReactiveFormsModule,CommonModule,NgbToastModule],
   templateUrl: './userdetails.component.html',
   styleUrl: './userdetails.component.scss',
 })
@@ -27,19 +30,21 @@ export class UserdetailsComponent implements OnInit {
   departments: DepartmentDetails[] = [];
   userRoles: UserRole[] = [];
   isEditMode = false;
+  isSubmitting=false;
 
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private departmentService: Generalervice,
-    private roleService: RoleService
+    private roleService: RoleService,
+    public toastService:ToastService
   ) {
     this.userForm = this.fb.group({
       id: [0],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.minLength(4)]],
-      role: [null, Validators.required],
-      dept: [null, Validators.required],
+      roleId: [0, Validators.min(1)],
+      departmentId: [0, Validators.min(1)],
       phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       displayName:['', Validators.required],
       isActive: [true],
@@ -58,45 +63,42 @@ export class UserdetailsComponent implements OnInit {
       password: formValues.password || '123456',
       createdDate: new Date(formValues.createdDate).toISOString(),
       modifiedDate: new Date(formValues.modifiedDate).toISOString(),
-      roleId: formValues.role?.id || 0,
-      roleName: formValues.role?.name || '',
-      departmentId: formValues.dept?.id || 0,
-      departmentName: formValues.dept?.displayName || ''
+      roleName: this.userRoles.find(role=>role.id === formValues.roleId)?.name || '',
+      departmentName: this.departments.find(dept=>dept.id===formValues.departmentId)?.displayName|| ''
     };
   }
 
   ngOnInit(): void {
     this.loadDepartment();
     this.loadRole();  
-
-    if (this.userDetail) {
-      this.isEditMode = true;
-      this.userForm.patchValue({
-        ...this.userDetail,
-        role: this.userRoles.find(role => role.id === this.userDetail?.roleId) || null,
-        department: this.departments.find(dept => dept.id === this.userDetail?.departmentId) || null
-      });
-    }
   }
 
   addUserDetails(): void {
     if (this.userForm.valid) {
       
+      if (this.isSubmitting) return;
       this.mapFormValues();
       console.log('User Details:', this.userDetail);
-
+      this.isSubmitting=true;
       this.userService.upsertUser(this.userDetail).subscribe({
         next: (response) => {
-          if (response.success === false) {
-            console.log('Error Accured');
+          if (response&&response.status) {
+            this.toastService.show('User Added Succesfully','success');
+          }
+          else{
+            this.toastService.show('Something Went Wrong','warning');
           }
         },
         error: (error) => {
           console.log('Error', error);
-        },
+          this.toastService.show('Error Occured','danger');
+        },complete:()=>{
+          this.isSubmitting=false;
+        }
       });
     } else {
       console.log('Form is invalid');
+      this.toastService.show('Please Fill All Required Fields', 'danger');
         Object.keys(this.userForm.controls).forEach((key) => {
         const control = this.userForm.get(key);
         if (control && control.invalid) {
@@ -105,21 +107,15 @@ export class UserdetailsComponent implements OnInit {
       });
       return;
     }
+
+    this.resetForm();
   }
 
   resetForm(): void {
-    if (this.isEditMode && this.userDetail) {
-      this.userForm.patchValue({
-        ...this.userDetail,
-        role: this.userRoles.find(role => role.id === this.userDetail?.roleId) || null,
-        department: this.departments.find(dept => dept.id === this.userDetail?.departmentId) || null
-      });
-    } 
-    else{
       this.userForm.reset({
         id: 0,
-        role: this.userRoles.length > 0 ? this.userRoles[0] : null, 
-        dept: this.departments.length > 0 ? this.departments[0] : null,
+        roleId: 0, 
+        departmentId: 0,
         isActive: true,
         isViewPaper: false,
         isEditPaper: false,
@@ -128,8 +124,6 @@ export class UserdetailsComponent implements OnInit {
         createdDate: new Date().toISOString(),
         modifiedDate: new Date().toISOString(),
       });
-    }
-
     this.mapFormValues();
   }
 
@@ -140,10 +134,6 @@ export class UserdetailsComponent implements OnInit {
           
           this.departments = reponse.data;
           console.log('department:', this.departments);
-
-          if (this.departments.length > 0) {
-            this.userForm.patchValue({ dept: this.departments[0] });
-          }
         }
       },
       error: (error) => {
@@ -159,10 +149,6 @@ export class UserdetailsComponent implements OnInit {
           
           this.userRoles = reponse.data;
           console.log('user roles:', this.userRoles);
-
-          if (this.userRoles.length > 0) {
-            this.userForm.patchValue({ role: this.userRoles[0] });
-          }
         }
       },
       error: (error) => {
@@ -178,10 +164,9 @@ export class UserdetailsComponent implements OnInit {
       password: formValues.password || '123456',
       createdDate: new Date(formValues.createdDate).toISOString(),
       modifiedDate: new Date(formValues.modifiedDate).toISOString(),
-      roleId: formValues.role?.id || 0,
-      roleName: formValues.role?.name || '',
-      departmentId: formValues.dept?.id || 0,
-      departmentName: formValues.dept?.displayName || ''
+      roleName: this.userRoles.find(role=>role.id === Number(formValues.roleId))?.name || '',
+      departmentName: this.departments.find(dept=>dept.id===Number(formValues.departmentId))?.displayName|| ''
     };
   }
+
 }

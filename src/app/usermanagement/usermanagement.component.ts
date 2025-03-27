@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from '../../service/user.service';
 import { UserDetails } from '../../models/user';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-usermanagement',
   standalone: true,
@@ -13,6 +14,7 @@ import { UserDetails } from '../../models/user';
 export class UsermanagementComponent implements OnInit{
 
   private readonly userService=inject(UserService);
+  private readonly router=inject(Router);
 
   userDetails:UserDetails[]=[];
 
@@ -32,6 +34,10 @@ export class UsermanagementComponent implements OnInit{
         console.log('error',error);
       }
     })
+  }
+
+  nevigate(){
+    this.router.navigate(['/userdetails']);
   }
 
 }

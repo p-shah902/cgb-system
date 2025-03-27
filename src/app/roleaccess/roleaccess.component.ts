@@ -52,7 +52,6 @@ export class RoleaccessComponent implements OnInit {
     this.roleService.getUserRolesList().subscribe({
       next: (response) => {
         this.roles = response.data.slice(0, 5);
-        console.log('dd', this.roles);
       }, error: (error) => {
         console.error('Error loading user particulars', error);
       }
@@ -63,7 +62,6 @@ export class RoleaccessComponent implements OnInit {
     this.roleService.getAllRoleAccessList().subscribe({
       next: (response) => {
         this.userRoleAccesses = response.data
-        console.log('d---------d', this.userRoleAccesses);
       }, error: (error) => {
         console.error('Error loading user particulars', error);
       }
@@ -75,7 +73,6 @@ export class RoleaccessComponent implements OnInit {
       next: (response) => {
         if (response.status && response.data) {
           this.accessTypes = response.data;
-          console.log('AccessType', this.accessTypes);
         }
       },
       error: (error) => {

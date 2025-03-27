@@ -1,8 +1,22 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12 col-lg-12 col-xl-8">
       <div class="page-card-div mb-4">
-        <div class="page-card-body">  
+        <div class="page-card-body">
         <form [formGroup]="vendorForm">
           <div class="mb-4">
             <div class="fh-title mb-4">
@@ -30,8 +44,9 @@
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>Country</label>
-                  <select class="form-control" formControlName="country">
-                    <option *ngFor="let country of countryDetails" [value]="country">{{country.countryName}}</option>
+                  <select class="form-control" formControlName="countryId">
+                    <option [value]="0">Select Country</option>
+                    <option *ngFor="let country of countryDetails" [value]="country.id">{{country.countryName}}</option>
                   </select>
                 </div>
               </div>
@@ -145,8 +160,15 @@
               <button class="btn btn-outline-dark" (click)="resetForm()">
                 Discard
               </button>
-              <button class="btn btn-primary" (click)="submitVendor()">
-                Save Changes
+              <button
+                  class="btn btn-primary"
+                  type="button"
+                  (click)="submitVendor()"
+                  [disabled]="isSubmitting"
+              >
+                <span *ngIf="!isSubmitting">Save Changes</span>
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                <span *ngIf="isSubmitting">Saving...</span>
               </button>
             </div>
           </div>
