@@ -29,18 +29,14 @@ export class VendorService {
         );
     }
 
-    upsertVendorDetail(vendorPayload:VendorDetail,file:File|null){
+    upsertVendorDetail(vendorPayload:VendorDetail,file:File|null):Observable<ApiResponse<any>>{
         const formData=this.createFormData(vendorPayload,file);
-        return this.http.post<any>(upsertVendorsUri,formData).pipe(
+        return this.http.post<ApiResponse<any>>(upsertVendorsUri,formData).pipe(
               tap(response => {
                 console.log(response);
                 if (response && response.status) {
                   console.log('response',response.data);
                 }
-              }),
-              catchError(error => {
-                console.error(error);
-                return of({ success: false, message: error.error?.message || 'Error Accured' });
               })
             );
       }

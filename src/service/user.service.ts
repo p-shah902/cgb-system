@@ -28,18 +28,14 @@ export class UserService {
       );
   }
 
-  upsertUser(upsertPayload:UserDetails){
-      return this.http.post<any>(upsertUserUri,upsertPayload).pipe(
+  upsertUser(upsertPayload:UserDetails):Observable<ApiResponse<any>>{
+      return this.http.post<ApiResponse<any>>(upsertUserUri,upsertPayload).pipe(
             tap(response => {
               console.log(response);
-              if (response && response.success) {
+              if (response && response.status) {
   
                 this.isUpsertUserSubject.next(true);
               }
-            }),
-            catchError(error => {
-              console.error(error);
-              return of({ success: false, message: error.error?.message || 'Error Accured' });
             })
           );
     }

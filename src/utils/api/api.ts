@@ -10,5 +10,6 @@ export const upsertVendorsUri=baseUri+'/api/VendorMaster/UpsertVendors';
 export const upsertUserUri = baseUri + '/api/UserMaster/UpsertUser';
 export const getDepartmentListUri =baseUri + '/api/GeneralMethod/GetDepartmentList';
 export const getDictionaryItemsListUri=baseUri+'/api/GeneralMethod/GetDictionaryItemsList';
-export const getDictionaryListByItemNameUri=baseUri+'api/GeneralMethod/GetDictionaryListByItemName';
+export const getDictionaryListByItemNameUri=baseUri+'/api/GeneralMethod/GetDictionaryListByItemName';
+export const upsertDictionariesUri=baseUri+'/api/GeneralMethod/UpsertDictionaries';
 export const getCountryListUri =baseUri+'/api/GeneralMethod/GetCountryList';
