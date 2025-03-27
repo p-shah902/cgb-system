@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, Renderer2, ViewChild, ElementRef} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
@@ -22,13 +22,15 @@ import {Generalervice} from '../../service/general.service';
 })
 export class Template1Component {
   generalInfoForm!: FormGroup;
-  private readonly userService=inject(UserService);
-  private readonly paperService=inject(PaperService);
+  private readonly userService = inject(UserService);
+  private readonly paperService = inject(PaperService);
 
-  userDetails:UserDetails[]=[];
-  countryDetails:CountryDetail[]=[];
+  userDetails: UserDetails[] = [];
+  countryDetails: CountryDetail[] = [];
+  @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
+  highlightClass = 'highlight'; // CSS class for highlighting
 
-  constructor(private fb: FormBuilder,private countryService:Generalervice) {
+  constructor(private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2) {
   }
 
   public Editor: typeof ClassicEditor | null = null;
@@ -64,13 +66,13 @@ export class Template1Component {
         pdManagerName: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
-        exchangeRate: [{ value: 0, disabled: true }], // Number input
-        contractValueOriginalCurrency: [{ value: 0, disabled: true }], // Number input
+        exchangeRate: [0], // Number input
+        contractValueOriginalCurrency: [0], // Number input
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', Validators.required],
         isIFRS16: [false],
         isGIAAPCheck: [false],
-        isPHCA:  [false],
+        isPHCA: [false],
         psajv: [[], Validators.required],
         isLTCC: [false],
         ltccNotes: [''],
@@ -94,63 +96,63 @@ export class Template1Component {
         preQualificationResult: [''],
       }),
       valueDelivery: this.fb.group({
-        costReductionPercent: [null],
+        costReductionPercent: [0],
         costReductionValue: [0],
-        costReductionRemarks: [null],
+        costReductionRemarks: [''],
         operatingEfficiencyValue: [0],
-        operatingEfficiencyPercent: [null],
-        operatingEfficiencyRemarks: [null],
+        operatingEfficiencyPercent: [0],
+        operatingEfficiencyRemarks: [''],
         costAvoidanceValue: [0],
-        costAvoidancePercent: [null],
-        costAvoidanceRemarks: [null],
+        costAvoidancePercent: [0],
+        costAvoidanceRemarks: [''],
       }),
       costAllocation: this.fb.group({
-        contractCommittee_SDCC: [{ value: false, disabled: true }],
-        contractCommittee_SCP_Co_CC: [{ value: false, disabled: true }],
-        contractCommittee_SCP_Co_CCInfoNote: [{ value: false, disabled: true }],
-        contractCommittee_BTC_CC: [{ value: false, disabled: true }],
-        contractCommittee_BTC_CCInfoNote: [{ value: false, disabled: true }],
+        contractCommittee_SDCC: [{value: false, disabled: true}],
+        contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
+        contractCommittee_SCP_Co_CCInfoNote: [{value: false, disabled: true}],
+        contractCommittee_BTC_CC: [{value: false, disabled: true}],
+        contractCommittee_BTC_CCInfoNote: [{value: false, disabled: true}],
         contractCommittee_CGB: [false], //TODO discuss
-        coVenturers_CMC: [{ value: false, disabled: true }],
-        coVenturers_SDMC: [{ value: false, disabled: true }],
-        coVenturers_SCP: [{ value: false, disabled: true }],
-        coVenturers_SCP_Board: [{ value: false, disabled: true }],
-        steeringCommittee_SC: [{ value: false, disabled: true }],
-        isACG: [{ value: false, disabled: true }],
-        isShah:  [{ value: false, disabled: true }],
-        isSCP:  [{ value: false, disabled: true }],
-        isBTC:  [{ value: false, disabled: true }],
-        isAsiman:  [{ value: false, disabled: true }],
-        isBPGroup:  [{ value: false, disabled: true }],
+        coVenturers_CMC: [{value: false, disabled: true}],
+        coVenturers_SDMC: [{value: false, disabled: true}],
+        coVenturers_SCP: [{value: false, disabled: true}],
+        coVenturers_SCP_Board: [{value: false, disabled: true}],
+        steeringCommittee_SC: [{value: false, disabled: true}],
+        isACG: [{value: false, disabled: true}],
+        isShah: [{value: false, disabled: true}],
+        isSCP: [{value: false, disabled: true}],
+        isBTC: [{value: false, disabled: true}],
+        isAsiman: [{value: false, disabled: true}],
+        isBPGroup: [{value: false, disabled: true}],
         // Percentage fields with validation (0-100)
-        percentage_isACG: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
-        percentage_isShah: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
-        percentage_isSCP: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
-        percentage_isBTC: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
-        percentage_isAsiman: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
-        percentage_isBPGroup: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isACG: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
+        percentage_isShah: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
+        percentage_isSCP: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
+        percentage_isBTC: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
+        percentage_isAsiman: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
+        percentage_isBPGroup: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
 
-        value_isACG: [{ value: '', disabled: true }],
-        value_isShah: [{ value: '', disabled: true }],
-        value_isSCP: [{ value: '', disabled: true }],
-        value_isBTC: [{ value: '', disabled: true }],
-        value_isAsiman: [{ value: '', disabled: true }],
-        value_isBPGroup: [{ value: '', disabled: true }],
+        value_isACG: [{value: '', disabled: true}],
+        value_isShah: [{value: '', disabled: true}],
+        value_isSCP: [{value: '', disabled: true}],
+        value_isBTC: [{value: '', disabled: true}],
+        value_isAsiman: [{value: '', disabled: true}],
+        value_isBPGroup: [{value: '', disabled: true}],
 
-        totalPercentage: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(100)]],
-        totalValue: [{ value: 0, disabled: true }]
+        totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
+        totalValue: [{value: 0, disabled: true}]
       }),
       costSharing: this.fb.group({
         isCapex: [false],
         isFixOpex: [false],
         isVariableOpex: [false],
         isInventoryItems: [false],
-        capexMethodology: [{ value: '', disabled: true }],
-        fixOpexMethodology: [{ value: '', disabled: true }],
-        variableOpexMethodology: [{ value: '', disabled: true }],
-        inventoryItemsMethodology: [{ value: '', disabled: true }]
+        capexMethodology: [{value: '', disabled: true}],
+        fixOpexMethodology: [{value: '', disabled: true}],
+        variableOpexMethodology: [{value: '', disabled: true}],
+        inventoryItemsMethodology: [{value: '', disabled: true}]
       }),
-        consultation: this.fb.array([]),
+      consultation: this.fb.array([]),
     });
 
     // Initialize with one row to prevent errors
@@ -173,6 +175,38 @@ export class Template1Component {
     this.setupPSACalculations()
 
   }
+
+  onSearch(target: EventTarget | null) {
+    if (!target) return;
+
+    const inputElement = target as HTMLInputElement;
+    const searchText = inputElement.value.trim().toLowerCase();
+
+    if (!searchText) return;
+
+    // Remove old highlights
+    document.querySelectorAll(`.${this.highlightClass}`).forEach(el => {
+      this.renderer.removeClass(el, this.highlightClass);
+    });
+
+    // Find label that matches the search text
+    const labels = Array.from(document.querySelectorAll('label'));
+    const matchingLabel = labels.find(label => label.textContent?.toLowerCase().includes(searchText));
+
+    if (matchingLabel) {
+      // Add highlight to the label
+      this.renderer.addClass(matchingLabel, this.highlightClass);
+
+      // Scroll into view
+      matchingLabel.scrollIntoView({behavior: 'smooth', block: 'center'});
+
+      // Optionally, remove highlight after some time
+      setTimeout(() => {
+        this.renderer.removeClass(matchingLabel, this.highlightClass);
+      }, 2000);
+    }
+  }
+
 
   loadCountry() {
     this.countryService.getCountryDetails().subscribe({
@@ -232,13 +266,13 @@ export class Template1Component {
         const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
 
         //checkboxes
-       const ACG1=  this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
+        const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
         const ACG2 = this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)
 
-        const SD1=  this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
+        const SD1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
         const SD2 = this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)
 
-        const SCP1=  this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
+        const SCP1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
         const SCP2 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)
         const SCP3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)
 
@@ -251,17 +285,17 @@ export class Template1Component {
           percentageControl?.enable();
           valueControl?.enable();
 
-          if(checkbox === "isACG") {
+          if (checkbox === "isACG") {
             ACG1?.enable();
             ACG2?.enable();
-          } else if(checkbox === "isShah") {
+          } else if (checkbox === "isShah") {
             SD1?.enable();
             SD2?.enable();
-          } else if(checkbox === "isSCP") {
+          } else if (checkbox === "isSCP") {
             SCP1?.enable();
             SCP2?.enable();
             SCP3?.enable();
-          }  else if(checkbox === "isBTC") {
+          } else if (checkbox === "isBTC") {
             BTC1?.enable();
             BTC2?.enable();
             BTC3?.enable();
@@ -273,24 +307,24 @@ export class Template1Component {
           valueControl?.reset();
           valueControl?.disable();
 
-          if(checkbox === "isACG") {
+          if (checkbox === "isACG") {
             ACG1?.disable();
             ACG1?.reset();
             ACG2?.disable();
             ACG2?.reset();
-          } else if(checkbox === "isShah") {
+          } else if (checkbox === "isShah") {
             SD1?.disable();
             SD1?.reset();
             SD2?.disable();
             SD2?.reset();
-          } else if(checkbox === "isSCP") {
+          } else if (checkbox === "isSCP") {
             SCP1?.enable();
             SCP2?.enable();
             SCP3?.enable();
             SCP1?.reset();
             SCP2?.reset();
             SCP3?.reset();
-          }   else if(checkbox === "isBTC") {
+          } else if (checkbox === "isBTC") {
             BTC1?.disable();
             BTC2?.disable();
             BTC3?.disable();
@@ -303,7 +337,7 @@ export class Template1Component {
     });
 
     // Listen for changes in percentage and value fields to update total
-    psaControls.forEach(({ percentage, value }) => {
+    psaControls.forEach(({percentage, value}) => {
       this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe(() => this.calculateTotal());
       this.generalInfoForm.get(`costAllocation.${value}`)?.valueChanges.subscribe(() => this.calculateTotal());
     });
@@ -311,21 +345,21 @@ export class Template1Component {
 
   setupPSACalculations() {
     const psaControls = [
-      { percentage: 'percentage_isACG', value: 'value_isACG' },
-      { percentage: 'percentage_isShah', value: 'value_isShah' },
-      { percentage: 'percentage_isSCP', value: 'value_isSCP' },
-      { percentage: 'percentage_isBTC', value: 'value_isBTC' },
-      { percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
-      { percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+      {percentage: 'percentage_isACG', value: 'value_isACG'},
+      {percentage: 'percentage_isShah', value: 'value_isShah'},
+      {percentage: 'percentage_isSCP', value: 'value_isSCP'},
+      {percentage: 'percentage_isBTC', value: 'value_isBTC'},
+      {percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
+      {percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
     ];
 
-    psaControls.forEach(({ percentage, value }) => {
+    psaControls.forEach(({percentage, value}) => {
       this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe((percentageValue) => {
         const contractValue = this.generalInfoForm.get('generalInfo.contractValueUsd')?.value || 0;
 
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
-          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, { emitEvent: false });
+          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
         }
       });
     });
@@ -355,35 +389,33 @@ export class Template1Component {
     });
 
     // Update total fields
-    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
-    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, {emitEvent: false});
+    costAllocation.get('totalValue')?.setValue(totalValue, {emitEvent: false});
   }
 
 
-
-  loadUserDetails(){
+  loadUserDetails() {
     this.userService.getUserDetailsList().subscribe({
-      next: (response)=>{
-        if(response.status && response.data)
-        {
-          this.userDetails=response.data;
-          console.log('user details',this.userDetails);
+      next: (response) => {
+        if (response.status && response.data) {
+          this.userDetails = response.data;
+          console.log('user details', this.userDetails);
         }
-      },error:(error)=>{
-        console.log('error',error);
+      }, error: (error) => {
+        console.log('error', error);
       }
     })
   }
 
-  setupMethodologyListeners(){
+  setupMethodologyListeners() {
     const controls = [
-      { checkbox: 'isCapex', methodology: 'capexMethodology' },
-      { checkbox: 'isFixOpex', methodology: 'fixOpexMethodology' },
-      { checkbox: 'isInventoryItems', methodology: 'inventoryItemsMethodology' },
-      { checkbox: 'isVariableOpex', methodology: 'variableOpexMethodology' }
+      {checkbox: 'isCapex', methodology: 'capexMethodology'},
+      {checkbox: 'isFixOpex', methodology: 'fixOpexMethodology'},
+      {checkbox: 'isInventoryItems', methodology: 'inventoryItemsMethodology'},
+      {checkbox: 'isVariableOpex', methodology: 'variableOpexMethodology'}
     ];
 
-    controls.forEach(({ checkbox, methodology }) => {
+    controls.forEach(({checkbox, methodology}) => {
       this.generalInfoForm.get(`costSharing.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
         const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
 
@@ -566,12 +598,12 @@ export class Template1Component {
 
     // Mapping PSAs from the costAllocation object
     const psaMappings = [
-      { key: "isACG", name: "ACG" },
-      { key: "isShah", name: "Shah Deniz" },
-      { key: "isSCP", name: "SCP" },
-      { key: "isBTC", name: "BTC" },
-      { key: "isAsiman", name: "Sh-Asiman" },
-      { key: "isBPGroup", name: "BP Group" }
+      {key: "isACG", name: "ACG"},
+      {key: "isShah", name: "Shah Deniz"},
+      {key: "isSCP", name: "SCP"},
+      {key: "isBTC", name: "BTC"},
+      {key: "isAsiman", name: "Sh-Asiman"},
+      {key: "isBPGroup", name: "BP Group"}
     ];
 
     const costAllocationJVApproval = psaMappings
@@ -594,23 +626,14 @@ export class Template1Component {
 
     const params = {
       papers: {
+        paperStatusId: 1,
         paperProvision: generalInfoValue?.paperProvision,
-        paperType: "Approach to Market",
-        paperStatusName: "test",
         purposeRequired: "test",
-
-        // "id": 0,
-        // "paperStatusId": 1,
-        // "paperStatusName": "test",
-        // "isActive": true,
-        // "createdBy": 2,
-        // "createdDate": "2025-03-26T03:58:41.353Z",
-        // "modifiedBy": 2,
-        // "modifiedDate": "2025-03-26T03:58:41.353Z"
+        isActive: true
       },
       approachMarket: {
-        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || "test-ref",
-        // "cgbCirculationDate": null,
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
+        cgbCirculationDate: null,
         scopeOfWork: generalInfoValue?.scopeOfWork,
         globalCGB: generalInfoValue?.globalCGB,
         bltMember: generalInfoValue?.bltMember,
@@ -619,10 +642,10 @@ export class Template1Component {
         sourcingType: generalInfoValue?.sourcingType,
         camUserId: generalInfoValue?.camUserId || 1,
         vP1UserId: generalInfoValue?.vP1UserId || "",
-        procurementSPAUsers:  generalInfoValue?.procurementSPAUsers.join(',') || "1,2",
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers.join(',') || "1,2",
         pdManagerName: generalInfoValue?.pdManagerName || 1,
         isPHCA: generalInfoValue?.isPHCA,
-        psajv:  generalInfoValue?.psajv.join(',') || "",
+        psajv: generalInfoValue?.psajv.join(',') || "",
         totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
         currencyCode: generalInfoValue?.originalCurrency || "",
         exchangeRate: generalInfoValue?.exchangeRate,
@@ -652,8 +675,11 @@ export class Template1Component {
       bidInvite: procurementValue.inviteToBid,
       riskMitigation: procurementValue.risks,
       valueDeliveriesCostSharings: {
-        ...costSharingValues,
-        ...valueDeliveryValues
+        ...valueDeliveryValues,
+        capexMethodology: costSharingValues.capexMethodology || "",
+        fixOpexMethodology: costSharingValues.fixOpexMethodology || "",
+        variableOpexMethodology: costSharingValues.variableOpexMethodology || "",
+        inventoryItemsMethodology: costSharingValues.inventoryItemsMethodology || "",
       },
       costAllocationJVApproval: costAllocationJVApproval,
       jvApproval: {
@@ -663,7 +689,7 @@ export class Template1Component {
         contractCommittee_SCP_Co_CCInfoNote: costAllocationValues?.contractCommittee_SCP_Co_CCInfoNote || false,
         contractCommittee_BTC_CC: costAllocationValues?.contractCommittee_BTC_CC || false,
         contractCommittee_BTC_CCInfoNote: costAllocationValues?.contractCommittee_BTC_CCInfoNote || false,
-        contractCommittee_CGB:  costAllocationValues?.contractCommittee_CGB || false,
+        contractCommittee_CGB: costAllocationValues?.contractCommittee_CGB || false,
         coVenturers_CMC: costAllocationValues?.coVenturers_CMC || false,
         coVenturers_SDMC: costAllocationValues?.coVenturers_SDMC || false,
         coVenturers_SCP: costAllocationValues?.coVenturers_SCP || false,
