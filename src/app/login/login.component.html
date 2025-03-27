@@ -1,3 +1,16 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast 
+    *ngFor="let toast of toastService.toasts" 
+    [class]="'bg-' + toast.type"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
 <div class="login-main-div">
   <div class="login-cover-div">
     <img src="/img/cover-img.png" alt="visitor" class="img-fluid w-100">
@@ -24,10 +37,15 @@
         </a>
       </div>
       <div class="lf-btn-div">
-        <button class="btn btn-primary" (click)="onSubmit()"
-        [disabled]="!isFormValid">
-          SIGNIN
-        </button>
+          <button 
+              class="btn btn-primary" 
+              (click)="onSubmit()"
+              [disabled]="!isFormValid || isSubmitting"
+              >
+                <span *ngIf="!isSubmitting">SIGNIN</span>
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                <span *ngIf="isSubmitting">SIGNIN...</span>
+          </button>
         <p class="text-center my-3">
           Or Continue With
         </p>
