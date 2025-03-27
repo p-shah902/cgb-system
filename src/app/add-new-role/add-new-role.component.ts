@@ -56,6 +56,7 @@ export class AddNewRoleComponent implements OnInit {
     this.roleForm.get('accessTo')?.valueChanges.subscribe(selectedTypeIds => {
       if (selectedTypeIds) {
         const selectedType = this.accessTypesAll.find(type => type.typeId === selectedTypeIds);
+        this.roleForm.get('section')?.setValue([]);
         if (selectedType && selectedType.particulars.length > 0) {
           this.showSectionDropdown = true;
           this.roleForm.get('section')?.setValidators([Validators.required]);
