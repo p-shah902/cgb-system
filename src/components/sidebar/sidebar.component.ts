@@ -5,12 +5,12 @@ import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {filter} from 'rxjs/operators';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {Select2, Select2Hint, Select2Label} from 'ng-select2-component';
+import {Select2} from 'ng-select2-component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [NgClass, NgIf, NgForOf, SafeHtmlDirective, Select2, Select2Hint, Select2Label],
+  imports: [NgClass, NgIf, NgForOf, SafeHtmlDirective, Select2],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })

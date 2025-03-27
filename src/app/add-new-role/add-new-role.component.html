@@ -11,18 +11,11 @@
       </div>
       <div class="form-group mb-3">
         <label>Access to</label>
-        <select class="form-control" formControlName="accessTo" multiple>
-          <option *ngFor="let type of accessTypes" [value]="type.typeId">{{type.typeName}}</option>
-        </select>
+        <ng-select2 formControlName="accessTo" [data]="accessTypes"></ng-select2>
       </div>
       <div class="form-group mb-3" *ngIf="showSectionDropdown">
         <label>Section</label>
-        <select class="form-control" formControlName="section" multiple>
-          <option>All Access</option>
-          <option *ngFor="let particular of selectedParticulars" [value]="particular.particularsId">
-            {{particular.particularsName}}
-          </option>
-        </select>
+        <ng-select2 formControlName="section" multiple [data]="selectedParticulars"></ng-select2>
       </div>
       <div class="form-group mb-3">
         <label>Action</label>
@@ -31,142 +24,6 @@
           <option value="Read Write">Read Write</option>
         </select>
       </div>
-      <!--<div class="permission-div">
-        <div class="table-responsive">
-          <table width="100%">
-          <thead>
-            <tr>
-              <th>
-                Particular
-              </th>
-              <th>
-                Read
-              </th>
-              <th>
-                Write
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>Paper Configuration</td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>User Management</td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Vendor Management</td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>CGB Management</td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Reporting & Analytics</td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="form-radio d-flex gap-3">
-                <div class="form-check-list d-flex gap-3 flex-wrap">
-                  <div class="form-check-box position-relative">
-                    <input type="checkbox">
-                    <label><span class="opacity-0">-</span></label>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-        </div>
-      </div>-->
     </div>
   </form>
 </div>
