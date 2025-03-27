@@ -9,6 +9,9 @@ import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule} from
 import {CURRENCY_LIST} from '../../utils/constant';
 import {UserService} from '../../service/user.service';
 import {UserDetails} from '../../models/user';
+import {PaperService} from '../../service/paper.service';
+import {CountryDetail} from '../../models/general';
+import {Generalervice} from '../../service/general.service';
 
 @Component({
   selector: 'app-template1',
@@ -20,14 +23,18 @@ import {UserDetails} from '../../models/user';
 export class Template1Component {
   generalInfoForm!: FormGroup;
   private readonly userService=inject(UserService);
-  userDetails:UserDetails[]=[];
+  private readonly paperService=inject(PaperService);
 
-  constructor(private fb: FormBuilder) {
+  userDetails:UserDetails[]=[];
+  countryDetails:CountryDetail[]=[];
+
+  constructor(private fb: FormBuilder,private countryService:Generalervice) {
   }
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   public psaJvOptions = ['ACG', 'Shah Deniz', 'SCP', 'BTC', 'Sh-Asiman', 'BP Group'];
+
 
   public ngOnInit(): void {
     loadCKEditorCloud({
@@ -36,6 +43,7 @@ export class Template1Component {
     }).then(this._setupEditor.bind(this));
 
     this.loadUserDetails();
+    this.loadCountry();
 
 
     this.generalInfoForm = this.fb.group({
@@ -80,7 +88,6 @@ export class Template1Component {
         singleSourceJustification: [''],
         risks: this.fb.array([]),
         inviteToBid: this.fb.array([]),
-        sourceJustification: [''],
         socaRsentOn: [''],
         socaRreceivedOn: [''],
         socarDescription: [''],
@@ -88,12 +95,12 @@ export class Template1Component {
       }),
       valueDelivery: this.fb.group({
         costReductionPercent: [null],
-        costReductionValue: [null],
+        costReductionValue: [0],
         costReductionRemarks: [null],
-        operatingEfficiencyValue: [null],
+        operatingEfficiencyValue: [0],
         operatingEfficiencyPercent: [null],
         operatingEfficiencyRemarks: [null],
-        costAvoidanceValue: [null],
+        costAvoidanceValue: [0],
         costAvoidancePercent: [null],
         costAvoidanceRemarks: [null],
       }),
@@ -143,10 +150,7 @@ export class Template1Component {
         variableOpexMethodology: [{ value: '', disabled: true }],
         inventoryItemsMethodology: [{ value: '', disabled: true }]
       }),
-      consultation: this.fb.group({
         consultation: this.fb.array([]),
-      })
-
     });
 
     // Initialize with one row to prevent errors
@@ -168,6 +172,21 @@ export class Template1Component {
     this.setupMethodologyListeners()
     this.setupPSACalculations()
 
+  }
+
+  loadCountry() {
+    this.countryService.getCountryDetails().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+
+          this.countryDetails = reponse.data || [];
+          console.log('country:', this.countryDetails);
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
   }
 
   onSelectChange(event: any) {
@@ -264,7 +283,14 @@ export class Template1Component {
             SD1?.reset();
             SD2?.disable();
             SD2?.reset();
-          }  else if(checkbox === "isSCP") {
+          } else if(checkbox === "isSCP") {
+            SCP1?.enable();
+            SCP2?.enable();
+            SCP3?.enable();
+            SCP1?.reset();
+            SCP2?.reset();
+            SCP3?.reset();
+          }   else if(checkbox === "isBTC") {
             BTC1?.disable();
             BTC2?.disable();
             BTC3?.disable();
@@ -389,16 +415,6 @@ export class Template1Component {
     this.generalInfoForm.get('generalInfo.contractValueOriginalCurrency')?.setValue(convertedValue);
   }
 
-  onSubmit(): void {
-    console.log("=========", this.generalInfoForm.value);
-
-    if (this.generalInfoForm.valid) {
-      console.log(this.generalInfoForm.value);
-    } else {
-      console.log("Form is invalid");
-    }
-  }
-
   scrollToSection(event: Event) {
     const selectedValue = (event.target as HTMLSelectElement).value;
     const section = document.getElementById(selectedValue);
@@ -461,11 +477,17 @@ export class Template1Component {
     return this.generalInfoForm.get('procurementDetails.inviteToBid') as FormArray;
   }
 
+
+  // Getter for FormArray
+  get consultationRows(): FormArray {
+    return this.generalInfoForm.get('consultation') as FormArray;
+  }
+
   // Add a new risk row
   addRow() {
     this.risks.push(
       this.fb.group({
-        id: this.generateId(this.risks.length),
+        srNo: this.generateId(this.risks.length),
         risk: ['', Validators.required],
         mitigation: ['', Validators.required]
       })
@@ -488,10 +510,10 @@ export class Template1Component {
   addBidRow() {
     this.inviteToBid.push(
       this.fb.group({
-        fullName: ['', Validators.required],
-        localJV: [false], // Checkbox
-        country: ['', Validators.required],
-        parentCompany: [''],
+        legalName: ['', Validators.required],
+        isLocalOrJV: [false], // Checkbox
+        countryId: ['', Validators.required],
+        parentCompanyName: [''],
         remarks: ['']
       })
     );
@@ -504,6 +526,26 @@ export class Template1Component {
     }
   }
 
+  // Function to add a new consultation row
+  addConsultationRow() {
+    this.consultationRows.push(
+      this.fb.group({
+        psa: ['', Validators.required],
+        isNoExistingBudget: [false], // Checkbox
+        technicalCorrect: [1],
+        budgetStatement: [null, Validators.required],
+        jvReview: [null, Validators.required],
+      })
+    );
+  }
+
+  // Function to remove a row
+  removeConsultationRow(index: number) {
+    if (this.consultationRows.length > 1) {
+      this.consultationRows.removeAt(index);
+    }
+  }
+
 
   openModal() {
     const modalRef = this._mdlSvc.open(DummyCompComponent);
@@ -512,5 +554,141 @@ export class Template1Component {
         console.log(result);
       }
     });
+  }
+
+  onSubmit(): void {
+    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
+    const procurementValue = this.generalInfoForm?.value?.procurementDetails
+    const consultationsValue = this.generalInfoForm?.value?.consultation
+    const costSharingValues = this.generalInfoForm?.value?.costSharing
+    const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
+    const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+
+    // Mapping PSAs from the costAllocation object
+    const psaMappings = [
+      { key: "isACG", name: "ACG" },
+      { key: "isShah", name: "Shah Deniz" },
+      { key: "isSCP", name: "SCP" },
+      { key: "isBTC", name: "BTC" },
+      { key: "isAsiman", name: "Sh-Asiman" },
+      { key: "isBPGroup", name: "BP Group" }
+    ];
+
+    const costAllocationJVApproval = psaMappings
+      .map((psa, index) => {
+        const percentageKey = `percentage_${psa.key}`;
+        const valueKey = `value_${psa.key}`;
+
+        if (costAllocationValues[percentageKey] !== undefined) {
+          return {
+            id: index,
+            psaName: psa.name,
+            psaValue: true,
+            percentage: costAllocationValues[percentageKey] || 0,
+            value: costAllocationValues[valueKey] || 0
+          };
+        }
+        return null;
+      })
+      .filter(item => item !== null);
+
+    const params = {
+      papers: {
+        paperProvision: generalInfoValue?.paperProvision,
+        paperType: "Approach to Market",
+        paperStatusName: "test",
+        purposeRequired: "test",
+
+        // "id": 0,
+        // "paperStatusId": 1,
+        // "paperStatusName": "test",
+        // "isActive": true,
+        // "createdBy": 2,
+        // "createdDate": "2025-03-26T03:58:41.353Z",
+        // "modifiedBy": 2,
+        // "modifiedDate": "2025-03-26T03:58:41.353Z"
+      },
+      approachMarket: {
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || "test-ref",
+        // "cgbCirculationDate": null,
+        scopeOfWork: generalInfoValue?.scopeOfWork,
+        globalCGB: generalInfoValue?.globalCGB,
+        bltMember: generalInfoValue?.bltMember,
+        operatingFunction: generalInfoValue?.operatingFunction,
+        subSector: generalInfoValue?.subSector,
+        sourcingType: generalInfoValue?.sourcingType,
+        camUserId: generalInfoValue?.camUserId || 1,
+        vP1UserId: generalInfoValue?.vP1UserId || "",
+        procurementSPAUsers:  generalInfoValue?.procurementSPAUsers.join(',') || "1,2",
+        pdManagerName: generalInfoValue?.pdManagerName || 1,
+        isPHCA: generalInfoValue?.isPHCA,
+        psajv:  generalInfoValue?.psajv.join(',') || "",
+        totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
+        currencyCode: generalInfoValue?.originalCurrency || "",
+        exchangeRate: generalInfoValue?.exchangeRate,
+        contractValue: generalInfoValue?.contractValueOriginalCurrency,
+        contractStartDate: generalInfoValue?.contractStartDate,
+        contractEndDate: generalInfoValue?.contractEndDate,
+        isLTCC: generalInfoValue?.isLTCC,
+        ltccNotes: generalInfoValue?.ltccNotes,
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned,
+        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
+        isIFRS16: generalInfoValue?.isIFRS16,
+        isGIAAPCheck: generalInfoValue?.isGIAAPCheck,
+        isConflictOfInterest: generalInfoValue?.isConflictOfInterest,
+        conflictOfInterestComment: generalInfoValue?.conflictOfInterestComment,
+        strategyDescription: generalInfoValue?.strategyDescription,
+        remunerationType: procurementValue?.remunerationType,
+        contractMgmtLevel: procurementValue?.contractMgmtLevel,
+        sourcingRigor: procurementValue?.sourcingRigor,
+        sourcingStrategy: procurementValue?.sourcingStrategy,
+        singleSourceJustification: procurementValue?.singleSourceJustification,
+        socaRsentOn: procurementValue?.socaRsentOn,
+        socaRreceivedOn: procurementValue?.socaRreceivedOn,
+        socarDescription: procurementValue?.socarDescription,
+        preQualificationResult: procurementValue?.preQualificationResult,
+      },
+      consultations: consultationsValue,
+      bidInvite: procurementValue.inviteToBid,
+      riskMitigation: procurementValue.risks,
+      valueDeliveriesCostSharings: {
+        ...costSharingValues,
+        ...valueDeliveryValues
+      },
+      costAllocationJVApproval: costAllocationJVApproval,
+      jvApproval: {
+        ...costAllocationValues,
+        contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
+        contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,
+        contractCommittee_SCP_Co_CCInfoNote: costAllocationValues?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BTC_CC: costAllocationValues?.contractCommittee_BTC_CC || false,
+        contractCommittee_BTC_CCInfoNote: costAllocationValues?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_CGB:  costAllocationValues?.contractCommittee_CGB || false,
+        coVenturers_CMC: costAllocationValues?.coVenturers_CMC || false,
+        coVenturers_SDMC: costAllocationValues?.coVenturers_SDMC || false,
+        coVenturers_SCP: costAllocationValues?.coVenturers_SCP || false,
+        coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
+        steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
+      }
+    }
+
+    console.log("==params", params)
+
+    if (!this.generalInfoForm.valid) {
+      console.log(this.generalInfoForm.value);
+
+      this.paperService.upsertApproachToMarkets(params).subscribe({
+        next: (response) => {
+          if (response.success === false) {
+            console.log('Error Accured');
+          }
+        },
+        error: (error) => {
+          console.log('Error', error);
+        },
+      });
+    } else {
+      console.log("Form is invalid");
+    }
   }
 }

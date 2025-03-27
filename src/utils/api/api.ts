@@ -8,6 +8,7 @@ export const getUserListUri = baseUri + '/api/UserMaster/GetUsersList';
 export const getVendorListUri = baseUri + '/api/VendorMaster/GetVendorsList';
 export const upsertVendorsUri=baseUri+'/api/VendorMaster/UpsertVendors';
 export const upsertUserUri = baseUri + '/api/UserMaster/UpsertUser';
+export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
 export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
 export const getDepartmentListUri =baseUri + '/api/GeneralMethod/GetDepartmentList';
 export const getDictionaryItemsListUri=baseUri+'/api/GeneralMethod/GetDictionaryItemsList';

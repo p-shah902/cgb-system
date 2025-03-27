@@ -357,11 +357,11 @@
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isConflictOfInterest" checked formControlName="isConflictOfInterest"
-                               value="Yes">
+                               [value]="true">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="isConflictOfInterest" formControlName="isConflictOfInterest" value="No">
+                        <input type="radio" name="isConflictOfInterest" formControlName="isConflictOfInterest" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -512,16 +512,23 @@
                           <tbody formArrayName="inviteToBid">
                           <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
                             <td>
-                              <input type="text" class="form-control" formControlName="fullName" placeholder="Enter full name" />
+                              <input type="text" class="form-control" formControlName="legalName" placeholder="Enter full name" />
                             </td>
                             <td class="text-center align-middle">
-                              <input type="checkbox" formControlName="localJV" />
+                              <input type="checkbox" formControlName="isLocalOrJV" />
                             </td>
                             <td>
-                              <input type="text" class="form-control" formControlName="country" placeholder="Enter country" />
+                              <div class="form-group mb-3">
+                                <select class="form-control" formControlName="countryId">
+                                  <option [value]="null">Select country</option>
+                                  <option *ngFor="let con of countryDetails" [value]="con.id">
+                                    {{ con.countryName }}
+                                  </option>
+                                </select>
+                              </div>
                             </td>
                             <td>
-                              <input type="text" class="form-control" formControlName="parentCompany" placeholder="Enter parent company" />
+                              <input type="text" class="form-control" formControlName="parentCompanyName" placeholder="Enter parent company" />
                             </td>
                             <td>
                               <input type="text" class="form-control" formControlName="remarks" placeholder="Enter remark" />
@@ -603,7 +610,7 @@
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input type="number" min="0" max="100" class="form-control" placeholder="%" formControlName="costReductionPercent"/>
+                      <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100" class="form-control" placeholder="%" formControlName="costReductionPercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
@@ -623,7 +630,7 @@
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input type="number" min="0" max="100" class="form-control" placeholder="%" formControlName="operatingEfficiencyPercent"/>
+                      <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100" class="form-control" placeholder="%" formControlName="operatingEfficiencyPercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
@@ -643,7 +650,7 @@
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input type="number" min="0" max="100" class="form-control" placeholder="%" formControlName="costAvoidancePercent"/>
+                      <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100" class="form-control" placeholder="%" formControlName="costAvoidancePercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
@@ -1195,60 +1202,79 @@
             <div id="section6" class="fb-title-div">
               <h4>6. Consultation</h4>
             </div>
-            <div class="fb-form" formGroupName="consultation">
-              <div class="row">
-                <div class="col-sm-6 col-md-2">
-                  <div class="form-group mb-3">
-                    <label>PSA</label>
-                    <select class="form-control">
-                      <option>ACG</option>
-                      <option>Shah Deniz</option>
-                      <option>SCP</option>
-                      <option>BTC</option>
-                      <option>Sh-Asiman</option>
-                      <option>BP Group</option>
-                    </select>
+            <div class="fb-form" formArrayName="consultation">
+              <div *ngFor="let row of consultationRows.controls; let i = index" [formGroupName]="i">
+                <div class="row">
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>PSA</label>
+                      <select class="form-control" formControlName="psa">
+                        <option value="ACG">ACG</option>
+                        <option value="Shah Deniz">Shah Deniz</option>
+                        <option value="SCP">SCP</option>
+                        <option value="BTC">BTC</option>
+                        <option value="Sh-Asiman">Sh-Asiman</option>
+                        <option value="BP Group">BP Group</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                  <div class="form-group mb-3">
-                    <label>Technically Correct</label>
-                    <input type="text" class="form-control" placeholder="Enter Name">
+
+                  <div class="col-sm-6 col-md-3">
+                    <div class="form-group mb-3">
+                      <label>Technically Correct</label>
+                      <input type="text" class="form-control" formControlName="technicalCorrect" placeholder="Enter Name">
+                    </div>
                   </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                  <div class="form-group mb-3">
-                    <label>Budget Statement</label>
-                    <input type="text" class="form-control" placeholder="Enter Name">
+
+                  <div class="col-sm-6 col-md-3">
+                    <div class="form-group mb-3">
+                      <label>Budget Statement</label>
+                      <select class="form-control" formControlName="budgetStatement">
+                        <option [value]="null">Select Status</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'Financial Tag'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                  <div class="form-group mb-3">
-                    <label>JV Review</label>
-                    <input type="text" class="form-control" placeholder="Enter Name">
+
+                  <div class="col-sm-6 col-md-3">
+                    <div class="form-group mb-3">
+                      <label>JV Review</label>
+                      <select class="form-control" formControlName="jvReview">
+                        <option [value]="null">Select Status</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'JV Admin'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="col-sm-12 col-md-1">
-                  <div class="krt-action mt-4">
-                    <button class="btn btn-outline-danger">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                          fill="#EC4747"/>
-                      </svg>
-                    </button>
+
+                  <div class="col-sm-12 col-md-1">
+                    <div class="krt-action mt-4">
+                      <button type="button" class="btn btn-outline-danger" (click)="removeConsultationRow(i)">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <path d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659Z" fill="#EC4747"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+
               <div class="add-row-btn-div">
-                <button class="btn p-0">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round"/>
+                <button type="button" class="btn p-0" (click)="addConsultationRow()">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   Add New Row
                 </button>
               </div>
+
             </div>
             <div id="section7" class="fb-title-div">
               <h4>7. Attachments</h4>
