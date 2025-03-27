@@ -270,11 +270,11 @@
                     <label>PHCA </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" formControlName="isPHCA" name="phca-radio" [value]="true">
+                        <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="true">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" formControlName="isPHCA" name="phca-radio" [value]="false">
+                        <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -283,7 +283,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PSA/JV</label>
-                    <select class="form-control" formControlName="psaJv" multiple (change)="onSelectChange($event)">
+                    <select class="form-control" formControlName="psajv" multiple (change)="onSelectChange($event)">
                       <option *ngFor="let option of psaJvOptions" [value]="option">
                         {{ option }}
                       </option>
@@ -296,11 +296,11 @@
                     <label>Long-Term Commercial Commitment (LTCC) </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="ltcc-radio" formControlName="isLTCC" [value]="true">
+                        <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="ltcc-radio" formControlName="isLTCC" [value]="false">
+                        <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -318,12 +318,12 @@
                     <label>Aligned with Government Representative* </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="awgr-radio" [value]="true" formControlName="isGovtReprAligned"
+                        <input type="radio" name="isGovtReprAligned" [value]="true" formControlName="isGovtReprAligned"
                                >
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="awgr-radio" formControlName="isGovtReprAligned" [value]="false">
+                        <input type="radio" name="isGovtReprAligned" formControlName="isGovtReprAligned" [value]="false">
                         <label>No</label>
                       </div>
                     </div>
@@ -341,11 +341,11 @@
                 <div class="form-group mb-3">
                   <div class="form-check-list d-flex gap-3 flex-wrap">
                     <div class="form-check-box position-relative">
-                      <input type="checkbox" name="lt-check" formControlName="isIFRS16">
+                      <input type="checkbox" name="isIFRS16" formControlName="isIFRS16">
                       <label>IFRS16 Impact Compliance</label>
                     </div>
                     <div class="form-check-box position-relative">
-                      <input type="checkbox" name="lt-check" formControlName="isGIAAPCheck">
+                      <input type="checkbox" name="isGIAAPCheck" formControlName="isGIAAPCheck">
                       <label>GIAAP Compliance Check</label>
                     </div>
                   </div>
@@ -356,12 +356,12 @@
                     <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="conflictOfInterest" checked formControlName="isConflictOfInterest"
+                        <input type="radio" name="isConflictOfInterest" checked formControlName="isConflictOfInterest"
                                value="Yes">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
-                        <input type="radio" name="conflictOfInterest" formControlName="isConflictOfInterest" value="No">
+                        <input type="radio" name="isConflictOfInterest" formControlName="isConflictOfInterest" value="No">
                         <label>No</label>
                       </div>
                     </div>
@@ -723,50 +723,50 @@
                   <tr>
                     <td><b>As%</b></td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" min="0" max="100" type="number" placeholder="%" formControlName="percentage_isACG">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage">
                     </td>
                   </tr>
 
                   <tr>
                     <td><b>By value $</b></td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input readonly formControlName="value_isACG" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input formControlName="value_isShah" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input formControlName="value_isSCP" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input formControlName="value_isBTC" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input formControlName="value_isAsiman" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input formControlName="value_isBPGroup" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
                     <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
+                      <input formControlName="totalValue" min="0"  type="number" class="form-control p-1 w-auto" placeholder="%">
                     </td>
 
                   </tr>
@@ -925,7 +925,7 @@
                         <div class="row">
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" value="1a" formControlName="capexMethodology">
+                              <input type="radio" name="capexMethodology" value="1a" formControlName="capexMethodology">
                               <label>1a
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -941,7 +941,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" value="1b" formControlName="capexMethodology">
+                              <input type="radio" name="capexMethodology" value="1b" formControlName="capexMethodology">
                               <label>1b
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -957,7 +957,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" value="1c" formControlName="capexMethodology">
+                              <input type="radio" name="capexMethodology" value="1c" formControlName="capexMethodology">
                               <label>1c
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -973,7 +973,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" value="1d" formControlName="capexMethodology">
+                              <input type="radio" name="capexMethodology" value="1d" formControlName="capexMethodology">
                               <label>1d
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -989,7 +989,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" value="1e" formControlName="capexMethodology">
+                              <input type="radio" name="capexMethodology" value="1e" formControlName="capexMethodology">
                               <label>1e
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1023,7 +1023,7 @@
                         <div class="row">
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" value="2a" formControlName="fixOpexMethodology">
+                              <input type="radio" name="fixOpexMethodology" value="2a" formControlName="fixOpexMethodology">
                               <label>2a
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1039,7 +1039,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" value="2b" formControlName="fixOpexMethodology">
+                              <input type="radio" name="fixOpexMethodology" value="2b" formControlName="fixOpexMethodology">
                               <label>2b
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1055,7 +1055,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" value="2c" formControlName="fixOpexMethodology">
+                              <input type="radio" name="fixOpexMethodology" value="2c" formControlName="fixOpexMethodology">
                               <label>2c
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1071,7 +1071,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" value="2d" formControlName="fixOpexMethodology">
+                              <input type="radio" name="fixOpexMethodology" value="2d" formControlName="fixOpexMethodology">
                               <label>2d
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1116,7 +1116,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Variable-radio" value="2d" formControlName="variableOpexMethodology">
+                              <input type="radio" name="variableOpexMethodology" value="2d" formControlName="variableOpexMethodology">
                               <label>2d
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1151,7 +1151,7 @@
 
                                                    <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" value="Yes" formControlName="inventoryItemsMethodology">
+                              <input type="radio" name="inventoryItemsMethodology" value="Yes" formControlName="inventoryItemsMethodology">
                               <label>Yes
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
@@ -1167,7 +1167,7 @@
                           </div>
                           <div class="col">
                             <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" value="No" formControlName="inventoryItemsMethodology">
+                              <input type="radio" name="inventoryItemsMethodology" value="No" formControlName="inventoryItemsMethodology">
                               <label>No
                                 <button class="btn p-0">
                                   <svg width="17" height="16" viewBox="0 0 17 16" fill="none"

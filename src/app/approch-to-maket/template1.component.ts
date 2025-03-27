@@ -76,6 +76,7 @@ export class Template1Component {
         remunerationType: ['', Validators.required],
         contractMgmtLevel: ['', Validators.required],
         sourcingRigor: ['', Validators.required],
+        sourcingStrategy: [''],
         singleSourceJustification: [''],
         risks: this.fb.array([]),
         inviteToBid: this.fb.array([]),
@@ -87,6 +88,7 @@ export class Template1Component {
       }),
       valueDelivery: this.fb.group({
         costReductionPercent: [null],
+        costReductionValue: [null],
         costReductionRemarks: [null],
         operatingEfficiencyValue: [null],
         operatingEfficiencyPercent: [null],
@@ -96,33 +98,50 @@ export class Template1Component {
         costAvoidanceRemarks: [null],
       }),
       costAllocation: this.fb.group({
-        contractCommittee_SDCC: [false],
-        contractCommittee_SCP_Co_CC: [false],
-        contractCommittee_SCP_Co_CCInfoNote: [false],
-        contractCommittee_BTC_CC: [false],
-        contractCommittee_BTC_CCInfoNote: [false],
+        contractCommittee_SDCC: [{ value: false, disabled: true }],
+        contractCommittee_SCP_Co_CC: [{ value: false, disabled: true }],
+        contractCommittee_SCP_Co_CCInfoNote: [{ value: false, disabled: true }],
+        contractCommittee_BTC_CC: [{ value: false, disabled: true }],
+        contractCommittee_BTC_CCInfoNote: [{ value: false, disabled: true }],
         contractCommittee_CGB: [false], //TODO discuss
-        coVenturers_CMC: [false],
-        coVenturers_SDMC: [false],
-        coVenturers_SCP: [false],
-        coVenturers_SCP_Board: [false],
-        steeringCommittee_SC: [false],
+        coVenturers_CMC: [{ value: false, disabled: true }],
+        coVenturers_SDMC: [{ value: false, disabled: true }],
+        coVenturers_SCP: [{ value: false, disabled: true }],
+        coVenturers_SCP_Board: [{ value: false, disabled: true }],
+        steeringCommittee_SC: [{ value: false, disabled: true }],
         isACG: [{ value: false, disabled: true }],
         isShah:  [{ value: false, disabled: true }],
         isSCP:  [{ value: false, disabled: true }],
         isBTC:  [{ value: false, disabled: true }],
         isAsiman:  [{ value: false, disabled: true }],
         isBPGroup:  [{ value: false, disabled: true }],
+        // Percentage fields with validation (0-100)
+        percentage_isACG: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isShah: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isSCP: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isBTC: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isAsiman: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isBPGroup: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+
+        value_isACG: [{ value: '', disabled: true }],
+        value_isShah: [{ value: '', disabled: true }],
+        value_isSCP: [{ value: '', disabled: true }],
+        value_isBTC: [{ value: '', disabled: true }],
+        value_isAsiman: [{ value: '', disabled: true }],
+        value_isBPGroup: [{ value: '', disabled: true }],
+
+        totalPercentage: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(100)]],
+        totalValue: [{ value: 0, disabled: true }]
       }),
       costSharing: this.fb.group({
         isCapex: [false],
         isFixOpex: [false],
         isVariableOpex: [false],
         isInventoryItems: [false],
-        capexMethodology: [''],
-        fixOpexMethodology: [''],
-        variableOpexMethodology: [''],
-        inventoryItemsMethodology: ['']
+        capexMethodology: [{ value: '', disabled: true }],
+        fixOpexMethodology: [{ value: '', disabled: true }],
+        variableOpexMethodology: [{ value: '', disabled: true }],
+        inventoryItemsMethodology: [{ value: '', disabled: true }]
       }),
       consultation: this.fb.group({
         consultation: this.fb.array([]),
@@ -142,7 +161,14 @@ export class Template1Component {
       this.updateContractValueOriginalCurrency();
     });
 
-    }
+    // Watch changes on enable/disable Methodology
+
+
+    this.setupPSAListeners()
+    this.setupMethodologyListeners()
+    this.setupPSACalculations()
+
+  }
 
   onSelectChange(event: any) {
     const selectedOptions = Array.from(event.target.selectedOptions)
@@ -171,6 +197,142 @@ export class Template1Component {
 
   }
 
+  setupPSAListeners() {
+    const psaControls = [
+      {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
+      {checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
+      {checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
+      {checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
+      {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
+      {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
+    ];
+
+    psaControls.forEach(({checkbox, percentage, value}) => {
+      this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
+        const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
+        const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
+
+        //checkboxes
+       const ACG1=  this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
+        const ACG2 = this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)
+
+        const SD1=  this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
+        const SD2 = this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)
+
+        const SCP1=  this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
+        const SCP2 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)
+        const SCP3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)
+
+        const BTC1 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)
+        const BTC2 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)
+        const BTC3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)
+
+
+        if (isChecked) {
+          percentageControl?.enable();
+          valueControl?.enable();
+
+          if(checkbox === "isACG") {
+            ACG1?.enable();
+            ACG2?.enable();
+          } else if(checkbox === "isShah") {
+            SD1?.enable();
+            SD2?.enable();
+          } else if(checkbox === "isSCP") {
+            SCP1?.enable();
+            SCP2?.enable();
+            SCP3?.enable();
+          }  else if(checkbox === "isBTC") {
+            BTC1?.enable();
+            BTC2?.enable();
+            BTC3?.enable();
+          }
+
+        } else {
+          percentageControl?.reset();
+          percentageControl?.disable();
+          valueControl?.reset();
+          valueControl?.disable();
+
+          if(checkbox === "isACG") {
+            ACG1?.disable();
+            ACG1?.reset();
+            ACG2?.disable();
+            ACG2?.reset();
+          } else if(checkbox === "isShah") {
+            SD1?.disable();
+            SD1?.reset();
+            SD2?.disable();
+            SD2?.reset();
+          }  else if(checkbox === "isSCP") {
+            BTC1?.disable();
+            BTC2?.disable();
+            BTC3?.disable();
+            BTC1?.reset();
+            BTC2?.reset();
+            BTC3?.reset();
+          }
+        }
+      });
+    });
+
+    // Listen for changes in percentage and value fields to update total
+    psaControls.forEach(({ percentage, value }) => {
+      this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe(() => this.calculateTotal());
+      this.generalInfoForm.get(`costAllocation.${value}`)?.valueChanges.subscribe(() => this.calculateTotal());
+    });
+  }
+
+  setupPSACalculations() {
+    const psaControls = [
+      { percentage: 'percentage_isACG', value: 'value_isACG' },
+      { percentage: 'percentage_isShah', value: 'value_isShah' },
+      { percentage: 'percentage_isSCP', value: 'value_isSCP' },
+      { percentage: 'percentage_isBTC', value: 'value_isBTC' },
+      { percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
+      { percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+    ];
+
+    psaControls.forEach(({ percentage, value }) => {
+      this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe((percentageValue) => {
+        const contractValue = this.generalInfoForm.get('generalInfo.contractValueUsd')?.value || 0;
+
+        if (percentageValue >= 0 && percentageValue <= 100) {
+          const calculatedValue = (percentageValue / 100) * contractValue;
+          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, { emitEvent: false });
+        }
+      });
+    });
+  }
+
+  calculateTotal() {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+
+    let totalPercentage = 0;
+    let totalValue = 0;
+
+    const percentageFields = ['percentage_isACG', 'percentage_isShah', 'percentage_isSCP', 'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'];
+    const valueFields = ['value_isACG', 'value_isShah', 'value_isSCP', 'value_isBTC', 'value_isAsiman', 'value_isBPGroup'];
+
+    percentageFields.forEach((field) => {
+      const value = costAllocation.get(field)?.value;
+      if (!isNaN(value) && value !== null && value !== '') {
+        totalPercentage += Number(value);
+      }
+    });
+
+    valueFields.forEach((field) => {
+      const value = costAllocation.get(field)?.value;
+      if (!isNaN(value) && value !== null && value !== '') {
+        totalValue += Number(value);
+      }
+    });
+
+    // Update total fields
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+  }
+
 
 
   loadUserDetails(){
@@ -185,6 +347,28 @@ export class Template1Component {
         console.log('error',error);
       }
     })
+  }
+
+  setupMethodologyListeners(){
+    const controls = [
+      { checkbox: 'isCapex', methodology: 'capexMethodology' },
+      { checkbox: 'isFixOpex', methodology: 'fixOpexMethodology' },
+      { checkbox: 'isInventoryItems', methodology: 'inventoryItemsMethodology' },
+      { checkbox: 'isVariableOpex', methodology: 'variableOpexMethodology' }
+    ];
+
+    controls.forEach(({ checkbox, methodology }) => {
+      this.generalInfoForm.get(`costSharing.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
+        const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
+
+        if (isChecked) {
+          methodControl?.enable();
+        } else {
+          methodControl?.reset(); // Clears value and sets it to default (empty string in your case)
+          methodControl?.disable();
+        }
+      });
+    });
   }
 
 
