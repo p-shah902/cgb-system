@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { BehaviorSubject, catchError, of, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import {uploadDoc} from '../utils/api/api';
 
 @Injectable({
@@ -9,39 +8,28 @@ import {uploadDoc} from '../utils/api/api';
 })
 export class UploadService {
 
+  private isUploadSuccessSubject = new BehaviorSubject<boolean>(false);
+  public isUploadSuccess$ = this.isUploadSuccessSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
-  uploadFiles(paperId: number, files: File[]): Observable<number> {
+  uploadDocuments(documentId: number, files: File[]) {
     const formData = new FormData();
-
     files.forEach(file => {
-      formData.append('Files', file, file.name);
+      formData.append('Files', file); // Ensure backend expects 'Files'
     });
 
-    const uploadUrl = `${uploadDoc}/${paperId}`; // Dynamic Paper ID
-
-    return this.http.post<HttpEvent<any>>(uploadUrl, formData, {
-      reportProgress: true,
-      observe: 'events'
-    }).pipe(
-      map(event => this.getProgress(event)),
-      catchError(this.handleError)
+    return this.http.post<any>(`${uploadDoc}/${documentId}`, formData).pipe(
+      tap(response => {
+        console.log('Upload Response:', response);
+        if (response && response.success) {
+          this.isUploadSuccessSubject.next(true);
+        }
+      }),
+      catchError(error => {
+        console.error('Upload Error:', error);
+        return of({ success: false, message: error.error?.message || 'Upload Failed' });
+      })
     );
-  }
-
-  private getProgress(event: HttpEvent<any>): number {
-    switch (event.type) {
-      case HttpEventType.UploadProgress:
-        return Math.round((event.loaded / (event.total || 1)) * 100);
-      case HttpEventType.Response:
-        return 100; // Upload complete
-      default:
-        return 0;
-    }
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    console.error('Upload error:', error);
-    return throwError(() => new Error(error.error?.message || 'Upload failed'));
   }
 }

@@ -12,6 +12,7 @@ import {UserDetails} from '../../models/user';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
 import {Generalervice} from '../../service/general.service';
+import {UploadService} from '../../service/document.service';
 
 @Component({
   selector: 'app-template1',
@@ -29,8 +30,11 @@ export class Template1Component {
   countryDetails: CountryDetail[] = [];
   @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
   highlightClass = 'highlight'; // CSS class for highlighting
+  selectedFiles: any[] = [];
+  isDragging = false;
+  documentId = 1116;
 
-  constructor(private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2) {
+  constructor(private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService) {
   }
 
   public Editor: typeof ClassicEditor | null = null;
@@ -716,7 +720,11 @@ export class Template1Component {
           if (response.success === false) {
             console.log('Error Accured');
           }
-        },
+
+          // if (response.status && response.data) {
+          //   console.log('Success');
+          // }
+          },
         error: (error) => {
           console.log('Error', error);
         },
@@ -725,4 +733,67 @@ export class Template1Component {
       console.log("Form is invalid");
     }
   }
+
+  onFileSelected(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files) {
+      Array.from(inputElement.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.selectedFiles.push({ file, preview: e.target?.result as string });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+
+    if (event.dataTransfer?.files) {
+      Array.from(event.dataTransfer.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.selectedFiles.push({ file, preview: e.target?.result as string });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+// Remove a selected file
+  removeFile(index: number) {
+    this.selectedFiles.splice(index, 1);
+  }
+
+  uploadFiles() {
+    if (this.selectedFiles.length === 0) return;
+
+    const filesToUpload = this.selectedFiles.map((item) => item.file);
+
+    this.uploadService.uploadDocuments(this.documentId, filesToUpload).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          console.log('Files uploaded successfully!');
+          this.selectedFiles = [];
+        }
+      },
+      error: (error) => {
+        console.log('Error', error);
+      },
+    });
+  }
+
+
 }
