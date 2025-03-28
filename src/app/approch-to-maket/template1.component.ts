@@ -13,11 +13,12 @@ import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
 import {Generalervice} from '../../service/general.service';
 import {UploadService} from '../../service/document.service';
+import {Select2} from 'ng-select2-component';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule,Select2],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -28,6 +29,7 @@ export class Template1Component {
 
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
+  procurementTagUsers: any[] = [];
   @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
@@ -39,7 +41,14 @@ export class Template1Component {
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
-  public psaJvOptions = ['ACG', 'Shah Deniz', 'SCP', 'BTC', 'Sh-Asiman', 'BP Group'];
+  public psaJvOptions = [
+    { value: 'ACG', label: 'ACG' },
+    { value: 'Shah Deniz', label: 'Shah Deniz' },
+    { value: 'SCP', label: 'SCP' },
+    { value: 'BTC', label: 'BTC' },
+    { value: 'Sh-Asiman', label: 'Sh-Asiman' },
+    { value: 'BP Group', label: 'BP Group' }
+  ];
 
 
   public ngOnInit(): void {
@@ -171,6 +180,10 @@ export class Template1Component {
       this.updateContractValueOriginalCurrency();
     });
 
+    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
+      this.onSelectChange();
+    });
+
     // Watch changes on enable/disable Methodology
 
 
@@ -227,11 +240,9 @@ export class Template1Component {
     });
   }
 
-  onSelectChange(event: any) {
-    const selectedOptions = Array.from(event.target.selectedOptions)
-      .map((option) => (option as HTMLOptionElement).text);
+  onSelectChange() {
 
-    this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedOptions);
+    const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
 
     const costAllocationControl = this.generalInfoForm.get('costAllocation');
     if (costAllocationControl) {
@@ -250,7 +261,6 @@ export class Template1Component {
         costAllocationControl.get(controlName)?.setValue(isSelected);
       });
     }
-
 
   }
 
@@ -403,6 +413,16 @@ export class Template1Component {
       next: (response) => {
         if (response.status && response.data) {
           this.userDetails = response.data;
+
+          // this.procurementTagUsers = response.data
+          //   .filter(user => user.roleName !== 'Procurement Tag')
+          //   .map((user: UserDetails) => ({
+          //     id: user.id,
+          //     text: user.displayName
+          //   }));
+
+          this.procurementTagUsers = response.data.map(t => ({label: t.displayName, value: t.id}));
+
           console.log('user details', this.userDetails);
         }
       }, error: (error) => {
@@ -646,10 +666,10 @@ export class Template1Component {
         sourcingType: generalInfoValue?.sourcingType,
         camUserId: generalInfoValue?.camUserId || 1,
         vP1UserId: generalInfoValue?.vP1UserId || "",
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers.join(',') || "1,2",
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "1,2",
         pdManagerName: generalInfoValue?.pdManagerName || 1,
         isPHCA: generalInfoValue?.isPHCA,
-        psajv: generalInfoValue?.psajv.join(',') || "",
+        psajv: generalInfoValue?.psajv?.join(',') || "",
         totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
         currencyCode: generalInfoValue?.originalCurrency || "",
         exchangeRate: generalInfoValue?.exchangeRate,

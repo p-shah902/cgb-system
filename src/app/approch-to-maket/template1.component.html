@@ -183,14 +183,8 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
-                    <select class="form-control" formControlName="procurementSPAUsers" multiple>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'Procurement Tag'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
+                                        <label>Procurement SPA*</label>
+                    <ng-select2 formControlName="procurementSPAUsers" [data]="procurementTagUsers" multiple></ng-select2>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -282,13 +276,18 @@
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
+<!--                  <div class="form-group mb-3">-->
+<!--                    <label>PSA/JV</label>-->
+<!--                    <select class="form-control" formControlName="psajv" multiple (change)="onSelectChange($event)">-->
+<!--                      <option *ngFor="let option of psaJvOptions" [value]="option">-->
+<!--                        {{ option }}-->
+<!--                      </option>-->
+<!--                    </select>-->
+<!--                  </div>-->
+
                   <div class="form-group mb-3">
                     <label>PSA/JV</label>
-                    <select class="form-control" formControlName="psajv" multiple (change)="onSelectChange($event)">
-                      <option *ngFor="let option of psaJvOptions" [value]="option">
-                        {{ option }}
-                      </option>
-                    </select>
+                    <ng-select2 formControlName="psajv" [data]="psaJvOptions" multiple></ng-select2>
                   </div>
                 </div>
 
