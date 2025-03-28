@@ -118,7 +118,11 @@ export const routes: Routes = [
     loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent)
   },
   {
-    path: 'dictionaries-edit',
+    path: 'dictionaries-edit/:itemName',
+    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
+  },
+  {
+    path: 'dictionaries-edit/:itemName/:id',
     loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
   },
   {

@@ -1,3 +1,17 @@
+
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast 
+    *ngFor="let toast of toastService.toasts" 
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
@@ -16,7 +30,7 @@
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                  Add New Value
+                  Add New Dictionary
                 </button>
 
               </div>
@@ -54,7 +68,7 @@
                          </td>
                          <td>
                            <div class="edit-btn-div">
-                             <a href="/dictionaries-edit" class="btn">
+                             <a [routerLink]="['/dictionaries-edit', item.itemName,detail.id]" class="btn">
                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                  <path d="M11.4174 1.52051L10.094 2.84395L13.6486 6.39863L14.9721 5.0752C15.6557 4.3916 15.6557 3.28418 14.9721 2.60059L13.8947 1.52051C13.2111 0.836914 12.1037 0.836914 11.4201 1.52051H11.4174ZM9.47598 3.46191L3.10215 9.83848C2.81778 10.1229 2.60997 10.4756 2.49512 10.8611L1.52715 14.1506C1.45879 14.383 1.52169 14.6318 1.69122 14.8014C1.86075 14.9709 2.10958 15.0338 2.33926 14.9682L5.62872 14.0002C6.01426 13.8854 6.367 13.6775 6.65137 13.3932L13.0307 7.0166L9.47598 3.46191Z" stroke="#626262" stroke-width="1.2"/>
                                </svg>

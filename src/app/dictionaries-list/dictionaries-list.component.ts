@@ -1,13 +1,14 @@
 import { Component, inject, Inject, OnInit } from '@angular/core';
-import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { DictionaryService } from '../../service/dictionary.service';
 import { DictionaryDetail,Item } from '../../models/dictionary';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { ToastService } from '../../service/toast.service';
 @Component({
   selector: 'app-dictionaries-list',
   standalone: true,
-  imports: [NgbNavModule, NgbNavModule,CommonModule],
+  imports: [NgbNavModule, NgbNavModule,CommonModule,RouterModule,NgbToastModule],
   templateUrl: './dictionaries-list.component.html',
   styleUrl: './dictionaries-list.component.scss'
 })
@@ -16,6 +17,7 @@ export class DictionariesListComponent implements OnInit {
 
   private dictionaryService=inject(DictionaryService);
   private router=inject(Router);
+  public toastService=inject(ToastService);
 
   dictionaryItem:Item[]=[];
   dictionaryDetail:DictionaryDetail[]=[];
@@ -64,6 +66,6 @@ export class DictionariesListComponent implements OnInit {
   }
 
   nevigate(){
-    this.router.navigate(['/dictionaries-edit']);
+    this.router.navigate(['/dictionaries-edit',this.active]);
   }
 }

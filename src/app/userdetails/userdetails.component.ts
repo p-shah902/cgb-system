@@ -51,8 +51,6 @@ export class UserdetailsComponent implements OnInit {
       isViewPaper: [false],
       isEditPaper: [false],
       isAssignRoles: [false],
-      createdDate: [new Date().toISOString()],
-      modifiedDate: [new Date().toISOString()],
       tempRoleId: [0],
       isTOPTUser: [true],
     });
@@ -60,9 +58,6 @@ export class UserdetailsComponent implements OnInit {
     const formValues = this.userForm.value;
     this.userDetail = {
       ...formValues,
-      password: formValues.password || '123456',
-      createdDate: new Date(formValues.createdDate).toISOString(),
-      modifiedDate: new Date(formValues.modifiedDate).toISOString(),
       roleName: this.userRoles.find(role=>role.id === formValues.roleId)?.name || '',
       departmentName: this.departments.find(dept=>dept.id===formValues.departmentId)?.displayName|| ''
     };
@@ -161,9 +156,6 @@ export class UserdetailsComponent implements OnInit {
     const formValues = this.userForm.value;
     this.userDetail = {
       ...formValues,
-      password: formValues.password || '123456',
-      createdDate: new Date(formValues.createdDate).toISOString(),
-      modifiedDate: new Date(formValues.modifiedDate).toISOString(),
       roleName: this.userRoles.find(role=>role.id === Number(formValues.roleId))?.name || '',
       departmentName: this.departments.find(dept=>dept.id===Number(formValues.departmentId))?.displayName|| ''
     };

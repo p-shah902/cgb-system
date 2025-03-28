@@ -39,10 +39,10 @@ export class VendorDetailComponent  implements OnInit{
       sapId: ['', Validators.required],
       countryId: [0, Validators.min(1)],
       isActive: [true],
-      contactPerson: ['Temp', Validators.required],
-      contactEmail: ['Temp@gmail.com', [Validators.required, Validators.email]],
-      contactPhone: ['9090909090', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      avatarPath: ['Temp'],
+      contactPerson: ['', Validators.required],
+      contactEmail: ['', [Validators.required, Validators.email]],
+      contactPhone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      avatarPath: [''],
       isCGBRegistered: [true],
       approvalStatus: ['', Validators.required]
     });
@@ -78,19 +78,17 @@ export class VendorDetailComponent  implements OnInit{
       sapId: '',
       countryId:0,
       isActive: true,
-      contactPerson: 'Temp',
-      contactEmail: 'Temp@gmail.com',
-      contactPhone: '9090909090',
-      avatarPath: 'Temp',
+      contactPerson: '',
+      contactEmail: '',
+      contactPhone: '',
+      avatarPath: '',
       isCGBRegistered: true,
       approvalStatus: 'Pending',
-      createdBy: 1,
-      createdDate: new Date().toISOString(),
-      modifiedBy: 1,
-      modifiedDate: new Date().toISOString(),
+      createdBy: null,
+      createdDate: null,
+      modifiedBy: null,
+      modifiedDate: null,
       country: null,
-      createdUser: null,
-      modifiedUser: null
     };
     this.vendorForm.patchValue({
       ...this.originalVendorDetail

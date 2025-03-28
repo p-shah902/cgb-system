@@ -11,11 +11,9 @@ export interface VendorDetail{
       avatarPath: string,
       isCGBRegistered: boolean,
       approvalStatus: string,
-      createdBy: number,
-      createdDate: string,
-      modifiedBy: number,
-      modifiedDate: string,
+      createdBy: number|null,
+      createdDate: string|null,
+      modifiedBy: number|null,
+      modifiedDate: string|null,
       country: any,
-      createdUser: any,
-      modifiedUser: any
 }

@@ -2,7 +2,7 @@
 <div class="toast-container position-fixed top-0 end-0 p-3">
   <ngb-toast
     *ngFor="let toast of toastService.toasts"
-    [class]="'bg-' + toast.type"
+    [class]="'bg-' + toast.type +' text-white'"
     [autohide]="true"
     [delay]="5000"
     (hidden)="toastService.remove(toast)"
@@ -41,6 +41,22 @@
                   <input type="text" class="form-control" placeholder="Entre Sap ID" formControlName="sapId"/>
                 </div>
               </div>
+
+              <div class="form-group mb-3">
+                <label>Contact Person</label>
+                <input type="text" class="form-control" placeholder="Enter Full Name"  formControlName="contactPerson"/>
+              </div>
+   
+              <div class="form-group mb-3">
+                <label>Contact Email</label>
+                <input type="text" class="form-control" placeholder="Enter Email Address" formControlName="contactEmail"/>
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Contact Phone</label>
+                <input type="text" class="form-control" placeholder="Phone number" formControlName="contactPhone"/>
+              </div>
+
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>Country</label>
