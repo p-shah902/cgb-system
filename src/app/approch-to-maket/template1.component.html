@@ -79,6 +79,9 @@
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
                     <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
+                      <small class="text-danger">Paper Provision is required.</small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -104,6 +107,9 @@
                     <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"
                               formControlName="whyIsThisWorkRequired" [config]="config">
                     </ckeditor>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('whyIsThisWorkRequired')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
 
                   </div>
                   <div class="col-md-12">
@@ -126,6 +132,9 @@
                       <option value="Pending Approval">Pending Approval</option>
                       <option value="Not Required">Not Required</option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -137,6 +146,9 @@
                         {{ user.displayName }}
                       </option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -149,12 +161,18 @@
                       <option value="Subsurface">Subsurface</option>
                       <option value="IP">IP</option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
                     <input type="text" class="form-control" formControlName="subSector" placeholder="Enter Sub-sector"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -166,13 +184,19 @@
                       <option value="Single Source">Single Source</option>
                       <option value="Sole Source">Sole Source</option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager*</label>
-                    <input type="text" class="form-control" placeholder="Enter Sub-sector"
+                    <input type="number" class="form-control" placeholder="Enter Sub-sector"
                            formControlName="camUserId"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
 
@@ -191,12 +215,18 @@
                         {{ user.displayName }}
                       </option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('vP1UserId')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                                         <label>Procurement SPA*</label>
                     <ng-select2 formControlName="procurementSPAUsers" [data]="procurementTagUsers" multiple></ng-select2>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -210,6 +240,9 @@
                         </option>
                       </ng-container>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
 
@@ -227,6 +260,9 @@
                     <label>Total Award Value (USD)*</label>
                     <input type="number" class="form-control" placeholder="0000.0" formControlName="contractValueUsd"
                            min="0" step="0.01"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-2">
@@ -261,17 +297,25 @@
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <input type="date" class="form-control" placeholder="Start Date"
-                               formControlName="contractStartDate"/>
+                               formControlName="contractStartDate" (change)="onStartDateChange()" />
+                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
                       </div>
                     </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <input type="date" class="form-control" placeholder="End Date"
-                               formControlName="contractEndDate"/>
+                               formControlName="contractEndDate" [readOnly]="isEndDateDisabled"
+                               [min]="minEndDate" />
+                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PHCA </label>
@@ -298,8 +342,11 @@
 <!--                  </div>-->
 
                   <div class="form-group mb-3">
-                    <label>PSA/JV</label>
+                    <label>PSA/JV *</label>
                     <ng-select2 formControlName="psajv" [data]="psaJvOptions" multiple></ng-select2>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
 
@@ -323,6 +370,9 @@
                     <label>LTCC Note</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
                               formControlName="ltccNotes"></textarea>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
@@ -348,6 +398,9 @@
                     <label>Government Representative Comment</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
                               formControlName="govtReprAlignedComment"></textarea>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('govtReprAlignedComment')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -386,6 +439,9 @@
                     <label>Conflict of Interest Comments</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
                               formControlName="conflictOfInterestComment"></textarea>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('conflictOfInterestComment')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -413,6 +469,9 @@
                       <option value="Reimbursable">Reimbursable</option>
                       <option value="Other">Other</option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -424,6 +483,9 @@
                       <option value="Core">Core</option>
                       <option value="Strategic">Strategic</option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('contractMgmtLevel')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
@@ -434,6 +496,9 @@
                       <option value="Tactical">Tactical</option>
                       <option value="Standard">Standard</option>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('sourcingRigor')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-12">
@@ -497,6 +562,10 @@
                         </svg>
                         Add New Row
                       </button>
+                    </div>
+
+                    <div class="text-danger" *ngIf="submitted && risks.invalid">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -581,6 +650,10 @@
                         </svg>
                         Add New Row
                       </button>
+                    </div>
+
+                    <div class="text-danger" *ngIf="submitted && inviteToBid.invalid">
+                      <small class="text-danger">This field is required.</small>
                     </div>
 
                   </div>
@@ -693,6 +766,16 @@
                   </div>
                 </div>
               </div>
+
+              <small class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costReduction')">
+                Please fill all Cost Reduction fields if any one is provided.
+              </small>
+              <small class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('operatingEfficiency')">
+                Please fill all Operating Efficiency fields if any one is provided.
+              </small>
+              <small class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costAvoidance')">
+                Please fill all Cost Avoidance fields if any one is provided.
+              </small>
             </div>
 
             <div id="section4" class="fb-title-div">
@@ -1273,7 +1356,14 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-3">
+                  <div class="col-sm-6 col-md-2">
+                      <label>No existing budget Correct</label>
+                      <div class="text-center align-middle">
+                        <input type="checkbox" formControlName="isNoExistingBudget"/>
+                      </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Technically Correct</label>
                       <input type="text" class="form-control" [disabled]="true" [value]="1"
@@ -1281,7 +1371,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-3">
+                  <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Budget Statement</label>
                       <select class="form-control" formControlName="budgetStatement">
@@ -1295,7 +1385,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-3">
+                  <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>JV Review</label>
                       <select class="form-control" formControlName="jvReview">
@@ -1309,7 +1399,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-12 col-md-1">
+                  <div class="col-sm-12 col-md-2">
                     <div class="krt-action mt-4">
                       <button type="button" class="btn btn-outline-danger" (click)="removeConsultationRow(i)">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

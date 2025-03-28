@@ -5,7 +5,7 @@ import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/
 import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
-import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule} from '@angular/forms';
+import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors} from '@angular/forms';
 import {CURRENCY_LIST} from '../../utils/constant';
 import {UserService} from '../../service/user.service';
 import {UserDetails} from '../../models/user';
@@ -29,6 +29,9 @@ export class Template1Component {
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
   private searchTimeout: any;
+  isEndDateDisabled: boolean = true;
+  minEndDate: string = '';
+  submitted = false;
 
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
@@ -76,10 +79,10 @@ export class Template1Component {
         operatingFunction: ['', Validators.required],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        camUserId: [{value: '', disabled: true}],
+        camUserId: [{ value: 1, disabled: true }, [Validators.required]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
-        procurementSPAUsers: [[], Validators.required],
-        pdManagerName: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        procurementSPAUsers: [[1,2], Validators.required],
+        pdManagerName: [1, Validators.required],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
         exchangeRate: [0], // Number input
@@ -121,7 +124,7 @@ export class Template1Component {
         costAvoidanceValue: [0],
         costAvoidancePercent: [0],
         costAvoidanceRemarks: [''],
-      }),
+      }, { validators: this.requireAllIfAny }),
       costAllocation: this.fb.group({
         contractCommittee_SDCC: [{value: false, disabled: true}],
         contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
@@ -193,7 +196,82 @@ export class Template1Component {
     this.setupPSAListeners()
     this.setupMethodologyListeners()
     this.setupPSACalculations()
+    this.onLTCCChange()
+    this.alignGovChange()
+    this.conflictIntrestChanges()
 
+  }
+
+  get generalInfo() {
+    return this.generalInfoForm.get('generalInfo');
+  }
+
+  get procurementDetailsInfo() {
+    return this.generalInfoForm.get('generalInfo');
+  }
+
+  onLTCCChange() {
+    this.generalInfoForm.get('generalInfo.isLTCC')?.valueChanges.subscribe((value) => {
+      if (value === true) {
+        this.generalInfoForm.get('generalInfo.ltccNotes')?.setValidators([Validators.required]);
+      } else {
+        this.generalInfoForm.get('generalInfo.ltccNotes')?.clearValidators();
+      }
+      this.generalInfoForm.get('generalInfo.ltccNotes')?.updateValueAndValidity(); // Refresh validation
+    });
+  }
+
+  requireAllIfAny(group: AbstractControl): ValidationErrors | null {
+    const validateGroup = (fields: string[]) => {
+      const values = fields.map(field => group.get(field)?.value);
+      const hasValue = values.some(val => val);  // If at least one field has a value
+      const allFilled = values.every(val => val); // If all fields are filled
+
+      return hasValue && !allFilled ? { requireAllFields: true } : null;
+    };
+
+    // Apply validation for each group separately
+    const errors = {
+      costReduction: validateGroup(['costReductionPercent', 'costReductionValue', 'costReductionRemarks']),
+      operatingEfficiency: validateGroup(['operatingEfficiencyPercent', 'operatingEfficiencyValue', 'operatingEfficiencyRemarks']),
+      costAvoidance: validateGroup(['costAvoidancePercent', 'costAvoidanceValue', 'costAvoidanceRemarks'])
+    };
+
+    return Object.values(errors).some(error => error) ? errors : null;
+  }
+
+  alignGovChange() {
+    this.generalInfoForm.get('generalInfo.isGovtReprAligned')?.valueChanges.subscribe((value) => {
+      if (value === true) {
+        this.generalInfoForm.get('generalInfo.govtReprAlignedComment')?.setValidators([Validators.required]);
+      } else {
+        this.generalInfoForm.get('generalInfo.govtReprAlignedComment')?.clearValidators();
+      }
+      this.generalInfoForm.get('generalInfo.govtReprAlignedComment')?.updateValueAndValidity(); // Refresh validation
+    });
+  }
+
+  conflictIntrestChanges() {
+    this.generalInfoForm.get('generalInfo.isConflictOfInterest')?.valueChanges.subscribe((value) => {
+      if (value === true) {
+        this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.setValidators([Validators.required]);
+      } else {
+        this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.clearValidators();
+      }
+      this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.updateValueAndValidity(); // Refresh validation
+    });
+  }
+
+  onStartDateChange() {
+    const startDate = this.generalInfoForm.get('generalInfo.contractStartDate')?.value;
+
+    if (startDate) {
+      this.isEndDateDisabled = false;
+      this.minEndDate = startDate;
+    } else {
+      this.isEndDateDisabled = true;
+      this.generalInfoForm.get('generalInfo.contractEndDate')?.setValue(''); // Reset end date
+    }
   }
 
   onSearch(target: EventTarget | null) {
@@ -423,15 +501,7 @@ export class Template1Component {
       next: (response) => {
         if (response.status && response.data) {
           this.userDetails = response.data;
-
-          // this.procurementTagUsers = response.data
-          //   .filter(user => user.roleName !== 'Procurement Tag')
-          //   .map((user: UserDetails) => ({
-          //     id: user.id,
-          //     text: user.displayName
-          //   }));
-
-          this.procurementTagUsers = response.data.map(t => ({label: t.displayName, value: t.id}));
+          this.procurementTagUsers = response.data.filter(user => user.roleName !== 'Procurement Tag').map(t => ({label: t.displayName, value: t.id}));
 
           console.log('user details', this.userDetails);
         }
@@ -623,6 +693,11 @@ export class Template1Component {
   }
 
   onSubmit(): void {
+    this.submitted = true;
+
+    if (this.generalInfoForm.invalid) {
+      console.log("=========", this.generalInfoForm);
+    }
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
     const procurementValue = this.generalInfoForm?.value?.procurementDetails
     const consultationsValue = this.generalInfoForm?.value?.consultation
@@ -742,7 +817,7 @@ export class Template1Component {
 
     console.log("==params", params)
 
-    if (!this.generalInfoForm.valid) {
+    if (this.generalInfoForm.valid) {
       this.paperService.upsertApproachToMarkets(params).subscribe({
         next: (response) => {
           console.log("==response", response)
@@ -750,6 +825,7 @@ export class Template1Component {
             const docId = response.data || null
             this.uploadFiles(docId)
             this.generalInfoForm.reset();
+            this.submitted = false;
             this.toastService.show(response.message || "Added Successfully",'success');
           } else {
             this.toastService.show(response.message || "Something went wrong.",'danger');
