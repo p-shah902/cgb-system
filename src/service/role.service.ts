@@ -9,6 +9,7 @@ import {
   UserRoleAccesses
 } from '../models/role';
 import {
+  CreateUserRolesUri,
   getAllRoleAccessListUri,
   getUserParticularsListUri,
   getUserRolesUri,
@@ -59,6 +60,22 @@ export class RoleService {
 
   upsertUserRoles(upsertPayload: UpsertUserRolesPaylod) {
     return this.http.post<any>(UpsertUserRolesUri, upsertPayload).pipe(
+      tap(response => {
+        console.log(response);
+        if (response && response.success) {
+
+          this.isUpsertUserRoleSubject.next(true);
+        }
+      }),
+      catchError(error => {
+        console.error(error);
+        return of({success: false, message: error.error?.message || 'Error Accured'});
+      })
+    );
+  }
+
+  createUserRoles(upsertPayload: UpsertUserRolesPaylod) {
+    return this.http.post<any>(CreateUserRolesUri, upsertPayload).pipe(
       tap(response => {
         console.log(response);
         if (response && response.success) {
