@@ -33,7 +33,8 @@ export class AddNewRoleComponent implements OnInit {
   accessTypes: any[] = [];
   accessTypesAll: ParticularType[] = [];
   selectedParticulars: any[] = [];
-  showSectionDropdown: boolean = true;
+  selectedSectionValue: any[] = [];
+  showSectionDropdown: boolean = false;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -52,28 +53,6 @@ export class AddNewRoleComponent implements OnInit {
   ngOnInit(): void {
 
     this.loadUserParticulars();
-
-    this.roleForm.get('accessTo')?.valueChanges.subscribe(selectedTypeIds => {
-      if (selectedTypeIds) {
-        const selectedType = this.accessTypesAll.find(type => type.typeId === selectedTypeIds);
-        this.roleForm.get('section')?.setValue([]);
-        if (selectedType && selectedType.particulars.length > 0) {
-          this.showSectionDropdown = true;
-          this.roleForm.get('section')?.setValidators([Validators.required]);
-          this.selectedParticulars = selectedType.particulars.map((f: any) => ({
-            label: f.particularsName,
-            value: f.particularsId
-          }));
-        } else {
-          this.showSectionDropdown = false;
-          this.roleForm.get('section')?.clearValidators();
-        }
-      } else {
-        this.selectedParticulars = [];
-        this.showSectionDropdown = false;
-      }
-      this.roleForm.get('section')?.updateValueAndValidity();
-    });
   }
 
   passBack() {
@@ -101,34 +80,75 @@ export class AddNewRoleComponent implements OnInit {
 
   }
 
+  updateValues({value: selectedTypeIds}: any) {
+    if (selectedTypeIds && selectedTypeIds.length > 0) {
+      let filterData = this.accessTypesAll.filter(f => selectedTypeIds.includes(f.typeId) && f.particulars.length > 0);
+      if (filterData.length > 0) {
+        this.showSectionDropdown = true;
+        this.roleForm.get('section')?.setValidators([Validators.required]);
+      } else {
+        this.showSectionDropdown = false;
+        this.roleForm.get('section')?.clearValidators();
+      }
+      this.selectedParticulars = [];
+      selectedTypeIds.forEach((item: number) => {
+        const selectedType = this.accessTypesAll.find(type => type.typeId === item);
+        if (selectedType && selectedType.particulars.length > 0) {
+          this.selectedParticulars.push({
+            value: selectedType.typeId,
+            label: selectedType.typeName,
+            options: selectedType.particulars.map(d => ({
+              value: d.particularsId,
+              label: d.particularsName
+            }))
+          })
+        }
+      })
+      this.roleForm.get('accessTo')?.setValue(selectedTypeIds);
+    } else {
+      this.selectedParticulars = [];
+      this.showSectionDropdown = false;
+    }
+    this.roleForm.get('section')?.updateValueAndValidity();
+  }
+
+  updateSectionValues({value}: any) {
+    let accessSelected = this.roleForm.get('accessTo')?.value;
+    let filterSelected = this.accessTypesAll.filter(d => accessSelected.includes(d.typeId));
+    this.selectedSectionValue = [];
+    let values: any = {};
+    filterSelected.forEach(item => {
+      if (!values[item.typeId]) {
+        values[item.typeId] = [];
+      }
+      let filterSelected = item.particulars.filter(f => value.includes(f.particularsId));
+      values[item.typeId] = filterSelected.map(d => d.particularsId);
+    });
+    Object.keys(values).forEach(item => {
+      this.selectedSectionValue.push({
+        typeId: item,
+        particularId: values[item],
+      })
+    })
+    this.roleForm.get('section')?.setValue(value);
+  }
+
   save() {
     if (this.roleForm.valid) {
-
       const formValues = this.roleForm.value;
-      console.log(formValues);
-
-      const accessId = formValues.accessTo && formValues.accessTo.length > 0 ?
-        formValues.accessTo : [];
-
-
-      const sectionId = formValues.section && formValues.section.length > 0 ?
-        formValues.section : null;
-
-
       const payload: UpsertUserRolesPaylod = {
-        roleId: 0,
         roleName: formValues.roleName,
         description: formValues.description || "description",
-        accessId: accessId,
-        sectionId: sectionId,
-        isReadAccess: formValues.action === 'Read' || formValues.action === 'Read Write',
-        isWriteAccess: formValues.action === 'Read Write'
+        roleAccess: this.selectedSectionValue.map((item: any) => ({
+          typeId: item.typeId,
+          particularId: item.particularId,
+          isReadAccess: formValues.action === 'Read' || formValues.action === 'Read Write',
+          isWriteAccess: formValues.action === 'Read Write'
+        }))
       };
 
-      console.log(payload);
-      this.roleService.upsertUserRoles(payload).subscribe({
+      this.roleService.createUserRoles(payload).subscribe({
         next: (response) => {
-          console.log(response);
           if (response.success === false) {
             return;
           }

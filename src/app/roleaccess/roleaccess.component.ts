@@ -33,7 +33,8 @@ export class RoleaccessComponent implements OnInit {
 
     modalRef.result.then((result) => {
       if (result) {
-        console.log(result);
+        this.getUserRoleList();
+        this.getUserAccessList();
       }
     });
   }
@@ -92,12 +93,12 @@ export class RoleaccessComponent implements OnInit {
   updateUserRole(event: any, role: UserRole, access: ParticularType, particular: Particular) {
     this.roleService.upsertUserRoles({
       roleId: role.id,
-      roleName: role.name,
-      description: role.description,
-      accessId: [access.typeId],
-      sectionId: [particular.particularsId],
-      isReadAccess: event.target.checked,
-      isWriteAccess: event.target.checked
+      roleAccess: [{
+        typeId: access.typeId,
+        particularId: [particular.particularsId],
+        isReadAccess: event.target.checked,
+        isWriteAccess: event.target.checked
+      }]
     }).subscribe({
       next: (response) => {
         if (response.success === false) {
