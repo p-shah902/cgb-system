@@ -1,11 +1,12 @@
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import {Component, EventEmitter, inject, Input, Output, TemplateRef} from '@angular/core';
-import {menuItems} from '../../models/menu';
+import {Menu, menuItems} from '../../models/menu';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {filter} from 'rxjs/operators';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {Select2} from 'ng-select2-component';
+import {AuthService} from '../../service/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,7 +22,7 @@ export class SidebarComponent {
   private readonly _mdlSvc = inject(NgbModal);
 
   expandedMenus: { [key: string]: boolean } = {};
-  protected readonly menuItems = menuItems;
+  protected readonly menuItems: Menu[] = [];
 
   public paperList: any = [
     {
@@ -46,12 +47,41 @@ export class SidebarComponent {
     }
   ];
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateCurrentPath();
     });
+
+    this.authService.userRoleAccess$.subscribe(value => {
+      menuItems.forEach(item => {
+        if (!item.checkPermission) {
+          this.menuItems.push(item);
+        } else {
+          if (item.title === 'Admin Panel') {
+            if (value.some(f => f.typeName === item.roleMap && (f.isWriteAccess || f.isReadAccess))) {
+              let findChild = value.find(f => f.typeName === item.title && f.particularsName === "All Access" && (f.isWriteAccess || f.isReadAccess));
+              if (findChild) {
+                this.menuItems.push(item);
+              } else {
+                item.children = (item.children || []).filter(child => {
+                  return value.some(f => f.particularsName === child.roleMap && (f.isWriteAccess || f.isReadAccess));
+                }) as any;
+
+                if (item.children && item.children?.length > 0) {
+                  this.menuItems.push(item);
+                }
+              }
+            }
+          } else {
+            if (value.some(f => f.typeName === item.title && (f.isWriteAccess || f.isReadAccess))) {
+              this.menuItems.push(item);
+            }
+          }
+        }
+      })
+    })
   }
 
   open(event: any, content: TemplateRef<any>) {

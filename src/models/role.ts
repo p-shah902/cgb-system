@@ -36,13 +36,15 @@ export interface ParticularType {
 }
 
 export interface UpsertUserRolesPaylod {
-  roleId: number;
-  roleName: string;
-  description: string;
-  accessId: number[];
-  sectionId: number[] | null;
-  isReadAccess: boolean;
-  isWriteAccess: boolean;
+  roleId?: number;
+  roleName?: string,
+  description?: string,
+  roleAccess: {
+    typeId: number,
+    particularId: number[],
+    isReadAccess: boolean;
+    isWriteAccess: boolean;
+  }[]
 }
 
 export interface UserRole {
