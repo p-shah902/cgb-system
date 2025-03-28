@@ -14,11 +14,13 @@ import {CountryDetail} from '../../models/general';
 import {Generalervice} from '../../service/general.service';
 import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
+import {ToastService} from '../../service/toast.service';
+import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule,Select2],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2,NgbToastModule],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -26,6 +28,7 @@ export class Template1Component {
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
+  private searchTimeout: any;
 
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
@@ -34,20 +37,20 @@ export class Template1Component {
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
-  documentId = 1116;
 
-  constructor(private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService) {
+  constructor(private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService,       public toastService:ToastService,
+  ) {
   }
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   public psaJvOptions = [
-    { value: 'ACG', label: 'ACG' },
-    { value: 'Shah Deniz', label: 'Shah Deniz' },
-    { value: 'SCP', label: 'SCP' },
-    { value: 'BTC', label: 'BTC' },
-    { value: 'Sh-Asiman', label: 'Sh-Asiman' },
-    { value: 'BP Group', label: 'BP Group' }
+    {value: 'ACG', label: 'ACG'},
+    {value: 'Shah Deniz', label: 'Shah Deniz'},
+    {value: 'SCP', label: 'SCP'},
+    {value: 'BTC', label: 'BTC'},
+    {value: 'Sh-Asiman', label: 'Sh-Asiman'},
+    {value: 'BP Group', label: 'BP Group'}
   ];
 
 
@@ -199,29 +202,36 @@ export class Template1Component {
     const inputElement = target as HTMLInputElement;
     const searchText = inputElement.value.trim().toLowerCase();
 
-    if (!searchText) return;
-
-    // Remove old highlights
-    document.querySelectorAll(`.${this.highlightClass}`).forEach(el => {
-      this.renderer.removeClass(el, this.highlightClass);
-    });
-
-    // Find label that matches the search text
-    const labels = Array.from(document.querySelectorAll('label'));
-    const matchingLabel = labels.find(label => label.textContent?.toLowerCase().includes(searchText));
-
-    if (matchingLabel) {
-      // Add highlight to the label
-      this.renderer.addClass(matchingLabel, this.highlightClass);
-
-      // Scroll into view
-      matchingLabel.scrollIntoView({behavior: 'smooth', block: 'center'});
-
-      // Optionally, remove highlight after some time
-      setTimeout(() => {
-        this.renderer.removeClass(matchingLabel, this.highlightClass);
-      }, 2000);
+    // Remove old highlights if input is empty
+    if (!searchText) {
+      document.querySelectorAll(`.${this.highlightClass}`).forEach(el => {
+        this.renderer.removeClass(el, this.highlightClass);
+      });
+      return;
     }
+
+    // Clear previous timeout to debounce
+    clearTimeout(this.searchTimeout);
+
+    // Delay search execution
+    this.searchTimeout = setTimeout(() => {
+      // Remove old highlights
+      document.querySelectorAll(`.${this.highlightClass}`).forEach(el => {
+        this.renderer.removeClass(el, this.highlightClass);
+      });
+
+      // Find label that matches the search text
+      const labels = Array.from(document.querySelectorAll('label'));
+      const matchingLabel = labels.find(label => label.textContent?.toLowerCase().includes(searchText));
+
+      if (matchingLabel) {
+        // Add highlight to the label
+        this.renderer.addClass(matchingLabel, this.highlightClass);
+
+        // Scroll into view
+        matchingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 500); // Adjust delay as needed
   }
 
 
@@ -733,20 +743,21 @@ export class Template1Component {
     console.log("==params", params)
 
     if (!this.generalInfoForm.valid) {
-      console.log(this.generalInfoForm.value);
-
       this.paperService.upsertApproachToMarkets(params).subscribe({
         next: (response) => {
-          if (response.success === false) {
-            console.log('Error Accured');
+          console.log("==response", response)
+          if (response.status && response.data) {
+            const docId = response.data || null
+            this.uploadFiles(docId)
+            this.generalInfoForm.reset();
+            this.toastService.show(response.message || "Added Successfully",'success');
+          } else {
+            this.toastService.show(response.message || "Something went wrong.",'danger');
           }
-
-          // if (response.status && response.data) {
-          //   console.log('Success');
-          // }
-          },
+        },
         error: (error) => {
           console.log('Error', error);
+          this.toastService.show("Something went wrong.",'danger');
         },
       });
     } else {
@@ -760,7 +771,7 @@ export class Template1Component {
       Array.from(inputElement.files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.selectedFiles.push({ file, preview: e.target?.result as string });
+          this.selectedFiles.push({file, preview: e.target?.result as string});
         };
         reader.readAsDataURL(file);
       });
@@ -785,7 +796,7 @@ export class Template1Component {
       Array.from(event.dataTransfer.files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.selectedFiles.push({ file, preview: e.target?.result as string });
+          this.selectedFiles.push({file, preview: e.target?.result as string});
         };
         reader.readAsDataURL(file);
       });
@@ -797,12 +808,12 @@ export class Template1Component {
     this.selectedFiles.splice(index, 1);
   }
 
-  uploadFiles() {
-    if (this.selectedFiles.length === 0) return;
+  uploadFiles(docId: number | null) {
+    if (this.selectedFiles.length === 0 || !docId) return;
 
     const filesToUpload = this.selectedFiles.map((item) => item.file);
 
-    this.uploadService.uploadDocuments(this.documentId, filesToUpload).subscribe({
+    this.uploadService.uploadDocuments(docId, filesToUpload).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           console.log('Files uploaded successfully!');
