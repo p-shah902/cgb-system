@@ -1371,6 +1371,7 @@
                     <div class="form-group mb-3">
                       <label>PSA</label>
                       <select class="form-control" formControlName="psa">
+                        <option [value]="''">Select Value</option>
                         <option value="ACG">ACG</option>
                         <option value="Shah Deniz">Shah Deniz</option>
                         <option value="SCP">SCP</option>
@@ -1391,8 +1392,14 @@
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Technically Correct</label>
-                      <input type="text" class="form-control" [disabled]="true" [value]="1"
-                             formControlName="technicalCorrect" readonly aria-disabled="true">
+                      <select class="form-control" formControlName="technicalCorrect">
+                        <option [value]="null">Select Status</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
                     </div>
                   </div>
 

@@ -18,6 +18,7 @@ import {ToastService} from '../../service/toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import {DictionaryService} from '../../service/dictionary.service';
 import {DictionaryDetail, Item} from '../../models/dictionary';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-template1',
@@ -55,7 +56,7 @@ export class Template1Component {
   selectedFiles: any[] = [];
   isDragging = false;
 
-  constructor(      private dictionaryService:DictionaryService,
+  constructor(private router: Router,      private dictionaryService:DictionaryService,
                     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService,       public toastService:ToastService,
   ) {
   }
@@ -761,7 +762,7 @@ export class Template1Component {
       this.fb.group({
         psa: ['', Validators.required],
         isNoExistingBudget: [false], // Checkbox
-        technicalCorrect: [1],
+        technicalCorrect: [null],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
       })
@@ -920,6 +921,9 @@ export class Template1Component {
             this.generalInfoForm.reset();
             this.submitted = false;
             this.toastService.show(response.message || "Added Successfully",'success');
+            setTimeout(() => {
+              this.router.navigate(['/paperconfiguration']);
+            }, 2000);
           } else {
             this.toastService.show(response.message || "Something went wrong.",'danger');
           }
