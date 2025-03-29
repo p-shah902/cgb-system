@@ -15,5 +15,7 @@ export const getDictionaryItemsListUri = baseUri + '/api/GeneralMethod/GetDictio
 export const getDictionaryListByItemNameUri = baseUri + '/api/GeneralMethod/GetDictionaryListByItemName';
 export const upsertDictionariesUri = baseUri + '/api/GeneralMethod/UpsertDictionaries';
 export const getCountryListUri = baseUri + '/api/GeneralMethod/GetCountryList';
+export const getPaperConfigurationsList=baseUri+'/api/PaperConfiguration/GetPaperConfigurationsList';
 export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
 export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
+
