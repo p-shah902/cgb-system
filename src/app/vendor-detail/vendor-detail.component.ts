@@ -1,36 +1,38 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { VendorService } from '../../service/vendor.service';
-import { VendorDetail } from '../../models/vendor';
-import { Generalervice } from '../../service/general.service';
-import { CountryDetail } from '../../models/general';
-import { ToastService } from '../../service/toast.service';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import {CommonModule} from '@angular/common';
+import {Component, Input, OnInit} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {VendorService} from '../../service/vendor.service';
+import {VendorDetail} from '../../models/vendor';
+import {Generalervice} from '../../service/general.service';
+import {CountryDetail} from '../../models/general';
+import {ToastService} from '../../service/toast.service';
+import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
   selector: 'app-vendor-detail',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule,CommonModule,NgbToastModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, NgbToastModule],
   templateUrl: './vendor-detail.component.html',
   styleUrl: './vendor-detail.component.scss'
 })
-export class VendorDetailComponent  implements OnInit{
+export class VendorDetailComponent implements OnInit {
 
-  vendorDetail: VendorDetail|null=null;
+  vendorDetail: VendorDetail | null = null;
 
   vendorForm!: FormGroup;
   originalVendorDetail!: VendorDetail;
   editMode = false;
   selectedFile: File | null = null;
   fileError: string | null = null;
-  countryDetails:CountryDetail[]=[];
+  countryDetails: CountryDetail[] = [];
 
-  isSubmitting=false;
+  isSubmitting = false;
 
-  constructor(private fb: FormBuilder,public toastService:ToastService,
-     private vendorService: VendorService,private countryService:Generalervice) {
+  previewFile: any;
+
+  constructor(private fb: FormBuilder, public toastService: ToastService,
+              private vendorService: VendorService, private countryService: Generalervice) {
 
     this.vendorForm = this.fb.group({
       id: [0],
@@ -51,8 +53,6 @@ export class VendorDetailComponent  implements OnInit{
   ngOnInit(): void {
     this.loadCountry();
 
-    console.log('vendor',this.vendorDetail);
-
     if (this.vendorDetail && this.vendorDetail.id > 0) {
       this.editMode = true;
       this.setVendorData(this.vendorDetail);
@@ -66,8 +66,8 @@ export class VendorDetailComponent  implements OnInit{
   private setVendorData(vendor: VendorDetail): void {
     this.vendorForm.patchValue({
       ...vendor
-  });
-    this.originalVendorDetail = { ...vendor };
+    });
+    this.originalVendorDetail = {...vendor};
   }
 
   private resetToDefault(): void {
@@ -76,7 +76,7 @@ export class VendorDetailComponent  implements OnInit{
       vendorName: '',
       taxId: '',
       sapId: '',
-      countryId:0,
+      countryId: 0,
       isActive: true,
       contactPerson: '',
       contactEmail: '',
@@ -123,15 +123,20 @@ export class VendorDetailComponent  implements OnInit{
     this.selectedFile = file;
     this.fileError = null;
 
+    let reader = new FileReader();
 
-}
+    reader.onload = (e: any) => {
+      this.previewFile = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+  }
 
   private mapFormValues(): VendorDetail {
     const formValues = this.vendorForm.value;
-    console.log('form Vale',formValues);
     return {
       ...formValues,
-      countryId:formValues.countryId,
+      countryId: formValues.countryId,
       createdDate: new Date().toISOString(),
       modifiedDate: new Date().toISOString()
     };
@@ -143,32 +148,32 @@ export class VendorDetailComponent  implements OnInit{
 
       console.log('Form is invalid');
       Object.keys(this.vendorForm.controls).forEach((key) => {
-      const control = this.vendorForm.get(key);
-      if (control && control.invalid) {
-        console.log(`Invalid field: ${key}`, control.errors);
-      }
-    });
+        const control = this.vendorForm.get(key);
+        if (control && control.invalid) {
+          console.log(`Invalid field: ${key}`, control.errors);
+        }
+      });
 
-    this.toastService.show('Please Fill All Required Fields', 'danger');
-    return;
+      this.toastService.show('Please Fill All Required Fields', 'danger');
+      return;
     }
     if (this.isSubmitting) return;
 
     const vendorData = this.mapFormValues();
-    console.log('vendor Details',vendorData);
-    console.log('file',this.selectedFile);
+    console.log('vendor Details', vendorData);
+    console.log('file', this.selectedFile);
     this.isSubmitting = true;
     this.vendorService.upsertVendorDetail(vendorData, this.selectedFile).subscribe({
       next: (response) => {
-        if (response&&response.status) {
+        if (response && response.status) {
           this.toastService.show('Vendor details saved successfully', 'success');
         }
       },
       error: (error) => {
         this.isSubmitting = false;
         console.log('Error', error);
-        this.toastService.show('Failed to save vendor details','danger');
-      },complete: () => {
+        this.toastService.show('Failed to save vendor details', 'danger');
+      }, complete: () => {
         this.isSubmitting = false;
       }
     });

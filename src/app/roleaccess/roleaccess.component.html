@@ -26,11 +26,11 @@
         <div class="page-card-body">
           <div class="role-access-table">
             <div class="table-responsive">
-              <table class="table table-borderless">
+              <table class="table table-borderless" width="100%">
                 <thead>
                 <tr>
                   <th>
-                    <small>Roles</small>
+                    <small class="roll-small">Roles</small>
                   </th>
                   <ng-container *ngFor="let role of roles">
                     <th>
@@ -42,7 +42,7 @@
                 <tbody>
                 <ng-container *ngFor="let access of accessTypes">
                   <tr>
-                    <td class="p-0" colspan="7">
+                    <td class="p-0" colspan="16">
                       <div class="custom-accordion" ngbAccordion>
                         <div ngbAccordionItem [collapsed]="false">
                           <h2 ngbAccordionHeader>
@@ -57,7 +57,7 @@
                                   <ng-container *ngFor="let particular of access.particulars">
                                     <tr>
                                       <td>
-                                        <div class="ps-5">
+                                        <div class="table-title-div">
                                           {{ particular.particularsName }}
                                         </div>
                                       </td>
