@@ -102,40 +102,40 @@ export const menuItems: Menu[] = [
       }
     ],
   },
-  // {
-  //     path: '#',
-  //     title: 'Template',
-  //     icon: `<svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  //         <path fill-rule="evenodd" clip-rule="evenodd"
-  //           d="M5.944 1L5.858 1.43671L5.52901 3.03467C5.00301 3.23554 4.526 3.52037 4.095 3.85815L2.487 3.3205L2.05501 3.18658L1.83101 3.57233L0.723999 5.4231L0.5 5.8089L0.828003 6.0957L2.07201 7.15399C2.02701 7.43081 1.96901 7.70461 1.96901 7.99542C1.96901 8.28623 2.02701 8.5601 2.07201 8.83691L0.828003 9.8952L0.5 10.182L0.723999 10.5677L1.83101 12.4186L2.05501 12.8053L2.487 12.6704L4.095 12.1328C4.526 12.4705 5.00301 12.7553 5.52901 12.9562L5.858 14.5541L5.944 14.9909H9.05501L9.142 14.5541L9.47 12.9562C9.996 12.7553 10.473 12.4705 10.904 12.1328L12.512 12.6704L12.944 12.8053L13.169 12.4186L14.275 10.5677L14.5 10.182L14.171 9.8952L12.927 8.83691C12.973 8.5601 13.03 8.28623 13.03 7.99542C13.03 7.70461 12.973 7.43081 12.927 7.15399L14.171 6.0957L14.5 5.8089L14.275 5.4231L13.169 3.57233L12.944 3.18658L12.512 3.3205L10.904 3.85815C10.473 3.52037 9.996 3.23554 9.47 3.03467L9.142 1.43671L9.05501 1H5.944Z"
-  //           stroke="#626262" stroke-linecap="square" stroke-linejoin="round" />
-  //         <path fill-rule="evenodd" clip-rule="evenodd"
-  //           d="M9.49963 7.99542C9.49963 9.0987 8.60363 9.99414 7.49963 9.99414C6.39563 9.99414 5.49963 9.0987 5.49963 7.99542C5.49963 6.89214 6.39563 5.99677 7.49963 5.99677C8.60363 5.99677 9.49963 6.89214 9.49963 7.99542Z"
-  //           stroke="#626262" stroke-linecap="square" stroke-linejoin="round" />
-  //       </svg>`,
-  //     children: [
-  //         {
-  //             path: '/approach-to-market',
-  //             title: 'Approach to Market'
-  //         },
-  //         {
-  //             path: '/contract-award',
-  //             title: 'Contact Award'
-  //         },
-  //         {
-  //             path: '/contract-variation-or-amendment-approval',
-  //             title: 'Variation Paper'
-  //         },
-  //         {
-  //             path: '/approval-of-sale-disposal-form',
-  //             title: 'Approval of Sale / Disposal Form'
-  //         },
-  //         {
-  //             path: '/info-note',
-  //             title: 'Info note'
-  //         }
-  //     ],
-  // },
+  {
+      path: '#',
+      title: 'Template',
+      icon: `<svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M5.944 1L5.858 1.43671L5.52901 3.03467C5.00301 3.23554 4.526 3.52037 4.095 3.85815L2.487 3.3205L2.05501 3.18658L1.83101 3.57233L0.723999 5.4231L0.5 5.8089L0.828003 6.0957L2.07201 7.15399C2.02701 7.43081 1.96901 7.70461 1.96901 7.99542C1.96901 8.28623 2.02701 8.5601 2.07201 8.83691L0.828003 9.8952L0.5 10.182L0.723999 10.5677L1.83101 12.4186L2.05501 12.8053L2.487 12.6704L4.095 12.1328C4.526 12.4705 5.00301 12.7553 5.52901 12.9562L5.858 14.5541L5.944 14.9909H9.05501L9.142 14.5541L9.47 12.9562C9.996 12.7553 10.473 12.4705 10.904 12.1328L12.512 12.6704L12.944 12.8053L13.169 12.4186L14.275 10.5677L14.5 10.182L14.171 9.8952L12.927 8.83691C12.973 8.5601 13.03 8.28623 13.03 7.99542C13.03 7.70461 12.973 7.43081 12.927 7.15399L14.171 6.0957L14.5 5.8089L14.275 5.4231L13.169 3.57233L12.944 3.18658L12.512 3.3205L10.904 3.85815C10.473 3.52037 9.996 3.23554 9.47 3.03467L9.142 1.43671L9.05501 1H5.944Z"
+            stroke="#626262" stroke-linecap="square" stroke-linejoin="round" />
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M9.49963 7.99542C9.49963 9.0987 8.60363 9.99414 7.49963 9.99414C6.39563 9.99414 5.49963 9.0987 5.49963 7.99542C5.49963 6.89214 6.39563 5.99677 7.49963 5.99677C8.60363 5.99677 9.49963 6.89214 9.49963 7.99542Z"
+            stroke="#626262" stroke-linecap="square" stroke-linejoin="round" />
+        </svg>`,
+      children: [
+          {
+              path: '/approach-to-market',
+              title: 'Approach to Market'
+          },
+          {
+              path: '/contract-award',
+              title: 'Contact Award'
+          },
+          {
+              path: '/contract-variation-or-amendment-approval',
+              title: 'Variation Paper'
+          },
+          {
+              path: '/approval-of-sale-disposal-form',
+              title: 'Approval of Sale / Disposal Form'
+          },
+          {
+              path: '/info-note',
+              title: 'Info note'
+          }
+      ],
+  },
   {
     path: '/cgb',
     title: 'CGB Voting Score Card',
