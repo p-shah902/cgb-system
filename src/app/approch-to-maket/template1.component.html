@@ -89,7 +89,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB Item Ref </label>
-                    <input type="text" class="form-control" placeholder="Enter" formControlName="cgbItemRefNo"/>
+                    <input type="text" class="form-control" placeholder="CGB Item Ref" formControlName="cgbItemRefNo"/>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
@@ -127,10 +127,12 @@
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
                     <select class="form-control" formControlName="globalCGB">
-                      <option value="">Select Status</option>
-                      <option value="Approved">Approved</option>
-                      <option value="Pending Approval">Pending Approval</option>
-                      <option value="Not Required">Not Required</option>
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
@@ -141,10 +143,12 @@
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
                     <select class="form-control" formControlName="bltMember">
-                      <option [ngValue]="null">Select Status</option>
-                      <option *ngFor="let user of userDetails" [ngValue]="user.id">
-                        {{ user.displayName }}
-                      </option>
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
@@ -155,11 +159,12 @@
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
                     <select class="form-control" formControlName="operatingFunction">
-                      <option value="">Select Status</option>
-                      <option value="Production & Operations">Production & Operations</option>
-                      <option value="Wells">Wells</option>
-                      <option value="Subsurface">Subsurface</option>
-                      <option value="IP">IP</option>
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
@@ -169,7 +174,14 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
-                    <input type="text" class="form-control" formControlName="subSector" placeholder="Enter Sub-sector"/>
+                    <select class="form-control" formControlName="subSector">
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -179,10 +191,12 @@
                   <div class="form-group mb-3">
                     <label>Sourcing Type*</label>
                     <select class="form-control" formControlName="sourcingType">
-                      <option value="">Select Status</option>
-                      <option value="Competitive Bid">Competitive Bid</option>
-                      <option value="Single Source">Single Source</option>
-                      <option value="Sole Source">Sole Source</option>
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -192,28 +206,32 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager*</label>
-                    <input type="number" class="form-control" placeholder="Enter Sub-sector"
-                           formControlName="camUserId"/>
+
+
+                    <select class="form-control" formControlName="camUserId">
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
 
-                <!-- <div class="col-sm-6 col-md-4">
-                <div class="form-group mb-3">
-                  <label>Enter Sub-sector</label>
-                  <input type="text" class="form-control" placeholder="Contract Account Manager (CAM) " />
-                </div>
-              </div> -->
-                <div class="col-sm-6 col-md-4">
+                               <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>VP-1* </label>
                     <select class="form-control" formControlName="vP1UserId">
-                      <option [ngValue]="null">Select Status</option>
-                      <option *ngFor="let user of userDetails" [ngValue]="user.id">
-                        {{ user.displayName }}
-                      </option>
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'VP-1'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('vP1UserId')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -269,12 +287,12 @@
                   <div class="form-group mb-3">
                     <label>Original Currency</label>
                     <select class="form-control" formControlName="originalCurrency">
-                      <option value="">Select Status</option>
-                      <option value="USD">USD</option>
-                      <option value="AZN">AZN</option>
-                      <option value="GBP">GBP</option>
-                      <option value="TRY">TRY</option>
-                      <option value="GEL">GEL</option>
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                   </div>
                 </div>
@@ -292,7 +310,7 @@
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
-                  <label class="mb-2">Contract Duration</label>
+                  <label class="mb-2">Contract Duration *</label>
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
@@ -464,10 +482,12 @@
                   <div class="form-group mb-3">
                     <label>Remuneration Type*</label>
                     <select class="form-control" formControlName="remunerationType">
-                      <option value="">Select Status</option>
-                      <option value="Lump Sum">Lump Sum</option>
-                      <option value="Reimbursable">Reimbursable</option>
-                      <option value="Other">Other</option>
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of remunerationTypeData?.length ? remunerationTypeData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -477,11 +497,13 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Proposed Contract Management Level*</label>
-                    <select class="form-control" formControlName="contractMgmtLevel">
-                      <option value="">Select Status</option>
-                      <option value="Transactional">Transactional</option>
-                      <option value="Core">Core</option>
-                      <option value="Strategic">Strategic</option>
+                 <select class="form-control" formControlName="contractMgmtLevel">
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of proposedCMLData?.length ? proposedCMLData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('contractMgmtLevel')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -492,9 +514,12 @@
                   <div class="form-group mb-3">
                     <label>Sourcing Rigor*</label>
                     <select class="form-control" formControlName="sourcingRigor">
-                      <option value="">Select Status</option>
-                      <option value="Tactical">Tactical</option>
-                      <option value="Standard">Standard</option>
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of sourcingRigorData?.length ? sourcingRigorData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
                     </select>
                     <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('sourcingRigor')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -607,7 +632,7 @@
                             <td>
                               <div class="form-group mb-3">
                                 <select class="form-control" formControlName="countryId">
-                                  <option [ngValue]="null">Select country</option>
+                                  <option [ngValue]="''">Select country</option>
                                   <option *ngFor="let con of countryDetails" [ngValue]="con.id">
                                     {{ con.countryName }}
                                   </option>
@@ -661,7 +686,7 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>SOCAR notification sent on</label>
+                    <label>SOCAR notification sent on *</label>
                     <div class="date-input position-relative">
                       <input type="date" class="form-control" placeholder="" formControlName="socaRsentOn"/>
                     </div>
@@ -669,7 +694,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>SOCAR Response Received Date</label>
+                    <label>SOCAR Response Received Date *</label>
                     <div class="date-input position-relative">
                       <input type="date" class="form-control" placeholder="" formControlName="socaRreceivedOn"/>
                     </div>
