@@ -21,6 +21,7 @@ export class DictionariesListComponent implements OnInit {
 
   dictionaryItem:Item[]=[];
   dictionaryDetail:DictionaryDetail[]=[];
+  isLoading:boolean=false;
 
   ngOnInit(): void {
       this.loadDictionaryIteams();
@@ -62,6 +63,11 @@ export class DictionariesListComponent implements OnInit {
         console.log('error',error);
       }
     })
+
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 2000);
 
   }
 

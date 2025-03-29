@@ -33,7 +33,7 @@ export class HeaderComponent implements OnInit {
   }
 
   setPageTitle() {
-    const currentUrl = this.router.url;
+    const currentUrl = decodeURIComponent(this.router.url);
     const formattedTitle = this.formatTitle(currentUrl);
     this.pageTitle = formattedTitle;
   }

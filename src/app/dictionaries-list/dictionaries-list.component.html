@@ -46,7 +46,11 @@
                   <button ngbNavLink (click)="loadDictionaryDetails(item.itemName)">{{item.itemName}}</button>
                   <ng-template ngbNavContent>
                    <div class="dict-table-div">
-                     <table class="table">
+                    <div *ngIf="isLoading" class="table-loader">
+                      <div class="spinner"></div>
+                      <p>Loading data, please wait...</p>
+                    </div>
+                     <table class="table" *ngIf="!isLoading">
                        <thead>
                          <tr>
                            <th>Value Name</th>
@@ -82,33 +86,6 @@
                   </ng-template>
                 </ng-container>
               </ng-container>
-                <!-- <ng-container ngbNavItem="middle">
-                  <button ngbNavLink>Operating Functions</button>
-                  <ng-template ngbNavContent>
-                    <p>
-                      Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko
-                      farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean shorts
-                      ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit. Keytar
-                      helvetica VHS salvia yr, vero magna velit sapiente labore stumptown. Vegan fanny pack odio cillum wes anderson
-                      8-bit, sustainable jean shorts beard ut DIY ethical culpa terry richardson biodiesel. Art party scenester
-                      stumptown, tumblr butcher vero sint qui sapiente accusamus tattooed echo park.
-                    </p>
-                  </ng-template>
-                </ng-container>
-                <ng-container ngbNavItem="bottom">
-                  <button ngbNavLink>Subsector</button>
-                  <ng-template ngbNavContent>
-                    <p>
-                      Sed commodo, leo at suscipit dictum, quam est porttitor sapien, eget sodales nibh elit id diam. Nulla
-                      facilisi. Donec egestas ligula vitae odio interdum aliquet. Duis lectus turpis, luctus eget tincidunt eu,
-                      congue et odio. Duis pharetra et nisl at faucibus. Quisque luctus pulvinar arcu, et molestie lectus ultrices
-                      et. Sed diam urna, egestas ut ipsum vel, volutpat volutpat neque. Praesent fringilla tortor arcu. Vivamus
-                      faucibus nisl enim, nec tristique ipsum euismod facilisis. Morbi ut bibendum est, eu tincidunt odio. Orci
-                      varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris aliquet odio ac lorem
-                      aliquet ultricies in eget neque. Phasellus nec tortor vel tellus pulvinar feugiat.
-                    </p>
-                  </ng-template>
-                </ng-container> -->
               </div>
 
               <div [ngbNavOutlet]="nav" class="ms-4"></div>
