@@ -1,6 +1,6 @@
 
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, TemplateRef } from '@angular/core';
 import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperFilter } from '../../models/general';
 import { PaperConfig } from '../../models/paper';
@@ -18,6 +18,7 @@ import {Router} from '@angular/router';
 export class PaperconfigurationComponent implements OnInit{
 
   private paperService=inject(PaperConfigService);
+  private router=inject(Router);
   filter:PaperFilter;
   paperList:PaperConfig[]=[];
   isDesc=false;
@@ -77,45 +78,45 @@ export class PaperconfigurationComponent implements OnInit{
   }
 
 
-  // private readonly _mdlSvc = inject(NgbModal);
+  private readonly _mdlSvc = inject(NgbModal);
 
-  // public paperList: any = [
-  //   {
-  //     value: '/approach-to-market',
-  //     label: 'Approach to Market'
-  //   },
-  //   {
-  //     value: '/contract-award',
-  //     label: 'Contact Award'
-  //   },
-  //   {
-  //     value: '/contract-variation-or-amendment-approval',
-  //     label: 'Variation Paper'
-  //   },
-  //   {
-  //     value: '/approval-of-sale-disposal-form',
-  //     label: 'Approval of Sale / Disposal Form'
-  //   },
-  //   {
-  //     value: '/info-note',
-  //     label: 'Info note'
-  //   }
-  // ];
+  public paperListData: any = [
+    {
+      value: '/approach-to-market',
+      label: 'Approach to Market'
+    },
+    {
+      value: '/contract-award',
+      label: 'Contact Award'
+    },
+    {
+      value: '/contract-variation-or-amendment-approval',
+      label: 'Variation Paper'
+    },
+    {
+      value: '/approval-of-sale-disposal-form',
+      label: 'Approval of Sale / Disposal Form'
+    },
+    {
+      value: '/info-note',
+      label: 'Info note'
+    }
+  ];
 
-  // open(event: any, content: TemplateRef<any>) {
-  //   event.preventDefault();
-  //   this._mdlSvc.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then(
-  //     (result) => {
+  open(event: any, content: TemplateRef<any>) {
+    event.preventDefault();
+    this._mdlSvc.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then(
+      (result) => {
 
-  //     },
-  //     (reason) => {
+      },
+      (reason) => {
 
-  //     },
-  //   );
-  // }
+      },
+    );
+  }
 
-  // openPage(value: any, modal: any) {
-  //   this.router.navigate([value.value]);
-  //   modal.close('Save click')
-  // }
+  openPage(value: any, modal: any) {
+    this.router.navigate([value.value]);
+    modal.close('Save click')
+  }
 }
