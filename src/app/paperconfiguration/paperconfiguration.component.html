@@ -26,6 +26,11 @@
               A Z
             </button>
           </div>
+          <div class="filter-btn-div ms-auto">
+            <button class="btn create-btn" (click)="open($event, content)">
+              Create Paper
+            </button>
+          </div>
         </div>
         <div class="row">
           <div class="col-md-6 col-lg-6 col-xl-4 mb-3">
@@ -293,4 +298,18 @@
       </div>
     </div>
   </div>
+
+  <ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Paper Types</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <form>
+        <div class="mb-3">
+          <ng-select2 [data]="paperList" (update)="openPage($event, modal)" placeholder="Select Paper Type"/>
+        </div>
+      </form>
+    </div>
+  </ng-template>
 </div>

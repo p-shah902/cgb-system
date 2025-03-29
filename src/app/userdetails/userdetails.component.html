@@ -1,7 +1,7 @@
 <!-- Toasts Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
-  <ngb-toast 
-    *ngFor="let toast of toastService.toasts" 
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
     [class]="'bg-' + toast.type + ' text-white'"
     [autohide]="true"
     [delay]="5000"
@@ -94,23 +94,23 @@
                 </div>
               </div>
             </div>
-            <div class="form-group mb-3">
-              <label>Additional Permissions</label>
-              <div class="form-check-list d-flex gap-3 flex-wrap">
-                <div class="form-check-box position-relative">
-                  <input type="checkbox" formControlName="isViewPaper">
-                  <label>Can view all Papers</label>
-                </div>
-                <div class="form-check-box position-relative">
-                  <input type="checkbox" formControlName="isEditPaper">
-                  <label>Can edit Papers </label>
-                </div>
-                <div class="form-check-box position-relative">
-                  <input type="checkbox" formControlName="isAssignRoles">
-                  <label>Can assign new roles</label>
-                </div>
-              </div>
-            </div>
+<!--            <div class="form-group mb-3">-->
+<!--              <label>Additional Permissions</label>-->
+<!--              <div class="form-check-list d-flex gap-3 flex-wrap">-->
+<!--                <div class="form-check-box position-relative">-->
+<!--                  <input type="checkbox" formControlName="isViewPaper">-->
+<!--                  <label>Can view all Papers</label>-->
+<!--                </div>-->
+<!--                <div class="form-check-box position-relative">-->
+<!--                  <input type="checkbox" formControlName="isEditPaper">-->
+<!--                  <label>Can edit Papers </label>-->
+<!--                </div>-->
+<!--                <div class="form-check-box position-relative">-->
+<!--                  <input type="checkbox" formControlName="isAssignRoles">-->
+<!--                  <label>Can assign new roles</label>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
 
           </div>
         </form>
@@ -120,8 +120,8 @@
               <button class="btn btn-outline-dark" (click)="resetForm()">
                 Discard
               </button>
-              <button 
-              class="btn btn-primary" 
+              <button
+              class="btn btn-primary"
               (click)="addUserDetails()"
               [disabled]="isSubmitting"
               >

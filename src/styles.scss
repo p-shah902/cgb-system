@@ -755,6 +755,21 @@ body .form-control {
     height: 47px;
     background-color: #ffffff;
   }
+
+  .create-btn {
+    background-color: #582AA2;
+    color: #fff;
+    font-size: 14px;
+    padding: 10px 15px;
+    height: 44px;
+    width: 100%;
+
+    &:hover {
+      background-color: #582AA2;
+      color: #fff;
+    }
+
+  }
 }
 .btn-outline-secondary {
   border-color: #DCDCDC!important;

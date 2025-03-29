@@ -41,7 +41,7 @@ export const menuItems: Menu[] = [
           </svg>`
   },
   {
-    path: '#',
+    path: '/paperconfiguration',
     title: 'Papers',
     roleMap: 'Papers',
     checkPermission: true,
@@ -50,16 +50,16 @@ export const menuItems: Menu[] = [
               d="M4.79998 7.99694H11.2M4.79998 11.1949L11.2 11.2018M4.79998 4.79902L9.06664 4.80182M13.3333 15.4685H2.66664C2.07754 15.4685 1.59998 14.9909 1.59998 14.4018V1.60182C1.59998 1.01272 2.07754 0.535156 2.66664 0.535156H11.2L14.4 3.73516V14.4018C14.4 14.9909 13.9224 15.4685 13.3333 15.4685Z"
               stroke="#1B202B" stroke-width="1.06667" stroke-linecap="square" />
           </svg>`,
-    children: [
-      {
-        path: '/createpaper',
-        title: 'Create'
-      },
-      {
-        path: '/paperconfiguration',
-        title: 'List'
-      }
-    ]
+    // children: [
+    //   {
+    //     path: '/createpaper',
+    //     title: 'Create'
+    //   },
+    //   {
+    //     path: '/paperconfiguration',
+    //     title: 'List'
+    //   }
+    // ]
   },
   {
     path: '#',
