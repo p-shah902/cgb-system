@@ -7,3 +7,8 @@ export interface CountryDetail{
       createdDate: string,
       modifiedDate: string
 }
+
+export interface PaperFilter{
+      statusIds: number[],
+      orderType: string
+    }
