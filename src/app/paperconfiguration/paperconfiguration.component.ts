@@ -18,7 +18,7 @@ import {Router} from '@angular/router';
 export class PaperconfigurationComponent implements OnInit{
 
   private paperService=inject(PaperConfigService);
-  private router=inject(Router);
+  public router=inject(Router);
   filter:PaperFilter;
   paperList:PaperConfig[]=[];
   isDesc=false;
@@ -28,7 +28,7 @@ export class PaperconfigurationComponent implements OnInit{
     this.filter={
       statusIds: [],
       orderType: "ASC"
-    } 
+    }
   }
 
   ngOnInit(): void {

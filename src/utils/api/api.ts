@@ -18,4 +18,5 @@ export const getCountryListUri = baseUri + '/api/GeneralMethod/GetCountryList';
 export const getPaperConfigurationsList=baseUri+'/api/PaperConfiguration/GetPaperConfigurationsList';
 export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
 export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
+export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
 
