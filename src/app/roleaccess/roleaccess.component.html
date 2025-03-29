@@ -29,11 +29,11 @@
               <table class="table table-borderless">
                 <thead>
                 <tr>
-                  <th width="28%">
+                  <th>
                     <small>Roles</small>
                   </th>
                   <ng-container *ngFor="let role of roles">
-                    <th width="12%">
+                    <th>
                       {{ role.name }}
                     </th>
                   </ng-container>
@@ -56,13 +56,13 @@
                                 <table class="table table-borderless">
                                   <ng-container *ngFor="let particular of access.particulars">
                                     <tr>
-                                      <td width="28%">
+                                      <td>
                                         <div class="ps-5">
                                           {{ particular.particularsName }}
                                         </div>
                                       </td>
                                       <ng-container *ngFor="let role of roles">
-                                        <td width="12%">
+                                        <td>
                                           <div class="form-check-list d-flex gap-3 flex-wrap">
                                             <div class="form-check-box position-relative">
                                               <input type="checkbox" (change)="updateUserRole($event, role, access, particular)"
