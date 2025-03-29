@@ -101,6 +101,15 @@
       }
     }
   }
+  .table-title-div {
+    width: 80px;
+    font-size: 14px;
+    word-break: break-word;
+  }
+  .roll-small {
+    display: block;
+    width: 100px;
+  }
   @media screen and (max-width: 991px) {
     .approach-table {
       thead {

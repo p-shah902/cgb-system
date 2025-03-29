@@ -26,14 +26,14 @@
         <div class="page-card-body">
           <div class="role-access-table">
             <div class="table-responsive">
-              <table class="table table-borderless">
+              <table class="table table-borderless" width="100%">
                 <thead>
                 <tr>
-                  <th width="28%">
-                    <small>Roles</small>
+                  <th>
+                    <small class="roll-small">Roles</small>
                   </th>
                   <ng-container *ngFor="let role of roles">
-                    <th width="12%">
+                    <th>
                       {{ role.name }}
                     </th>
                   </ng-container>
@@ -42,7 +42,7 @@
                 <tbody>
                 <ng-container *ngFor="let access of accessTypes">
                   <tr>
-                    <td class="p-0" colspan="7">
+                    <td class="p-0" colspan="16">
                       <div class="custom-accordion" ngbAccordion>
                         <div ngbAccordionItem [collapsed]="false">
                           <h2 ngbAccordionHeader>
@@ -56,13 +56,13 @@
                                 <table class="table table-borderless">
                                   <ng-container *ngFor="let particular of access.particulars">
                                     <tr>
-                                      <td width="28%">
-                                        <div class="ps-5">
+                                      <td>
+                                        <div class="table-title-div">
                                           {{ particular.particularsName }}
                                         </div>
                                       </td>
                                       <ng-container *ngFor="let role of roles">
-                                        <td width="12%">
+                                        <td>
                                           <div class="form-check-list d-flex gap-3 flex-wrap">
                                             <div class="form-check-box position-relative">
                                               <input type="checkbox" (change)="updateUserRole($event, role, access, particular)"

@@ -1,17 +1,17 @@
 import { Routes } from '@angular/router';
-import {RoleaccessComponent} from './roleaccess/roleaccess.component';
-import {UsermanagementComponent} from './usermanagement/usermanagement.component';
-import {UserdetailsComponent} from './userdetails/userdetails.component';
-import {CreatepaperComponent} from './createpaper/createpaper.component';
-import {PreviewComponent} from './preview/preview.component';
-import {DashboardComponent} from './dashboard/dashboard.component';
-import {PaperStatusComponent} from './paper-status/paper-status.component';
-import {ApprovePaperComponent} from './approve-paper/approve-paper.component';
-import {ApproveRequestComponent} from './approve-request/approve-request.component';
-import {LoginComponent} from './login/login.component';
-import {ForgotPasswordComponent} from './forgot-password/forgot-password.component';
-import {VendorsComponent} from './vendors/vendors.component';
-import {VendorDetailComponent} from './vendor-detail/vendor-detail.component';
+import { RoleaccessComponent } from './roleaccess/roleaccess.component';
+import { UsermanagementComponent } from './usermanagement/usermanagement.component';
+import { UserdetailsComponent } from './userdetails/userdetails.component';
+import { CreatepaperComponent } from './createpaper/createpaper.component';
+import { PreviewComponent } from './preview/preview.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { PaperStatusComponent } from './paper-status/paper-status.component';
+import { ApprovePaperComponent } from './approve-paper/approve-paper.component';
+import { ApproveRequestComponent } from './approve-request/approve-request.component';
+import { LoginComponent } from './login/login.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { VendorsComponent } from './vendors/vendors.component';
+import { VendorDetailComponent } from './vendor-detail/vendor-detail.component';
 import { AuthGuard } from '../guards/auth.guard';
 
 export const routes: Routes = [
@@ -96,6 +96,10 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: '',
+    loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
   },
@@ -139,11 +143,11 @@ export const routes: Routes = [
   },
   {
     path: 'temp',
-    loadComponent: () => import('./add-new-role/add-new-role.component').then(m =>m.AddNewRoleComponent)
+    loadComponent: () => import('./add-new-role/add-new-role.component').then(m => m.AddNewRoleComponent)
   },
   {
     path: 'temp1',
-    loadComponent: () => import('./roleaccess/roleaccess.component').then(m =>m.RoleaccessComponent),
+    loadComponent: () => import('./roleaccess/roleaccess.component').then(m => m.RoleaccessComponent),
     canActivate: [AuthGuard]
   },
 ];

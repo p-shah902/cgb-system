@@ -35,8 +35,7 @@
           </div>
           <div class="children" *ngIf="expandedMenus[menuItem.title]">
             <ng-container *ngFor="let child of menuItem.children">
-              <a [href]="child.path === '/createpaper' ? '#': child.path"
-                 (click)="child.path === '/createpaper' ? open($event, content): null" class="link">
+              <a [href]="child.path" class="link">
                 <div class="content">
                   <div class="title">{{ child.title }}</div>
                 </div>
@@ -55,23 +54,6 @@
         </a>
       </ng-template>
     </ng-container>
-
-    <ng-template #content let-modal>
-      <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Paper Types</h4>
-        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <ng-select2 [data]="paperList" (update)="openPage($event, modal)" placeholder="Select Paper Type"/>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" (click)="modal.close('Save click')">Save</button>
-      </div>
-    </ng-template>
   </div>
   <div class="footer"></div>
 </div>
