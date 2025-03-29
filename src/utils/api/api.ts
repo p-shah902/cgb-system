@@ -15,3 +15,4 @@ export const getDictionaryItemsListUri = baseUri + '/api/GeneralMethod/GetDictio
 export const getDictionaryListByItemNameUri = baseUri + '/api/GeneralMethod/GetDictionaryListByItemName';
 export const upsertDictionariesUri = baseUri + '/api/GeneralMethod/UpsertDictionaries';
 export const getCountryListUri = baseUri + '/api/GeneralMethod/GetCountryList';
+export const getPaperConfigurationsList=baseUri+'/api/PaperConfiguration/GetPaperConfigurationsList';
