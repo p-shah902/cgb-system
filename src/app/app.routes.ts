@@ -137,4 +137,9 @@ export const routes: Routes = [
     loadComponent: () => import('./roleaccess/roleaccess.component').then(m => m.RoleaccessComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'paper-list',
+    loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),
+    canActivate: [AuthGuard]
+  },
 ];
