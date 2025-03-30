@@ -16,6 +16,9 @@ import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
 import {ToastService} from '../../service/toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import {DictionaryService} from '../../service/dictionary.service';
+import {DictionaryDetail, Item} from '../../models/dictionary';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-template1',
@@ -33,6 +36,18 @@ export class Template1Component {
   minEndDate: string = '';
   submitted = false;
 
+
+  // Global variables for dropdown selections
+  currenciesData:DictionaryDetail[]=[];
+  globalCGBData:DictionaryDetail[]=[];
+  operatingFunctionsData:DictionaryDetail[]=[];
+  proposedCMLData:DictionaryDetail[]=[];
+  psaData:DictionaryDetail[]=[];
+  remunerationTypeData:DictionaryDetail[]=[];
+  sourcingRigorData:DictionaryDetail[]=[];
+  sourcingTypeData:DictionaryDetail[]=[];
+  subsectorData:DictionaryDetail[]=[];
+
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
@@ -41,7 +56,8 @@ export class Template1Component {
   selectedFiles: any[] = [];
   isDragging = false;
 
-  constructor(private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService,       public toastService:ToastService,
+  constructor(private router: Router,      private dictionaryService:DictionaryService,
+                    private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService,       public toastService:ToastService,
   ) {
   }
 
@@ -65,6 +81,7 @@ export class Template1Component {
 
     this.loadUserDetails();
     this.loadCountry();
+    this.loadDictionaryItems();
 
 
     this.generalInfoForm = this.fb.group({
@@ -79,10 +96,10 @@ export class Template1Component {
         operatingFunction: ['', Validators.required],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        camUserId: [{ value: 1, disabled: true }, [Validators.required]],
+        camUserId:[null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
-        procurementSPAUsers: [[1,2], Validators.required],
-        pdManagerName: [1, Validators.required],
+        procurementSPAUsers: [[], Validators.required],
+        pdManagerName: [null, Validators.required],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
         exchangeRate: [0], // Number input
@@ -109,8 +126,8 @@ export class Template1Component {
         singleSourceJustification: [''],
         risks: this.fb.array([]),
         inviteToBid: this.fb.array([]),
-        socaRsentOn: [''],
-        socaRreceivedOn: [''],
+        socaRsentOn: ['', Validators.required],
+        socaRreceivedOn: ['', Validators.required],
         socarDescription: [''],
         preQualificationResult: [''],
       }),
@@ -218,6 +235,82 @@ export class Template1Component {
         this.generalInfoForm.get('generalInfo.ltccNotes')?.clearValidators();
       }
       this.generalInfoForm.get('generalInfo.ltccNotes')?.updateValueAndValidity(); // Refresh validation
+    });
+  }
+
+  loadDictionaryItems(){
+
+    this.dictionaryService.getDictionaryItemList().subscribe({
+      next:(response)=>{
+        if(response.status && response.data)
+        {
+          const itemData = response.data;
+          if(itemData.length>0)
+          {
+            itemData.forEach((item) => {
+              this.loadDictionaryDetails(item.itemName);
+            });
+          }
+        }
+      },error:(error)=>{
+        console.log('error',error);
+      }
+    })
+  }
+
+
+  loadDictionaryDetails(itemName: string) {
+    this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          console.log('Dictionary Detail:', response.data);
+
+          switch (itemName) {
+            case 'Currencies':
+              this.currenciesData = response.data || [];
+              break;
+
+            case 'Global CGB':
+              this.globalCGBData = response.data || [];
+              break;
+
+            case 'Operating Functions':
+              this.operatingFunctionsData = response.data || [];
+              break;
+
+            case 'Proposed CML':
+              this.proposedCMLData = response.data || [];
+              break;
+
+            case 'PSA':
+              this.psaData = response.data || [];
+              break;
+
+            case 'Remuneration Type':
+              this.remunerationTypeData = response.data || [];
+              break;
+
+            case 'Sourcing Rigor':
+              this.sourcingRigorData = response.data || [];
+              break;
+
+            case 'Sourcing Type':
+              this.sourcingTypeData = response.data || [];
+              break;
+
+            case 'Subsector':
+              this.subsectorData = response.data || [];
+              break;
+
+            default:
+              console.log('Unknown item:', itemName);
+              break;
+          }
+        }
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      }
     });
   }
 
@@ -501,7 +594,7 @@ export class Template1Component {
       next: (response) => {
         if (response.status && response.data) {
           this.userDetails = response.data;
-          this.procurementTagUsers = response.data.filter(user => user.roleName !== 'Procurement Tag').map(t => ({label: t.displayName, value: t.id}));
+          this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({label: t.displayName, value: t.id}));
 
           console.log('user details', this.userDetails);
         }
@@ -536,7 +629,8 @@ export class Template1Component {
 
   updateExchangeRate() {
     const originalCurrency = this.generalInfoForm.get('generalInfo.originalCurrency')?.value;
-    const currency = CURRENCY_LIST.find(c => c.code === originalCurrency);
+    const currencyItem = this.currenciesData.find((item) => item.id === Number(originalCurrency)) || null
+    const currency = CURRENCY_LIST.find(c => c.code === currencyItem?.itemValue);
     const exchangeRate = currency ? currency.rate : 0;
 
     this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(exchangeRate);
@@ -668,7 +762,7 @@ export class Template1Component {
       this.fb.group({
         psa: ['', Validators.required],
         isNoExistingBudget: [false], // Checkbox
-        technicalCorrect: [1],
+        technicalCorrect: [null],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
       })
@@ -827,6 +921,9 @@ export class Template1Component {
             this.generalInfoForm.reset();
             this.submitted = false;
             this.toastService.show(response.message || "Added Successfully",'success');
+            setTimeout(() => {
+              this.router.navigate(['/paperconfiguration']);
+            }, 2000);
           } else {
             this.toastService.show(response.message || "Something went wrong.",'danger');
           }
