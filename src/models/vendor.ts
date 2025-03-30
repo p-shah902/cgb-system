@@ -1,3 +1,5 @@
+import { Documents } from "./general"
+
 export interface VendorDetail{
       id: number,
       vendorName:string,
@@ -16,4 +18,12 @@ export interface VendorDetail{
       modifiedBy: number|null,
       modifiedDate: string|null,
       country: any,
+      countryName:string|null,
+      avatarBytes:string|null,
+      files: any
+}
+
+export interface VendorInfo{
+      vendorDetails:VendorDetail[],
+      documents:Documents[]
 }

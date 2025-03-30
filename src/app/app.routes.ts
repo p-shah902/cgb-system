@@ -61,6 +61,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'userdetails/:id',
+    loadComponent: () => import('./userdetails/userdetails.component').then(m => m.UserdetailsComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'inboxoutbox',
     loadComponent: () => import('./inboxoutbox/inboxoutbox.component').then(m => m.InboxoutboxComponent),
     canActivate: [AuthGuard]
@@ -115,6 +120,10 @@ export const routes: Routes = [
   },
   {
     path: 'vendor-detail',
+    loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
+  },
+  {
+    path: 'vendor-detail/:id',
     loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
   },
   {

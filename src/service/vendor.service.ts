@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { VendorDetail } from '../models/vendor';
+import { VendorDetail, VendorInfo } from '../models/vendor';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '../models/role';
-import { getVendorListUri, upsertVendorsUri } from '../utils/api/api';
+import { getVendorDetailsByIdUri, getVendorListUri, upsertVendorsUri } from '../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,9 @@ export class VendorService {
 
     private vendorListSubject = new BehaviorSubject<VendorDetail[]>([]);
     public vendorList$ = this.vendorListSubject.asObservable();
+
+    private vendorInfoSubject = new BehaviorSubject<VendorInfo|null>(null);
+    public vendorInfo$ = this.vendorInfoSubject.asObservable();
 
     constructor(private http:HttpClient) { }
   
@@ -28,6 +31,21 @@ export class VendorService {
           
         );
     }
+
+     getVendorInfoById(id:number): Observable<ApiResponse<VendorInfo>> {
+          const params = new HttpParams().set('Id', id);
+          return this.http
+            .get<ApiResponse<VendorInfo>>(getVendorDetailsByIdUri,{params})
+            .pipe(
+              tap((response)=>{
+                if(response.status&&response.data)
+                {
+                  this.vendorInfoSubject.next(response.data);
+                }
+              })
+            );
+        }
+
 
     upsertVendorDetail(vendorPayload:VendorDetail,file:File|null):Observable<ApiResponse<any>>{
         const formData=this.createFormData(vendorPayload,file);

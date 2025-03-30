@@ -11,4 +11,11 @@ export interface CountryDetail{
 export interface PaperFilter{
       statusIds: number[],
       orderType: string
-    }
+}
+
+export interface Documents{
+      id: number,
+      vendorId: number,
+      docName: string,
+      fileData:string
+}
