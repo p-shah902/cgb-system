@@ -100,7 +100,7 @@
               <div class="col-md-12">
                 <div class="form-view-group">
                   <label>Title</label>
-                  <h6>{{ paperDetails.paperDetails.paperProvision }}</h6>
+                  <h6>paper</h6>
                 </div>
               </div>
               <div class="col-sm-4 col-md-4">
@@ -123,7 +123,7 @@
               </div>
             </div>
           </div>
-          <div class="fb-form">
+          <!-- <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>2. Contract Details</h4>
             </div>
@@ -155,8 +155,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="fb-form">
+          </div> -->
+          <!-- <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>1. General Information</h4>
             </div>
@@ -186,28 +186,47 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>3. Procurement Strategy</h4>
+              <h4>2. Procurement Strategy</h4>
             </div>
             <div class="row">
-
               <div class="col-md-12">
                 <div class="form-view-group">
-                  <label>Procurement Approach</label>
-                  <h6>Restricted Tender</h6>
+                  <label></label>
+                  <h6>Risk</h6>
                 </div>
               </div>
-              <div class="col-md-12">
+            </div>
+            <div class="row" *ngFor="let risk of riskMitigation;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Sr no</label>
+                  <h6>{{risk.srNo}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Risks</label>
+                  <h6>{{risk.risks}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Mitigations</label>
+                  <h6>{{risk.mitigations}}</h6>
+                </div>
+              </div>
+              <!-- <div class="col-md-12">
                 <div class="form-view-group">
                   <label>Justification</label>
                   <h6>
                     <b>Lorem Ipsum is simply dummy</b> text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic <b>typesetting</b>, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
                   </h6>
                 </div>
-              </div>
-              <div class="col-md-12">
+              </div> -->
+              <!-- <div class="col-md-12">
                 <div class="form-view-group">
                   <label>Market Engagement Plan</label>
                   <div class="row row-gap-2">
@@ -282,32 +301,237 @@
                     </div>
                   </div>
                 </div>
+              </div> -->
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Bid Invites</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let bid of bidInvites;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>name</label>
+                  <h6>{{bid.legalName}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Local/JV</label>
+                  <h6>{{bid.isLocalOrJV?'Yes':'No'}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Country</label>
+                  <h6>{{bid.countryName}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Parent Company</label>
+                  <h6>{{bid.parentCompanyName}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remarks</label>
+                  <h6>{{bid.remarks}}</h6>
+                </div>
               </div>
             </div>
           </div>
           <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>4. PSA/Partner Details</h4>
+              <h4>3. Value Delivery</h4>
             </div>
             <div class="row">
-
-              <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4">
+              <div class="col-md-12">
                 <div class="form-view-group">
-                  <label>PSA Split</label>
-                  <h6>30%</h6>
+                  <label></label>
+                  <h6>Cost Reduction</h6>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-6 col-lg-6 col-xl-4">
+            </div>
+            <div class="row" *ngFor="let costReduction of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
                 <div class="form-view-group">
-                  <label>Joint Venture (JV) Approval Required?</label>
-                  <h6>Yes</h6>
+                  <label>value</label>
+                  <h6>{{costReduction.costReductionValue}}</h6>
                 </div>
               </div>
-
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Percent</label>
+                  <h6>{{costReduction.costReductionPercent}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remark</label>
+                  <h6>{{costReduction.costReductionRemarks}}</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Operating Efficiency</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let operatingEfficiency of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>value</label>
+                  <h6>{{operatingEfficiency.operatingEfficiencyValue}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Percent</label>
+                  <h6>{{operatingEfficiency.operatingEfficiencyPercent}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remark</label>
+                  <h6>{{operatingEfficiency.operatingEfficiencyRemarks}}</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Cost Avoidance</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let costAvoidance of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>value</label>
+                  <h6>{{costAvoidance.costAvoidanceValue}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Percent</label>
+                  <h6>{{costAvoidance.costAvoidancePercent}}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remark</label>
+                  <h6>{{costAvoidance.costAvoidanceRemarks}}</h6>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>4. Cost Sharing Methodology</h4>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-view-group">
+                <label></label>
+                <h6>Capex</h6>
+              </div>
+            </div>
+          </div>
+          <div class="row" *ngFor="let capex of valueDeliveriesCostsharing;let i=index">
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>isCapex</label>
+                <h6>{{capex.isCapex ? 'Yes':'No'}}</h6>
+              </div>
+            </div>
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>Methodology</label>
+                <h6>{{capex.capexMethodology}}</h6>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-view-group">
+                <label></label>
+                <h6>Fixed Opex</h6>
+              </div>
+            </div>
+          </div>
+          <div class="row" *ngFor="let fixedOpex of valueDeliveriesCostsharing;let i=index">
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>isFixedOpex</label>
+                <h6>{{fixedOpex.isFixOpex ? 'Yes':'No'}}</h6>
+              </div>
+            </div>
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>Methodology</label>
+                <h6>{{fixedOpex.fixOpexMethodology}}</h6>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-view-group">
+                <label></label>
+                <h6>Variable Opex</h6>
+              </div>
+            </div>
+          </div>
+          <div class="row" *ngFor="let varOpex of valueDeliveriesCostsharing;let i=index">
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>isVariableOpex</label>
+                <h6>{{varOpex.isVariableOpex ? 'Yes':'No'}}</h6>
+              </div>
+            </div>
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>Methodology</label>
+                <h6>{{varOpex.variableOpexMethodology}}</h6>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-view-group">
+                <label></label>
+                <h6>Inventory Item</h6>
+              </div>
+            </div>
+          </div>
+          <div class="row" *ngFor="let item of valueDeliveriesCostsharing;let i=index">
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>isInventoryItems</label>
+                <h6>{{item.isInventoryItems ? 'Yes':'No'}}</h6>
+              </div>
+            </div>
+            <div class="col-sm-4 col-md-4">
+              <div class="form-view-group">
+                <label>Methodology</label>
+                <h6>{{item.inventoryItemsMethodology}}</h6>
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>5. Risk Assessment</h4>
             </div>
@@ -384,9 +608,9 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
-          <div class="fb-form">
+          <!-- <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>6. Attachments</h4>
             </div>
@@ -445,9 +669,9 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
-          <div class="fb-form pt-0">
+          <!-- <div class="fb-form pt-0">
             <div class="ff-btn-list d-flex gap-3 justify-content-end">
 
               <button class="btn btn-primary">
@@ -461,7 +685,7 @@
               </button>
 
             </div>
-          </div>
+          </div> -->
 
         </div>
       </div>

@@ -1,10 +1,11 @@
 import { Component, inject, Inject, OnInit } from '@angular/core';
-import {NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle} from "@ng-bootstrap/ng-bootstrap";
+import {NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbToastModule} from "@ng-bootstrap/ng-bootstrap";
 import { VendorService } from '../../service/vendor.service';
 import { VendorDetail } from '../../models/vendor';
 import { CommonModule } from '@angular/common';
 import { ApiResponse } from '../../models/role';
-import { NavigationExtras, Router } from '@angular/router';
+import { NavigationExtras, Router, RouterModule } from '@angular/router';
+import { ToastService } from '../../service/toast.service';
 
 @Component({
   selector: 'app-vendors',
@@ -14,7 +15,9 @@ import { NavigationExtras, Router } from '@angular/router';
         NgbDropdownItem,
         NgbDropdownMenu,
         NgbDropdownToggle,
-        CommonModule
+        CommonModule,
+        NgbToastModule,
+        RouterModule
     ],
   templateUrl: './vendors.component.html',
   styleUrl: './vendors.component.scss'
@@ -23,6 +26,7 @@ export class VendorsComponent implements OnInit {
 
   private readonly vendorService=inject(VendorService);
   private readonly router=inject(Router);
+  public toastService=inject(ToastService);
 
   vendorDetails:VendorDetail[]=[];
 

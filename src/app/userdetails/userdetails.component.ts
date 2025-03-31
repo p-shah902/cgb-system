@@ -15,7 +15,7 @@ import {RoleService} from '../../service/role.service';
 import {CommonModule} from '@angular/common';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../../service/toast.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-userdetails',
@@ -27,6 +27,7 @@ import {Router} from '@angular/router';
 export class UserdetailsComponent implements OnInit {
   userForm: FormGroup;
   userDetail: UserDetails;
+  editUserDetail:UserDetails|null=null;
   departments: DepartmentDetails[] = [];
   userRoles: UserRole[] = [];
   isEditMode = false;
@@ -38,7 +39,8 @@ export class UserdetailsComponent implements OnInit {
     private departmentService: Generalervice,
     private roleService: RoleService,
     public toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private activateRoute:ActivatedRoute
   ) {
     this.userForm = this.fb.group({
       id: [0],
@@ -67,6 +69,24 @@ export class UserdetailsComponent implements OnInit {
   ngOnInit(): void {
     this.loadDepartment();
     this.loadRole();
+
+    this.activateRoute.params.subscribe(params => {
+      const idParam=params['id'];
+      
+      if (idParam) {
+        const id = Number(idParam);
+        
+        if (isNaN(id)) {
+          this.toastService.show('Invalid User ID', 'danger');
+          this.router.navigate(['/usermanagement']);
+          return;
+        }
+
+        this.isEditMode=true;
+        this.loadUserById(id);
+      }
+      
+    });
   }
 
   addUserDetails(): void {
@@ -78,11 +98,18 @@ export class UserdetailsComponent implements OnInit {
       this.isSubmitting = true;
       this.userService.upsertUser(this.userDetail).subscribe({
         next: (response) => {
-          if (response && response.status) {
-            this.toastService.show('User Added Successfully', 'success');
-            this.router.navigate(['/usermanagement']);
-          } else {
-            this.toastService.show('Something Went Wrong', 'warning');
+          if (response&&response.status) {
+            if(this.isEditMode&&this.editUserDetail)
+            {
+              this.toastService.show('User Updated Successfully','success');
+            }
+            else{
+              this.toastService.show('User Addded Successfully','success');
+            }
+           
+          }
+          else{
+            this.toastService.show('Something Went Wrong','warning');
           }
         },
         error: (error) => {
@@ -108,18 +135,22 @@ export class UserdetailsComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.userForm.reset({
-      id: 0,
-      roleId: 0,
-      departmentId: 0,
-      isActive: true,
-      // isViewPaper: false,
-      // isEditPaper: false,
-      // isAssignRoles: false,
-      isTOPTUser: true,
-      createdDate: new Date().toISOString(),
-      modifiedDate: new Date().toISOString(),
-    });
+
+    if(this.isEditMode&&this.editUserDetail)
+    {
+      this.userForm.patchValue({...this.editUserDetail});
+    }else{
+      this.userForm.reset({
+        id: 0,
+        roleId: 0,
+        departmentId: 0,
+        isActive: true,
+        // isViewPaper: false,
+        // isEditPaper: false,
+        // isAssignRoles: false,
+        isTOPTUser: true,
+      });
+    }
     this.mapFormValues();
   }
 
@@ -161,5 +192,38 @@ export class UserdetailsComponent implements OnInit {
       departmentName: this.departments.find(dept => dept.id === Number(formValues.departmentId))?.displayName || ''
     };
   }
+
+
+  loadUserById(id:number)
+  {
+    this.userService.getUserInfoById(id).subscribe({
+      next:(response)=>{
+        if(response.status && response.data)
+        {
+          this.editUserDetail=response.data[0];
+          console.log('User Detail',this.editUserDetail);
+
+          if(this.editUserDetail)
+          {
+            this.userForm.patchValue({...this.editUserDetail});
+          }else{
+            this.toastService.show("Please Select Valid User",'danger');
+            this.router.navigate(['/usermanagement']); 
+          }
+
+        }else{
+          this.toastService.show("Please Select Valid User",'danger');
+          this.router.navigate(['/usermanagement']); 
+        }
+
+      },error:(error)=>{
+        console.log('error',error);
+        this.toastService.show("Something Went Wrong",'danger');
+        this.router.navigate(['/usermanagement']); 
+
+      }
+    })
+  }
+
 
 }
