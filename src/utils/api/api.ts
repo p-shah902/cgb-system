@@ -24,4 +24,5 @@ export const getVendorDetailsByIdUri = baseUri + '/api/VendorMaster/GetVendorDet
 export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsById';
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
 export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausList';
+export const approveRejectPaper = baseUri + '/api/PaperConfiguration/ChangePaperApprovalStatus';
 
