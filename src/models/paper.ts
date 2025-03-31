@@ -9,6 +9,7 @@ export interface PaperConfig {
   lastModifyDate: string,
   price: number,
   isActive: boolean
+  checked?: boolean
 }
 
 export interface PaperDetails {
