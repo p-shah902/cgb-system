@@ -25,4 +25,6 @@ export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsBy
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
 export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausList';
 export const approveRejectPaper = baseUri + '/api/PaperConfiguration/ChangePaperApprovalStatus';
+export const addPaperVisitorLogs = baseUri + '/api/GeneralMethod/VisitorLogs';
+export const getPaperVisitorLogs = baseUri + '/api/GeneralMethod/GetVisitorLogsById';
 

@@ -1,7 +1,13 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {getPaperDetails, getPaperStatus, UpsertApproachToMarkets} from '../utils/api/api';
+import {
+  addPaperVisitorLogs,
+  getPaperDetails,
+  getPaperStatus,
+  getPaperVisitorLogs,
+  UpsertApproachToMarkets
+} from '../utils/api/api';
 import {ApiResponse} from '../models/role';
 import {Paper, PaperStatusType} from '../models/paper';
 
@@ -50,6 +56,14 @@ export class PaperService {
           }
         })
       );
+  }
+
+  getPaperCommentLogs(paperId: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(getPaperVisitorLogs + '/' + paperId, {});
+  }
+
+  addPaperCommentLogs(body: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(addPaperVisitorLogs, body)
   }
 
 }
