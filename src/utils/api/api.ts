@@ -23,4 +23,5 @@ export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/Upsert
 export const getVendorDetailsByIdUri = baseUri + '/api/VendorMaster/GetVendorDetailsById';
 export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsById';
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
+export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausList';
 

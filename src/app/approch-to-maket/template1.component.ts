@@ -18,7 +18,8 @@ import {ToastService} from '../../service/toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import {DictionaryService} from '../../service/dictionary.service';
 import {DictionaryDetail, Item} from '../../models/dictionary';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import {PaperStatusType} from '../../models/paper';
 import {environment} from '../../environments/environment';
 
 @Component({
@@ -36,7 +37,9 @@ export class Template1Component {
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
-
+  paperStatusId: number | null  = null;
+  paperId: string | null = null;
+  paperStatusList: PaperStatusType[] = [];
 
   // Global variables for dropdown selections
   currenciesData:DictionaryDetail[]=[];
@@ -57,7 +60,7 @@ export class Template1Component {
   selectedFiles: any[] = [];
   isDragging = false;
 
-  constructor(private router: Router,      private dictionaryService:DictionaryService,
+  constructor(private router: Router, private route: ActivatedRoute,     private dictionaryService:DictionaryService,
                     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService,       public toastService:ToastService,
   ) {
   }
@@ -80,9 +83,14 @@ export class Template1Component {
       premium: true
     }).then(this._setupEditor.bind(this));
 
+    this.route.paramMap.subscribe(params => {
+      this.paperId = params.get('id');
+      console.log('Paper ID:', this.paperId);
+    });
     this.loadUserDetails();
     this.loadCountry();
     this.loadDictionaryItems();
+    this.loadPaperListData();
 
 
     this.generalInfoForm = this.fb.group({
@@ -414,6 +422,21 @@ export class Template1Component {
 
           this.countryDetails = reponse.data || [];
           console.log('country:', this.countryDetails);
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  loadPaperListData() {
+    this.paperService.getPaperStatusList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+
+          this.paperStatusList = reponse.data || [];
+          console.log('==paperStatusList:', this.paperStatusList);
         }
       },
       error: (error) => {
@@ -787,12 +810,23 @@ export class Template1Component {
     });
   }
 
+  setPaperStatus(status: string): void {
+    if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
+
+    this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
+
+    console.log('Paper Status Updated:', this.paperStatusId);
+  }
+
+
   onSubmit(): void {
     this.submitted = true;
 
-    if (this.generalInfoForm.invalid) {
-      console.log("=========", this.generalInfoForm);
+    if(!this.paperStatusId) {
+      this.toastService.show("Paper status id not found", "danger")
+      return
     }
+
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
     const procurementValue = this.generalInfoForm?.value?.procurementDetails
     const consultationsValue = this.generalInfoForm?.value?.consultation
@@ -830,7 +864,7 @@ export class Template1Component {
 
     const params = {
       papers: {
-        paperStatusId: 1,
+        paperStatusId: this.paperStatusId,
         paperProvision: generalInfoValue?.paperProvision,
         purposeRequired: "test",
         isActive: true

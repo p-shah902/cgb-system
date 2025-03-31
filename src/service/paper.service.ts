@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {getPaperDetails, UpsertApproachToMarkets} from '../utils/api/api';
+import {getPaperDetails, getPaperStatus, UpsertApproachToMarkets} from '../utils/api/api';
 import {ApiResponse} from '../models/role';
-import {Paper, PaperConfig} from '../models/paper';
+import {Paper, PaperStatusType} from '../models/paper';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,9 @@ export class PaperService {
 
   private isUpsertApproachToMarketsSubject = new BehaviorSubject<boolean>(false);
   public isUpsertApproachToMarkets$ = this.isUpsertApproachToMarketsSubject.asObservable();
+
+  private paperStatusListSubject = new BehaviorSubject<any[]>([]);
+  paperStatusList$ = this.paperStatusListSubject.asObservable();
 
   constructor(private http: HttpClient) {
   }
@@ -36,6 +39,17 @@ export class PaperService {
 
   getPaperDetails(paperId: number): Observable<ApiResponse<Paper>> {
     return this.http.get<ApiResponse<Paper>>(getPaperDetails + '/' + paperId);
+  }
+
+  getPaperStatusList(): Observable<ApiResponse<PaperStatusType[]>> {
+    return this.http.get<ApiResponse<PaperStatusType[]>>(getPaperStatus)
+      .pipe(
+        tap(response => {
+          if (response.status && response.data) {
+            this.paperStatusListSubject.next(response.data);
+          }
+        })
+      );
   }
 
 }

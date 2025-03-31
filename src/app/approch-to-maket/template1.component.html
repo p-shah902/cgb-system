@@ -1514,15 +1514,22 @@
             </div>
             <div class="fb-form pt-0">
               <div class="ff-btn-list d-flex gap-3 justify-content-end">
-                <button class="btn btn-outline-dark">
-                  Archive
-                </button>
-                <button class="btn btn-dark" type="submit">
+                <ng-container *ngIf="!paperId">
+                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft')">
+                    Draft
+                  </button>
+                <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
                   Register
                 </button>
-                <button class="btn btn-primary">
+                  </ng-container>
+                <ng-container *ngIf="paperId">
+                <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')">
+                  Archive
+                </button>
+                <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')">
                   Send For PDM Approval
                 </button>
+                </ng-container>
               </div>
             </div>
           </form>

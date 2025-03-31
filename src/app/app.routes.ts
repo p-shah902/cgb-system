@@ -8,6 +8,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'approach-to-market/:id',
+    loadComponent: () => import('./approch-to-maket/template1.component').then(m => m.Template1Component),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'contract-award',
     loadComponent: () => import('./template2/template2.component').then(m => m.Template2Component),
     canActivate: [AuthGuard]
