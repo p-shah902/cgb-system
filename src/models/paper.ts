@@ -146,3 +146,12 @@ export interface Paper {
   jvApprovals: JvApprovals[]
   costAllocationJVApproval: CostAllocationJVApproval[]
 }
+
+export interface PaperStatusType {
+  id: number
+  isActive: boolean
+  lastModifyDate: string
+  paperStatus: string
+  statusDesc: string
+
+}

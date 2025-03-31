@@ -19,4 +19,5 @@ export const getPaperConfigurationsList=baseUri+'/api/PaperConfiguration/GetPape
 export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
 export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
+export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausList';
 
