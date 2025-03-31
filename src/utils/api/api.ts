@@ -1,4 +1,6 @@
-export const baseUri = 'https://cgbwebapi-001-site1.ptempurl.com';
+import {environment} from '../../environments/environment';
+
+export const baseUri = environment.apiUrl;
 export const loginUri = baseUri + '/api/Account';
 export const getUserRolesUri = baseUri + '/api/RoleManagement/GetUserRolesList';
 export const getUserParticularsListUri = baseUri + '/api/RoleManagement/GetUserParticularsList';
@@ -15,10 +17,10 @@ export const getDictionaryItemsListUri = baseUri + '/api/GeneralMethod/GetDictio
 export const getDictionaryListByItemNameUri = baseUri + '/api/GeneralMethod/GetDictionaryListByItemName';
 export const upsertDictionariesUri = baseUri + '/api/GeneralMethod/UpsertDictionaries';
 export const getCountryListUri = baseUri + '/api/GeneralMethod/GetCountryList';
-export const getPaperConfigurationsList=baseUri+'/api/PaperConfiguration/GetPaperConfigurationsList';
+export const getPaperConfigurationsList = baseUri + '/api/PaperConfiguration/GetPaperConfigurationsList';
 export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
 export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
-export const getVendorDetailsByIdUri=baseUri+'/api/VendorMaster/GetVendorDetailsById';
-export const getUserDetailsByIdUri=baseUri+'/api/UserMaster/GetUserDetailsById';
+export const getVendorDetailsByIdUri = baseUri + '/api/VendorMaster/GetVendorDetailsById';
+export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsById';
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
 

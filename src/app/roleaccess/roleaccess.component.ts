@@ -52,7 +52,7 @@ export class RoleaccessComponent implements OnInit {
   getUserRoleList() {
     this.roleService.getUserRolesList().subscribe({
       next: (response) => {
-        this.roles = response.data.reverse().slice(0, 5);
+        this.roles = response.data.reverse();
       }, error: (error) => {
         console.error('Error loading user particulars', error);
       }

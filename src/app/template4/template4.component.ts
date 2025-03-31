@@ -16,6 +16,7 @@ import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
 import {ToastService} from '../../service/toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-template4',
@@ -31,16 +32,16 @@ export class Template4Component {
     isEndDateDisabled: boolean = true;
     minEndDate: string = '';
     submitted = false;
-  
+
     userDetails: UserDetails[] = [];
     procurementTagUsers: any[] = [];
     @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
     highlightClass = 'highlight'; // CSS class for highlighting
-  
+
     constructor(private fb: FormBuilder, public toastService:ToastService,private renderer:Renderer2
     ) {
     }
-  
+
     public Editor: typeof ClassicEditor | null = null;
     public config: EditorConfig | null = null;
     public psaJvOptions = [
@@ -51,18 +52,18 @@ export class Template4Component {
       {value: 'Sh-Asiman', label: 'Sh-Asiman'},
       {value: 'BP Group', label: 'BP Group'}
     ];
-  
-  
+
+
     public ngOnInit(): void {
       loadCKEditorCloud({
         version: '44.3.0',
         premium: true
       }).then(this._setupEditor.bind(this));
-  
+
       this.loadUserDetails();
-      
-  
-  
+
+
+
       this.generalInfoForm = this.fb.group({
         generalInfo: this.fb.group({
           paperProvision: ['', Validators.required],
@@ -110,59 +111,59 @@ export class Template4Component {
           percentage_isBTC: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
           percentage_isAsiman: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
           percentage_isBPGroup: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-  
+
           value_isACG: [{value: '', disabled: true}],
           value_isShah: [{value: '', disabled: true}],
           value_isSCP: [{value: '', disabled: true}],
           value_isBTC: [{value: '', disabled: true}],
           value_isAsiman: [{value: '', disabled: true}],
           value_isBPGroup: [{value: '', disabled: true}],
-  
+
           totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
           totalValue: [{value: 0, disabled: true}]
         }),
         consultation: this.fb.array([]),
       });
-  
+
       this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
         this.onSelectChange();
       });
-  
+
       // Watch changes on enable/disable Methodology
-  
-  
+
+
       this.setupPSAListeners()
       // this.setupMethodologyListeners()
       this.setupPSACalculations()
       // this.onLTCCChange()
       this.alignGovChange()
       // this.conflictIntrestChanges()
-  
+
     }
-  
+
     get generalInfo() {
       return this.generalInfoForm.get('generalInfo');
     }
-  
+
     requireAllIfAny(group: AbstractControl): ValidationErrors | null {
       const validateGroup = (fields: string[]) => {
         const values = fields.map(field => group.get(field)?.value);
         const hasValue = values.some(val => val);  // If at least one field has a value
         const allFilled = values.every(val => val); // If all fields are filled
-  
+
         return hasValue && !allFilled ? { requireAllFields: true } : null;
       };
-  
+
       // Apply validation for each group separately
       const errors = {
         costReduction: validateGroup(['costReductionPercent', 'costReductionValue', 'costReductionRemarks']),
         operatingEfficiency: validateGroup(['operatingEfficiencyPercent', 'operatingEfficiencyValue', 'operatingEfficiencyRemarks']),
         costAvoidance: validateGroup(['costAvoidancePercent', 'costAvoidanceValue', 'costAvoidanceRemarks'])
       };
-  
+
       return Object.values(errors).some(error => error) ? errors : null;
     }
-  
+
     alignGovChange() {
       this.generalInfoForm.get('generalInfo.isGovtReprAligned')?.valueChanges.subscribe((value) => {
         if (value === true) {
@@ -173,13 +174,13 @@ export class Template4Component {
         this.generalInfoForm.get('generalInfo.govtReprAlignedComment')?.updateValueAndValidity(); // Refresh validation
       });
     }
-  
+
     onSearch(target: EventTarget | null) {
       if (!target) return;
-  
+
       const inputElement = target as HTMLInputElement;
       const searchText = inputElement.value.trim().toLowerCase();
-  
+
       // Remove old highlights if input is empty
       if (!searchText) {
         document.querySelectorAll(`.${this.highlightClass}`).forEach(el => {
@@ -187,36 +188,36 @@ export class Template4Component {
         });
         return;
       }
-  
+
       // Clear previous timeout to debounce
       clearTimeout(this.searchTimeout);
-  
+
       // Delay search execution
       this.searchTimeout = setTimeout(() => {
         // Remove old highlights
         document.querySelectorAll(`.${this.highlightClass}`).forEach(el => {
           this.renderer.removeClass(el, this.highlightClass);
         });
-  
+
         // Find label that matches the search text
         const labels = Array.from(document.querySelectorAll('label'));
         const matchingLabel = labels.find(label => label.textContent?.toLowerCase().includes(searchText));
-  
+
         if (matchingLabel) {
           // Add highlight to the label
           this.renderer.addClass(matchingLabel, this.highlightClass);
-  
+
           // Scroll into view
           matchingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }, 500); // Adjust delay as needed
     }
 
-  
+
     onSelectChange() {
-  
+
       const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-  
+
       const costAllocationControl = this.generalInfoForm.get('costAllocation');
       if (costAllocationControl) {
         const mapping: { [key: string]: string } = {
@@ -227,16 +228,16 @@ export class Template4Component {
           "Sh-Asiman": "isAsiman",
           "BP Group": "isBPGroup"
         };
-  
+
         Object.keys(mapping).forEach((key) => {
           const controlName = mapping[key];
           const isSelected = selectedOptions.includes(key);
           costAllocationControl.get(controlName)?.setValue(isSelected);
         });
       }
-  
+
     }
-  
+
     setupPSAListeners() {
       const psaControls = [
         {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
@@ -246,32 +247,32 @@ export class Template4Component {
         {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
         {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
       ];
-  
+
       psaControls.forEach(({checkbox, percentage, value}) => {
         this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
           const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
           const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
-  
+
           //checkboxes
           const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
           const ACG2 = this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)
-  
+
           const SD1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
           const SD2 = this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)
-  
+
           const SCP1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
           const SCP2 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)
           const SCP3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)
-  
+
           const BTC1 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)
           const BTC2 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)
           const BTC3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)
-  
-  
+
+
           if (isChecked) {
             percentageControl?.enable();
             valueControl?.enable();
-  
+
             if (checkbox === "isACG") {
               ACG1?.enable();
               ACG2?.enable();
@@ -287,13 +288,13 @@ export class Template4Component {
               BTC2?.enable();
               BTC3?.enable();
             }
-  
+
           } else {
             percentageControl?.reset();
             percentageControl?.disable();
             valueControl?.reset();
             valueControl?.disable();
-  
+
             if (checkbox === "isACG") {
               ACG1?.disable();
               ACG1?.reset();
@@ -322,14 +323,14 @@ export class Template4Component {
           }
         });
       });
-  
+
       // Listen for changes in percentage and value fields to update total
       psaControls.forEach(({percentage, value}) => {
         this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe(() => this.calculateTotal());
         this.generalInfoForm.get(`costAllocation.${value}`)?.valueChanges.subscribe(() => this.calculateTotal());
       });
     }
-  
+
     setupPSACalculations() {
       const psaControls = [
         {percentage: 'percentage_isACG', value: 'value_isACG'},
@@ -339,11 +340,11 @@ export class Template4Component {
         {percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
         {percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
       ];
-  
+
       psaControls.forEach(({percentage, value}) => {
         this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe((percentageValue) => {
           const contractValue = this.generalInfoForm.get('generalInfo.contractValueUsd')?.value || 0;
-  
+
           if (percentageValue >= 0 && percentageValue <= 100) {
             const calculatedValue = (percentageValue / 100) * contractValue;
             this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
@@ -351,43 +352,43 @@ export class Template4Component {
         });
       });
     }
-  
+
     calculateTotal() {
       const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
-  
+
       let totalPercentage = 0;
       let totalValue = 0;
-  
+
       const percentageFields = ['percentage_isACG', 'percentage_isShah', 'percentage_isSCP', 'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'];
       const valueFields = ['value_isACG', 'value_isShah', 'value_isSCP', 'value_isBTC', 'value_isAsiman', 'value_isBPGroup'];
-  
+
       percentageFields.forEach((field) => {
         const value = costAllocation.get(field)?.value;
         if (!isNaN(value) && value !== null && value !== '') {
           totalPercentage += Number(value);
         }
       });
-  
+
       valueFields.forEach((field) => {
         const value = costAllocation.get(field)?.value;
         if (!isNaN(value) && value !== null && value !== '') {
           totalValue += Number(value);
         }
       });
-  
+
       // Update total fields
       costAllocation.get('totalPercentage')?.setValue(totalPercentage, {emitEvent: false});
       costAllocation.get('totalValue')?.setValue(totalValue, {emitEvent: false});
     }
-  
-  
+
+
     loadUserDetails() {
       this.userService.getUserDetailsList().subscribe({
         next: (response) => {
           if (response.status && response.data) {
             this.userDetails = response.data;
             this.procurementTagUsers = response.data.filter(user => user.roleName !== 'Procurement Tag').map(t => ({label: t.displayName, value: t.id}));
-  
+
             console.log('user details', this.userDetails);
           }
         }, error: (error) => {
@@ -399,12 +400,12 @@ export class Template4Component {
     scrollToSection(event: Event) {
       const selectedValue = (event.target as HTMLSelectElement).value;
       const section = document.getElementById(selectedValue);
-  
+
       if (section) {
         section.scrollIntoView({behavior: 'smooth', block: 'start'});
       }
     }
-  
+
     private _setupEditor(cloud: CKEditorCloudResult<{ version: '44.3.0', premium: true }>) {
       const {
         ClassicEditor,
@@ -417,11 +418,11 @@ export class Template4Component {
         BlockQuote,
         Link
       } = cloud.CKEditor;
-  
-  
+
+
       this.Editor = ClassicEditor;
       this.config = {
-        licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NzMwMTQzOTksImp0aSI6IjQyYjY3MzM5LTliZWMtNDM4Yi1iNDI1LTBkMjQwMTA5NGVmYSIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIl0sInZjIjoiNzUzNGFkZTYifQ.ptjYqAzuyzYYdfXiEUfb2mQrv7-3XqE05iiZULTOdDBOVgDmYdcViq1PnQr8S4phuDtWIaUe8mukF_hb_OsGnA', // Replace with your CKEditor license key
+        licenseKey: environment.ckEditorLicenceKey,
         plugins: [
           Essentials, Paragraph, Bold, Italic, Underline, Strikethrough,
           BlockQuote, Link
@@ -439,27 +440,27 @@ export class Template4Component {
         }
       };
     }
-  
+
     private readonly _mdlSvc = inject(NgbModal);
-  
-  
+
+
     isExpanded: boolean = true; // Default expanded
-  
+
     toggleComments() {
       this.isExpanded = !this.isExpanded;
     }
 
-  
+
     // Getter for FormArray
     get consultationRows(): FormArray {
       return this.generalInfoForm.get('consultation') as FormArray;
     }
-  
+
     // Generate ID dynamically (001, 002, etc.)
     generateId(index: number): string {
       return (index + 1).toString().padStart(3, '0');
     }
-  
+
     // Function to add a new consultation row
     addConsultationRow() {
       this.consultationRows.push(
@@ -472,15 +473,15 @@ export class Template4Component {
         })
       );
     }
-  
+
     // Function to remove a row
     removeConsultationRow(index: number) {
       if (this.consultationRows.length > 1) {
         this.consultationRows.removeAt(index);
       }
     }
-  
-  
+
+
     openModal() {
       const modalRef = this._mdlSvc.open(DummyCompComponent);
       modalRef.result.then((result) => {
@@ -489,10 +490,10 @@ export class Template4Component {
         }
       });
     }
-  
+
     onSubmit(): void {
       this.submitted = true;
-  
+
       if (this.generalInfoForm.invalid) {
         console.log("=========", this.generalInfoForm);
       }
@@ -500,7 +501,7 @@ export class Template4Component {
       const consultationsValue = this.generalInfoForm?.value?.consultation
       const costAllocationValues = this.generalInfoForm?.value?.costAllocation
       console.log("costValue==>",costAllocationValues)
-  
+
       const params = {
         papers: {
           paperStatusId: 1,
@@ -538,7 +539,7 @@ export class Template4Component {
           psA_BTC: costAllocationValues.isBTC?.value || false,
           psA_ShAsiman: costAllocationValues.isAsiman?.value || false,
           psA_BPGroup: costAllocationValues.isBPGroup?.value || false,
-    
+
           // Percentage values
           acG_AsPercentage: parseFloat(costAllocationValues.percentage_isACG?.value) || 0,
           shahDeniz_AsPercentage: parseFloat(costAllocationValues.percentage_isShah?.value) || 0,
@@ -546,7 +547,7 @@ export class Template4Component {
           btC_AsPercentage: parseFloat(costAllocationValues.percentage_isBTC?.value) || 0,
           shAsiman_AsPercentage: parseFloat(costAllocationValues.percentage_isAsiman?.value) || 0,
           bpGroup_AsPercentage: parseFloat(costAllocationValues.percentage_isBPGroup?.value) || 0,
-    
+
           // Value amounts
           acG_ByValue: parseFloat(costAllocationValues.value_isACG?.value) || 0,
           shahDeniz_ByValue: parseFloat(costAllocationValues.value_isShah?.value) || 0,
@@ -554,7 +555,7 @@ export class Template4Component {
           btC_ByValue: parseFloat(costAllocationValues.value_isBTC?.value) || 0,
           shAsiman_ByValue: parseFloat(costAllocationValues.value_isAsiman?.value) || 0,
           bpGroup_ByValue: parseFloat(costAllocationValues.value_isBPGroup?.value) || 0,
-    
+
           // Totals
           total_Percentage: parseFloat(costAllocationValues.totalPercentage?.value) || 0,
           total_Value: parseFloat(costAllocationValues.totalValue?.value) || 0
@@ -574,7 +575,7 @@ export class Template4Component {
           steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
         }
       }
-  
+
       console.log("==params", params)
       console.log('form value:====>',this.generalInfoForm.value)
       if (this.generalInfoForm.valid) {
@@ -583,5 +584,5 @@ export class Template4Component {
         console.log("Form is invalid");
       }
     }
-  
+
 }
