@@ -33,19 +33,14 @@ export class HeaderComponent implements OnInit {
   }
 
   setPageTitle() {
-    const currentUrl = decodeURIComponent(this.router.url);
-    const formattedTitle = this.formatTitle(currentUrl);
-    this.pageTitle = formattedTitle;
+    const currentUrl = decodeURIComponent(this.router.url.split('?')[0]); // Remove query params
+    this.pageTitle = this.formatTitle(currentUrl);
   }
 
   formatTitle(url: string): string {
-    const segments = url.split('/').filter(segment => segment);
-    let formatted = segments[segments.length - 1]
-      ?.replace(/-/g, ' ')
-      ?.toLowerCase()
-      ?.split(' ')
-      ?.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      ?.join(' ');
-    return formatted;
+    return url
+      .split('/')[1]?.replace(/-/g, ' ') // Get first segment & replace dashes with spaces
+      .replace(/\b\w/g, char => char.toUpperCase()) || ''; // Capitalize words & fallback
   }
+
 }

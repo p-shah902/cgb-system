@@ -79,7 +79,8 @@
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
                     <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
                       <small class="text-danger">Paper Provision is required.</small>
                     </div>
                   </div>
@@ -105,9 +106,10 @@
                   <div class="form-group mb-3">
                     <label>Why is this work required?* </label>
                     <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              formControlName="whyIsThisWorkRequired" [config]="config">
+                              formControlName="purposeRequired" [config]="config">
                     </ckeditor>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('whyIsThisWorkRequired')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
 
@@ -166,7 +168,8 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
@@ -198,7 +201,8 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -222,7 +226,7 @@
                   </div>
                 </div>
 
-                               <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>VP-1* </label>
                     <select class="form-control" formControlName="vP1UserId">
@@ -240,9 +244,11 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                                        <label>Procurement SPA*</label>
-                    <ng-select2 formControlName="procurementSPAUsers" [data]="procurementTagUsers" multiple></ng-select2>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
+                    <label>Procurement SPA*</label>
+                    <ng-select2 formControlName="procurementSPAUsers" [data]="procurementTagUsers"
+                                multiple></ng-select2>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -258,7 +264,8 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -278,7 +285,8 @@
                     <label>Total Award Value (USD)*</label>
                     <input type="number" class="form-control" placeholder="0000.0" formControlName="contractValueUsd"
                            min="0" step="0.01"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -315,8 +323,9 @@
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <input type="date" class="form-control" placeholder="Start Date"
-                               formControlName="contractStartDate" (change)="onStartDateChange()" />
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
+                               formControlName="contractStartDate" (change)="onStartDateChange()"/>
+                        <div class="text-danger"
+                             *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
                           <small class="text-danger">This field is required.</small>
                         </div>
                       </div>
@@ -325,8 +334,9 @@
                       <div class="form-group mb-3">
                         <input type="date" class="form-control" placeholder="End Date"
                                formControlName="contractEndDate" [readOnly]="isEndDateDisabled"
-                               [min]="minEndDate" />
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
+                               [min]="minEndDate"/>
+                        <div class="text-danger"
+                             *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
                           <small class="text-danger">This field is required.</small>
                         </div>
                       </div>
@@ -350,14 +360,14 @@
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
-<!--                  <div class="form-group mb-3">-->
-<!--                    <label>PSA/JV</label>-->
-<!--                    <select class="form-control" formControlName="psajv" multiple (change)="onSelectChange($event)">-->
-<!--                      <option *ngFor="let option of psaJvOptions" [value]="option">-->
-<!--                        {{ option }}-->
-<!--                      </option>-->
-<!--                    </select>-->
-<!--                  </div>-->
+                  <!--                  <div class="form-group mb-3">-->
+                  <!--                    <label>PSA/JV</label>-->
+                  <!--                    <select class="form-control" formControlName="psajv" multiple (change)="onSelectChange($event)">-->
+                  <!--                      <option *ngFor="let option of psaJvOptions" [value]="option">-->
+                  <!--                        {{ option }}-->
+                  <!--                      </option>-->
+                  <!--                    </select>-->
+                  <!--                  </div>-->
 
                   <div class="form-group mb-3">
                     <label>PSA/JV *</label>
@@ -416,7 +426,8 @@
                     <label>Government Representative Comment</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
                               formControlName="govtReprAlignedComment"></textarea>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('govtReprAlignedComment')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('govtReprAlignedComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -457,7 +468,8 @@
                     <label>Conflict of Interest Comments</label>
                     <textarea type="text" class="form-control" placeholder="Write Description"
                               formControlName="conflictOfInterestComment"></textarea>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('conflictOfInterestComment')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('conflictOfInterestComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -489,7 +501,8 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -497,7 +510,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Proposed Contract Management Level*</label>
-                 <select class="form-control" formControlName="contractMgmtLevel">
+                    <select class="form-control" formControlName="contractMgmtLevel">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of proposedCMLData?.length ? proposedCMLData : []">
                         <option [value]="item.id.toString()">
@@ -505,7 +518,8 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('contractMgmtLevel')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && procurementDetailsInfo?.get('contractMgmtLevel')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -521,7 +535,8 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('sourcingRigor')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && procurementDetailsInfo?.get('sourcingRigor')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -548,21 +563,21 @@
                             <th>Action</th>
                           </tr>
                           </thead>
-                          <tbody formArrayName="risks">
-                          <tr *ngFor="let risk of risks.controls; let i = index" [formGroupName]="i">
+                          <tbody formArrayName="riskMitigation">
+                          <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
                             <td>{{ generateId(i) }}</td>
                             <td>
                               <input type="text" class="form-control border-0 p-0 shadow-none"
-                                     placeholder="Enter here" formControlName="risk"/>
+                                     placeholder="Enter here" formControlName="risks"/>
                             </td>
                             <td>
                               <input type="text" class="form-control border-0 p-0 shadow-none"
-                                     placeholder="Enter here" formControlName="mitigation"/>
+                                     placeholder="Enter here" formControlName="mitigations"/>
                             </td>
                             <td>
                               <div class="krt-action">
                                 <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)"
-                                        [disabled]="risks.length <= 1">
+                                        [disabled]="riskMitigation.length <= 1">
                                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                        xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -589,7 +604,7 @@
                       </button>
                     </div>
 
-                    <div class="text-danger" *ngIf="submitted && risks.invalid">
+                    <div class="text-danger" *ngIf="submitted && riskMitigation.invalid">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -792,13 +807,16 @@
                 </div>
               </div>
 
-              <small class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costReduction')">
+              <small class="text-danger"
+                     *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costReduction')">
                 Please fill all Cost Reduction fields if any one is provided.
               </small>
-              <small class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('operatingEfficiency')">
+              <small class="text-danger"
+                     *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('operatingEfficiency')">
                 Please fill all Operating Efficiency fields if any one is provided.
               </small>
-              <small class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costAvoidance')">
+              <small class="text-danger"
+                     *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costAvoidance')">
                 Please fill all Cost Avoidance fields if any one is provided.
               </small>
             </div>
@@ -1383,16 +1401,16 @@
                   </div>
 
                   <div class="col-sm-6 col-md-2">
-                      <label>No existing budget Correct</label>
-                      <div class="text-center align-middle">
-                        <input type="checkbox" formControlName="isNoExistingBudget"/>
-                      </div>
+                    <label>No existing budget Correct</label>
+                    <div class="text-center align-middle">
+                      <input type="checkbox" formControlName="isNoExistingBudget"/>
+                    </div>
                   </div>
 
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Technically Correct</label>
-                      <select class="form-control" formControlName="technicalCorrect">
+                      <select class="form-control" formControlName="technicalCorrectId">
                         <option [value]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
                           <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
@@ -1406,7 +1424,7 @@
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Budget Statement</label>
-                      <select class="form-control" formControlName="budgetStatement">
+                      <select class="form-control" formControlName="budgetStatementId">
                         <option [ngValue]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
                           <option *ngIf="user.roleName === 'Financial Tag'" [ngValue]="user.id">
@@ -1420,7 +1438,7 @@
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>JV Review</label>
-                      <select class="form-control" formControlName="jvReview">
+                      <select class="form-control" formControlName="jvReviewId">
                         <option [value]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
                           <option *ngIf="user.roleName === 'JV Admin'" [value]="user.id">
@@ -1469,12 +1487,15 @@
                   <div class="image-slider">
                     <div class="slider-container">
                       <div class="attach-thumb bg-white slider-item" *ngFor="let file of selectedFiles; let i = index">
-                        <img *ngIf="file.preview" [src]="file.preview" alt="Document Image" class="uploaded-image" />
+                        <img *ngIf="file.preview" [src]="file.preview" alt="Document Image" class="uploaded-image"/>
                         <p class="m-0 d-flex gap-2 mt-3 justify-content-between align-items-center">
                           {{ file.name }}
-                          <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg" (click)="removeFile(i)" style="cursor: pointer;">
+                          <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg"
+                               (click)="removeFile(i)" style="cursor: pointer;">
                             <g clip-path="url(#clip0_202_3810)">
-                              <path d="M4.07187 0.483984C4.21953 0.185938 4.52305 0 4.85391 0H8.14609C8.47695 0 8.78047 0.185938 8.92812 0.483984L9.125 0.875H11.75C12.234 0.875 12.625 1.26602 12.625 1.75C12.625 2.23398 12.234 2.625 11.75 2.625H1.25C0.766016 2.625 0.375 2.23398 0.375 1.75C0.375 1.26602 0.766016 0.875 1.25 0.875H3.875L4.07187 0.483984ZM1.25 3.5H11.75V12.25C11.75 13.2152 10 14 10 14H3C2.03477 14 1.25 13.2152 1.25 12.25V3.5ZM3.875 5.25C3.63438 5.25 3.4375 5.44688 3.4375 5.6875V11.8125C3.4375 12.0531 3.63438 12.25 3.875 12.25C4.11562 12.25 4.3125 12.0531 4.3125 11.8125V5.6875C4.3125 5.44688 4.11562 5.25 3.875 5.25ZM6.5 5.25C6.25938 5.25 6.0625 5.44688 6.0625 5.6875V11.8125C6.0625 12.0531 6.25938 12.25 6.5 12.25C6.74062 12.25 6.9375 12.0531 6.9375 11.8125V5.6875C6.9375 5.44688 6.74062 5.25 6.5 5.25ZM9.125 5.25C8.88437 5.25 8.6875 5.44688 8.6875 5.6875V11.8125C8.6875 12.0531 8.88437 12.25 9.125 12.25C9.36563 12.25 9.5625 12.0531 9.5625 11.8125V5.6875C9.5625 5.44688 9.36563 5.25 9.125 5.25Z" fill="#DC3545"/>
+                              <path
+                                d="M4.07187 0.483984C4.21953 0.185938 4.52305 0 4.85391 0H8.14609C8.47695 0 8.78047 0.185938 8.92812 0.483984L9.125 0.875H11.75C12.234 0.875 12.625 1.26602 12.625 1.75C12.625 2.23398 12.234 2.625 11.75 2.625H1.25C0.766016 2.625 0.375 2.23398 0.375 1.75C0.375 1.26602 0.766016 0.875 1.25 0.875H3.875L4.07187 0.483984ZM1.25 3.5H11.75V12.25C11.75 13.2152 10 14 10 14H3C2.03477 14 1.25 13.2152 1.25 12.25V3.5ZM3.875 5.25C3.63438 5.25 3.4375 5.44688 3.4375 5.6875V11.8125C3.4375 12.0531 3.63438 12.25 3.875 12.25C4.11562 12.25 4.3125 12.0531 4.3125 11.8125V5.6875C4.3125 5.44688 4.11562 5.25 3.875 5.25ZM6.5 5.25C6.25938 5.25 6.0625 5.44688 6.0625 5.6875V11.8125C6.0625 12.0531 6.25938 12.25 6.5 12.25C6.74062 12.25 6.9375 12.0531 6.9375 11.8125V5.6875C6.9375 5.44688 6.74062 5.25 6.5 5.25ZM9.125 5.25C8.88437 5.25 8.6875 5.44688 8.6875 5.6875V11.8125C8.6875 12.0531 8.88437 12.25 9.125 12.25C9.36563 12.25 9.5625 12.0531 9.5625 11.8125V5.6875C9.5625 5.44688 9.36563 5.25 9.125 5.25Z"
+                                fill="#DC3545"/>
                             </g>
                             <defs>
                               <clipPath id="clip0_202_3810">
@@ -1514,21 +1535,24 @@
             </div>
             <div class="fb-form pt-0">
               <div class="ff-btn-list d-flex gap-3 justify-content-end">
-                <ng-container *ngIf="!paperId">
+                <ng-container *ngIf="!paperId || (paperId && isCopy)">
                   <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft')">
                     Draft
                   </button>
-                <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
-                  Register
-                </button>
-                  </ng-container>
-                <ng-container *ngIf="paperId">
-                <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')">
-                  Archive
-                </button>
-                <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')">
-                  Send For PDM Approval
-                </button>
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
+                    Register
+                  </button>
+                </ng-container>
+                <ng-container *ngIf="paperId && !isCopy">
+                  <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')">
+                    Archive
+                  </button>
+                  <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')">
+                    Send For PDM Approval
+                  </button>
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
+                    Update
+                  </button>
                 </ng-container>
               </div>
             </div>

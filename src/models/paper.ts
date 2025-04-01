@@ -18,6 +18,7 @@ export interface PaperDetails {
   paperStatusId: string,
   paperStatusName: string,
   paperProvision: string,
+  cgbItemRefNo?: string
   purposeRequired: string,
   isActive: boolean,
   cgbCirculationDate: Date | null,
@@ -144,6 +145,16 @@ export interface Paper {
   bidInvites: BidInvites[]
   riskMitigations: RiskMitigations[],
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[]
+  jvApprovals: JvApprovals[]
+  costAllocationJVApproval: CostAllocationJVApproval[]
+}
+
+export interface PaperDetailsType {
+  paperDetails: PaperDetails,
+  consultationsDetails: ConsultationsDetails[],
+  bidInvites: BidInvites[]
+  riskMitigations: RiskMitigations[],
+  valueDeliveriesCostsharing: ValueDeliveriesCostsharing
   jvApprovals: JvApprovals[]
   costAllocationJVApproval: CostAllocationJVApproval[]
 }
