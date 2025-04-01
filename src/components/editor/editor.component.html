@@ -7,7 +7,7 @@
     <div class="editor-container__menu-bar" #editorMenuBarElement></div>
     <div class="editor-container__toolbar" #editorToolbarElement></div>
     <div class="editor-container__editor-wrapper">
-      <div class="editor-container__sidebar">
+      <div class="editor-container__sidebar editor-container__sidebar1 d-none">
         <div #editorOutlineElement></div>
       </div>
       <div class="editor-container__editor">
@@ -15,7 +15,7 @@
           <ckeditor [editor]="Editor" [config]="config" (ready)="onReady($event)" *ngIf="Editor && config"/>
         </div>
       </div>
-      <div class="editor-container__sidebar">
+      <div class="editor-container__sidebar editor-container__sidebar3">
         <div #editorAnnotationsElement></div>
       </div>
     </div>
