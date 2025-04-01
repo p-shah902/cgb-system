@@ -18,7 +18,6 @@ export interface PaperDetails {
   paperStatusId: string,
   paperStatusName: string,
   paperProvision: string,
-  cgbItemRefNo?: string
   purposeRequired: string,
   isActive: boolean,
   cgbCirculationDate: Date | null,
