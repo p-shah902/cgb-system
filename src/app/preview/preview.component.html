@@ -96,251 +96,372 @@
             <div class="fb-title-div mb-3">
               <h4>1. General Information</h4>
             </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-view-group">
-                  <label>Title</label>
-                  <h6>paper</h6>
+            
+            <div class="fb-form">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>For the provision of* </label>
+                    <h6>{{paperInfo?.paperProvision}}</h6>
+                  </div>
                 </div>
               </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Contract ID</label>
-                  <h6>CGB-2025-001</h6>
+              <div class="row">
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>CGB Item Ref </label>
+                    <h6>{{paperInfo?.cgbItemRefNo}}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Business Scope</label>
-                  <h6>Wells Operations</h6>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>CGB Circulation Date</label>
+                    <h6>{{paperInfo?.cgbCirculationDate| date: 'dd MMMM yyyy'}}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Initiator (CAM)</label>
-                  <h6>John Doe</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- <div class="fb-form">
-            <div class="fb-title-div mb-3">
-              <h4>2. Contract Details</h4>
-            </div>
-            <div class="row">
 
-              <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
-                <div class="form-view-group">
-                  <label>Estimated Contract Value</label>
-                  <h6>$2,500,000 (USD)</h6>
+                <div class="col-md-12">
+      
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>Scope of Work </label>
+                      <h6>{{paperInfo?.scopeOfWork}}</h6>
+                      
+                    </div>
+                  </div>
+
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
-                <div class="form-view-group">
-                  <label>Contract Duration (5 years)</label>
-                  <h6>Start Date: 01-Mar-2025</h6>
-                  <h6>End Date:  01-Mar-2030</h6>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Global CGB*</label>
+                    <h6>{{paperInfo?.globalCGB}}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
-                <div class="form-view-group">
-                  <label>Contract Type</label>
-                  <h6>Fixed Price</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>BLT Member* </label>
+                    <h6>{{paperInfo?.bltMemberName}}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
-                <div class="form-view-group">
-                  <label>Primary Vendor</label>
-                  <h6>Primary Vendor</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Operating Function* </label>
+                    <h6>{{paperInfo?.operatingFunction}}</h6>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div> -->
-          <!-- <div class="fb-form">
-            <div class="fb-title-div mb-3">
-              <h4>1. General Information</h4>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-view-group">
-                  <label>Title</label>
-                  <h6>Vendor Selection for Offshore Drilling Equipment Procurement</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Subsector*</label>
+                    <h6>{{paperInfo?.subSector}}</h6>
+                    
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Contract ID</label>
-                  <h6>CGB-2025-001</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Type*</label>
+                    <h6>{{paperInfo?.sourcingType}}</h6>
+                    
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Business Scope</label>
-                  <h6>Wells Operations</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Contract Accountable Manager*</label>
+                    <h6>{{paperInfo?.camUserName}}</h6>                    
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Initiator (CAM)</label>
-                  <h6>John Doe</h6>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>VP-1* </label>
+                    <h6>{{paperInfo?.vP1UserName}}</h6>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div> -->
-          <div class="fb-form">
-            <div class="fb-title-div mb-3">
-              <h4>2. Procurement Strategy</h4>
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-view-group">
-                  <label></label>
-                  <h6>Risk</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Procurement SPA*</label>
+                    <h6>{{paperInfo?.procurementSPAUsers}}</h6>
+                    
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="row" *ngFor="let risk of riskMitigation;let i=index">
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Sr no</label>
-                  <h6>{{ risk.srNo }}</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PDM*</label>
+                    <h6>{{paperInfo?.pdManagerName}}</h6>
+                    
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Risks</label>
-                  <h6>{{ risk.risks }}</h6>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Total Award Value (USD)*</label>
+                    <h6>{{paperInfo?.totalAwardValueUSD}}</h6>
+                    
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Mitigations</label>
-                  <h6>{{ risk.mitigations }}</h6>
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>Original Currency</label>
+                    <!-- <h6>{{paperInfo?.currencyCode}}</h6> -->
+                    
+                  </div>
                 </div>
-              </div>
-              <!-- <div class="col-md-12">
-                <div class="form-view-group">
-                  <label>Justification</label>
-                  <h6>
-                    <b>Lorem Ipsum is simply dummy</b> text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic <b>typesetting</b>, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                  </h6>
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>Exchange Rate</label>
+                    <h6>{{paperInfo?.exchangeRate}}</h6>
+                    
+                  </div>
                 </div>
-              </div> -->
-              <!-- <div class="col-md-12">
-                <div class="form-view-group">
-                  <label>Market Engagement Plan</label>
-                  <div class="row row-gap-2">
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Procurement Approach</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Contract Value (Original Currency)*</label>
+                    <h6>{{paperInfo?.contractValue}}</h6>
+                    
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <label class="mb-2">Contract Duration *</label>
+                  <div class="row">
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Start Date</label>
+                        <h6>{{paperInfo?.contractStartDate| date: 'dd MMMM yyyy'}}</h6>
+                        
                       </div>
                     </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Procurement Approach</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Procurement Approach</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label >End Date</label>
+                        <h6>{{paperInfo?.contractEndDate| date: 'dd MMMM yyyy'}}</h6>
+                        
                       </div>
                     </div>
                   </div>
                 </div>
-              </div> -->
-            </div>
-            <div class="row">
-              <div class="col-md-12">
-                <div class="form-view-group">
-                  <label></label>
-                  <h6>Bid Invites</h6>
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>PHCA </label>
+                    <h6>{{paperInfo?.isPHCA ? 'Yes':'No'}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV *</label>
+                    <h6>{{paperInfo?.psajv }}</h6>
+                    
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Long-Term Commercial Commitment (LTCC) </label>
+                    <h6>{{paperInfo?.isLTCC ? 'Yes':'No'}}</h6>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>LTCC Note</label>
+                    <h6>{{paperInfo?.ltccNotes }}</h6>
+                    
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Aligned with Government Representative* </label>
+                    <h6>{{paperInfo?.isGovtReprAligned ? 'Yes':'No'}}</h6>
+                    
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Government Representative Comment</label>
+                    <h6>{{paperInfo?.govtReprAlignedComment }}</h6>
+                    
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="position-relative">
+                        <label>IFRS16 Impact Compliance</label>
+                        <h6>{{paperInfo?.isIFRS16 ? 'Yes':'No'}}</h6>
+                      </div>
+                      <div class="position-relative">
+                        <label>GIAAP Compliance Check</label>
+                        <h6>{{paperInfo?.isGIAAPCheck ? 'Yes':'No'}}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 mt-3">
+                  <div class="form-group mb-3">
+                    <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
+                    <h6>{{paperInfo?.isConflictOfInteres ? 'Yes':'No'}}</h6>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Conflict of Interest Comments</label>
+                    <h6>{{paperInfo?.conflictOfInterestCommen }}</h6>
+                    
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Strategy Description</label>
+                    <h6>{{paperInfo?.strategyDescription }}</h6>
+                    
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="row" *ngFor="let bid of bidInvites;let i=index">
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>name</label>
-                  <h6>{{ bid.legalName }}</h6>
+          </div>
+                   
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>2. Procurement Strategy</h4>
+            </div>
+
+            <div class="fb-form" >
+              <div class="row">
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Remuneration Type*</label>  
+                    <h6>{{paperInfo?.remunerationTypeData}}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Local/JV</label>
-                  <h6>{{ bid.isLocalOrJV ? 'Yes' : 'No' }}</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Proposed Contract Management Level*</label>
+                    <h6>{{paperInfo?.contractMgmtLevel}}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Country</label>
-                  <h6>{{ bid.countryName }}</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Rigor*</label>
+                    <h6>{{paperInfo?.sourcingRigor}}</h6>   
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Parent Company</label>
-                  <h6>{{ bid.parentCompanyName }}</h6>
+                <div class="col-sm-6 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Strategy</label>
+                    <h6>{{paperInfo?.sourcingStrategy}}</h6>      
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4">
-                <div class="form-view-group">
-                  <label>Remarks</label>
-                  <h6>{{ bid.remarks }}</h6>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Key Risks and Mitigations</label>
+                    <div class="overflow-auto">
+                      <div class="key-risks-table custom-table">
+                        <table class="table">
+                          <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Risks</th>
+                            <th>Mitigations</th>
+                          </tr>
+                          </thead>
+                          <tbody formArrayName="risks">
+                          <tr *ngFor="let risk of riskMitigation; let i = index">
+                            <td>{{ risk.srNo }}</td>
+                            <td>
+                              <h6>{{risk.risks}}</h6>
+                            </td>
+                            <td>
+                              <h6>{{risk.mitigations}}</h6>
+                            </td>
+                          </tr>
+                          </tbody>
+                        </table>
+
+                      </div>
+
+                    </div>
+                  </div>
                 </div>
+
+                <div class="col-sm-6 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Single Source Justification</label>
+                    <h6>{{paperInfo?.singleSourceJustification}}</h6>
+                    
+                  </div>
+                </div>
+
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Who is invited to bid?</label>
+                    <div class="overflow-auto">
+                      <div class="key-risks-table custom-table">
+                        <table class="table">
+                          <thead>
+                          <tr>
+                            <th>Full Name of Legal Entity</th>
+                            <th>Local/JV</th>
+                            <th>Country of Incorporation</th>
+                            <th>Parent Company name</th>
+                            <th>Remarks (If any)</th>
+                            
+                          </tr>
+                          </thead>
+                          <tbody formArrayName="inviteToBid">
+                          <tr *ngFor="let bid of bidInvites; let i = index">
+                            <td>
+                              <h6>{{bid.legalName}}</h6>
+                            </td>
+                            <td class="text-center align-middle">
+                              <h6>{{ bid.isLocalOrJV ? 'Yes' : 'No' }}</h6>
+                            </td>
+                            <td>
+                              <h6>{{ bid.countryName }}</h6>
+                            </td>
+                            <td>
+                              <h6>{{ bid.parentCompanyName }}</h6>
+                            </td>
+                            <td>
+                              <h6>{{ bid.remarks }}</h6>
+                            </td>
+                            
+                          </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>SOCAR notification sent on *</label>
+                    <h6>{{paperInfo?.socaRsentOn | date: 'dd MMMM yyyy'}}</h6>
+                    
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>SOCAR Response Received Date *</label>
+                    <h6>{{paperInfo?.socaRreceivedOn | date: 'dd MMMM yyyy'}}</h6>
+                    
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>SOCAR’s response</label>
+                    <h6>{{paperInfo?.socarDescription}}</h6>
+
+                    
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Results of Pre-qualification Exercise</label>
+                    <h6>{{paperInfo?.preQualificationResult}}</h6>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -434,259 +555,308 @@
             </div>
           </div>
 
+
           <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>4. Cost Sharing Methodology</h4>
+              <h4>4 Cost Allocation And JV Approval</h4>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-view-group">
-                <label></label>
-                <h6>Capex</h6>
+                      
+            <div class="fb-form">
+              <div class="cost-table-div custom-table table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>PSA</th>
+                      <th *ngFor="let column of psaColumns">
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="column.value" disabled>
+                            <label>{{ column.name }}</label>
+                          </div>
+                        </div>
+                      </th>
+                      <th>
+                        <b>Total</b>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><b>As%</b></td>
+                      <td *ngFor="let column of psaColumns">
+                        <label>{{ column.percentage !== null ? (column.percentage | number:'1.2-2') + '%' : '' }}</label>
+                      </td>
+                      <td>
+                        <label>{{ totalPercentage > 0 ? (totalPercentage | number:'1.2-2') + '%' : '' }}</label>
+                      </td>
+                    </tr>
+            
+                    <tr>
+                      <td><b>By value $</b></td>
+                      <td *ngFor="let column of psaColumns">
+                        <label>{{ column.amount !== null ? (column.amount | number:'1.2-2') : '' }}</label>
+                      </td>
+                      <td>
+                        <label>{{ totalValue > 0 ? (totalValue | number:'1.2-2') : '' }}</label>
+                      </td>
+                    </tr>
+            
+                    <tr>
+                      <td><b>Contract Committee</b></td>
+                      <td> <!-- ACG cell - empty --> </td>
+                      <td> <!-- Shah Deniz cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SDCC" disabled>
+                            <label>SDCC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- SCP cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CC" disabled>
+                            <label>SCP Co CC</label>
+                          </div>
+                          <div class="form-check-box position-relative" >
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote" disabled>
+                            <label>SCP Co CC info note</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- BTC cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_BTC_CC" disabled>
+                            <label>BTC CC</label>
+                          </div>
+                          <div class="form-check-box position-relative" >
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"  disabled>
+                            <label>BTC CC Info Note</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> {{jvApprovals[0].contractCommittee_ShAsimanValue}} </td>
+                      <td> {{jvApprovals[0].contractCommittee_BPGroupValue}} </td>
+                      <td>
+                        <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_CGB"  disabled>
+                        <label>CGB</label>
+                      </td>
+                    </tr>
+            
+                    <tr>
+                      <td><b>Co-Venturers</b></td>
+                      <td> <!-- ACG cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_CMC" disabled>
+                            <label>CMC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- Shah Deniz cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SDMC" disabled>
+                            <label>SDMC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- SCP cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SCP" disabled>
+                            <label>SCP</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- BTC cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SCP_Board" disabled>
+                            <label>SCP Board</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- Sh-Asiman cell - empty --> </td>
+                      <td> <!-- BP Group cell - empty --> </td>
+                      <td>
+                        <label></label>
+                      </td>
+                    </tr>
+            
+                    <tr>
+                      <td><b>Steering Committee</b></td>
+                      <td> <!-- ACG cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].steeringCommittee_SC" disabled>
+                            <label>SC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- Shah Deniz cell - empty --> </td>
+                      <td> <!-- SCP cell - empty --> </td>
+                      <td> <!-- BTC cell - empty --> </td>
+                      <td> <!-- Sh-Asiman cell - empty --> </td>
+                      <td> <!-- BP Group cell - empty --> </td>
+                      <td>
+                        <label></label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-          </div>
-          <div class="row" *ngFor="let capex of valueDeliveriesCostsharing;let i=index">
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>isCapex</label>
-                <h6>{{ capex.isCapex ? 'Yes' : 'No' }}</h6>
-              </div>
-            </div>
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>Methodology</label>
-                <h6>{{ capex.capexMethodology }}</h6>
-              </div>
-            </div>
+
+
           </div>
 
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-view-group">
-                <label></label>
-                <h6>Fixed Opex</h6>
-              </div>
-            </div>
-          </div>
-          <div class="row" *ngFor="let fixedOpex of valueDeliveriesCostsharing;let i=index">
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>isFixedOpex</label>
-                <h6>{{ fixedOpex.isFixOpex ? 'Yes' : 'No' }}</h6>
-              </div>
-            </div>
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>Methodology</label>
-                <h6>{{ fixedOpex.fixOpexMethodology }}</h6>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-view-group">
-                <label></label>
-                <h6>Variable Opex</h6>
-              </div>
-            </div>
-          </div>
-          <div class="row" *ngFor="let varOpex of valueDeliveriesCostsharing;let i=index">
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>isVariableOpex</label>
-                <h6>{{ varOpex.isVariableOpex ? 'Yes' : 'No' }}</h6>
-              </div>
-            </div>
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>Methodology</label>
-                <h6>{{ varOpex.variableOpexMethodology }}</h6>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-view-group">
-                <label></label>
-                <h6>Inventory Item</h6>
-              </div>
-            </div>
-          </div>
-          <div class="row" *ngFor="let item of valueDeliveriesCostsharing;let i=index">
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>isInventoryItems</label>
-                <h6>{{ item.isInventoryItems ? 'Yes' : 'No' }}</h6>
-              </div>
-            </div>
-            <div class="col-sm-4 col-md-4">
-              <div class="form-view-group">
-                <label>Methodology</label>
-                <h6>{{ item.inventoryItemsMethodology }}</h6>
-              </div>
-            </div>
-          </div>
-
-          <!-- <div class="fb-form">
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>5. Risk Assessment</h4>
-            </div>
-            <div class="row">
-
-              <div class="col-xl-12">
-                <div class="form-view-group">
-                  <label>Safety and Operational Risk (S&OR) Assessment</label>
-                  <h6>Yes</h6>
-                </div>
-              </div>
-              <div class="col-xl-12">
-                <div class="form-view-group">
-                  <label>Potential Risks Identified</label>
-                  <p class="text-dark mb-2">
-                    Cost Overruns :
-                  </p>
-                  <h6>
-                    <b>Typesetting</b>, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                  </h6>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="form-view-group">
-                  <label>Market Engagement Plan</label>
-                  <div class="row row-gap-2">
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Assessment report</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Assessment report</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> -->
-
-          <!-- <div class="fb-form">
-            <div class="fb-title-div mb-3">
-              <h4>6. Attachments</h4>
+              <h4>5. Cost Sharing Methodology</h4>
             </div>
             <div class="row">
               <div class="col-md-12">
                 <div class="form-view-group">
-                  <label>Supporting Documents</label>
-                  <div class="row row-gap-2">
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Technical Specifications.pdf</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
+                  <label></label>
+                  <h6>Capex</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let capex of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isCapex</label>
+                  <h6>{{ capex.isCapex ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ capex.capexMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Fixed Opex</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let fixedOpex of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isFixedOpex</label>
+                  <h6>{{ fixedOpex.isFixOpex ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ fixedOpex.fixOpexMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Variable Opex</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let varOpex of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isVariableOpex</label>
+                  <h6>{{ varOpex.isVariableOpex ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ varOpex.variableOpexMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+  
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Inventory Item</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let item of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isInventoryItems</label>
+                  <h6>{{ item.isInventoryItems ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ item.inventoryItemsMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+          </div> 
+
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>6. Consultations</h4>
+            </div>
+            <div class="fb-form">
+              <div *ngFor="let consultation of consultationsDetails;let i=index">
+                <div class="row">
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>PSA</label>
+                      <h6>{{consultation.psa}}</h6>
                     </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="attchment-view d-flex gap-2 justify-content-between">
-                        <div class="d-flex gap-2">
-                          <div>
-                            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M4.8001 8.49694H11.2001M4.8001 11.6949L11.2001 11.7018M4.8001 5.29902L9.06676 5.30182M13.3334 15.9685H2.66676C2.07766 15.9685 1.6001 15.4909 1.6001 14.9018V2.10182C1.6001 1.51272 2.07766 1.03516 2.66676 1.03516H11.2001L14.4001 4.23516V14.9018C14.4001 15.4909 13.9225 15.9685 13.3334 15.9685Z" stroke="#626262" stroke-width="1.06667" stroke-linecap="square"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h6 class="mb-0">Vendor List.xlsx</h6>
-                            <p class="mb-0">1.2 Mb</p>
-                          </div>
-                        </div>
-                        <div>
-                          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 4C0 1.79086 1.79086 0 4 0H24C26.2091 0 28 1.79086 28 4V24C28 26.2091 26.2091 28 24 28H4C1.79086 28 0 26.2091 0 24V4Z" fill="#E6EFFC"/>
-                            <path d="M20 16V18.6667C20 19.0203 19.8595 19.3594 19.6095 19.6095C19.3594 19.8595 19.0203 20 18.6667 20H9.33333C8.97971 20 8.64057 19.8595 8.39052 19.6095C8.14048 19.3594 8 19.0203 8 18.6667V16" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M10.6665 12.668L13.9998 16.0013L17.3332 12.668" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 16V8" stroke="#582AA2" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-                          </svg>
-                        </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
+                      <label>No existing budget Correct</label>
+                      <div class="text-center align-middle">
+                        <h6>{{consultation.isNoExistingBudget ? 'Yes':'No'}}</h6>
                       </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>Technically Correct</label>
+                      <h6>{{consultation.technicalCorrectName}}</h6>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>Budget Statement</label>
+                      <h6>{{consultation.budgetStatementName}}</h6>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>JV Review</label>
+                      <h6>{{consultation.jvReviewName}}</h6>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div> -->
-
-          <!-- <div class="fb-form pt-0">
-            <div class="ff-btn-list d-flex gap-3 justify-content-end">
-
-              <button class="btn btn-primary">
-                Edit
-              </button>
-              <button class="btn btn-dark d-flex gap-2">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0.600098 0V5.4C0.600098 6.72548 1.67461 7.8 3.0001 7.8C4.32558 7.8 5.4001 6.72548 5.4001 5.4V1.8C5.4001 1.13726 4.86284 0.6 4.2001 0.6C3.53736 0.6 3.0001 1.13726 3.0001 1.8V6M7.2001 0.6H15.0001C15.6628 0.6 16.2001 1.13726 16.2001 1.8V16.2C16.2001 16.8627 15.6628 17.4 15.0001 17.4H3.0001C2.33736 17.4 1.8001 16.8627 1.8001 16.2V9.6M13.2001 5.4H8.4001M13.2001 9H8.4001M13.2001 12.6H4.8001" stroke="white" stroke-width="1.2"/>
-                </svg>
-                Export
-              </button>
 
             </div>
-          </div> -->
+          </div>
 
+          
         </div>
       </div>
     </div>

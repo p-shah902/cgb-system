@@ -62,6 +62,11 @@ export interface PaperDetails {
   socaRreceivedOn: Date | string
   socarDescription: string
   preQualificationResult: string
+  cgbItemRefNo:string
+  conflictOfInterestCommen:string
+  remunerationTypeData:string
+  isConflictOfInteres:boolean
+
 }
 
 export interface ConsultationsDetails {
