@@ -21,11 +21,12 @@ import {DictionaryDetail, Item} from '../../models/dictionary';
 import { Router, ActivatedRoute } from '@angular/router';
 import {PaperStatusType} from '../../models/paper';
 import {environment} from '../../environments/environment';
+import {EditorComponent} from '../../components/editor/editor.component';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2,NgbToastModule],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
