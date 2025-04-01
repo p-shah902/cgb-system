@@ -3,11 +3,12 @@ import {FormBuilder} from '@angular/forms';
 import {Validators} from '@angular/forms';
 import {FormGroup} from '@angular/forms';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {ParticularType, UpsertUserRolesPaylod} from '../../models/role';
 import {RoleService} from '../../service/role.service';
 import {CommonModule} from '@angular/common';
 import {Select2} from 'ng-select2-component';
+import { ToastService } from '../../service/toast.service';
 
 @Component({
   selector: 'app-add-new-role',
@@ -16,7 +17,8 @@ import {Select2} from 'ng-select2-component';
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    Select2
+    Select2,
+    NgbToastModule
   ],
   templateUrl: './add-new-role.component.html',
   styleUrl: './add-new-role.component.scss'
@@ -39,7 +41,8 @@ export class AddNewRoleComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private fb: FormBuilder,
-    private roleService: RoleService
+    private roleService: RoleService,
+    public toastService:ToastService
   ) {
 
     this.roleForm = this.fb.group({

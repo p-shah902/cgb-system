@@ -1,18 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
 import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {environment} from '../../environments/environment';
+import { ToastService } from '../../service/toast.service';
+import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-template2',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule],
+  imports: [CommonModule, CKEditorModule, FormsModule,NgbToastModule],
   templateUrl: './template2.component.html',
   styleUrl: './template2.component.scss'
 })
 export class Template2Component {
+
+  public toastService=inject(ToastService)
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
 

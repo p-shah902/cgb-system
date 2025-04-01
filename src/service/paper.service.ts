@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {
   addPaperVisitorLogs,
   getPaperDetails,
+  getPaperPreviewById,
   getPaperStatus,
   getPaperVisitorLogs,
   UpsertApproachToMarkets
@@ -42,6 +43,10 @@ export class PaperService {
     );
   }
 
+
+  getPaperDetailsWithPreview(paperId: number): Observable<ApiResponse<Paper>> {
+    return this.http.get<ApiResponse<Paper>>(getPaperPreviewById + '/' + paperId);
+  }
 
   getPaperDetails(paperId: number): Observable<ApiResponse<Paper>> {
     return this.http.get<ApiResponse<Paper>>(getPaperDetails + '/' + paperId);

@@ -19,6 +19,7 @@ export class UsermanagementComponent implements OnInit{
   public toastService=inject(ToastService);
 
   userDetails:UserDetails[]=[];
+  isLoading:boolean=false
 
   ngOnInit(): void {
       this.loadUserDetails();
@@ -36,6 +37,11 @@ export class UsermanagementComponent implements OnInit{
         console.log('error',error);
       }
     })
+
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 2000);
   }
 
   nevigate(){

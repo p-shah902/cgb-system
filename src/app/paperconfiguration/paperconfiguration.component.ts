@@ -4,15 +4,16 @@ import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {PaperFilter} from '../../models/general';
 import {PaperConfig} from '../../models/paper';
 import {Select2} from 'ng-select2-component';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {Router} from '@angular/router';
 import {LoginUser} from '../../models/user';
 import {AuthService} from '../../service/auth.service';
+import { ToastService } from '../../service/toast.service';
 
 @Component({
   selector: 'app-paperconfiguration',
   standalone: true,
-  imports: [CommonModule, Select2],
+  imports: [CommonModule, Select2,NgbToastModule],
   templateUrl: './paperconfiguration.component.html',
   styleUrl: './paperconfiguration.component.scss'
 })
@@ -28,8 +29,10 @@ export class PaperconfigurationComponent implements OnInit {
   approvalRemark: string = '';
   reviewBy: string = '';
   selectedPaper: number = 0;
+  isLoading:boolean=false
+ 
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService,public toastService:ToastService) {
     this.filter = {
       statusIds: [],
       orderType: "ASC"
@@ -54,6 +57,11 @@ export class PaperconfigurationComponent implements OnInit {
         console.log('error', error);
       }
     });
+
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 1500);
   }
 
   getStatusClass(status: string): string {
@@ -108,21 +116,42 @@ export class PaperconfigurationComponent implements OnInit {
     }
   ];
 
-  open(event: any, content: TemplateRef<any>, paperId?: number) {
-    event.preventDefault();
-    this._mdlSvc.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then(
-      (result) => {
+  // open(event: any, content: TemplateRef<any>, paperId?: number) {
+  //   event.preventDefault();
+  //   this._mdlSvc.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then(
+  //     (result) => {
 
+  //     },
+  //     (reason) => {
+
+  //     },
+  //   );
+
+  //   if (paperId) {
+  //     this.selectedPaper = paperId;
+  //   }
+  // }
+
+  open(event: Event, content: TemplateRef<any>, paperId?: number) {
+    event.preventDefault();
+    this._mdlSvc.open(content, {
+      ariaLabelledBy: 'modal-basic-title',
+      centered: true,  // Ensure modal is centered
+      size: 'lg'       // Adjust size as needed (sm, lg, xl)
+    }).result.then(
+      (result) => {
+        // Handle modal close
       },
       (reason) => {
-
-      },
+        // Handle modal dismiss
+      }
     );
-
+  
     if (paperId) {
       this.selectedPaper = paperId;
     }
   }
+  
 
   openPage(value: any, modal: any) {
     this.router.navigate([value.value]);
@@ -150,4 +179,5 @@ export class PaperconfigurationComponent implements OnInit {
     }
     modal.close('Save click')
   }
+
 }

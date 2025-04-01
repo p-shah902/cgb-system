@@ -1,5 +1,5 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {AddNewRoleComponent} from '../add-new-role/add-new-role.component';
 import {NgbAccordionModule} from '@ng-bootstrap/ng-bootstrap';
 import {RoleService} from '../../service/role.service';
@@ -16,17 +16,20 @@ import {AuthService} from '../../service/auth.service';
 import {Subscription} from 'rxjs';
 import {AuthGuard} from '../../guards/auth.guard';
 import {Console} from 'console';
+import { ToastService } from '../../service/toast.service';
 
 @Component({
   selector: 'app-roleaccess',
   standalone: true,
-  imports: [NgbAccordionModule, CommonModule],
+  imports: [NgbAccordionModule, CommonModule,NgbToastModule],
   templateUrl: './roleaccess.component.html',
   styleUrl: './roleaccess.component.scss'
 })
 export class RoleaccessComponent implements OnInit {
   private readonly _mdlSvc = inject(NgbModal);
   private readonly roleService = inject(RoleService);
+  public toastService=inject(ToastService)
+  isLoading:boolean=false
 
   newRole() {
     const modalRef = this._mdlSvc.open(AddNewRoleComponent, {centered: true, modalDialogClass: 'custom-modal'});
@@ -47,6 +50,10 @@ export class RoleaccessComponent implements OnInit {
     this.getUserRoleList();
     this.loadUserParticulars();
     this.getUserAccessList();
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 1500);
   }
 
   getUserRoleList() {

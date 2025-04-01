@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   NgbDropdown,
   NgbDropdownItem,
   NgbDropdownMenu,
   NgbDropdownToggle,
-  NgbNavModule
+  NgbNavModule,
+  NgbToastModule
 } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../service/toast.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-threshold',
@@ -13,10 +16,14 @@ import {
   imports: [NgbNavModule, NgbDropdown,
     NgbDropdownItem,
     NgbDropdownMenu,
-    NgbDropdownToggle],
+    NgbDropdownToggle,
+    NgbToastModule,
+    CommonModule
+  ],
   templateUrl: './threshold.component.html',
   styleUrl: './threshold.component.scss'
 })
 export class ThresholdComponent {
+  public toastService=inject(ToastService)
   active = 1;
 }

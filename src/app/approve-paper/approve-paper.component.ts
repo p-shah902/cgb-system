@@ -1,13 +1,17 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbActiveModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../service/toast.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-approve-paper',
   standalone: true,
     imports: [
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        NgbToastModule,
+        CommonModule
     ],
   templateUrl: './approve-paper.component.html',
   styleUrl: './approve-paper.component.scss'
@@ -21,7 +25,8 @@ export class ApprovePaperComponent {
   }
 
   constructor(
-    public activeModal: NgbActiveModal
+    public activeModal: NgbActiveModal,
+    public toastService:ToastService
   ) { }
 
   passBack() {

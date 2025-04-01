@@ -1,3 +1,17 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
@@ -40,7 +54,13 @@
             </button>
           </div>
         </div>
-        <div class="row">
+
+        <div *ngIf="isLoading" class="table-loader">
+          <div class="spinner"></div>
+          <p>Loading data, please wait...</p>
+        </div>
+
+        <div class="row" *ngIf="!isLoading">
           <div class="col-md-6 col-lg-6 col-xl-4 mb-3" *ngFor="let paper of paperList;let i=index">
             <div class="bill-card h-100">
               <div class="bill-img mb-3">
@@ -192,5 +212,6 @@
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="approvePaper(modal, 'Return to Originator')">Save</button>
     </div>
-  </ng-template>
+  </ng-template> 
+
 </div>

@@ -1,11 +1,12 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {PaperConfig} from '../../models/paper';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {PaperFilter} from '../../models/general';
-import {KeyValuePipe, NgForOf, NgIf} from '@angular/common';
+import {CommonModule, KeyValuePipe, NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {Select2} from 'ng-select2-component';
+import { ToastService } from '../../service/toast.service';
 
 @Component({
   selector: 'app-paper-status',
@@ -17,7 +18,9 @@ import {Select2} from 'ng-select2-component';
     NgForOf,
     KeyValuePipe,
     FormsModule,
-    NgIf
+    NgIf,
+    NgbToastModule,
+    CommonModule
   ],
   templateUrl: './paper-status.component.html',
   styleUrl: './paper-status.component.scss'
@@ -28,6 +31,7 @@ export class PaperStatusComponent implements OnInit {
   filter: PaperFilter;
   isDesc = false;
   aToZ: string = 'A Z';
+  isLoading:boolean=false
   groupedPaper: { [key: string]: PaperConfig[] } = {
     'Registered': [],
     'Waiting for PDM': [],
@@ -49,7 +53,7 @@ export class PaperStatusComponent implements OnInit {
     {label: 'Approved', value: 19},
   ];
 
-  constructor() {
+  constructor(public toastService:ToastService) {
     this.filter = {
       statusIds: [],
       orderType: "DESC"
@@ -110,5 +114,14 @@ export class PaperStatusComponent implements OnInit {
         console.log('error', error);
       }
     });
+
+    this.isLoading = true;
+     setTimeout(() => {
+     this.isLoading = false;
+     }, 1500);
+
+  
+
   }
+  
 }

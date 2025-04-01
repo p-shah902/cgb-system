@@ -27,13 +27,13 @@ export class VendorsComponent implements OnInit {
   private readonly vendorService=inject(VendorService);
   private readonly router=inject(Router);
   public toastService=inject(ToastService);
-
+  isLoading:boolean=false
+  selectAll: boolean = false;
   vendorDetails:VendorDetail[]=[];
 
   constructor(){
     console.log('vendore Details');
   }
-
 
   ngOnInit(): void {
       this.loadVendoreDetails();
@@ -55,7 +55,10 @@ export class VendorsComponent implements OnInit {
         console.log('error', error);
       },
     });
-    console.log('vendore Details2');
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 2000);
   }
 
   nevigate(){

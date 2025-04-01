@@ -1,81 +1,33 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+
+
 <div class="container-fluid" *ngIf="paperDetails">
 
   <div class="timeline-main-div mb-5">
-    <div class="timeline-box st-aprv position-relative">
+   
+    <div *ngFor="let activity of paperTimelineDetails; let i = index" 
+    [class]="getStatusClass(i)">
       <div class="tb-head d-flex gap-2">
         <div>
-          <h1>01</h1>
+          <h1>{{ activity.id }}</h1>
         </div>
-        <div>
-          <h6>Registered</h6>
-          <p>
-            25-Jan,2025 18:06 PM
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="timeline-box st-aprv position-relative">
-      <div class="tb-head d-flex gap-2">
-        <div>
-          <h1>02</h1>
-        </div>
-        <div>
-          <h6>PDM approval</h6>
-          <p>
-            25-Jan,2025 18:06 PM
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="timeline-box st-prog position-relative">
-      <div class="tb-head d-flex gap-2">
-        <div>
-          <h1>03</h1>
-        </div>
-        <div>
-          <h6>Pre-CGB</h6>
-          <p>
-            25-Jan,2025 18:06 PM
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="timeline-box st-pen position-relative">
-      <div class="tb-head d-flex gap-2">
-        <div>
-          <h1>04</h1>
-        </div>
-        <div>
-          <h6>CGB</h6>
-          <p>
-            25-Jan,2025 18:06 PM
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="timeline-box st-pen position-relative">
-      <div class="tb-head d-flex gap-2">
-        <div>
-          <h1>05</h1>
-        </div>
-        <div>
-          <h6>Partners Approval</h6>
-          <p>
-            25-Jan,2025 18:06 PM
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="timeline-box st-pen position-relative">
-      <div class="tb-head d-flex gap-2">
-        <div>
-          <h1>06</h1>
-        </div>
-        <div>
-          <h6>Completed</h6>
-          <p>
-            25-Jan,2025 18:06 PM
-          </p>
+      <div>
+        <h6>{{ activity.activityName }}</h6>
+        <p>
+          {{ activity.activityDate ? (activity.activityDate | date: 'dd-MMM, yyyy hh:mm a') : 'Pending' }}
+         </p>
         </div>
       </div>
     </div>
@@ -101,7 +53,7 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>For the provision of* </label>
+                    <label>For the provision of </label>
                     <h6>{{paperInfo?.paperProvision}}</h6>
                   </div>
                 </div>
@@ -134,59 +86,59 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Global CGB*</label>
+                    <label>Global CGB</label>
                     <h6>{{paperInfo?.globalCGB}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>BLT Member* </label>
+                    <label>BLT Member </label>
                     <h6>{{paperInfo?.bltMemberName}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function* </label>
+                    <label>Operating Function </label>
                     <h6>{{paperInfo?.operatingFunction}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Subsector*</label>
+                    <label>Subsector</label>
                     <h6>{{paperInfo?.subSector}}</h6>
                     
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
+                    <label>Sourcing Type</label>
                     <h6>{{paperInfo?.sourcingType}}</h6>
                     
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Accountable Manager*</label>
+                    <label>Contract Accountable Manager</label>
                     <h6>{{paperInfo?.camUserName}}</h6>                    
                   </div>
                 </div>
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>VP-1* </label>
+                    <label>VP-1 </label>
                     <h6>{{paperInfo?.vP1UserName}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
+                    <label>Procurement SPA</label>
                     <h6>{{paperInfo?.procurementSPAUsers}}</h6>
                     
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PDM*</label>
+                    <label>PDM</label>
                     <h6>{{paperInfo?.pdManagerName}}</h6>
                     
                   </div>
@@ -194,7 +146,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Total Award Value (USD)*</label>
+                    <label>Total Award Value (USD)</label>
                     <h6>{{paperInfo?.totalAwardValueUSD}}</h6>
                     
                   </div>
@@ -215,13 +167,13 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Value (Original Currency)*</label>
+                    <label>Contract Value (Original Currency)</label>
                     <h6>{{paperInfo?.contractValue}}</h6>
                     
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
-                  <label class="mb-2">Contract Duration *</label>
+                  <label class="mb-2">Contract Duration </label>
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
@@ -248,7 +200,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
+                    <label>PSA/JV </label>
                     <h6>{{paperInfo?.psajv }}</h6>
                     
                   </div>
@@ -269,7 +221,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>Aligned with Government Representative* </label>
+                    <label>Aligned with Government Representative </label>
                     <h6>{{paperInfo?.isGovtReprAligned ? 'Yes':'No'}}</h6>
                     
                   </div>
@@ -329,19 +281,19 @@
               <div class="row">
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Remuneration Type*</label>  
+                    <label>Remuneration Type</label>  
                     <h6>{{paperInfo?.remunerationTypeData}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Proposed Contract Management Level*</label>
+                    <label>Proposed Contract Management Level</label>
                     <h6>{{paperInfo?.contractMgmtLevel}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Sourcing Rigor*</label>
+                    <label>Sourcing Rigor</label>
                     <h6>{{paperInfo?.sourcingRigor}}</h6>   
                   </div>
                 </div>
@@ -435,14 +387,14 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>SOCAR notification sent on *</label>
+                    <label>SOCAR notification sent on </label>
                     <h6>{{paperInfo?.socaRsentOn | date: 'dd MMMM yyyy'}}</h6>
                     
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>SOCAR Response Received Date *</label>
+                    <label>SOCAR Response Received Date </label>
                     <h6>{{paperInfo?.socaRreceivedOn | date: 'dd MMMM yyyy'}}</h6>
                     
                   </div>

@@ -37,7 +37,11 @@
             </div>
           </div>
         </div>
-        <div class="page-card-body">
+        <div *ngIf="isLoading" class="table-loader">
+          <div class="spinner"></div>
+          <p>Loading data, please wait...</p>
+        </div>
+        <div class="page-card-body" *ngIf="!isLoading">
           <div class="table-responsive">
             <div class="approach-table custom-table pb-5">
               <table class="table">

@@ -151,6 +151,7 @@ export interface Paper {
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[]
   jvApprovals: JvApprovals[]
   costAllocationJVApproval: CostAllocationJVApproval[]
+  paperTimelineDetails:PaperTimelineDetails[]
 }
 
 export interface PaperStatusType {
@@ -159,5 +160,13 @@ export interface PaperStatusType {
   lastModifyDate: string
   paperStatus: string
   statusDesc: string
+
+}
+
+export interface PaperTimelineDetails{
+  id: number,
+  activityName: string,
+  isActivityDone: boolean,
+  activityDate: Date | string,
 
 }

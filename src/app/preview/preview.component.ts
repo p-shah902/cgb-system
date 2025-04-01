@@ -1,14 +1,16 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PaperService} from '../../service/paper.service';
-import {BidInvites, ConsultationsDetails, CostAllocationJVApproval, JvApprovals, Paper, PaperDetails, RiskMitigations, ValueDeliveriesCostsharing} from '../../models/paper';
+import {BidInvites, ConsultationsDetails, CostAllocationJVApproval, JvApprovals, Paper, PaperDetails, PaperTimelineDetails, RiskMitigations, ValueDeliveriesCostsharing} from '../../models/paper';
 import {CommonModule, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../service/toast.service';
 
 @Component({
   selector: 'app-preview',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule],
+  imports: [NgIf, CommonModule, FormsModule,NgbToastModule],
   templateUrl: './preview.component.html',
   styleUrl: './preview.component.scss'
 })
@@ -23,12 +25,13 @@ export class PreviewComponent implements OnInit {
   costAllocationJVApproval:CostAllocationJVApproval[]=[];
   jvApprovals:JvApprovals[]=[];
   consultationsDetails:ConsultationsDetails[]=[];
+  paperTimelineDetails:PaperTimelineDetails[]=[];
   paperInfo:PaperDetails|null=null;
   totalPercentage: number = 0;
   totalValue: number = 0
 
 
-  constructor(private activatedRoutes: ActivatedRoute, private paperService: PaperService) {
+  constructor(private activatedRoutes: ActivatedRoute, private paperService: PaperService,public toastService:ToastService) {
   }
 
   ngOnInit() {
@@ -40,6 +43,7 @@ export class PreviewComponent implements OnInit {
     this.paperService.getPaperDetails(paperId).subscribe(value => {
       this.paperDetails = value.data;
       console.log('Paper Detail', this.paperDetails);
+
       if (this.paperDetails.riskMitigations) {
         this.riskMitigation = this.paperDetails.riskMitigations;
         console.log('Risk Mitigation', this.riskMitigation)
@@ -55,7 +59,7 @@ export class PreviewComponent implements OnInit {
         console.log('Value Delivery', this.valueDeliveriesCostsharing);
       }
 
-      if(this.paperDetails.jvApprovals)
+      if(this.paperDetails.jvApprovals && this.paperDetails.jvApprovals.length>0)
       {
         this.jvApprovals=this.paperDetails.jvApprovals;
         console.log('jvApprovals ',this.jvApprovals);
@@ -79,6 +83,17 @@ export class PreviewComponent implements OnInit {
             this.paperInfo=this.paperDetails.paperDetails;
             console.log('paper Info ',this.paperInfo);
       }
+    })
+
+    this.paperService.getPaperDetailsWithPreview(paperId).subscribe(value => {
+      this.paperDetails = value.data;
+      console.log('Paper Detail', this.paperDetails);
+
+      if (this.paperDetails.paperTimelineDetails) {
+        this.paperTimelineDetails = this.paperDetails.paperTimelineDetails;
+        console.log('paperTimelineDetails', this.paperTimelineDetails)
+      }
+
     })
   }
 
@@ -134,6 +149,19 @@ export class PreviewComponent implements OnInit {
         this.totalValue += column.amount;
       }
     });
+  }
+
+  getStatusClass(index: number): string {
+    const current = this.paperTimelineDetails[index];
+    const previous = index > 0 ? this.paperTimelineDetails[index - 1] : null;
+
+    if (current.isActivityDone) {
+      return 'timeline-box st-aprv position-relative'; // Approved
+    } else if (previous && previous.isActivityDone) {
+      return 'timeline-box st-prog position-relative'; // In progress (prev completed)
+    } else {
+      return 'timeline-box st-pen position-relative'; // Pending
+    }
   }
 
 }

@@ -1,4 +1,18 @@
 <script src="../../../../../../Downloads/ckeditor/src/app/app.component.ts"></script>
+
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
 <div class="filter-head mb-4">
   <div class="row align-items-center">
     <div class="col-md-8">
@@ -153,7 +167,11 @@
   </div>
 
 </div>
-<div class="paper-status-div d-flex gap-3 overflow-auto pb-3">
+<div *ngIf="isLoading" class="table-loader">
+  <div class="spinner"></div>
+  <p>Loading data, please wait...</p>
+</div>
+<div class="paper-status-div d-flex gap-3 overflow-auto pb-3" *ngIf="!isLoading">
   <div class="paper-card" *ngFor="let group of groupedPaper | keyvalue: keepOrder; index as i;trackBy: trackByGroupKey">
     <div class="paper-head d-flex align-items-center justify-content-between">
       <h3 class="w-100">
