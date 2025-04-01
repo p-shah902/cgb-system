@@ -27,4 +27,5 @@ export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausLi
 export const approveRejectPaper = baseUri + '/api/PaperConfiguration/ChangePaperApprovalStatus';
 export const addPaperVisitorLogs = baseUri + '/api/GeneralMethod/VisitorLogs';
 export const getPaperVisitorLogs = baseUri + '/api/GeneralMethod/GetVisitorLogsById';
+export const multipleStatuUpdate = baseUri + '/api/Approval/ChangeMultiplePaperStatuses';
 

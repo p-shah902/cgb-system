@@ -17,8 +17,7 @@ import {Select2} from 'ng-select2-component';
     NgForOf,
     KeyValuePipe,
     FormsModule,
-    NgIf,
-    Select2
+    NgIf
   ],
   templateUrl: './paper-status.component.html',
   styleUrl: './paper-status.component.scss'
@@ -39,6 +38,16 @@ export class PaperStatusComponent implements OnInit {
     'Approved by CGB': [],
     'Approved': [],
   };
+  statusData: { label: string, value: number }[] = [
+    {label: 'Registered', value: 3},
+    {label: 'Waiting for PDM', value: 4},
+    {label: 'Approved by PDM', value: 5},
+    {label: 'On Pre-CGB', value: 6},
+    {label: 'Approved by Pre-CGB', value: 7},
+    {label: 'On CGB', value: 10},
+    {label: 'Approved by CGB', value: 11},
+    {label: 'Approved', value: 19},
+  ];
 
   constructor() {
     this.filter = {
@@ -56,9 +65,7 @@ export class PaperStatusComponent implements OnInit {
   }
 
   getData(key: string) {
-    return Object.keys(this.groupedPaper).filter(f => f !== key).map(d => ({
-      label: d, value: d
-    }));
+    return this.statusData.filter(f => f.label !== key);
   }
 
   trackByGroupKey(index: number, item: { key: string, value: any }): string {
@@ -67,12 +74,21 @@ export class PaperStatusComponent implements OnInit {
 
   updateValue(event: any, groupKey: string) {
     if (event.target.value) {
-      let movingPapers = this.groupedPaper[groupKey].filter(d => d.checked);
+      let movingPapers = [...JSON.parse(JSON.stringify(this.groupedPaper[groupKey].filter(d => d.checked)))];
       this.groupedPaper[groupKey] = this.groupedPaper[groupKey].filter(d => !d.checked);
-      this.groupedPaper[event.target.value].push(...movingPapers.map(d => {
+      const findStatus = this.statusData.find(d => d.value == event.target.value);
+      this.groupedPaper[findStatus!.label].push(...movingPapers.map(d => {
         d.checked = false;
         return d;
       }));
+
+      this.paperService.updateMultiplePaperStatus(movingPapers.map(f => ({
+        paperId: f.paperID,
+        existingStatusId: Number(f.statusId),
+        statusId: Number(event.target.value)
+      }))).subscribe(value => {
+        console.log('DD', value);
+      });
     }
   }
 
