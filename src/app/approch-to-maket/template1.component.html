@@ -1410,10 +1410,10 @@
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Technically Correct</label>
-                      <select class="form-control" formControlName="technicalCorrectId">
+                      <select class="form-control" formControlName="technicalCorrect">
                         <option [value]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
-                          <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
+                          <option *ngIf="user.roleName === 'CAM'" [ngValue]="user.id">
                             {{ user.displayName }}
                           </option>
                         </ng-container>
@@ -1424,7 +1424,7 @@
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Budget Statement</label>
-                      <select class="form-control" formControlName="budgetStatementId">
+                      <select class="form-control" formControlName="budgetStatement">
                         <option [ngValue]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
                           <option *ngIf="user.roleName === 'Financial Tag'" [ngValue]="user.id">
@@ -1438,10 +1438,10 @@
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>JV Review</label>
-                      <select class="form-control" formControlName="jvReviewId">
+                      <select class="form-control" formControlName="jvReview">
                         <option [value]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
-                          <option *ngIf="user.roleName === 'JV Admin'" [value]="user.id">
+                          <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
                             {{ user.displayName }}
                           </option>
                         </ng-container>

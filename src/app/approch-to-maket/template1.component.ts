@@ -222,6 +222,7 @@ export class Template1Component {
     // Initialize with one row to prevent errors
     this.addRow();
     this.addBidRow();
+    this.addConsultationRow();
     // Subscribe to changes in originalCurrency or contractValueUsd
     this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
       this.updateExchangeRate();
@@ -290,9 +291,7 @@ export class Template1Component {
       console.log("==this.paperDetails", value.data)
       const paperDetailData = value.data?.paperDetails || null
       const bidInvitesData = value.data?.bidInvites || []
-      const riskMitigationsData = value.data?.riskMitigations || []
       const valueData = value.data?.valueDeliveriesCostsharing[0] || null
-      const consultationsDetails = value.data?.consultationsDetails || []
       const jvApprovalsData = value.data?.jvApprovals[0] || null
       const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
 
@@ -402,7 +401,6 @@ export class Template1Component {
             sourcingRigor: paperDetailData?.sourcingRigor || '',
             sourcingStrategy: paperDetailData?.sourcingStrategy || '',
             singleSourceJustification: paperDetailData?.singleSourceJustification || '',
-            riskMitigation: riskMitigationsData,
             inviteToBid: bidInvitesData,
             socaRsentOn: paperDetailData?.socaRsentOn
               ? format(new Date(paperDetailData.socaRsentOn), 'yyyy-MM-dd')
@@ -435,9 +433,11 @@ export class Template1Component {
             inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
           },
           costAllocation: patchValues.costAllocation,
-          consultation: consultationsDetails
-
         })
+
+        this.addRow(true);
+        this.addBidRow(true);
+        this.addConsultationRow(true);
       }
     })
   }
@@ -912,14 +912,32 @@ export class Template1Component {
   }
 
   // Add a new risk row
-  addRow() {
-    this.riskMitigation.push(
-      this.fb.group({
-        srNo: this.generateId(this.riskMitigation.length),
-        risks: ['', Validators.required],
-        mitigations: ['', Validators.required]
-      })
-    );
+  addRow(isFirst = false) {
+    if(isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.riskMitigations || []
+      const riskMitigationArray = this.riskMitigation;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item, index) => {
+        riskMitigationArray.push(
+          this.fb.group({
+            srNo: item.srNo || this.generateId(index), // Use API value or generate ID
+            risks: [item.risks || '', Validators.required],
+            mitigations: [item.mitigations || '', Validators.required],
+            id: [item.id]
+          })
+        );
+      });
+    } else {
+      this.riskMitigation.push(
+        this.fb.group({
+          srNo: this.generateId(this.riskMitigation.length),
+          risks: ['', Validators.required],
+          mitigations: ['', Validators.required],
+          id: [0]
+        })
+      );
+    }
   }
 
   // Remove a risk row
@@ -934,18 +952,39 @@ export class Template1Component {
     return (index + 1).toString().padStart(3, '0');
   }
 
-  // Add a new inviteToBid row
-  addBidRow() {
-    this.inviteToBid.push(
-      this.fb.group({
-        legalName: ['', Validators.required],
-        isLocalOrJV: [false], // Checkbox
-        countryId: ['', Validators.required],
-        parentCompanyName: [''],
-        remarks: ['']
-      })
-    );
+
+  addBidRow(isFirst = false) {
+    if(isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.bidInvites || []
+      const riskMitigationArray = this.inviteToBid;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item, index) => {
+        riskMitigationArray.push(
+        this.fb.group({
+          legalName: [item.legalName, Validators.required],
+          isLocalOrJV: [item.isLocalOrJV], // Checkbox
+          countryId: [item.countryId, Validators.required],
+          parentCompanyName: [item.parentCompanyName],
+          remarks: [item.remarks],
+          id: [item.id]
+        })
+        );
+      });
+    } else {
+      this.inviteToBid.push(
+        this.fb.group({
+          legalName: ['', Validators.required],
+          isLocalOrJV: [false], // Checkbox
+          countryId: ['', Validators.required],
+          parentCompanyName: [''],
+          remarks: [''],
+          id: [0]
+        })
+      );
+    }
   }
+
 
   // Remove an inviteToBid row
   removeBidRow(index: number) {
@@ -954,18 +993,38 @@ export class Template1Component {
     }
   }
 
-  // Function to add a new consultation row
-  addConsultationRow() {
-    this.consultationRows.push(
-      this.fb.group({
-        psa: ['', Validators.required],
-        isNoExistingBudget: [false], // Checkbox
-        technicalCorrectId: [null, Validators.required],
-        budgetStatementId: [null, Validators.required],
-        jvReviewId: [null, Validators.required],
-      })
-    );
+  addConsultationRow(isFirst = false) {
+    if(isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+      const riskMitigationArray = this.consultationRows;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item, index) => {
+        riskMitigationArray.push(
+          this.fb.group({
+            psa: [item.psa, Validators.required],
+            isNoExistingBudget: [item.isNoExistingBudget], // Checkbox
+            technicalCorrect: [item.technicalCorrectId, Validators.required],
+            budgetStatement: [item.budgetStatementId, Validators.required],
+            jvReview: [item.jvReviewId, Validators.required],
+            id: [item.id]
+          })
+        );
+      });
+    } else {
+      this.consultationRows.push(
+        this.fb.group({
+          psa: ['', Validators.required],
+          isNoExistingBudget: [false], // Checkbox
+          technicalCorrect: [null, Validators.required],
+          budgetStatement: [null, Validators.required],
+          jvReview: [null, Validators.required],
+          id: [0]
+        })
+      );
+    }
   }
+
 
   // Function to remove a row
   removeConsultationRow(index: number) {
