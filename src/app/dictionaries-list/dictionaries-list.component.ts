@@ -51,6 +51,7 @@ export class DictionariesListComponent implements OnInit {
 
   loadDictionaryDetails(itemName:string){
     this.active=itemName;
+    this.isLoading=true;
     this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
       next:(response)=>{
         if(response.status && response.data)
@@ -61,13 +62,10 @@ export class DictionariesListComponent implements OnInit {
         }
       },error:(error)=>{
         console.log('error',error);
+      },complete:()=>{
+        this.isLoading=false;
       }
     })
-
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 2000);
 
   }
 

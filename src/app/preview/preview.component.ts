@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PaperService} from '../../service/paper.service';
-import {BidInvites, ConsultationsDetails, CostAllocationJVApproval, JvApprovals, Paper, PaperDetails, PaperTimelineDetails, RiskMitigations, ValueDeliveriesCostsharing} from '../../models/paper';
+import {BidInvites, ConsultationsDetails, CostAllocationJVApproval, JvApprovals, Paper, PaperData, PaperDetails, PaperTimelineDetails, RiskMitigations, ValueDeliveriesCostsharing} from '../../models/paper';
 import {CommonModule, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
@@ -17,7 +17,7 @@ import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 })
 export class PreviewComponent implements OnInit {
 
-  paperDetails: Paper | null = null;
+  paperDetails: PaperData | null = null;
   comment: string = '';
   logs: any[] = [];
   riskMitigation: RiskMitigations[] = [];
@@ -41,51 +41,6 @@ export class PreviewComponent implements OnInit {
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe(value => {
-      this.paperDetails = value.data;
-      console.log('Paper Detail', this.paperDetails);
-
-      if (this.paperDetails.riskMitigations) {
-        this.riskMitigation = this.paperDetails.riskMitigations;
-        console.log('Risk Mitigation', this.riskMitigation)
-      }
-
-      if (this.paperDetails.bidInvites) {
-        this.bidInvites = this.paperDetails.bidInvites;
-        console.log('Bid Invites', this.bidInvites);
-      }
-
-      if (this.paperDetails.valueDeliveriesCostsharing) {
-        this.valueDeliveriesCostsharing = this.paperDetails.valueDeliveriesCostsharing;
-        console.log('Value Delivery', this.valueDeliveriesCostsharing);
-      }
-
-      if(this.paperDetails.jvApprovals && this.paperDetails.jvApprovals.length>0)
-      {
-        this.jvApprovals=this.paperDetails.jvApprovals;
-        console.log('jvApprovals ',this.jvApprovals);
-      }
-
-      if(this.paperDetails.costAllocationJVApproval)
-      {
-        this.costAllocationJVApproval=this.paperDetails.costAllocationJVApproval;
-        console.log('costAllocationJVApproval ',this.costAllocationJVApproval);
-        this.populateTableData();
-        this.calculateTotals();
-      }
-      if(this.paperDetails.consultationsDetails)
-      {
-          this.consultationsDetails=this.paperDetails.consultationsDetails;
-          console.log('consultationsDetails ',this.consultationsDetails);
-      }
-
-      if(this.paperDetails.paperDetails)
-      {
-            this.paperInfo=this.paperDetails.paperDetails;
-            console.log('paper Info ',this.paperInfo);
-      }
-    })
-
     this.paperService.getPaperDetailsWithPreview(paperId).subscribe(value => {
       this.paperDetails = value.data;
       console.log('Paper Detail', this.paperDetails);
@@ -95,6 +50,45 @@ export class PreviewComponent implements OnInit {
         console.log('paperTimelineDetails', this.paperTimelineDetails)
       }
 
+      if (this.paperDetails.paperDetails.riskMitigations) {
+        this.riskMitigation = this.paperDetails.paperDetails.riskMitigations;
+        console.log('Risk Mitigation', this.riskMitigation)
+      }
+
+      if (this.paperDetails.paperDetails.bidInvites) {
+        this.bidInvites = this.paperDetails.paperDetails.bidInvites;
+        console.log('Bid Invites', this.bidInvites);
+      }
+
+      if (this.paperDetails.paperDetails.valueDeliveriesCostsharing) {
+        this.valueDeliveriesCostsharing = this.paperDetails.paperDetails.valueDeliveriesCostsharing;
+        console.log('Value Delivery', this.valueDeliveriesCostsharing);
+      }
+
+      if(this.paperDetails.paperDetails.jvApprovals )
+      {
+        this.jvApprovals=this.paperDetails.paperDetails.jvApprovals;
+        console.log('jvApprovals ',this.jvApprovals);
+      }
+
+      if(this.paperDetails.paperDetails.costAllocationJVApproval)
+      {
+        this.costAllocationJVApproval=this.paperDetails.paperDetails.costAllocationJVApproval;
+        console.log('costAllocationJVApproval ',this.costAllocationJVApproval);
+        this.populateTableData();
+        this.calculateTotals();
+      }
+      if(this.paperDetails.paperDetails.consultationsDetails)
+      {
+          this.consultationsDetails=this.paperDetails.paperDetails.consultationsDetails;
+          console.log('consultationsDetails ',this.consultationsDetails);
+      }
+
+      if(this.paperDetails.paperDetails.paperDetails)
+      {
+            this.paperInfo=this.paperDetails.paperDetails.paperDetails;
+            console.log('paper Info ',this.paperInfo);
+      }
     })
   }
 
