@@ -12,7 +12,7 @@
 </div>
 <div class="container-fluid">
   <div class="row">
-    <div [ngClass]="isExpanded ? 'col-md-8' : 'col-md-12'">
+    <div [ngClass]="isExpanded ? 'col-xl-8' : 'col-xl-12'">
       <div class="form-main-div">
         <div class="form-header mb-4">
           <div class="row align-items-center">
@@ -105,11 +105,11 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Why is this work required?* </label>
-                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              formControlName="purposeRequired" [config]="config">
-                    </ckeditor>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
+<!--                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"-->
+<!--                              formControlName="whyIsThisWorkRequired" [config]="config">-->
+<!--                    </ckeditor>-->
+                    <app-editor/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('whyIsThisWorkRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
 
@@ -1562,7 +1562,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-xl-4">
       <div class="form-main-div" *ngIf="isExpanded">
         <div class="form-header mb-4">
           <div class="row align-items-center">
