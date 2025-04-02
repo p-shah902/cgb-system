@@ -7,7 +7,7 @@ import {
   getPaperPreviewById,
   getPaperStatus,
   getPaperVisitorLogs,
-  UpsertApproachToMarkets
+  UpsertApproachToMarkets, upsertContractAward
 } from '../utils/api/api';
 import {ApiResponse} from '../models/role';
 import {Paper, PaperStatusType} from '../models/paper';
@@ -19,6 +19,9 @@ export class PaperService {
 
   private isUpsertApproachToMarketsSubject = new BehaviorSubject<boolean>(false);
   public isUpsertApproachToMarkets$ = this.isUpsertApproachToMarketsSubject.asObservable();
+
+  private isUpsertContractAwardSubject = new BehaviorSubject<boolean>(false);
+  public isUpsertContractAward$ = this.isUpsertContractAwardSubject.asObservable();
 
   private paperStatusListSubject = new BehaviorSubject<any[]>([]);
   paperStatusList$ = this.paperStatusListSubject.asObservable();
@@ -34,6 +37,22 @@ export class PaperService {
         if (response && response.success) {
 
           this.isUpsertApproachToMarketsSubject.next(true);
+        }
+      }),
+      catchError(error => {
+        console.error(error);
+        return of({success: false, message: error.error?.message || 'Error Accured'});
+      })
+    );
+  }
+
+  upsertContractAward(upsertPayload: any) {
+    return this.http.post<any>(upsertContractAward, upsertPayload).pipe(
+      tap(response => {
+        console.log(response);
+        if (response && response.success) {
+
+          this.isUpsertContractAwardSubject.next(true);
         }
       }),
       catchError(error => {
