@@ -5,7 +5,15 @@ import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/
 import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
-import {FormBuilder, FormArray, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors} from '@angular/forms';
+import {
+  FormBuilder,
+  FormArray,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import {CURRENCY_LIST} from '../../utils/constant';
 import {UserService} from '../../service/user.service';
 import {UserDetails} from '../../models/user';
@@ -15,17 +23,18 @@ import {Generalervice} from '../../service/general.service';
 import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
 import {ToastService} from '../../service/toast.service';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {DictionaryService} from '../../service/dictionary.service';
 import {DictionaryDetail, Item} from '../../models/dictionary';
-import { Router, ActivatedRoute } from '@angular/router';
-import {PaperStatusType} from '../../models/paper';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Paper, PaperStatusType} from '../../models/paper';
 import {environment} from '../../environments/environment';
+import {format} from 'date-fns';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2,NgbToastModule],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -37,20 +46,22 @@ export class Template1Component {
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
-  paperStatusId: number | null  = null;
+  paperStatusId: number | null = null;
   paperId: string | null = null;
+  isCopy = false;
   paperStatusList: PaperStatusType[] = [];
+  paperDetails: Paper | null = null
 
   // Global variables for dropdown selections
-  currenciesData:DictionaryDetail[]=[];
-  globalCGBData:DictionaryDetail[]=[];
-  operatingFunctionsData:DictionaryDetail[]=[];
-  proposedCMLData:DictionaryDetail[]=[];
-  psaData:DictionaryDetail[]=[];
-  remunerationTypeData:DictionaryDetail[]=[];
-  sourcingRigorData:DictionaryDetail[]=[];
-  sourcingTypeData:DictionaryDetail[]=[];
-  subsectorData:DictionaryDetail[]=[];
+  currenciesData: DictionaryDetail[] = [];
+  globalCGBData: DictionaryDetail[] = [];
+  operatingFunctionsData: DictionaryDetail[] = [];
+  proposedCMLData: DictionaryDetail[] = [];
+  psaData: DictionaryDetail[] = [];
+  remunerationTypeData: DictionaryDetail[] = [];
+  sourcingRigorData: DictionaryDetail[] = [];
+  sourcingTypeData: DictionaryDetail[] = [];
+  subsectorData: DictionaryDetail[] = [];
 
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
@@ -60,8 +71,8 @@ export class Template1Component {
   selectedFiles: any[] = [];
   isDragging = false;
 
-  constructor(private router: Router, private route: ActivatedRoute,     private dictionaryService:DictionaryService,
-                    private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService,       public toastService:ToastService,
+  constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
   }
 
@@ -85,12 +96,20 @@ export class Template1Component {
 
     this.route.paramMap.subscribe(params => {
       this.paperId = params.get('id');
+      if (this.paperId) {
+        this.fetchPaperDetails(Number(this.paperId))
+      }
       console.log('Paper ID:', this.paperId);
+    });
+
+    this.route.queryParamMap.subscribe(queryParams => {
+      this.isCopy = queryParams.get('isCopy') === 'true';
+      console.log('Is Copy:', this.isCopy);
     });
     this.loadUserDetails();
     this.loadCountry();
     this.loadDictionaryItems();
-    this.loadPaperListData();
+    this.loadPaperStatusListData();
 
 
     this.generalInfoForm = this.fb.group({
@@ -98,14 +117,14 @@ export class Template1Component {
         paperProvision: ['', Validators.required],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: '', disabled: true}],
-        whyIsThisWorkRequired: ['', Validators.required],
+        purposeRequired: ['', Validators.required],
         scopeOfWork: [''],
         globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        camUserId:[null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
@@ -133,7 +152,7 @@ export class Template1Component {
         sourcingRigor: ['', Validators.required],
         sourcingStrategy: [''],
         singleSourceJustification: [''],
-        risks: this.fb.array([]),
+        riskMitigation: this.fb.array([]),
         inviteToBid: this.fb.array([]),
         socaRsentOn: ['', Validators.required],
         socaRreceivedOn: ['', Validators.required],
@@ -150,7 +169,7 @@ export class Template1Component {
         costAvoidanceValue: [0],
         costAvoidancePercent: [0],
         costAvoidanceRemarks: [''],
-      }, { validators: this.requireAllIfAny }),
+      }, {validators: this.requireAllIfAny}),
       costAllocation: this.fb.group({
         contractCommittee_SDCC: [{value: false, disabled: true}],
         contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
@@ -203,6 +222,7 @@ export class Template1Component {
     // Initialize with one row to prevent errors
     this.addRow();
     this.addBidRow();
+    this.addConsultationRow();
     // Subscribe to changes in originalCurrency or contractValueUsd
     this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
       this.updateExchangeRate();
@@ -247,26 +267,180 @@ export class Template1Component {
     });
   }
 
-  loadDictionaryItems(){
+  loadDictionaryItems() {
 
     this.dictionaryService.getDictionaryItemList().subscribe({
-      next:(response)=>{
-        if(response.status && response.data)
-        {
+      next: (response) => {
+        if (response.status && response.data) {
           const itemData = response.data;
-          if(itemData.length>0)
-          {
+          if (itemData.length > 0) {
             itemData.forEach((item) => {
               this.loadDictionaryDetails(item.itemName);
             });
           }
         }
-      },error:(error)=>{
-        console.log('error',error);
+      }, error: (error) => {
+        console.log('error', error);
       }
     })
   }
 
+  fetchPaperDetails(paperId: number) {
+    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+      this.paperDetails = value.data;
+      console.log("==this.paperDetails", value.data)
+      const paperDetailData = value.data?.paperDetails || null
+      const bidInvitesData = value.data?.bidInvites || []
+      const valueData = value.data?.valueDeliveriesCostsharing[0] || null
+      const jvApprovalsData = value.data?.jvApprovals[0] || null
+      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
+
+      const patchValues: any = {costAllocation: {}};
+
+// Assign JV Approvals data
+      Object.assign(patchValues.costAllocation, {
+        contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
+        contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+        contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
+        contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_CGB: false, // TODO: Confirm this value
+        coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
+        coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
+        coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
+        coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
+        steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
+      });
+
+// PSA/JV mappings
+      const psaNameToCheckbox: Record<string, string> = {
+        "ACG": "isACG",
+        "Shah Deniz": "isShah",
+        "SCP": "isSCP",
+        "BTC": "isBTC",
+        "Asiman": "isAsiman",
+        "BP Group": "isBPGroup"
+      };
+
+      // Assign PSA/JV values dynamically
+      costAllocationJVApprovalData.forEach(psa => {
+        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+        if (checkboxKey) {
+          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
+          patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+        }
+      });
+
+// Assign default values for all PSA/JV fields if not in API data
+      Object.keys(psaNameToCheckbox).forEach(key => {
+        const checkboxKey = psaNameToCheckbox[key];
+        if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
+          patchValues.costAllocation[checkboxKey] = false;
+          patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
+          patchValues.costAllocation[`value_${checkboxKey}`] = '';
+        }
+      });
+
+
+      const selectedValues = paperDetailData.psajv
+        .split(',')
+        .map(label => label.trim())
+        .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
+        .filter(value => value); // Remo
+
+
+      const selectedValuesProcurementTagUsers = paperDetailData.procurementSPAUsers
+        .split(',')
+        .map(id => id.trim())
+        .map(id => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
+        .filter(value => value); // Remo
+
+      if (value.data) {
+        this.generalInfoForm.patchValue({
+          generalInfo: {
+            paperProvision: paperDetailData?.paperProvision || '',
+            cgbItemRefNo: paperDetailData?.cgbItemRefNo || '',
+            cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
+            purposeRequired: paperDetailData?.purposeRequired || '',
+            scopeOfWork: paperDetailData?.scopeOfWork || '',
+            globalCGB: paperDetailData?.globalCGB || '',
+            bltMember: paperDetailData?.bltMemberId || null,
+            operatingFunction: paperDetailData?.operatingFunction || '',
+            subSector: paperDetailData?.subSector || '',
+            sourcingType: paperDetailData?.sourcingType || '',
+            camUserId: paperDetailData?.camUserId || null,
+            vP1UserId: paperDetailData?.vP1UserId || null,
+            procurementSPAUsers: selectedValuesProcurementTagUsers,
+            pdManagerName: paperDetailData?.pdManagerNameId || null,
+            contractValueUsd: paperDetailData?.totalAwardValueUSD || null,
+            originalCurrency: paperDetailData?.currencyCode || '',
+            exchangeRate: paperDetailData?.exchangeRate || 0,
+            contractValueOriginalCurrency: paperDetailData?.contractValue || 0,
+            contractStartDate: paperDetailData?.contractStartDate
+              ? format(new Date(paperDetailData.contractStartDate), 'yyyy-MM-dd')
+              : '',
+            contractEndDate: paperDetailData?.contractEndDate
+              ? format(new Date(paperDetailData.contractEndDate), 'yyyy-MM-dd')
+              : '',
+            isIFRS16: paperDetailData?.isIFRS16 || false,
+            isGIAAPCheck: paperDetailData?.isGIAAPCheck || false,
+            isPHCA: paperDetailData?.isPHCA || false,
+            psajv: selectedValues,
+            isLTCC: paperDetailData?.isLTCC || false,
+            ltccNotes: paperDetailData?.ltccNotes || '',
+            isGovtReprAligned: paperDetailData?.isGovtReprAligned || false,
+            govtReprAlignedComment: paperDetailData?.govtReprAlignedComment || '',
+            isConflictOfInterest: paperDetailData?.isConflictOfInterest || false,
+            conflictOfInterestComment: paperDetailData?.conflictOfInterestComment || '',
+            strategyDescription: paperDetailData?.strategyDescription || '',
+          },
+          procurementDetails: {
+            remunerationType: paperDetailData?.remunerationType || '',
+            contractMgmtLevel: paperDetailData?.contractMgmtLevel || '',
+            sourcingRigor: paperDetailData?.sourcingRigor || '',
+            sourcingStrategy: paperDetailData?.sourcingStrategy || '',
+            singleSourceJustification: paperDetailData?.singleSourceJustification || '',
+            inviteToBid: bidInvitesData,
+            socaRsentOn: paperDetailData?.socaRsentOn
+              ? format(new Date(paperDetailData.socaRsentOn), 'yyyy-MM-dd')
+              : '',
+            socaRreceivedOn: paperDetailData?.socaRreceivedOn
+              ? format(new Date(paperDetailData.socaRreceivedOn), 'yyyy-MM-dd')
+              : '',
+            socarDescription: paperDetailData?.socarDescription || '',
+            preQualificationResult: paperDetailData?.preQualificationResult || ''
+          },
+          valueDelivery: {
+            costReductionPercent: valueData?.costReductionPercent || 0,
+            costReductionValue: valueData?.costReductionValue || 0,
+            costReductionRemarks: valueData?.costReductionRemarks || '',
+            operatingEfficiencyValue: valueData?.operatingEfficiencyValue || 0,
+            operatingEfficiencyPercent: valueData?.operatingEfficiencyPercent || 0,
+            operatingEfficiencyRemarks: valueData?.operatingEfficiencyRemarks || '',
+            costAvoidanceValue: valueData?.costAvoidanceValue || 0,
+            costAvoidancePercent: valueData?.costAvoidancePercent || 0,
+            costAvoidanceRemarks: valueData?.costAvoidanceRemarks || '',
+          },
+          costSharing: {
+            isCapex: valueData?.isCapex || false,
+            isFixOpex: valueData?.isFixOpex || false,
+            isVariableOpex: valueData?.isVariableOpex || false,
+            isInventoryItems: valueData?.isInventoryItems || false,
+            capexMethodology: valueData?.capexMethodology || '',
+            fixOpexMethodology: valueData?.fixOpexMethodology || '',
+            variableOpexMethodology: valueData?.variableOpexMethodology || '',
+            inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
+          },
+          costAllocation: patchValues.costAllocation,
+        })
+
+        this.addRow(true);
+        this.addBidRow(true);
+        this.addConsultationRow(true);
+      }
+    })
+  }
 
   loadDictionaryDetails(itemName: string) {
     this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
@@ -329,7 +503,7 @@ export class Template1Component {
       const hasValue = values.some(val => val);  // If at least one field has a value
       const allFilled = values.every(val => val); // If all fields are filled
 
-      return hasValue && !allFilled ? { requireAllFields: true } : null;
+      return hasValue && !allFilled ? {requireAllFields: true} : null;
     };
 
     // Apply validation for each group separately
@@ -409,7 +583,7 @@ export class Template1Component {
         this.renderer.addClass(matchingLabel, this.highlightClass);
 
         // Scroll into view
-        matchingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        matchingLabel.scrollIntoView({behavior: 'smooth', block: 'center'});
       }
     }, 500); // Adjust delay as needed
   }
@@ -421,7 +595,6 @@ export class Template1Component {
         if (reponse.status && reponse.data) {
 
           this.countryDetails = reponse.data || [];
-          console.log('country:', this.countryDetails);
         }
       },
       error: (error) => {
@@ -430,13 +603,12 @@ export class Template1Component {
     });
   }
 
-  loadPaperListData() {
+  loadPaperStatusListData() {
     this.paperService.getPaperStatusList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
 
           this.paperStatusList = reponse.data || [];
-          console.log('==paperStatusList:', this.paperStatusList);
         }
       },
       error: (error) => {
@@ -618,9 +790,11 @@ export class Template1Component {
       next: (response) => {
         if (response.status && response.data) {
           this.userDetails = response.data;
-          this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({label: t.displayName, value: t.id}));
+          this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({
+            label: t.displayName,
+            value: t.id
+          }));
 
-          console.log('user details', this.userDetails);
         }
       }, error: (error) => {
         console.log('error', error);
@@ -722,8 +896,8 @@ export class Template1Component {
     this.isExpanded = !this.isExpanded;
   }
 
-  get risks(): FormArray {
-    return this.generalInfoForm.get('procurementDetails.risks') as FormArray;
+  get riskMitigation(): FormArray {
+    return this.generalInfoForm.get('procurementDetails.riskMitigation') as FormArray;
   }
 
   // Getter for inviteToBid FormArray
@@ -738,20 +912,38 @@ export class Template1Component {
   }
 
   // Add a new risk row
-  addRow() {
-    this.risks.push(
-      this.fb.group({
-        srNo: this.generateId(this.risks.length),
-        risk: ['', Validators.required],
-        mitigation: ['', Validators.required]
-      })
-    );
+  addRow(isFirst = false) {
+    if(isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.riskMitigations || []
+      const riskMitigationArray = this.riskMitigation;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item, index) => {
+        riskMitigationArray.push(
+          this.fb.group({
+            srNo: item.srNo || this.generateId(index), // Use API value or generate ID
+            risks: [item.risks || '', Validators.required],
+            mitigations: [item.mitigations || '', Validators.required],
+            id: [item.id]
+          })
+        );
+      });
+    } else {
+      this.riskMitigation.push(
+        this.fb.group({
+          srNo: this.generateId(this.riskMitigation.length),
+          risks: ['', Validators.required],
+          mitigations: ['', Validators.required],
+          id: [0]
+        })
+      );
+    }
   }
 
   // Remove a risk row
   removeRow(index: number) {
-    if (this.risks.length > 1) {
-      this.risks.removeAt(index);
+    if (this.riskMitigation.length > 1) {
+      this.riskMitigation.removeAt(index);
     }
   }
 
@@ -760,18 +952,39 @@ export class Template1Component {
     return (index + 1).toString().padStart(3, '0');
   }
 
-  // Add a new inviteToBid row
-  addBidRow() {
-    this.inviteToBid.push(
-      this.fb.group({
-        legalName: ['', Validators.required],
-        isLocalOrJV: [false], // Checkbox
-        countryId: ['', Validators.required],
-        parentCompanyName: [''],
-        remarks: ['']
-      })
-    );
+
+  addBidRow(isFirst = false) {
+    if(isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.bidInvites || []
+      const riskMitigationArray = this.inviteToBid;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item, index) => {
+        riskMitigationArray.push(
+        this.fb.group({
+          legalName: [item.legalName, Validators.required],
+          isLocalOrJV: [item.isLocalOrJV], // Checkbox
+          countryId: [item.countryId, Validators.required],
+          parentCompanyName: [item.parentCompanyName],
+          remarks: [item.remarks],
+          id: [item.id]
+        })
+        );
+      });
+    } else {
+      this.inviteToBid.push(
+        this.fb.group({
+          legalName: ['', Validators.required],
+          isLocalOrJV: [false], // Checkbox
+          countryId: ['', Validators.required],
+          parentCompanyName: [''],
+          remarks: [''],
+          id: [0]
+        })
+      );
+    }
   }
+
 
   // Remove an inviteToBid row
   removeBidRow(index: number) {
@@ -780,18 +993,38 @@ export class Template1Component {
     }
   }
 
-  // Function to add a new consultation row
-  addConsultationRow() {
-    this.consultationRows.push(
-      this.fb.group({
-        psa: ['', Validators.required],
-        isNoExistingBudget: [false], // Checkbox
-        technicalCorrect: [null],
-        budgetStatement: [null, Validators.required],
-        jvReview: [null, Validators.required],
-      })
-    );
+  addConsultationRow(isFirst = false) {
+    if(isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+      const riskMitigationArray = this.consultationRows;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item, index) => {
+        riskMitigationArray.push(
+          this.fb.group({
+            psa: [item.psa, Validators.required],
+            isNoExistingBudget: [item.isNoExistingBudget], // Checkbox
+            technicalCorrect: [item.technicalCorrectId, Validators.required],
+            budgetStatement: [item.budgetStatementId, Validators.required],
+            jvReview: [item.jvReviewId, Validators.required],
+            id: [item.id]
+          })
+        );
+      });
+    } else {
+      this.consultationRows.push(
+        this.fb.group({
+          psa: ['', Validators.required],
+          isNoExistingBudget: [false], // Checkbox
+          technicalCorrect: [null, Validators.required],
+          budgetStatement: [null, Validators.required],
+          jvReview: [null, Validators.required],
+          id: [0]
+        })
+      );
+    }
   }
+
 
   // Function to remove a row
   removeConsultationRow(index: number) {
@@ -815,14 +1048,13 @@ export class Template1Component {
 
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
 
-    console.log('Paper Status Updated:', this.paperStatusId);
   }
 
 
   onSubmit(): void {
     this.submitted = true;
-
-    if(!this.paperStatusId) {
+    console.log("==this.generalInfoForm?.value?", this.generalInfoForm?.value)
+    if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
@@ -866,8 +1098,9 @@ export class Template1Component {
       papers: {
         paperStatusId: this.paperStatusId,
         paperProvision: generalInfoValue?.paperProvision,
-        purposeRequired: "test",
-        isActive: true
+        purposeRequired: generalInfoValue?.purposeRequired,
+        isActive: true,
+        ...(this.paperId && !this.isCopy ? {id: Number(this.paperId)} : {})
       },
       approachMarket: {
         cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
@@ -878,10 +1111,10 @@ export class Template1Component {
         operatingFunction: generalInfoValue?.operatingFunction,
         subSector: generalInfoValue?.subSector,
         sourcingType: generalInfoValue?.sourcingType,
-        camUserId: generalInfoValue?.camUserId || 1,
+        camUserId: generalInfoValue?.camUserId || "",
         vP1UserId: generalInfoValue?.vP1UserId || "",
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "1,2",
-        pdManagerName: generalInfoValue?.pdManagerName || 1,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        pdManagerName: generalInfoValue?.pdManagerName || "",
         isPHCA: generalInfoValue?.isPHCA,
         psajv: generalInfoValue?.psajv?.join(',') || "",
         totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
@@ -911,7 +1144,7 @@ export class Template1Component {
       },
       consultations: consultationsValue,
       bidInvite: procurementValue.inviteToBid,
-      riskMitigation: procurementValue.risks,
+      riskMitigation: procurementValue.riskMitigation,
       valueDeliveriesCostSharings: {
         costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
         costReductionValue: valueDeliveryValues?.costReductionValue || 0,
@@ -955,17 +1188,17 @@ export class Template1Component {
             this.uploadFiles(docId)
             this.generalInfoForm.reset();
             this.submitted = false;
-            this.toastService.show(response.message || "Added Successfully",'success');
+            this.toastService.show(response.message || "Added Successfully", 'success');
             setTimeout(() => {
               this.router.navigate(['/paperconfiguration']);
             }, 2000);
           } else {
-            this.toastService.show(response.message || "Something went wrong.",'danger');
+            this.toastService.show(response.message || "Something went wrong.", 'danger');
           }
         },
         error: (error) => {
           console.log('Error', error);
-          this.toastService.show("Something went wrong.",'danger');
+          this.toastService.show("Something went wrong.", 'danger');
         },
       });
     } else {

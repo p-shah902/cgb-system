@@ -154,6 +154,16 @@ export interface Paper {
   paperTimelineDetails:PaperTimelineDetails[]
 }
 
+export interface PaperDetailsType {
+  paperDetails: PaperDetails,
+  consultationsDetails: ConsultationsDetails[],
+  bidInvites: BidInvites[]
+  riskMitigations: RiskMitigations[],
+  valueDeliveriesCostsharing: ValueDeliveriesCostsharing
+  jvApprovals: JvApprovals[]
+  costAllocationJVApproval: CostAllocationJVApproval[]
+}
+
 export interface PaperStatusType {
   id: number
   isActive: boolean
