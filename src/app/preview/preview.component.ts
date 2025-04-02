@@ -6,11 +6,12 @@ import {CommonModule, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../service/toast.service';
+import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-preview',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule,NgbToastModule],
+  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe],
   templateUrl: './preview.component.html',
   styleUrl: './preview.component.scss'
 })

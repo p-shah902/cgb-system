@@ -1,5 +1,5 @@
-import { Routes } from '@angular/router';
-import { AuthGuard } from '../guards/auth.guard';
+import {Routes} from '@angular/router';
+import {AuthGuard} from '../guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -94,7 +94,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   {
     path: 'login',

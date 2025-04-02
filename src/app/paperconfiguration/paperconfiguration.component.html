@@ -118,12 +118,18 @@
               </div>
               <div class="bill-action mt-3 flex-column">
                 <div class="d-flex align-items-center justify-content-between gap-3"
-                     *ngIf="user?.roleName === 'PDM' || (user?.roleName === 'CGB Chair' || user?.roleName === 'CPO' || user?.roleName === 'JV Admin' || user?.roleName === 'Legal VP-1'|| user?.roleName === 'Performance Manager')">
+                     *ngIf="user?.roleName === 'PDM' && paper.statusName === 'Waiting for PDM'">
                   <button class="btn normal-btn" (click)="open($event, content3, paper.paperID)">
                     Return to Originator
                   </button>
                   <button class="btn update-btn" (click)="open($event, content2, paper.paperID)">
                     Approve
+                  </button>
+                </div>
+                <div class="d-flex align-items-center justify-content-between gap-3"
+                     *ngIf="(user?.roleName === 'CGB Chair' || user?.roleName === 'CPO' || user?.roleName === 'JV Admin' || user?.roleName === 'Legal VP-1'|| user?.roleName === 'Performance Manager') && paper.statusName === 'On Pre-CGB'">
+                  <button class="btn update-btn" (click)="open($event, content4, paper.paperID)">
+                    Add Review
                   </button>
                 </div>
                 <div class="d-flex align-items-center gap-3 justify-content-start">
@@ -180,12 +186,10 @@
       <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
     </div>
     <div class="modal-body">
-      <form>
-        <div class="form-group mb-3">
-          <label>Write Comment (If Required)</label>
-          <textarea class="form-control" placeholder="Write here" [value]="approvalRemark"></textarea>
-        </div>
-      </form>
+      <div class="form-group mb-3">
+        <label>Write Comment (If Required)</label>
+        <textarea class="form-control" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="approvePaper(modal, 'Approval')">Save</button>
@@ -198,19 +202,33 @@
       <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
     </div>
     <div class="modal-body">
-      <form>
-        <div class="form-group mb-3">
-          <label>Review By</label>
-          <input class="form-control" type="text" placeholder="Write here" [value]="reviewBy"/>
-        </div>
-        <div class="form-group mb-3">
-          <label>Write Comment</label>
-          <textarea class="form-control" placeholder="Write here" [value]="approvalRemark"></textarea>
-        </div>
-      </form>
+      <div class="form-group mb-3">
+        <label>Review By</label>
+        <input class="form-control" type="text" placeholder="Write here" [(ngModel)]="reviewBy"/>
+      </div>
+      <div class="form-group mb-3">
+        <label>Write Comment</label>
+        <textarea class="form-control" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+      </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" (click)="approvePaper(modal, 'Return to Originator')">Save</button>
+    </div>
+  </ng-template>
+
+  <ng-template #content4 let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">Remark</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group mb-3">
+        <label>Write Comment</label>
+        <textarea class="form-control" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="addReview(modal)">Add comment</button>
     </div>
   </ng-template>
 

@@ -9,17 +9,20 @@ import {Router} from '@angular/router';
 import {LoginUser} from '../../models/user';
 import {AuthService} from '../../service/auth.service';
 import { ToastService } from '../../service/toast.service';
+import {PaperService} from '../../service/paper.service';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-paperconfiguration',
   standalone: true,
-  imports: [CommonModule, Select2,NgbToastModule],
+  imports: [CommonModule, Select2, NgbToastModule, FormsModule],
   templateUrl: './paperconfiguration.component.html',
   styleUrl: './paperconfiguration.component.scss'
 })
 export class PaperconfigurationComponent implements OnInit {
 
-  private paperService = inject(PaperConfigService);
+  private paperConfigService = inject(PaperConfigService);
+  private paperService = inject(PaperService);
   public router = inject(Router);
   filter: PaperFilter;
   paperList: PaperConfig[] = [];
@@ -30,7 +33,7 @@ export class PaperconfigurationComponent implements OnInit {
   reviewBy: string = '';
   selectedPaper: number = 0;
   isLoading:boolean=false
- 
+
 
   constructor(private authService: AuthService,public toastService:ToastService) {
     this.filter = {
@@ -47,7 +50,7 @@ export class PaperconfigurationComponent implements OnInit {
   }
 
   loadPaperConfigList() {
-    this.paperService.getPaperConfigList(this.filter).subscribe({
+    this.paperConfigService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data;
@@ -116,22 +119,6 @@ export class PaperconfigurationComponent implements OnInit {
     }
   ];
 
-  // open(event: any, content: TemplateRef<any>, paperId?: number) {
-  //   event.preventDefault();
-  //   this._mdlSvc.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then(
-  //     (result) => {
-
-  //     },
-  //     (reason) => {
-
-  //     },
-  //   );
-
-  //   if (paperId) {
-  //     this.selectedPaper = paperId;
-  //   }
-  // }
-
   open(event: Event, content: TemplateRef<any>, paperId?: number) {
     event.preventDefault();
     this._mdlSvc.open(content, {
@@ -146,12 +133,11 @@ export class PaperconfigurationComponent implements OnInit {
         // Handle modal dismiss
       }
     );
-  
+
     if (paperId) {
       this.selectedPaper = paperId;
     }
   }
-  
 
   openPage(value: any, modal: any) {
     this.router.navigate([value.value]);
@@ -160,7 +146,7 @@ export class PaperconfigurationComponent implements OnInit {
 
   approvePaper(modal: any, type: string) {
     if (this.selectedPaper > 0) {
-      this.paperService.approveRejectPaper({
+      this.paperConfigService.approveRejectPaper({
         paperId: this.selectedPaper,
         remarks: this.reviewBy || '',
         description: this.approvalRemark,
@@ -169,15 +155,34 @@ export class PaperconfigurationComponent implements OnInit {
       }).subscribe({
         next: (response) => {
           if (response.status && response.data) {
-            this.paperList = response.data;
-            console.log('paper List', this.paperList);
+            modal.close('Save click');
+            this.loadPaperConfigList();
           }
         }, error: (error) => {
           console.log('error', error);
         }
       });
     }
-    modal.close('Save click')
   }
 
+  addReview(modal: any) {
+    if (this.selectedPaper > 0) {
+      this.paperService.addPaperCommentLogs({
+        paperId: this.selectedPaper,
+        logType: "Other",
+        remarks: this.approvalRemark,
+        description: this.approvalRemark,
+        columnName: "",
+        isActive: true
+      }).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            modal.close('Save click');
+          }
+        }, error: (error) => {
+          console.log('error', error);
+        }
+      });
+    }
+  }
 }

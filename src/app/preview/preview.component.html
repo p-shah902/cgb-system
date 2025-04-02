@@ -16,8 +16,8 @@
 <div class="container-fluid" *ngIf="paperDetails">
 
   <div class="timeline-main-div mb-5">
-   
-    <div *ngFor="let activity of paperTimelineDetails; let i = index" 
+
+    <div *ngFor="let activity of paperTimelineDetails; let i = index"
     [class]="getStatusClass(i)">
       <div class="tb-head d-flex gap-2">
         <div>
@@ -48,7 +48,7 @@
             <div class="fb-title-div mb-3">
               <h4>1. General Information</h4>
             </div>
-            
+
             <div class="fb-form">
               <div class="row">
                 <div class="col-md-12">
@@ -73,12 +73,12 @@
                 </div>
 
                 <div class="col-md-12">
-      
+
                   <div class="col-md-12">
                     <div class="form-group mb-3">
                       <label>Scope of Work </label>
                       <h6>{{paperInfo?.scopeOfWork}}</h6>
-                      
+
                     </div>
                   </div>
 
@@ -106,20 +106,20 @@
                   <div class="form-group mb-3">
                     <label>Subsector</label>
                     <h6>{{paperInfo?.subSector}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Sourcing Type</label>
                     <h6>{{paperInfo?.sourcingType}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager</label>
-                    <h6>{{paperInfo?.camUserName}}</h6>                    
+                    <h6>{{paperInfo?.camUserName}}</h6>
                   </div>
                 </div>
 
@@ -133,14 +133,14 @@
                   <div class="form-group mb-3">
                     <label>Procurement SPA</label>
                     <h6>{{paperInfo?.procurementSPAUsers}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>PDM</label>
                     <h6>{{paperInfo?.pdManagerName}}</h6>
-                    
+
                   </div>
                 </div>
 
@@ -148,28 +148,28 @@
                   <div class="form-group mb-3">
                     <label>Total Award Value (USD)</label>
                     <h6>{{paperInfo?.totalAwardValueUSD}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Original Currency</label>
                     <!-- <h6>{{paperInfo?.currencyCode}}</h6> -->
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
                     <h6>{{paperInfo?.exchangeRate}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value (Original Currency)</label>
                     <h6>{{paperInfo?.contractValue}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
@@ -179,14 +179,14 @@
                       <div class="form-group mb-3">
                         <label>Start Date</label>
                         <h6>{{paperInfo?.contractStartDate| date: 'dd MMMM yyyy'}}</h6>
-                        
+
                       </div>
                     </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <label >End Date</label>
                         <h6>{{paperInfo?.contractEndDate| date: 'dd MMMM yyyy'}}</h6>
-                        
+
                       </div>
                     </div>
                   </div>
@@ -202,7 +202,7 @@
                   <div class="form-group mb-3">
                     <label>PSA/JV </label>
                     <h6>{{paperInfo?.psajv }}</h6>
-                    
+
                   </div>
                 </div>
 
@@ -216,14 +216,14 @@
                   <div class="form-group mb-3">
                     <label>LTCC Note</label>
                     <h6>{{paperInfo?.ltccNotes }}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Aligned with Government Representative </label>
                     <h6>{{paperInfo?.isGovtReprAligned ? 'Yes':'No'}}</h6>
-                    
+
                   </div>
                 </div>
 
@@ -231,7 +231,7 @@
                   <div class="form-group mb-3">
                     <label>Government Representative Comment</label>
                     <h6>{{paperInfo?.govtReprAlignedComment }}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -258,20 +258,20 @@
                   <div class="form-group mb-3">
                     <label>Conflict of Interest Comments</label>
                     <h6>{{paperInfo?.conflictOfInterestCommen }}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Strategy Description</label>
                     <h6>{{paperInfo?.strategyDescription }}</h6>
-                    
+
                   </div>
                 </div>
               </div>
             </div>
           </div>
-                   
+
           <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>2. Procurement Strategy</h4>
@@ -281,7 +281,7 @@
               <div class="row">
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Remuneration Type</label>  
+                    <label>Remuneration Type</label>
                     <h6>{{paperInfo?.remunerationTypeData}}</h6>
                   </div>
                 </div>
@@ -294,13 +294,13 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Sourcing Rigor</label>
-                    <h6>{{paperInfo?.sourcingRigor}}</h6>   
+                    <h6>{{paperInfo?.sourcingRigor}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Sourcing Strategy</label>
-                    <h6>{{paperInfo?.sourcingStrategy}}</h6>      
+                    <h6>{{paperInfo?.sourcingStrategy}}</h6>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
@@ -339,7 +339,7 @@
                   <div class="form-group mb-3">
                     <label>Single Source Justification</label>
                     <h6>{{paperInfo?.singleSourceJustification}}</h6>
-                    
+
                   </div>
                 </div>
 
@@ -356,7 +356,7 @@
                             <th>Country of Incorporation</th>
                             <th>Parent Company name</th>
                             <th>Remarks (If any)</th>
-                            
+
                           </tr>
                           </thead>
                           <tbody formArrayName="inviteToBid">
@@ -376,7 +376,7 @@
                             <td>
                               <h6>{{ bid.remarks }}</h6>
                             </td>
-                            
+
                           </tr>
                           </tbody>
                         </table>
@@ -389,14 +389,14 @@
                   <div class="form-group mb-3">
                     <label>SOCAR notification sent on </label>
                     <h6>{{paperInfo?.socaRsentOn | date: 'dd MMMM yyyy'}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>SOCAR Response Received Date </label>
                     <h6>{{paperInfo?.socaRreceivedOn | date: 'dd MMMM yyyy'}}</h6>
-                    
+
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -404,7 +404,7 @@
                     <label>SOCAR’s response</label>
                     <h6>{{paperInfo?.socarDescription}}</h6>
 
-                    
+
                   </div>
                 </div>
                 <div class="col-md-12">
@@ -512,7 +512,7 @@
             <div class="fb-title-div mb-3">
               <h4>4 Cost Allocation And JV Approval</h4>
             </div>
-                      
+
             <div class="fb-form">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
@@ -542,7 +542,7 @@
                         <label>{{ totalPercentage > 0 ? (totalPercentage | number:'1.2-2') + '%' : '' }}</label>
                       </td>
                     </tr>
-            
+
                     <tr>
                       <td><b>By value $</b></td>
                       <td *ngFor="let column of psaColumns">
@@ -552,7 +552,7 @@
                         <label>{{ totalValue > 0 ? (totalValue | number:'1.2-2') : '' }}</label>
                       </td>
                     </tr>
-            
+
                     <tr>
                       <td><b>Contract Committee</b></td>
                       <td> <!-- ACG cell - empty --> </td>
@@ -595,7 +595,7 @@
                         <label>CGB</label>
                       </td>
                     </tr>
-            
+
                     <tr>
                       <td><b>Co-Venturers</b></td>
                       <td> <!-- ACG cell -->
@@ -636,7 +636,7 @@
                         <label></label>
                       </td>
                     </tr>
-            
+
                     <tr>
                       <td><b>Steering Committee</b></td>
                       <td> <!-- ACG cell -->
@@ -690,7 +690,7 @@
                 </div>
               </div>
             </div>
-  
+
             <div class="row">
               <div class="col-md-12">
                 <div class="form-view-group">
@@ -713,7 +713,7 @@
                 </div>
               </div>
             </div>
-  
+
             <div class="row">
               <div class="col-md-12">
                 <div class="form-view-group">
@@ -736,7 +736,7 @@
                 </div>
               </div>
             </div>
-  
+
             <div class="row">
               <div class="col-md-12">
                 <div class="form-view-group">
@@ -759,7 +759,7 @@
                 </div>
               </div>
             </div>
-          </div> 
+          </div>
 
           <div class="fb-form">
             <div class="fb-title-div mb-3">
@@ -808,7 +808,7 @@
             </div>
           </div>
 
-          
+
         </div>
       </div>
     </div>
@@ -835,7 +835,7 @@
               <p>
                 {{ log.description }}
               </p>
-              <small>{{ log.logCreateDate }}</small>
+              <small>{{ log.logCreateDate | timeAgo }}</small>
             </div>
           </div>
           <div class="chat-input-group position-relative">
