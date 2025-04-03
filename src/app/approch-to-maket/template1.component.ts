@@ -31,11 +31,12 @@ import {Paper, PaperStatusType} from '../../models/paper';
 import {environment} from '../../environments/environment';
 import {EditorComponent} from '../../components/editor/editor.component';
 import {format} from 'date-fns';
+import {CommentableDirective} from '../../directives/commentable.directive';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })

@@ -15,9 +15,8 @@ import type {
 import {environment} from '../../environments/environment';
 import {AuthService} from '../../service/auth.service';
 
-const CLOUD_SERVICES_TOKEN_URL =
-  'https://mht07l4mn0rt.cke-cs.com/token/dev/b7af7a4f1e6a05ee7fa1ca8e93ae9f036789618c6d01f87ee091dfdaa6ec?limit=10';
-const CLOUD_SERVICES_WEBSOCKET_URL = 'wss://mht07l4mn0rt.cke-cs.com/ws';
+const CLOUD_SERVICES_TOKEN_URL = environment.ckeditorTokenUrl
+const CLOUD_SERVICES_WEBSOCKET_URL = environment.ckeditorSocketUrl;
 
 const cloudConfig = {
   version: '44.3.0',
