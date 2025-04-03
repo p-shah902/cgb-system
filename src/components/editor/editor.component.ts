@@ -14,6 +14,7 @@ import type {
 } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {environment} from '../../environments/environment';
 import {AuthService} from '../../service/auth.service';
+import {EditorService} from '../../service/editor.service';
 
 const CLOUD_SERVICES_TOKEN_URL = environment.ckeditorTokenUrl
 const CLOUD_SERVICES_WEBSOCKET_URL = environment.ckeditorSocketUrl;
@@ -48,6 +49,7 @@ export class EditorComponent implements OnInit {
   public Editor: typeof DecoupledEditor | null = null;
   public config: EditorConfig | null = null;
   public authService = inject(AuthService)
+  public editorService = inject(EditorService)
 
   public ngOnInit(): void {
     loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
@@ -267,18 +269,6 @@ export class EditorComponent implements OnInit {
       }
     }
 
-    class UsersIntegration extends Plugin {
-      init() {
-        const users = this.editor.plugins.get('Users');
-
-        if (users.me) {
-          users.me.id = loginService.getUser()!.id.toString();
-          users.me.name = loginService.getUser()!.displayName;
-        }
-
-      }
-    }
-
     this.Editor = DecoupledEditor;
     this.config = {
       toolbar: {
@@ -411,21 +401,30 @@ export class EditorComponent implements OnInit {
         TrackChangesPreview,
         Underline
       ],
-      extraPlugins: [DocumentOutlineToggler, AnnotationsSidebarToggler, UsersIntegration],
+      extraPlugins: [DocumentOutlineToggler, AnnotationsSidebarToggler],
       balloonToolbar: ['comment', '|', 'bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
       cloudServices: {
-        tokenUrl: CLOUD_SERVICES_TOKEN_URL,
+        tokenUrl: () => {
+          return new Promise((resolve, reject) => {
+            this.editorService.getEditorToken().subscribe((value: any) => {
+              return resolve(value.data);
+            }, error => {
+              reject(error);
+            })
+          })
+        },
         webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
       },
       collaboration: {
-        channelId: Math.random().toString()
+        channelId: "paper0"
       },
       users: {
-        getInitialsCallback: ( name: string ) => {
-          console.log('dd', name);
-          return "FS";
-          // Custom logic to generate initials.
-          // return name.split( ' ' )[ 0 ].charAt( 0 ) + name.split( ' ' )[ 1 ].charAt( 0 );
+        getInitialsCallback: (name: string) => {
+          // Compute initials from the user's name.
+          const names = name.split(' ');
+          return names.length > 1
+            ? names[0].charAt(0) + names[1].charAt(0)
+            : name.charAt(0);
         }
       },
       comments: {

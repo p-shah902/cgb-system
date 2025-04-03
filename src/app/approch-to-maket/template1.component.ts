@@ -915,7 +915,7 @@ export class Template1Component {
 
   // Add a new risk row
   addRow(isFirst = false) {
-    if(isFirst && this.paperDetails) {
+    if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.riskMitigations || []
       const riskMitigationArray = this.riskMitigation;
       riskMitigationArray.clear(); // Clear existing controls
@@ -956,21 +956,21 @@ export class Template1Component {
 
 
   addBidRow(isFirst = false) {
-    if(isFirst && this.paperDetails) {
+    if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.bidInvites || []
       const riskMitigationArray = this.inviteToBid;
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item, index) => {
         riskMitigationArray.push(
-        this.fb.group({
-          legalName: [item.legalName, Validators.required],
-          isLocalOrJV: [item.isLocalOrJV], // Checkbox
-          countryId: [item.countryId, Validators.required],
-          parentCompanyName: [item.parentCompanyName],
-          remarks: [item.remarks],
-          id: [item.id]
-        })
+          this.fb.group({
+            legalName: [item.legalName, Validators.required],
+            isLocalOrJV: [item.isLocalOrJV], // Checkbox
+            countryId: [item.countryId, Validators.required],
+            parentCompanyName: [item.parentCompanyName],
+            remarks: [item.remarks],
+            id: [item.id]
+          })
         );
       });
     } else {
@@ -996,7 +996,7 @@ export class Template1Component {
   }
 
   addConsultationRow(isFirst = false) {
-    if(isFirst && this.paperDetails) {
+    if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.consultationsDetails || []
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls

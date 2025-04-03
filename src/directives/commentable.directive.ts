@@ -19,7 +19,7 @@ const CLOUD_SERVICES_WEBSOCKET_URL = environment.ckeditorSocketUrl;
   selector: '[commentable]'
 })
 export class CommentableDirective implements OnInit {
-  @Input('commentable') channelId: string = 'approch-to-market';
+  @Input('commentable') channelId: string = "";
 
   // We'll hold a reference to the CKEditor context so we can destroy it later.
   private context: any;
@@ -35,7 +35,9 @@ export class CommentableDirective implements OnInit {
   }
 
   public ngOnInit(): void {
-    loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
+    if (this.channelId) {
+      loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
+    }
   }
 
   private async _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {

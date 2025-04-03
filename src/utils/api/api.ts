@@ -28,5 +28,6 @@ export const approveRejectPaper = baseUri + '/api/PaperConfiguration/ChangePaper
 export const addPaperVisitorLogs = baseUri + '/api/GeneralMethod/VisitorLogs';
 export const getPaperVisitorLogs = baseUri + '/api/GeneralMethod/GetVisitorLogsById';
 export const multipleStatuUpdate = baseUri + '/api/Approval/ChangeMultiplePaperStatuses';
-export const getPaperPreviewById=baseUri+'/api/PaperConfiguration/GetPaperPreviewById';
+export const getPaperPreviewById = baseUri + '/api/PaperConfiguration/GetPaperPreviewById';
+export const getCkEditorToken = baseUri + '/api/UserMaster/GetCKEditorToken';
 
