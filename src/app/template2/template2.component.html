@@ -93,12 +93,18 @@
                 <div class="form-group mb-3">
                   <label>For the provision of* </label>
                   <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"/>
+                  <div class="text-danger" *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
+                    <small class="text-danger">This field is required.</small>
+                  </div>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB AtM Ref No* </label>
                   <input formControlName="cgbAtmRefNo" type="text" class="form-control" placeholder="Enter" />
+                  <div class="text-danger" *ngIf="submitted && generalInfo?.get('cgbAtmRefNo')?.hasError('required')">
+                    <small class="text-danger">This field is required.</small>
+                  </div>
                 </div>
               </div>
               <div class="col-md-4">
@@ -108,6 +114,15 @@
                     <input formControlName="cgbApprovalDate" type="date" class="form-control" placeholder=""/>
                   </div>
 
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group mb-3">
+                  <label>Contact No </label>
+                  <input formControlName="contactNo" type="text" class="form-control" placeholder="Enter contact number" />
+                  <div class="text-danger" *ngIf="submitted && generalInfo?.get('contactNo')?.hasError('required')">
+                    <small class="text-danger">Please select value.</small>
+                  </div>
                 </div>
               </div>
 
@@ -140,8 +155,6 @@
                   <label>Changes since AtM / Why is this work required?* </label>
                   <ckeditor *ngIf="( Editor && config )" formControlName="purposeRequired" data="" [editor]="Editor" [config]="config">
                   </ckeditor>
-                  <!-- <textarea type="text" class="form-control"
-                    placeholder="Enter your text here, briefly describing the background to and the reason for the work"></textarea> -->
                 </div>
               </div>
 
@@ -165,8 +178,10 @@
               <div class="col-md-4">
                 <div class="form-group mb-3">
                   <label>Contract No </label>
-                  <input formControlName="contactNo" type="text" class="form-control" placeholder="Enter Sub-sector" />
-
+                  <input formControlName="contractNo" type="text" class="form-control" placeholder="Enter Sub-sector" />
+                  <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractNo')?.hasError('required')">
+                    <small class="text-danger">Please select value.</small>
+                  </div>
                 </div>
               </div>
               <div class="col-md-6">
@@ -525,6 +540,20 @@
                   </div>
                 </div>
               </div> -->
+
+              <div class="form-group mb-3">
+                <label class="mb-3">Framework or Commitment</label>
+                <div class="form-radio d-flex flex-column ps-3">
+                  <div class="radio-box position-relative mb-2">
+                    <input type="radio" name="contractSpendCommitment" [value]="'The contract is a framework agreement with no spending commitment'" formControlName="contractSpendCommitment">
+                    <label>The contract is a framework agreement with no spending commitment</label>
+                  </div>
+                  <div class="radio-box position-relative">
+                    <input type="radio" name="contractSpendCommitment" [value]="'The contract is a commitment'" formControlName="contractSpendCommitment">
+                    <label> The contract is a commitment</label>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -536,7 +565,8 @@
               <div class="col-md-12">
                 <div class="form-group mb-3">
                   <label>Supplier Award Recommendation Text</label>
-                  <textarea  formControlName="supplierAwardRecommendations" type="text" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="supplierAwardRecommendations" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
               <div class="col-sm-6">
@@ -650,8 +680,8 @@
                 </div>
                 <div class="form-group mb-3">
                   <label>Conflict of Interest Comments</label>
-                  <textarea type="text" class="form-control" placeholder="Write Description"
-                            formControlName="conflictOfInterestComment"></textarea>
+                  <ckeditor  formControlName="conflictOfInterestComment" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                   <div class="text-danger"
                        *ngIf="submitted && procurementDetailsInfo?.get('conflictOfInterestComment')?.hasError('required')">
                     <small class="text-danger">This field is required.</small>
@@ -676,8 +706,8 @@
                 </div>
                 <div class="form-group mb-3">
                   <label>Conflict of Interest Comments</label>
-                  <textarea type="text" class="form-control" placeholder="Write Description"
-                            formControlName="retrospectiveApprovalReason"></textarea>
+                  <ckeditor  formControlName="retrospectiveApprovalReason" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                   <div class="text-danger"
                        *ngIf="submitted && procurementDetailsInfo?.get('retrospectiveApprovalReason')?.hasError('required')">
                     <small class="text-danger">This field is required.</small>
@@ -688,7 +718,8 @@
 
                 <div class="form-group mb-3">
                   <label>National Content</label>
-                  <textarea formControlName="nationalContent" type="text" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="nationalContent" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
             </div>
@@ -729,21 +760,24 @@
 
                 <div class="form-group mb-3">
                   <label>Explanation for High Risk</label>
-                  <textarea formControlName="highRiskExplanation"  type="text" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="highRiskExplanation" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
               <div class="col-sm-6">
 
                 <div class="form-group mb-3">
                   <label>Flags raised during initial CDD / CDD refresh</label>
-                  <textarea formControlName="flagRaisedCDD" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="flagRaisedCDD" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
               <div class="col-sm-6">
 
                 <div class="form-group mb-3">
                   <label>Additional CDD Controls for High Risk Contracts</label>
-                  <textarea formControlName="additionalCDD" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="additionalCDD" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
             </div>
@@ -770,61 +804,91 @@
             </div>
             <h6 class="mb-3"><b>Supplier Technical Scores</b></h6>
             <div class="row">
-              <div class="col-sm-4 col-md-3 col-lg-3 col-xl-2 ">
+              <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
-                  <label>Full Legal Entity Name</label>
-                  <input type="text" class="form-control" placeholder="Enter Full Name" />
-                </div>
-              </div>
-              <div class="col-sm-4 col-md-3 col-lg-3 col-xl-2 ">
-                <div class="form-group mb-3">
-                  <label>Score Threshold (%)</label>
-                  <input type="text" class="form-control" placeholder="00%" />
-                </div>
-              </div>
-              <div class="col-sm-4 col-md-3 col-lg-3 col-xl-2 ">
-                <div class="form-group mb-3">
-                  <label>Technical Go/ No Go</label>
-                  <div class="form-radio d-flex gap-3">
-                    <div class="radio-box position-relative">
-                      <input type="radio" name="TechnicalGo-radio" checked>
-                      <label>Yes</label>
+                  <div class="overflow-auto">
+                    <div class="key-risks-table custom-table">
+                      <table class="table">
+                        <thead>
+                        <tr>
+                          <th>Full Legal Entity Name</th>
+                          <th>Score Threshold (%)</th>
+                          <th>Technical Go/ No Go</th>
+                          <th>Technical Score (%)</th>
+                          <th>Results of HSSE</th>
+                          <th>Commentary</th>
+                          <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody formArrayName="supplierTechnical">
+                        <tr *ngFor="let risk of supplierTechnical.controls; let i = index" [formGroupName]="i">
+                          <td>
+                            <input type="text" class="form-control border-0 p-0 shadow-none"
+                                   placeholder="Enter here" formControlName="legalName"/>
+                          </td>
+                          <td>
+                            <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100" class="form-control border-0 p-0 shadow-none"
+                                   placeholder="Enter here" formControlName="thresholdPercent"/>
+                          </td>
+                          <td>
+                            <input type="checkbox" formControlName="isTechnical"/>
+                          </td>
+                          <td>
+                            <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100" class="form-control border-0 p-0 shadow-none"
+                                   placeholder="Enter here" formControlName="technicalScorePercent"/>
+                          </td>
+                          <td>
+                            <input type="text" class="form-control border-0 p-0 shadow-none"
+                                   placeholder="Enter here" formControlName="resultOfHSSE"/>
+                          </td>
+                          <td>
+                            <input type="text" class="form-control border-0 p-0 shadow-none"
+                                   placeholder="Enter here" formControlName="commentary"/>
+                          </td>
+                          <td>
+                            <div class="krt-action">
+                              <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeSupplierTechnical(i)"
+                                      >
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
+                                    fill="#EC4747"/>
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>
+
                     </div>
-                    <div class="radio-box position-relative">
-                      <input type="radio" name="TechnicalGo-radio">
-                      <label>No</label>
-                    </div>
+
                   </div>
+                  <div class="add-row-btn-div">
+                    <button class="btn p-0" type="button" (click)="addSupplierTechnicalnRow()">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round"/>
+                      </svg>
+                      Add New Row
+                    </button>
+                  </div>
+
+<!--                  <div class="text-danger" *ngIf="submitted && supplierTechnical.invalid">-->
+<!--                    <small class="text-danger">This field is required.</small>-->
+<!--                  </div>-->
                 </div>
               </div>
-              <div class="col-sm-4 col-md-3 col-lg-3 col-xl-2 ">
+              <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
-                  <label>Technical Score (%)</label>
-                  <input type="text" class="form-control" placeholder="00%" />
-                </div>
-              </div>
-              <div class="col-sm-4 col-md-3 col-lg-3 col-xl-2 ">
-                <div class="form-group mb-3">
-                  <label>Results of HSSE  </label>
-                  <input type="text" class="form-control" placeholder="Enter Here" />
-                </div>
-              </div>
-              <div class="col-sm-4 col-md-3 col-lg-3 col-xl-2 ">
-                <div class="form-group mb-3">
-                  <label> Commentary </label>
-                  <input type="text" class="form-control" placeholder="Enter Here" />
+                  <label>Benchmarking for Sole Awards</label>
+                  <ckeditor  formControlName="benchMarking" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
             </div>
-            <div class="add-row-btn-div mb-4">
-              <button class="btn p-0">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                </svg>
-                Add New Row
-              </button>
-            </div>
+
             <div class="row">
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
@@ -840,33 +904,69 @@
               </div>
             </div>
             <h6 class="mb-3"><b>Commercial Evaluation</b></h6>
-            <div class="row">
-              <div class="col-sm-6 col-md-8">
-                <div class="form-group mb-3">
-                  <label>Full Legal Entity Name</label>
-                  <input type="text" class="form-control" placeholder="Enter Full name" />
+
+            <div class="col-sm-12 col-md-12">
+              <div class="form-group mb-3">
+                <div class="overflow-auto">
+                  <div class="key-risks-table custom-table">
+                    <table class="table">
+                      <thead>
+                      <tr>
+                        <th>Full Legal Entity Name</th>
+                        <th>Total Value ($)</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody formArrayName="commericalEvaluation">
+                      <tr *ngFor="let risk of commericalEvaluation.controls; let i = index" [formGroupName]="i">
+                        <td>
+                          <input type="text" class="form-control border-0 p-0 shadow-none"
+                                 placeholder="Enter here" formControlName="legalName"/>
+                        </td>
+                        <td>
+                          <input type="number" min="0" class="form-control border-0 p-0 shadow-none"
+                                 placeholder="Enter here" formControlName="totalValue"/>
+                        </td>
+                        <td>
+                          <div class="krt-action">
+                            <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeCommericalEvaluation(i)"
+                                    [disabled]="commericalEvaluation.length <= 1">
+                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                   xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
+                                  fill="#EC4747"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+
+                  </div>
+
+                </div>
+                <div class="add-row-btn-div">
+                  <button class="btn p-0" type="button" (click)="addCommericalEvaluationRow()">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Add New Row
+                  </button>
+                </div>
+
+                <div class="text-danger" *ngIf="submitted && commericalEvaluation.invalid">
+                  <small class="text-danger">This field is required.</small>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-4">
-                <div class="form-group mb-3">
-                  <label>Total Value ($)</label>
-                  <input type="text" class="form-control" placeholder="0.00" />
-                </div>
-              </div>
-            </div>
-            <div class="add-row-btn-div mb-4">
-              <button class="btn p-0">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" />
-                </svg>
-                Add New Row
-              </button>
             </div>
             <div class="col-sm-12 col-md-12">
               <div class="form-group mb-3">
                 <label>Benchmarking for Sole Awards</label>
-                <textarea formControlName="benchMarking" type="text" class="form-control" placeholder="Write Description"></textarea>
+                <ckeditor  formControlName="benchMarking" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                </ckeditor>
               </div>
             </div>
           </div>
@@ -879,7 +979,8 @@
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
                   <label>Contractual Controls for Key Cost Drivers</label>
-                  <textarea formControlName="contractualControls"  type="text" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="contractualControls" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
@@ -902,48 +1003,70 @@
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
                   <label>Explanation (if "No")</label>
-                  <textarea formControlName="explanationsforBaseCost"  type="text" class="form-control" placeholder="Write Description"></textarea>
+                  <ckeditor  formControlName="explanationsforBaseCost" *ngIf="( Editor && config )" data="" [editor]="Editor" [config]="config">
+                  </ckeditor>
                 </div>
               </div>
             </div>
-            <div class="cost-table-div custom-table table-responsive">
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th width="10%">
-                      <b>ID</b>
-                    </th>
-                    <th width="30%">
-                      <b>Risks</b>
-                    </th>
-                    <th>
-                      <b>Mitigations</b>
-                    </th>
+            <div class="col-sm-12 col-md-12">
+              <div class="form-group mb-3">
+                <label>Key Risks and Mitigations</label>
+                <div class="overflow-auto">
+                  <div class="key-risks-table custom-table">
+                    <table class="table">
+                      <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Risks</th>
+                        <th>Mitigations</th>
+                        <th>Action</th>
+                      </tr>
+                      </thead>
+                      <tbody formArrayName="riskMitigation">
+                      <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
+                        <td>{{ generateId(i) }}</td>
+                        <td>
+                          <input type="text" class="form-control border-0 p-0 shadow-none"
+                                 placeholder="Enter here" formControlName="risks"/>
+                        </td>
+                        <td>
+                          <input type="text" class="form-control border-0 p-0 shadow-none"
+                                 placeholder="Enter here" formControlName="mitigations"/>
+                        </td>
+                        <td>
+                          <div class="krt-action">
+                            <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)"
+                                    [disabled]="riskMitigation.length <= 1">
+                              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                   xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
+                                  fill="#EC4747"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
 
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>001</td>
-                    <td>Enter Here</td>
-                    <td>Enter Here</td>
-                  </tr>
-                  <tr>
-                    <td colspan="3">
-                      <div class="add-row-btn-div">
-                        <button class="btn p-0">
-                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2"
-                              stroke-linecap="round" stroke-linejoin="round" />
-                          </svg>
-                          Add New Row
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                  </div>
+
+                </div>
+                <div class="add-row-btn-div">
+                  <button class="btn p-0" type="button" (click)="addRow()">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Add New Row
+                  </button>
+                </div>
+
+                <div class="text-danger" *ngIf="submitted && riskMitigation.invalid">
+                  <small class="text-danger">This field is required.</small>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -957,17 +1080,20 @@
               <div class="row">
                 <div class="col-sm-9 col-md-5">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="Value" />
+                    <input type="number" min="0" class="form-control" placeholder="Value"
+                           formControlName="costReductionValue"/>
                   </div>
                 </div>
                 <div class="col-sm-3 col-md-2">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="%" />
+                    <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                           class="form-control" placeholder="%" formControlName="costReductionPercent"/>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-5">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="Remark" />
+                    <input type="text" class="form-control" placeholder="Remark"
+                           formControlName="costReductionRemarks"/>
                   </div>
                 </div>
               </div>
@@ -977,17 +1103,20 @@
               <div class="row">
                 <div class="col-sm-9 col-md-5">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="Value" />
+                    <input type="number" min="0" class="form-control" placeholder="Value"
+                           formControlName="operatingEfficiencyValue"/>
                   </div>
                 </div>
                 <div class="col-sm-3 col-md-2">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="%" />
+                    <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                           class="form-control" placeholder="%" formControlName="operatingEfficiencyPercent"/>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-5">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="Remark" />
+                    <input type="text" class="form-control" placeholder="Remark"
+                           formControlName="operatingEfficiencyRemarks"/>
                   </div>
                 </div>
               </div>
@@ -997,21 +1126,37 @@
               <div class="row">
                 <div class="col-sm-9 col-md-5">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="Value" />
+                    <input type="number" min="0" class="form-control" placeholder="Value"
+                           formControlName="costAvoidanceValue"/>
                   </div>
                 </div>
                 <div class="col-sm-3 col-md-2">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="%" />
+                    <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                           class="form-control" placeholder="%" formControlName="costAvoidancePercent"/>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-5">
                   <div class="form-group mb-3">
-                    <input type="text" class="form-control" placeholder="Remark" />
+                    <input type="text" class="form-control" placeholder="Remark"
+                           formControlName="costAvoidanceRemarks"/>
                   </div>
                 </div>
               </div>
             </div>
+
+            <small class="text-danger"
+                   *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costReduction')">
+              Please fill all Cost Reduction fields if any one is provided.
+            </small>
+            <small class="text-danger"
+                   *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('operatingEfficiency')">
+              Please fill all Operating Efficiency fields if any one is provided.
+            </small>
+            <small class="text-danger"
+                   *ngIf="submitted && generalInfoForm.get('valueDelivery')?.hasError('costAvoidance')">
+              Please fill all Cost Avoidance fields if any one is provided.
+            </small>
           </div>
 
           <div id="section7" class="fb-title-div ft-bg2">
@@ -1021,252 +1166,256 @@
             <div class="cost-table-div custom-table table-responsive">
               <table class="table table-bordered">
                 <thead>
-                  <tr>
-                    <th>PSA</th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>ACG</label>
-                        </div>
+                <tr>
+                  <th>PSA</th>
+                  <th>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="isACG" type="checkbox">
+                        <label>ACG</label>
                       </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>Shah
-                            Deniz</label>
-                        </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="isShah" type="checkbox">
+                        <label>Shah
+                          Deniz</label>
                       </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP</label>
-                        </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="isSCP" type="checkbox">
+                        <label>SCP</label>
                       </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>BTC</label>
-                        </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="isBTC" type="checkbox">
+                        <label>BTC</label>
                       </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>Sh-Asiman</label>
-                        </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="isAsiman" type="checkbox">
+                        <label>Sh-Asiman</label>
                       </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>BP
-                            Group</label>
-                        </div>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="isBPGroup" type="checkbox">
+                        <label>BP
+                          Group</label>
                       </div>
-                    </th>
-                    <th>
-                      <b>Total</b>
-                    </th>
-                  </tr>
+                    </div>
+                  </th>
+                  <th>
+                    <b>Total</b>
+                  </th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td><b>As%</b></td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                  </tr>
+                <tr>
+                  <td><b>As%</b></td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" min="0"
+                           max="100" type="number" placeholder="%" formControlName="percentage_isACG">
+                  </td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                           placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah">
+                  </td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                           placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP">
+                  </td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                           placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC">
+                  </td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                           placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman">
+                  </td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                           placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup">
+                  </td>
+                  <td>
+                    <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                           placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage">
+                  </td>
+                </tr>
 
-                  <tr>
-                    <td><b>By value $</b></td>
-                    <td>
+                <tr>
+                  <td><b>By value $</b></td>
+                  <td>
+                    <input readonly formControlName="value_isACG" min="0" type="number"
+                           class="form-control p-1 w-auto" placeholder="%">
+                  </td>
+                  <td>
+                    <input formControlName="value_isShah" min="0" type="number" class="form-control p-1 w-auto"
+                           placeholder="%">
+                  </td>
+                  <td>
+                    <input formControlName="value_isSCP" min="0" type="number" class="form-control p-1 w-auto"
+                           placeholder="%">
+                  </td>
+                  <td>
+                    <input formControlName="value_isBTC" min="0" type="number" class="form-control p-1 w-auto"
+                           placeholder="%">
+                  </td>
+                  <td>
+                    <input formControlName="value_isAsiman" min="0" type="number" class="form-control p-1 w-auto"
+                           placeholder="%">
+                  </td>
+                  <td>
+                    <input formControlName="value_isBPGroup" min="0" type="number" class="form-control p-1 w-auto"
+                           placeholder="%">
+                  </td>
+                  <td>
+                    <input formControlName="totalValue" min="0" type="number" class="form-control p-1 w-auto"
+                           placeholder="%">
+                  </td>
 
-                    </td>
-                    <td>
+                </tr>
 
-                    </td>
-                    <td>
+                <tr>
+                  <td><b>Contract Committee</b></td>
+                  <td>
 
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-
-                  </tr>
-
-                  <tr>
-                    <td><b>Contract
-                        Committee</b></td>
-                    <td>
-
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SDCC</label>
-                        </div>
+                  </td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="contractCommittee_SDCC" type="checkbox">
+                        <label>SDCC</label>
                       </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="contractCommittee_SCP_Co_CC" type="checkbox">
+                        <label>SCP Co CC</label>
                       </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>BTC CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>BTC CC </label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
+                      <div class="form-check-box position-relative">
+                        <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">
+                        <label>SCP Co CC</label>
                       </div>
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <input class="form-control p-1 w-auto" placeholder="%">
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>CGB
-                            (Multi-PSA)</label>
-                        </div>
+                      <div class="info-label position-relative">
+                        <label>info note</label>
                       </div>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td><b>Co-
-                        Venturers</b></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>CMC</label>
-                        </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="contractCommittee_BTC_CC" type="checkbox">
+                        <label>BTC CC</label>
                       </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SDMC</label>
-                        </div>
+                      <div class="form-check-box position-relative">
+                        <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">
+                        <label>BTC CC </label>
                       </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP</label>
-                        </div>
+                      <div class="info-label position-relative">
+                        <label>info note</label>
                       </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP Board</label>
-                        </div>
+                    </div>
+                  </td>
+                  <td>
+                  </td>
+                  <td>
+                  </td>
+                  <td>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><b>Co-
+                    Venturers</b></td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="coVenturers_CMC" type="checkbox">
+                        <label>CMC</label>
                       </div>
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td><b>Steering
-                        Committee</b></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SC</label>
-                        </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="coVenturers_SDMC" type="checkbox">
+                        <label>SDMC</label>
                       </div>
-                    </td>
-                    <td>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="coVenturers_SCP" type="checkbox">
+                        <label>SCP</label>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="coVenturers_SCP_Board" type="checkbox">
+                        <label>SCP Board</label>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
 
-                    </td>
-                    <td>
+                  </td>
+                  <td>
 
-                    </td>
-                    <td>
+                  </td>
+                  <td>
 
-                    </td>
-                    <td>
+                  </td>
+                </tr>
 
-                    </td>
-                    <td>
+                <tr>
+                  <td><b>Steering
+                    Committee</b></td>
+                  <td>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input formControlName="steeringCommittee_SC" type="checkbox">
+                        <label>SCP Board</label>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
 
-                    </td>
-                    <td>
+                  </td>
+                  <td>
 
-                    </td>
-                  </tr>
+                  </td>
+                  <td>
+
+                  </td>
+                  <td>
+
+                  </td>
+                  <td>
+
+                  </td>
+                  <td>
+
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -1276,317 +1425,295 @@
             <h4>8. Cost Sharing Methodology</h4>
           </div>
           <div class="fb-form" formGroupName="costSharing">
-            <div class="cost-table-div custom-table table-responsive mb-4">
+            <div class="cost-table-div custom-table table-responsive">
               <table class="table table-bordered">
 
                 <tbody>
-                  <tr>
-                    <th width="15%">
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label><b class="text-dark">Capex</b></label>
-                        </div>
+                <tr>
+                  <th width="15%">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input type="checkbox" formControlName="isCapex">
+                        <label><b class="text-dark">Capex</b></label>
                       </div>
-                    </th>
-                    <td>
-                      <div class="form-radio-custom-width form-radio">
-                        <div class="row">
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>1a
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
+                    </div>
+                  </th>
+                  <td>
+                    <div class="form-radio-custom-width form-radio">
+                      <div class="row">
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="capexMethodology" value="1a" formControlName="capexMethodology">
+                            <label>1a
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>1b
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>1c
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>1d
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>1e
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
+                              </button>
+                            </label>
                           </div>
                         </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="capexMethodology" value="1b" formControlName="capexMethodology">
+                            <label>1b
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                      </div>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <th width="15%">
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label><b class="text-dark">Fixed Opex</b></label>
+                              </button>
+                            </label>
+                          </div>
                         </div>
-                      </div>
-                    </th>
-                    <td>
-                      <div class="form-radio-custom-width form-radio">
-                        <div class="row">
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" checked>
-                              <label>2a
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="capexMethodology" value="1c" formControlName="capexMethodology">
+                            <label>1c
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                                </button>
-                              </label>
-                            </div>
+                              </button>
+                            </label>
                           </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" checked>
-                              <label>2b
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
+                        </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="capexMethodology" value="1d" formControlName="capexMethodology">
+                            <label>1d
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                                </button>
-                              </label>
-                            </div>
+                              </button>
+                            </label>
                           </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Fixed-radio" checked>
-                              <label>3c
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
+                        </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="capexMethodology" value="1e" formControlName="capexMethodology">
+                            <label>1e
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="capex-radio" checked>
-                              <label>4d
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
+                              </button>
+                            </label>
                           </div>
                         </div>
                       </div>
-                    </td>
 
-                  </tr>
-                  <tr>
-                    <th width="15%">
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label><b class="text-dark">Variable Opex</b></label>
-                        </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th width="15%">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input type="checkbox" formControlName="isFixOpex">
+                        <label><b class="text-dark">Fixed Opex</b></label>
                       </div>
-                    </th>
-                    <td>
-                      <div class="form-radio-custom-width form-radio">
-                        <div class="row">
-                          <div class="col">
+                    </div>
+                  </th>
+                  <td>
+                    <div class="form-radio-custom-width form-radio">
+                      <div class="row">
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="fixOpexMethodology" value="2a"
+                                   formControlName="fixOpexMethodology">
+                            <label>2a
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                          </div>
-                          <div class="col">
-
-                          </div>
-                          <div class="col">
-
-                          </div>
-                          <div class="col">
-
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Variable-radio" checked>
-                              <label>2d
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
+                              </button>
+                            </label>
                           </div>
                         </div>
-                      </div>
-                    </td>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="fixOpexMethodology" value="2b"
+                                   formControlName="fixOpexMethodology">
+                            <label>2b
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                  </tr>
+                              </button>
+                            </label>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="fixOpexMethodology" value="2c"
+                                   formControlName="fixOpexMethodology">
+                            <label>2c
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
 
-                  <tr>
-                    <th width="15%">
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label><b class="text-dark">Inventory Items</b></label>
+                              </button>
+                            </label>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="fixOpexMethodology" value="2d"
+                                   formControlName="fixOpexMethodology">
+                            <label>2d
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
+
+                              </button>
+                            </label>
+                          </div>
                         </div>
                       </div>
-                    </th>
-                    <td>
-                      <div class="form-radio-custom-width form-radio">
-                        <div class="row">
+                    </div>
+                  </td>
 
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" checked>
-                              <label>Yes
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" checked>
-                              <label>Yes
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
-                          <div class="col">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="Inventory-radio" checked>
-                              <label>No
-                                <button class="btn p-0">
-                                  <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                      d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                      fill="#252525" />
-                                  </svg>
-
-                                </button>
-                              </label>
-                            </div>
-                          </div>
+                </tr>
+                <tr>
+                  <th width="15%">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input type="checkbox" formControlName="isVariableOpex">
+                        <label><b class="text-dark">Variable Opex</b></label>
+                      </div>
+                    </div>
+                  </th>
+                  <td>
+                    <div class="form-radio-custom-width form-radio">
+                      <div class="row">
+                        <div class="col">
 
                         </div>
-                      </div>
-                    </td>
+                        <div class="col">
 
-                  </tr>
+                        </div>
+                        <div class="col">
+
+                        </div>
+                        <div class="col">
+
+                        </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="variableOpexMethodology" value="2d"
+                                   formControlName="variableOpexMethodology">
+                            <label>2d
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
+
+                              </button>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                </tr>
+
+                <tr>
+                  <th width="15%">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input type="checkbox" formControlName="isInventoryItems">
+                        <label><b class="text-dark">Inventory Items</b></label>
+                      </div>
+                    </div>
+                  </th>
+                  <td>
+                    <div class="form-radio-custom-width form-radio">
+                      <div class="row">
+
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="inventoryItemsMethodology" value="Yes"
+                                   formControlName="inventoryItemsMethodology">
+                            <label>Yes
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
+
+                              </button>
+                            </label>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="inventoryItemsMethodology" value="No"
+                                   formControlName="inventoryItemsMethodology">
+                            <label>No
+                              <button class="btn p-0">
+                                <svg width="17" height="16" viewBox="0 0 17 16" fill="none"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                  <path
+                                    d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                                    fill="#252525"/>
+                                </svg>
+
+                              </button>
+                            </label>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </td>
+
+                </tr>
                 </tbody>
               </table>
-            </div>
-            <div class="form-group mb-3">
-              <label class="mb-3">Framework or Commitment</label>
-              <div class="form-radio d-flex flex-column ps-3">
-                <div class="radio-box position-relative mb-2">
-                  <input type="radio" name="framework-radio" checked>
-                  <label>The contract is a framework agreement with no spending commitment</label>
-                </div>
-                <div class="radio-box position-relative">
-                  <input type="radio" name="framework-radio">
-                  <label> The contract is a commitment</label>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -1594,60 +1721,97 @@
           <div id="section9" class="fb-title-div ft-bg2">
             <h4>9. Consultation</h4>
           </div>
-          <div class="fb-form" formGroupName="consultation">
-            <div class="row">
-              <div class="col-sm-6 col-md-2">
-                <div class="form-group mb-3">
-                  <label>PSA</label>
-                  <select class="form-control">
-                    <option>ACG</option>
-                    <option>Shah Deniz</option>
-                    <option>SCP</option>
-                    <option>BTC</option>
-                    <option>Sh-Asiman</option>
-                    <option>BP Group</option>
-                  </select>
+          <div class="fb-form" formArrayName="consultation">
+            <div *ngFor="let row of consultationRows.controls; let i = index" [formGroupName]="i">
+              <div class="row">
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>PSA</label>
+                    <select class="form-control" formControlName="psa">
+                      <option [value]="''">Select Value</option>
+                      <option value="ACG">ACG</option>
+                      <option value="Shah Deniz">Shah Deniz</option>
+                      <option value="SCP">SCP</option>
+                      <option value="BTC">BTC</option>
+                      <option value="Sh-Asiman">Sh-Asiman</option>
+                      <option value="BP Group">BP Group</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-3">
-                <div class="form-group mb-3">
-                  <label>Technically Correct</label>
-                  <input type="text" class="form-control" placeholder="Enter Name">
+
+                <div class="col-sm-6 col-md-2">
+                  <label>No existing budget Correct</label>
+                  <div class="text-center align-middle">
+                    <input type="checkbox" formControlName="isNoExistingBudget"/>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-3">
-                <div class="form-group mb-3">
-                  <label>Budget Statement</label>
-                  <input type="text" class="form-control" placeholder="Enter Name">
+
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>Technically Correct</label>
+                    <select class="form-control" formControlName="technicalCorrect">
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'CAM'" [ngValue]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-3">
-                <div class="form-group mb-3">
-                  <label>JV Review</label>
-                  <input type="text" class="form-control" placeholder="Enter Name">
+
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>Budget Statement</label>
+                    <select class="form-control" formControlName="budgetStatement">
+                      <option [ngValue]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'Financial Tag'" [ngValue]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-12 col-md-1">
-                <div class="krt-action mt-4">
-                  <button class="btn btn-outline-danger">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                        fill="#EC4747" />
-                    </svg>
-                  </button>
+
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>JV Review</label>
+                    <select class="form-control" formControlName="jvReview">
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-sm-12 col-md-2">
+                  <div class="krt-action mt-4">
+                    <button type="button" class="btn btn-outline-danger" (click)="removeConsultationRow(i)">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path
+                          d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659Z"
+                          fill="#EC4747"/>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+
             <div class="add-row-btn-div">
-              <button class="btn p-0">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <button type="button" class="btn p-0" (click)="addConsultationRow()">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" />
+                        stroke-linejoin="round"/>
                 </svg>
                 Add New Row
               </button>
             </div>
+
           </div>
 
           <div class="fb-form pt-0">
