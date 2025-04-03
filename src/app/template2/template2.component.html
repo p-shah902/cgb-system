@@ -293,7 +293,7 @@
                   <select class="form-control" formControlName="vP1UserId">
                     <option [value]="null">Select Status</option>
                     <ng-container *ngFor="let user of userDetails">
-                      <option *ngIf="user.roleName === 'VP-1'" [value]="user.id">
+                      <option *ngIf="user.roleName === 'Legal VP-1' || user.roleName === 'Legal VP'" [value]="user.id">
                         {{ user.displayName }}
                       </option>
                     </ng-container>
@@ -355,6 +355,7 @@
                 </div>
               </div>
               <div class="col-sm-6 col-md-2">
+                <label>Original Currency</label>
                 <select class="form-control" formControlName="currencyCode">
                   <option [value]="''">Select Status</option>
                   <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
@@ -493,7 +494,7 @@
                       <label>Yes</label>
                     </div>
                     <div class="radio-box position-relative">
-                      <input type="radio" name="isGovtReprAligned" [value]="true" formControlName="isGovtReprAligned"/>
+                      <input type="radio" name="isGovtReprAligned" [value]="false" formControlName="isGovtReprAligned"/>
                       <label>No</label>
                     </div>
                   </div>

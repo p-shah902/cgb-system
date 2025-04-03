@@ -232,7 +232,7 @@
                     <select class="form-control" formControlName="vP1UserId">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'VP-1'" [value]="user.id">
+                        <option *ngIf="user.roleName === 'Legal VP-1' || user.roleName === 'Legal VP'" [value]="user.id">
                           {{ user.displayName }}
                         </option>
                       </ng-container>
