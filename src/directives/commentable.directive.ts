@@ -100,7 +100,8 @@ export class CommentableDirective implements OnInit {
       field.id = 'field-' + Math.random().toString(36).substr(2, 9);
     }
 
-    field.addEventListener('click', () => {
+    field.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
       const threadId = field.id + ":" + this.channelId + Date.now();
 
       commentsRepository.openNewCommentThread({
