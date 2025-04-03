@@ -11,19 +11,6 @@
   </ngb-toast>
 </div>
 
-
-<!-- Toasts Container -->
-<div class="toast-container position-fixed top-0 end-0 p-3">
-  <ngb-toast
-    *ngFor="let toast of toastService.toasts"
-    [class]="'bg-' + toast.type"
-    [autohide]="true"
-    [delay]="5000"
-    (hidden)="toastService.remove(toast)"
-  >
-    {{ toast.message }}
-  </ngb-toast>
-</div>
 <div class="container-fluid">
   <div class="row">
     <div [ngClass]="isExpanded ? 'col-md-8' : 'col-md-12'">
