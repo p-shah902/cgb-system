@@ -1,6 +1,6 @@
 import {Component, inject, Renderer2, ViewChild, ElementRef} from '@angular/core';
-import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
-import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
+import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
+import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
   FormBuilder,
   FormArray,
@@ -8,10 +8,10 @@ import {
   Validators,
   ReactiveFormsModule,
   AbstractControl,
-  ValidationErrors,FormsModule
+  ValidationErrors, FormsModule
 } from '@angular/forms';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
-import { CommonModule } from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {environment} from '../../environments/environment';
 import {Select2} from 'ng-select2-component';
 import {DictionaryService} from '../../service/dictionary.service';
@@ -39,7 +39,7 @@ import {CURRENCY_LIST} from '../../utils/constant';
 export class Template3Component {
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
-  private readonly vendorService=inject(VendorService);
+  private readonly vendorService = inject(VendorService);
   private searchTimeout: any;
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
@@ -120,7 +120,7 @@ export class Template3Component {
       Link
     } = cloud.CKEditor;
 
-    const { FormatPainter } = cloud.CKEditorPremiumFeatures;
+    const {FormatPainter} = cloud.CKEditorPremiumFeatures;
 
     this.Editor = ClassicEditor;
     this.config = {
@@ -138,11 +138,10 @@ export class Template3Component {
         supportAllValues: true
       },
       ui: {
-        viewportOffset: { top: 50, bottom: 50 }  // Adjust editor's viewport
+        viewportOffset: {top: 50, bottom: 50}  // Adjust editor's viewport
       }
     };
   }
-
 
 
   loadForm() {
@@ -185,7 +184,7 @@ export class Template3Component {
         govtReprAlignedComment: [''],
         contractSpendCommitment: [''],
       }),
-      procurementDetails: this.fb.group({
+      justificationSection: this.fb.group({
         supplierAwardRecommendations: ['', Validators.required],
         contractStartDate: [''],
         contractEndDate: [''],
@@ -196,7 +195,7 @@ export class Template3Component {
         retrospectiveApprovalReason: [''],
         nationalContent: [''],
       }),
-      ccd: this.fb.group({
+      contractInfo: this.fb.group({
         isHighRiskContract: [false],
         cddCompleted: [''],
         highRiskExplanation: [''],
@@ -216,7 +215,7 @@ export class Template3Component {
       additionalDetails: this.fb.group({
         contractualControls: [''],
         contractCurrencyLinktoBaseCost: [false],
-        explanationsforBaseCost:[''],
+        explanationsforBaseCost: [''],
         riskMitigation: this.fb.array([]),
       }),
       valueDelivery: this.fb.group({
@@ -354,6 +353,7 @@ export class Template3Component {
       }
     }, 500); // Adjust delay as needed
   }
+
   scrollToSection(event: Event) {
     const selectedValue = (event.target as HTMLSelectElement).value;
     const section = document.getElementById(selectedValue);
