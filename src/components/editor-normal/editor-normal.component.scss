@@ -48,16 +48,8 @@
   border-right: 0;
 }
 
-.editor-container_document-editor .editor-container__editor-wrapper {
-  max-height: var(--ckeditor5-preview-height);
-  min-height: var(--ckeditor5-preview-height);
-  overflow-y: scroll;
-  background: var(--ck-color-base-foreground);
-}
-
 .editor-container_document-editor .editor-container__editor {
-  margin-top: 28px;
-  margin-bottom: 28px;
+  margin: 0;
   height: 100%;
 }
 
