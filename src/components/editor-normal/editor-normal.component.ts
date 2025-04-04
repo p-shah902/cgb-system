@@ -27,7 +27,7 @@ const cloudConfig = {
   standalone: true,
   imports: [CommonModule, CKEditorModule],
   templateUrl: './editor-normal.component.html',
-  styleUrl: './editor-normal.component.html',
+  styleUrl: './editor-normal.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class EditorNormalComponent implements OnInit {
