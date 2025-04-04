@@ -31,11 +31,12 @@ import {Paper, PaperStatusType} from '../../models/paper';
 import {environment} from '../../environments/environment';
 import {EditorComponent} from '../../components/editor/editor.component';
 import {format} from 'date-fns';
+import {CommentableDirective} from '../../directives/commentable.directive';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -914,7 +915,7 @@ export class Template1Component {
 
   // Add a new risk row
   addRow(isFirst = false) {
-    if(isFirst && this.paperDetails) {
+    if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.riskMitigations || []
       const riskMitigationArray = this.riskMitigation;
       riskMitigationArray.clear(); // Clear existing controls
@@ -955,21 +956,21 @@ export class Template1Component {
 
 
   addBidRow(isFirst = false) {
-    if(isFirst && this.paperDetails) {
+    if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.bidInvites || []
       const riskMitigationArray = this.inviteToBid;
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item, index) => {
         riskMitigationArray.push(
-        this.fb.group({
-          legalName: [item.legalName, Validators.required],
-          isLocalOrJV: [item.isLocalOrJV], // Checkbox
-          countryId: [item.countryId, Validators.required],
-          parentCompanyName: [item.parentCompanyName],
-          remarks: [item.remarks],
-          id: [item.id]
-        })
+          this.fb.group({
+            legalName: [item.legalName, Validators.required],
+            isLocalOrJV: [item.isLocalOrJV], // Checkbox
+            countryId: [item.countryId, Validators.required],
+            parentCompanyName: [item.parentCompanyName],
+            remarks: [item.remarks],
+            id: [item.id]
+          })
         );
       });
     } else {
@@ -995,7 +996,7 @@ export class Template1Component {
   }
 
   addConsultationRow(isFirst = false) {
-    if(isFirst && this.paperDetails) {
+    if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.consultationsDetails || []
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls
