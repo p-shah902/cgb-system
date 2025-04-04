@@ -106,10 +106,10 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Why is this work required?* </label>
-                                        <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"
-                                                  formControlName="purposeRequired" [config]="config">
-                                        </ckeditor>
-<!--                    <app-editor/>-->
+<!--                                        <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"-->
+<!--                                                  formControlName="purposeRequired" [config]="config">-->
+<!--                                        </ckeditor>-->
+                    <app-editor-normal/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('whyIsThisWorkRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>

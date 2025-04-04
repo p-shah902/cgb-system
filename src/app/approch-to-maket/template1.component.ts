@@ -32,11 +32,12 @@ import {environment} from '../../environments/environment';
 import {EditorComponent} from '../../components/editor/editor.component';
 import {format} from 'date-fns';
 import {CommentableDirective} from '../../directives/commentable.directive';
+import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
