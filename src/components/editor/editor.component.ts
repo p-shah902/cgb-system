@@ -404,15 +404,16 @@ export class EditorComponent implements OnInit {
       extraPlugins: [DocumentOutlineToggler, AnnotationsSidebarToggler],
       balloonToolbar: ['comment', '|', 'bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
       cloudServices: {
-        tokenUrl: () => {
-          return new Promise((resolve, reject) => {
-            this.editorService.getEditorToken().subscribe((value: any) => {
-              return resolve(value.data);
-            }, error => {
-              reject(error);
-            })
-          })
-        },
+        // tokenUrl: () => {
+        //   return new Promise((resolve, reject) => {
+        //     this.editorService.getEditorToken().subscribe((value: any) => {
+        //       return resolve(value.data);
+        //     }, error => {
+        //       reject(error);
+        //     })
+        //   })
+        // },
+        tokenUrl: CLOUD_SERVICES_TOKEN_URL + `&user.name=${this.authService.getUser()?.displayName}&user.email=${this.authService.getUser()?.email}&sub=${this.authService.getUser()?.id}`,
         webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
       },
       collaboration: {
