@@ -16,6 +16,7 @@ import {CommonModule} from '@angular/common';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../../service/toast.service';
 import {ActivatedRoute, Router} from '@angular/router';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-userdetails',
@@ -48,7 +49,7 @@ export class UserdetailsComponent implements OnInit {
       password: ['', [Validators.minLength(4)]],
       roleId: [0, Validators.min(1)],
       departmentId: [0, Validators.min(1)],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      phone: ['', [Validators.required]],
       displayName: ['', Validators.required],
       isActive: [true],
       // isViewPaper: [false],
@@ -106,6 +107,7 @@ export class UserdetailsComponent implements OnInit {
             else{
               this.toastService.show('User Addded Successfully','success');
             }
+            this.router.navigate(['/usermanagement']); 
            
           }
           else{

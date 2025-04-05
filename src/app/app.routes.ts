@@ -62,9 +62,14 @@ export const routes: Routes = [
     loadComponent: () => import('./inboxoutbox/inboxoutbox.component').then(m => m.InboxoutboxComponent),
     canActivate: [AuthGuard]
   },
+  // {
+  //   path: 'paperconfiguration',
+  //   loadComponent: () => import('./paperconfiguration/paperconfiguration.component').then(m => m.PaperconfigurationComponent),
+  //   canActivate: [AuthGuard]
+  // },
   {
     path: 'paperconfiguration',
-    loadComponent: () => import('./paperconfiguration/paperconfiguration.component').then(m => m.PaperconfigurationComponent),
+    loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),
     canActivate: [AuthGuard]
   },
   {
