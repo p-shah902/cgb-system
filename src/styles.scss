@@ -1095,7 +1095,6 @@ hr {
 }
 
 .editor-container__editor-wrapper {
-  display: flex;
   width: 100%;
 }
 
@@ -1127,19 +1126,10 @@ hr {
   border-right: 0;
 }
 
-.editor-container_document-editor .editor-container__editor-wrapper {
-  max-height: var(--ckeditor5-preview-height);
-  min-height: var(--ckeditor5-preview-height);
-  overflow-y: scroll;
-  background: var(--ck-color-base-foreground);
-  padding: 0 15px 15px;
-}
-
 .editor-container_document-editor .editor-container__editor {
-  margin-top: 28px;
-  margin-bottom: 28px;
+  margin: 0;
   height: 100%;
-  flex: 0 0 70%;
+  flex: 0 0 100%;
 }
 
 .editor-container_document-editor .editor-container__editor .ck.ck-editor__editable {
@@ -1208,7 +1198,6 @@ hr {
 }
 
 .editor-container__editor-wrapper {
-  display: flex;
   .editor-container__editor-wrapper .editor-container__sidebar {
     max-width: 30%;
     width: 100%;

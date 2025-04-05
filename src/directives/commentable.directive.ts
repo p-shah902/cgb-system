@@ -3,6 +3,7 @@ import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '
 import {ContextConfig} from 'ckeditor5';
 import {environment} from '../environments/environment';
 import {AuthService} from '../service/auth.service';
+import {EditorService} from '../service/editor.service';
 
 const cloudConfig = {
   version: '44.3.0',
@@ -25,7 +26,7 @@ export class CommentableDirective implements OnInit {
   // We'll hold a reference to the CKEditor context so we can destroy it later.
   private context: any;
 
-  constructor(private el: ElementRef, private authService: AuthService) {
+  constructor(private el: ElementRef, private editorService: EditorService) {
     console.log('CHANNEL ID', this.channelId);
   }
 
@@ -60,7 +61,16 @@ export class CommentableDirective implements OnInit {
         editorConfig: {}
       },
       cloudServices: {
-        tokenUrl: CLOUD_SERVICES_TOKEN_URL + `&user.name=${this.authService.getUser()?.displayName}&user.email=${this.authService.getUser()?.email}&sub=${this.authService.getUser()?.id}`,
+        tokenUrl: () => {
+          return new Promise((resolve, reject) => {
+            this.editorService.getEditorToken().subscribe((value: any) => {
+              return resolve(value.data);
+            }, error => {
+              reject(error);
+            })
+          })
+        },
+        // tokenUrl: CLOUD_SERVICES_TOKEN_URL + `&user.name=${this.authService.getUser()?.displayName}&user.email=${this.authService.getUser()?.email}&sub=${this.authService.getUser()?.id}`,
         webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
       },
       collaboration: {

@@ -37,7 +37,7 @@ export const CURRENCY_LIST =[
         "quantity": 1,
         "rateFormated": "1.6353",
         "diffFormated": "0.0008",
-        "rate": 1.6353,
+        "rate": 1.7,
         "name": "აზერბაიჯანული მანათი",
         "diff": -0.0008,
         "date": "2025-03-25T17:01:03.947Z",

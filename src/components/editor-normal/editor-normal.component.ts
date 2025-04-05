@@ -10,14 +10,9 @@ import {
 import type {
   DecoupledEditor,
   EditorConfig,
-  ButtonView as ButtonViewType
 } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {environment} from '../../environments/environment';
 import {AuthService} from '../../service/auth.service';
-import {EditorService} from '../../service/editor.service';
-
-const CLOUD_SERVICES_TOKEN_URL = environment.ckeditorTokenUrl
-const CLOUD_SERVICES_WEBSOCKET_URL = environment.ckeditorSocketUrl;
 
 const cloudConfig = {
   version: '44.3.0',
@@ -28,39 +23,28 @@ const cloudConfig = {
 } satisfies CKEditorCloudConfig;
 
 @Component({
-  selector: 'app-editor',
+  selector: 'app-editor-normal',
   standalone: true,
   imports: [CommonModule, CKEditorModule],
-  templateUrl: './editor.component.html',
-  styleUrl: './editor.component.scss',
+  templateUrl: './editor-normal.component.html',
+  styleUrl: './editor-normal.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class EditorComponent implements OnInit {
+export class EditorNormalComponent implements OnInit {
   @ViewChild('editorToolbarElement') private editorToolbar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorAnnotationsElement') private editorAnnotations!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorPresenceElement') private editorPresence!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorOutlineElement') private editorOutline!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorContainerElement') private editorContainer!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorRevisionHistoryElement') private editorRevisionHistory!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorRevisionHistoryEditorElement') private editorRevisionHistoryEditor!: ElementRef<HTMLDivElement>;
-  @ViewChild('editorRevisionHistorySidebarElement') private editorRevisionHistorySidebar!: ElementRef<HTMLDivElement>;
 
   public Editor: typeof DecoupledEditor | null = null;
   public config: EditorConfig | null = null;
   public authService = inject(AuthService)
-  public editorService = inject(EditorService)
 
   public ngOnInit(): void {
     loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {
-    const loginService = this.authService;
     const {
       DecoupledEditor,
-      Plugin,
-      ButtonView,
       Alignment,
       Autoformat,
       AutoImage,
@@ -69,9 +53,6 @@ export class EditorComponent implements OnInit {
       BalloonToolbar,
       Bold,
       Bookmark,
-      CKBox,
-      CKBoxImageEdit,
-      CloudServices,
       Code,
       Emoji,
       Essentials,
@@ -130,144 +111,15 @@ export class EditorComponent implements OnInit {
 
     const {
       CaseChange,
-      Comments,
-      DocumentOutline,
-      ExportPdf,
-      ExportWord,
       FormatPainter,
-      ImportWord,
       MergeFields,
       MultiLevelList,
       Pagination,
       PasteFromOfficeEnhanced,
-      PresenceList,
-      RealTimeCollaborativeComments,
-      RealTimeCollaborativeEditing,
-      RealTimeCollaborativeRevisionHistory,
-      RealTimeCollaborativeTrackChanges,
-      RevisionHistory,
       SlashCommand,
       TableOfContents,
-      Template,
-      TrackChanges,
-      TrackChangesData,
-      TrackChangesPreview
+      Template
     } = cloud.CKEditorPremiumFeatures;
-
-    class AnnotationsSidebarToggler extends Plugin {
-      public declare toggleButton: ButtonViewType;
-
-      static get requires() {
-        return ['AnnotationsUIs'];
-      }
-
-      static get pluginName() {
-        return 'AnnotationsSidebarToggler';
-      }
-
-      init() {
-        this.toggleButton = new ButtonView(this.editor.locale);
-
-        const NON_COLLAPSE_ANNOTATION_ICON =
-          '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" transform="matrix(-1,0,0,1,0,0)"><path d="M11.463 5.187a.888.888 0 1 1 1.254 1.255L9.16 10l3.557 3.557a.888.888 0 1 1-1.254 1.255L7.26 10.61a.888.888 0 0 1 .16-1.382l4.043-4.042z"></path></svg>';
-        const COLLAPSE_ANNOTATION_ICON =
-          '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" transform="matrix(1,0,0,1,0,0)"><path d="M11.463 5.187a.888.888 0 1 1 1.254 1.255L9.16 10l3.557 3.557a.888.888 0 1 1-1.254 1.255L7.26 10.61a.888.888 0 0 1 .16-1.382l4.043-4.042z"/></svg>';
-
-        const annotationsUIsPlugin = this.editor.plugins.get('AnnotationsUIs');
-        const annotationsContainer = this.editor.config.get('sidebar.container')!;
-        const sidebarContainer = annotationsContainer.parentElement!;
-
-        this.toggleButton.set({
-          label: 'Toggle annotations sidebar',
-          tooltip: 'Hide annotations sidebar',
-          tooltipPosition: 'se',
-          icon: COLLAPSE_ANNOTATION_ICON
-        });
-
-        this.toggleButton.on('execute', () => {
-          // Toggle a CSS class on the annotations sidebar container to manage the visibility of the sidebar.
-          annotationsContainer.classList.toggle('ck-hidden');
-
-          // Change the look of the button to reflect the state of the annotations container.
-          if (annotationsContainer.classList.contains('ck-hidden')) {
-            this.toggleButton.icon = NON_COLLAPSE_ANNOTATION_ICON;
-            this.toggleButton.tooltip = 'Show annotations sidebar';
-            annotationsUIsPlugin.switchTo('inline');
-          } else {
-            this.toggleButton.icon = COLLAPSE_ANNOTATION_ICON;
-            this.toggleButton.tooltip = 'Hide annotations sidebar';
-            annotationsUIsPlugin.switchTo('wideSidebar');
-          }
-
-          // Keep the focus in the editor whenever the button is clicked.
-          this.editor.editing.view.focus();
-        });
-
-        this.toggleButton.render();
-
-        sidebarContainer.insertBefore(this.toggleButton.element!, annotationsContainer);
-      }
-
-      override destroy() {
-        this.toggleButton.element!.remove();
-
-        return super.destroy();
-      }
-    }
-
-    class DocumentOutlineToggler extends Plugin {
-      public declare toggleButton: ButtonViewType;
-
-      static get pluginName() {
-        return 'DocumentOutlineToggler';
-      }
-
-      init() {
-        this.toggleButton = new ButtonView(this.editor.locale);
-
-        const DOCUMENT_OUTLINE_ICON =
-          '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 9.5a.5.5 0 0 0 .5-.5v-.5A.5.5 0 0 0 5 8H3.5a.5.5 0 0 0-.5.5V9a.5.5 0 0 0 .5.5H5Z"/><path d="M5.5 12a.5.5 0 0 1-.5.5H3.5A.5.5 0 0 1 3 12v-.5a.5.5 0 0 1 .5-.5H5a.5.5 0 0 1 .5.5v.5Z"/><path d="M5 6.5a.5.5 0 0 0 .5-.5v-.5A.5.5 0 0 0 5 5H3.5a.5.5 0 0 0-.5.5V6a.5.5 0 0 0 .5.5H5Z"/><path clip-rule="evenodd" d="M2 19a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2Zm6-1.5h10a.5.5 0 0 0 .5-.5V3a.5.5 0 0 0-.5-.5H8v15Zm-1.5-15H2a.5.5 0 0 0-.5.5v14a.5.5 0 0 0 .5.5h4.5v-15Z"/></svg>';
-        const COLLAPSE_OUTLINE_ICON =
-          '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M11.463 5.187a.888.888 0 1 1 1.254 1.255L9.16 10l3.557 3.557a.888.888 0 1 1-1.254 1.255L7.26 10.61a.888.888 0 0 1 .16-1.382l4.043-4.042z"/></svg>';
-
-        const documentOutlineContainer = this.editor.config.get('documentOutline.container')!;
-        const sidebarContainer = documentOutlineContainer.parentElement!;
-
-        this.toggleButton.set({
-          label: 'Toggle document outline',
-          tooltip: 'Hide document outline',
-          tooltipPosition: 'se',
-          icon: COLLAPSE_OUTLINE_ICON
-        });
-
-        this.toggleButton.on('execute', () => {
-          // Toggle a CSS class on the document outline container to manage the visibility of the outline.
-          documentOutlineContainer.classList.toggle('ck-hidden');
-
-          // Change the look of the button to reflect the state of the document outline feature.
-          if (documentOutlineContainer.classList.contains('ck-hidden')) {
-            this.toggleButton.icon = DOCUMENT_OUTLINE_ICON;
-            this.toggleButton.tooltip = 'Show document outline';
-          } else {
-            this.toggleButton.icon = COLLAPSE_OUTLINE_ICON;
-            this.toggleButton.tooltip = 'Hide document outline';
-          }
-
-          // Keep the focus in the editor whenever the button is clicked.
-          this.editor.editing.view.focus();
-        });
-
-        this.toggleButton.render();
-
-        sidebarContainer.insertBefore(this.toggleButton.element!, documentOutlineContainer);
-      }
-
-      override destroy() {
-        this.toggleButton.element!.remove();
-
-        return super.destroy();
-      }
-    }
 
     this.Editor = DecoupledEditor;
     this.config = {
@@ -277,8 +129,6 @@ export class EditorComponent implements OnInit {
           'nextPage',
           '|',
           'revisionHistory',
-          'trackChanges',
-          'comment',
           '|',
           'insertMergeField',
           'previewMergeFields',
@@ -321,16 +171,9 @@ export class EditorComponent implements OnInit {
         Bold,
         Bookmark,
         CaseChange,
-        CKBox,
-        CKBoxImageEdit,
-        CloudServices,
         Code,
-        Comments,
-        DocumentOutline,
         Emoji,
         Essentials,
-        ExportPdf,
-        ExportWord,
         FindAndReplace,
         FontBackgroundColor,
         FontColor,
@@ -351,7 +194,6 @@ export class EditorComponent implements OnInit {
         ImageToolbar,
         ImageUpload,
         ImageUtils,
-        ImportWord,
         Indent,
         IndentBlock,
         Italic,
@@ -368,13 +210,7 @@ export class EditorComponent implements OnInit {
         PasteFromOffice,
         PasteFromOfficeEnhanced,
         PictureEditing,
-        PresenceList,
-        RealTimeCollaborativeComments,
-        RealTimeCollaborativeEditing,
-        RealTimeCollaborativeRevisionHistory,
-        RealTimeCollaborativeTrackChanges,
         RemoveFormat,
-        RevisionHistory,
         SlashCommand,
         SpecialCharacters,
         SpecialCharactersArrows,
@@ -396,92 +232,9 @@ export class EditorComponent implements OnInit {
         Template,
         TextTransformation,
         TodoList,
-        TrackChanges,
-        TrackChangesData,
-        TrackChangesPreview,
         Underline
       ],
-      extraPlugins: [DocumentOutlineToggler, AnnotationsSidebarToggler],
-      balloonToolbar: ['comment', '|', 'bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
-      cloudServices: {
-        tokenUrl: () => {
-          return new Promise((resolve, reject) => {
-            this.editorService.getEditorToken().subscribe((value: any) => {
-              return resolve(value.data);
-            }, error => {
-              reject(error);
-            })
-          })
-        },
-        // tokenUrl: CLOUD_SERVICES_TOKEN_URL + `&user.name=${this.authService.getUser()?.displayName}&user.email=${this.authService.getUser()?.email}&sub=${this.authService.getUser()?.id}`,
-        webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
-      },
-      collaboration: {
-        channelId: "paper0"
-      },
-      users: {
-        getInitialsCallback: (name: string) => {
-          // Compute initials from the user's name.
-          const names = name.split(' ');
-          return names.length > 1
-            ? names[0].charAt(0) + names[1].charAt(0)
-            : name.charAt(0);
-        }
-      },
-      comments: {
-        editorConfig: {
-          extraPlugins: [Autoformat, Bold, Italic, List, Mention],
-          mention: {
-            feeds: [
-              {
-                marker: '@',
-                feed: [
-                  /* See: https://ckeditor.com/docs/ckeditor5/latest/features/mentions.html#comments-with-mentions */
-                ]
-              }
-            ]
-          }
-        }
-      },
-      documentOutline: {
-        container: this.editorOutline.nativeElement
-      },
-      exportPdf: {
-        stylesheets: [
-          './export-style.css',
-          'https://cdn.ckeditor.com/ckeditor5/44.3.0/ckeditor5.css',
-          'https://cdn.ckeditor.com/ckeditor5-premium-features/44.3.0/ckeditor5-premium-features.css'
-        ],
-        fileName: 'export-pdf-demo.pdf',
-        converterOptions: {
-          format: 'A4',
-          margin_top: '20mm',
-          margin_bottom: '20mm',
-          margin_right: '12mm',
-          margin_left: '12mm',
-          page_orientation: 'portrait'
-        }
-      },
-      exportWord: {
-        stylesheets: [
-          './export-style.css',
-          'https://cdn.ckeditor.com/ckeditor5/44.3.0/ckeditor5.css',
-          'https://cdn.ckeditor.com/ckeditor5-premium-features/44.3.0/ckeditor5-premium-features.css'
-        ],
-        fileName: 'export-word-demo.docx',
-        converterOptions: {
-          document: {
-            orientation: 'portrait',
-            size: 'A4',
-            margins: {
-              top: '20mm',
-              bottom: '20mm',
-              right: '12mm',
-              left: '12mm'
-            }
-          }
-        }
-      },
+      balloonToolbar: ['bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
       fontFamily: {
         supportAllValues: true
       },
@@ -543,9 +296,7 @@ export class EditorComponent implements OnInit {
           'imageStyle:wrapText',
           'imageStyle:breakText',
           '|',
-          'resizeImage',
-          '|',
-          'ckboxImageEdit'
+          'resizeImage'
         ]
       },
       initialData: 'Write here',
@@ -597,19 +348,6 @@ export class EditorComponent implements OnInit {
         }
       },
       placeholder: 'Type or paste your content here!',
-      presenceList: {
-        container: this.editorPresence.nativeElement
-      },
-      revisionHistory: {
-        editorContainer: this.editorContainer.nativeElement,
-        viewerContainer: this.editorRevisionHistory.nativeElement,
-        viewerEditorElement: this.editorRevisionHistoryEditor.nativeElement,
-        viewerSidebarContainer: this.editorRevisionHistorySidebar.nativeElement,
-        resumeUnsavedRevision: true
-      },
-      sidebar: {
-        container: this.editorAnnotations.nativeElement
-      },
       table: {
         contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
       },
@@ -631,8 +369,6 @@ export class EditorComponent implements OnInit {
   public onReady(editor: DecoupledEditor): void {
     Array.from(this.editorToolbar.nativeElement.children).forEach(child => child.remove());
     Array.from(this.editorMenuBar.nativeElement.children).forEach(child => child.remove());
-
-    editor.execute('trackChanges');
 
     this.editorToolbar.nativeElement.appendChild(editor.ui.view.toolbar.element!);
     this.editorMenuBar.nativeElement.appendChild(editor.ui.view.menuBarView.element!);
@@ -666,14 +402,6 @@ function configUpdateAlert(config: any) {
 
   if (!isModifiedByUser(config.licenseKey, '<YOUR_LICENSE_KEY>')) {
     valuesToUpdate.push('LICENSE_KEY');
-  }
-
-  if (!isModifiedByUser(config.cloudServices?.tokenUrl, '<YOUR_CLOUD_SERVICES_TOKEN_URL>')) {
-    valuesToUpdate.push('CLOUD_SERVICES_TOKEN_URL');
-  }
-
-  if (!isModifiedByUser(config.cloudServices?.webSocketUrl, '<YOUR_CLOUD_SERVICES_WEBSOCKET_URL>')) {
-    valuesToUpdate.push('CLOUD_SERVICES_WEBSOCKET_URL');
   }
 
   if (valuesToUpdate.length) {
