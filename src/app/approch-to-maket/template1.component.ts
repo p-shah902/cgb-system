@@ -36,6 +36,7 @@ import {EditorNormalComponent} from '../../components/editor-normal/editor-norma
 import {BehaviorSubject} from 'rxjs';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
+import {EditorService} from '../../service/editor.service';
 
 @Component({
   selector: 'app-template1',
@@ -49,6 +50,7 @@ export class Template1Component {
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
   private paperConfigService = inject(PaperConfigService);
+  private editorService = inject(EditorService);
   private searchTimeout: any;
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
@@ -106,6 +108,8 @@ export class Template1Component {
       version: '44.3.0',
       premium: true
     }).then(this._setupEditor.bind(this));
+
+    this.editorService.getEditorToken().subscribe();
 
     this.allApisDone$.subscribe((done) => {
       if (done) {

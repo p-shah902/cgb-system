@@ -63,10 +63,8 @@ export class CommentableDirective implements OnChanges {
       cloudServices: {
         tokenUrl: () => {
           return new Promise((resolve, reject) => {
-            this.editorService.getEditorToken().subscribe((value: any) => {
-              return resolve(value.data);
-            }, error => {
-              reject(error);
+            this.editorService.isTokenSubject$.subscribe(value => {
+              return resolve(value);
             })
           })
         },
