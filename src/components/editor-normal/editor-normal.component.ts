@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation, type OnInit, ElementRef, ViewChild, inject} from '@angular/core';
+import {Component, ViewEncapsulation, type OnInit, ElementRef, ViewChild, inject, forwardRef } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {
   loadCKEditorCloud,
@@ -6,6 +6,7 @@ import {
   type CKEditorCloudResult,
   type CKEditorCloudConfig
 } from '@ckeditor/ckeditor5-angular';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import type {
   DecoupledEditor,
@@ -28,18 +29,47 @@ const cloudConfig = {
   imports: [CommonModule, CKEditorModule],
   templateUrl: './editor-normal.component.html',
   styleUrl: './editor-normal.component.scss',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => EditorNormalComponent),
+      multi: true
+    }
+  ]
 })
-export class EditorNormalComponent implements OnInit {
+export class EditorNormalComponent implements OnInit, ControlValueAccessor  {
   @ViewChild('editorToolbarElement') private editorToolbar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
+  value: string = '';
 
+  onChange = (_: any) => {};
+  onTouched = () => {};
   public Editor: typeof DecoupledEditor | null = null;
   public config: EditorConfig | null = null;
   public authService = inject(AuthService)
 
   public ngOnInit(): void {
     loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
+  }
+
+  // ControlValueAccessor methods
+  writeValue(value: any): void {
+    this.value = value || '';
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  onEditorChange({ editor }: any): void {
+    const data = editor.getData();
+    this.value = data;
+    this.onChange(data);
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {
@@ -299,7 +329,7 @@ export class EditorNormalComponent implements OnInit {
           'resizeImage'
         ]
       },
-      initialData: 'Write here',
+      initialData: this.value || "Write here",
       licenseKey: environment.ckEditorLicenceKey,
       link: {
         addTargetToExternalLinks: true,

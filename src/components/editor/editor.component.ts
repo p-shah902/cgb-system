@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation, type OnInit, ElementRef, ViewChild, inject} from '@angular/core';
+import {Component, ViewEncapsulation,Input, type OnInit, ElementRef, forwardRef, ViewChild, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {
   loadCKEditorCloud,
@@ -6,6 +6,7 @@ import {
   type CKEditorCloudResult,
   type CKEditorCloudConfig
 } from '@ckeditor/ckeditor5-angular';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import type {
   DecoupledEditor,
@@ -33,9 +34,16 @@ const cloudConfig = {
   imports: [CommonModule, CKEditorModule],
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.scss',
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => EditorComponent),
+      multi: true
+    }
+  ]
 })
-export class EditorComponent implements OnInit {
+export class EditorComponent implements OnInit,ControlValueAccessor {
   @ViewChild('editorToolbarElement') private editorToolbar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorAnnotationsElement') private editorAnnotations!: ElementRef<HTMLDivElement>;
@@ -45,14 +53,39 @@ export class EditorComponent implements OnInit {
   @ViewChild('editorRevisionHistoryElement') private editorRevisionHistory!: ElementRef<HTMLDivElement>;
   @ViewChild('editorRevisionHistoryEditorElement') private editorRevisionHistoryEditor!: ElementRef<HTMLDivElement>;
   @ViewChild('editorRevisionHistorySidebarElement') private editorRevisionHistorySidebar!: ElementRef<HTMLDivElement>;
+  @Input() paperId: string  = "";
 
   public Editor: typeof DecoupledEditor | null = null;
   public config: EditorConfig | null = null;
   public authService = inject(AuthService)
   public editorService = inject(EditorService)
 
+  value: string = '';
+
+  onChange = (_: any) => {};
+  onTouched = () => {};
+
   public ngOnInit(): void {
     loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
+  }
+
+  // ControlValueAccessor methods
+  writeValue(value: any): void {
+    this.value = value || '';
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  onEditorChange({ editor }: any): void {
+    const data = editor.getData();
+    this.value = data;
+    this.onChange(data);
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {
@@ -417,7 +450,7 @@ export class EditorComponent implements OnInit {
         webSocketUrl: CLOUD_SERVICES_WEBSOCKET_URL
       },
       collaboration: {
-        channelId: "paper0"
+        channelId: this.paperId || ""
       },
       users: {
         getInitialsCallback: (name: string) => {
@@ -548,7 +581,7 @@ export class EditorComponent implements OnInit {
           'ckboxImageEdit'
         ]
       },
-      initialData: 'Write here',
+      initialData: this.value || 'Write here',
       licenseKey: environment.ckEditorLicenceKey,
       link: {
         addTargetToExternalLinks: true,

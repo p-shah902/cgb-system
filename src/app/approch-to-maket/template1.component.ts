@@ -54,6 +54,7 @@ export class Template1Component {
   isCopy = false;
   paperStatusList: PaperStatusType[] = [];
   paperDetails: Paper | null = null
+  isRegisterPaper: boolean = false
 
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -294,7 +295,6 @@ export class Template1Component {
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId).subscribe((value) => {
       this.paperDetails = value.data;
-      console.log("==this.paperDetails", value.data)
       const paperDetailData = value.data?.paperDetails || null
       const bidInvitesData = value.data?.bidInvites || []
       const valueData = value.data?.valueDeliveriesCostsharing[0] || null
@@ -302,6 +302,14 @@ export class Template1Component {
       const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
 
       const patchValues: any = {costAllocation: {}};
+
+      const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === paperDetailData?.paperStatusId?.toString())
+
+      if(selectedPaperStatus?.paperStatus === "Registered") {
+        this.isRegisterPaper = true
+      }
+
+      console.log("==isRegisterPaper", this.isRegisterPaper)
 
 // Assign JV Approvals data
       Object.assign(patchValues.costAllocation, {
@@ -452,7 +460,6 @@ export class Template1Component {
     this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          console.log('Dictionary Detail:', response.data);
 
           switch (itemName) {
             case 'Currencies':
@@ -1185,12 +1192,9 @@ export class Template1Component {
       }
     }
 
-    console.log("==params", params)
-
     if (this.generalInfoForm.valid) {
       this.paperService.upsertApproachToMarkets(params).subscribe({
         next: (response) => {
-          console.log("==response", response)
           if (response.status && response.data) {
             const docId = response.data || null
             this.uploadFiles(docId)
