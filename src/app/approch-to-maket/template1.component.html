@@ -1537,10 +1537,10 @@
             <div class="fb-form pt-0">
               <div class="ff-btn-list d-flex gap-3 justify-content-end">
                 <ng-container *ngIf="!paperId || (paperId && isCopy)">
-                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft')">
+                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)">
                     Draft
                   </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)">
                     Register
                   </button>
                 </ng-container>
@@ -1551,7 +1551,7 @@
                   <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')">
                     Send For PDM Approval
                   </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)">
                     Update
                   </button>
                 </ng-container>
@@ -1575,23 +1575,24 @@
           </div>
         </div>
         <div class="visitor-logs-card">
-          <div class="visitor-box mb-3">
+          <div class="visitor-box mb-3" *ngFor="let log of logs">
             <div class="vb-img">
               <img src="/img/visitor.png" alt="visitor" class="img-fluid">
             </div>
             <div class="vb-detail">
-              <h6>Martin Gurly <span>(Secretary)</span></h6>
+              <h6>{{ log.logCreateByName }}
+                <!--                <span>(Secretary)</span> -->
+              </h6>
               <p>
-                The printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever
-                since the 1500s.
+                {{ log.description }}
               </p>
-              <small>29 Min Ago</small>
+              <small>{{ log.logCreateDate | timeAgo }}</small>
             </div>
           </div>
 
           <div class="chat-input-group position-relative">
-            <textarea class="form-control" placeholder="Write comment here"></textarea>
-            <button class="btn">
+            <textarea class="form-control" [(ngModel)]="comment" placeholder="Write comment here"></textarea>
+            <button class="btn" (click)="addPaperCommentLogs()">
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M0.636705 0.0448581C0.556778 0.00584078 0.46695 -0.00818904 0.378933 0.00459804C0.290916 0.0173851 0.208793 0.0563957 0.143274 0.116543C0.077754 0.176691 0.0318774 0.255185 0.0116255 0.341789C-0.00862634 0.428394 -0.0023138 0.519092 0.0297403 0.602056L2.55624 7.37997C2.70525 7.78008 2.70525 8.22045 2.55624 8.62056L0.0306291 15.3985C-0.00126334 15.4813 -0.00749372 15.5719 0.0127476 15.6583C0.0329889 15.7448 0.078766 15.8231 0.14413 15.8832C0.209493 15.9433 0.291421 15.9824 0.379265 15.9953C0.46711 16.0082 0.556808 15.9944 0.636705 15.9557L16.6328 8.40195C16.7089 8.36596 16.7732 8.3091 16.8183 8.23799C16.8633 8.16688 16.8872 8.08444 16.8872 8.00027C16.8872 7.91609 16.8633 7.83365 16.8183 7.76254C16.7732 7.69143 16.7089 7.63457 16.6328 7.59859L0.636705 0.0448581Z"

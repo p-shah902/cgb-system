@@ -10,7 +10,7 @@ import {
   UpsertApproachToMarkets, upsertContractAward
 } from '../utils/api/api';
 import {ApiResponse} from '../models/role';
-import {Paper, PaperStatusType} from '../models/paper';
+import {Paper, PaperData, PaperStatusType} from '../models/paper';
 
 @Injectable({
   providedIn: 'root'
@@ -63,8 +63,8 @@ export class PaperService {
   }
 
 
-  getPaperDetailsWithPreview(paperId: number): Observable<ApiResponse<Paper>> {
-    return this.http.get<ApiResponse<Paper>>(getPaperPreviewById + '/' + paperId);
+  getPaperDetailsWithPreview(paperId: number): Observable<ApiResponse<PaperData>> {
+    return this.http.get<ApiResponse<PaperData>>(getPaperPreviewById + '/' + paperId);
   }
 
   getPaperDetails(paperId: number): Observable<ApiResponse<Paper>> {

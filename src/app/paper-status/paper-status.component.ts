@@ -7,6 +7,7 @@ import {CommonModule, KeyValuePipe, NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ToastService} from '../../service/toast.service';
 import {VotingService} from '../../service/voting.service';
+import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 
 @Component({
   selector: 'app-paper-status',
@@ -20,7 +21,8 @@ import {VotingService} from '../../service/voting.service';
     FormsModule,
     NgIf,
     NgbToastModule,
-    CommonModule
+    CommonModule,
+    SafeHtmlDirective
   ],
   templateUrl: './paper-status.component.html',
   styleUrl: './paper-status.component.scss'
@@ -121,6 +123,8 @@ export class PaperStatusComponent implements OnInit {
       }))).subscribe(value => {
         console.log('DD', value);
       });
+      this.showCGBButton = false;
+      this.showPreCGBButton = false;
     }
   }
 
@@ -129,6 +133,7 @@ export class PaperStatusComponent implements OnInit {
   }
 
   loadPaperConfigList() {
+    this.isLoading = true;
     this.paperService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -140,13 +145,11 @@ export class PaperStatusComponent implements OnInit {
         }
       }, error: (error) => {
         console.log('error', error);
+      },complete:()=>{
+        this.isLoading=false;
       }
     });
 
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 1500);
   }
 
   getSelectedPapers(type: string) {

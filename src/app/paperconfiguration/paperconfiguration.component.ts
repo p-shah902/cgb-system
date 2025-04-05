@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, model, OnInit, TemplateRef} from '@angular/core';
+import {Component, EventEmitter, inject, Input, model, OnInit, Output, TemplateRef} from '@angular/core';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {PaperFilter} from '../../models/general';
 import {PaperConfig} from '../../models/paper';
@@ -11,11 +11,13 @@ import {AuthService} from '../../service/auth.service';
 import { ToastService } from '../../service/toast.service';
 import {PaperService} from '../../service/paper.service';
 import {FormsModule} from '@angular/forms';
+import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
+import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 
 @Component({
   selector: 'app-paperconfiguration',
   standalone: true,
-  imports: [CommonModule, Select2, NgbToastModule, FormsModule],
+  imports: [CommonModule, Select2, NgbToastModule, FormsModule, SafeHtmlPipe, SafeHtmlDirective],
   templateUrl: './paperconfiguration.component.html',
   styleUrl: './paperconfiguration.component.scss'
 })
@@ -44,12 +46,19 @@ export class PaperconfigurationComponent implements OnInit {
       this.user = d;
     })
   }
+  @Output() switchBackEvent = new EventEmitter<void>();
+
+  onSwitchBack() {
+    this.switchBackEvent.emit();
+  }
+
 
   ngOnInit(): void {
     this.loadPaperConfigList();
   }
 
   loadPaperConfigList() {
+    this.isLoading=true
     this.paperConfigService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -58,13 +67,10 @@ export class PaperconfigurationComponent implements OnInit {
         }
       }, error: (error) => {
         console.log('error', error);
+      },complete:()=>{
+        this.isLoading=false;
       }
     });
-
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 1500);
   }
 
   getStatusClass(status: string): string {

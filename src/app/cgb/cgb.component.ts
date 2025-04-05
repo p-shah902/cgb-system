@@ -82,14 +82,14 @@ export class CgbComponent implements OnInit {
     this.votingService.getCgbCycle().subscribe({
       next: response => {
         if (response.status && response.data) {
-          this.currentCgbCycle = response.data[response.data.length - 1];
+          this.currentCgbCycle = response.data;
 
           this.currentCgbCycle?.papersData.forEach(item => {
             if (!this.cycleObject.hasOwnProperty(item.paperID)) {
               this.cycleObject[item.paperID] = {
                 paperInfo: {
                   paperID: item.paperID,
-                  paperTitle: "Test 1",
+                  paperTitle: item.paperProvision,
                   result: '1',
                 },
                 users: []

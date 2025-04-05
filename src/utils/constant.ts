@@ -35,7 +35,7 @@ export const CURRENCY_LIST =[
       {
         "code": "AZN",
         "quantity": 1,
-        "rateFormated": "1.6353",
+        "rateFormated": "1.7",
         "diffFormated": "0.0008",
         "rate": 1.7,
         "name": "აზერბაიჯანული მანათი",

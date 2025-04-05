@@ -49,6 +49,11 @@
             </button>
           </div>
           <div class="filter-btn-div ms-auto">
+            <button class="btn create-btn" (click)="onSwitchBack()">
+              Table View
+            </button>
+          </div>
+          <div class="filter-btn-div ms-auto">
             <button class="btn create-btn" (click)="open($event, content)">
               Create Paper
             </button>
@@ -68,8 +73,8 @@
               </div>
               <div class="bill-detail">
                 <div class="d-flex justify-content-between mb-1">
-                  <h5>
-                    {{ paper.purposeTitle }}
+                  <h5 >
+                    {{ paper.description }}
                     <div class="mt-1">
                       <span [ngClass]="getStatusClass(paper.statusName)">{{ paper.statusName }}</span>
                     </div>
@@ -111,8 +116,7 @@
                   </span>
                 </div>
 
-                <p class="mb-2">
-                  {{ paper.description }}
+                <p class="mb-2" [safeHtml]="paper.purposeTitle">
                 </p>
                 <small>Last Modify · {{ paper.lastModifyDate | date: 'dd-MMMM-yyyy' }}</small>
               </div>

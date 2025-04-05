@@ -50,10 +50,6 @@ export class RoleaccessComponent implements OnInit {
     this.getUserRoleList();
     this.loadUserParticulars();
     this.getUserAccessList();
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 1500);
   }
 
   getUserRoleList() {
@@ -67,11 +63,14 @@ export class RoleaccessComponent implements OnInit {
   }
 
   getUserAccessList() {
+    this.isLoading=true
     this.roleService.getAllRoleAccessList().subscribe({
       next: (response) => {
         this.userRoleAccesses = response.data
       }, error: (error) => {
         console.error('Error loading user particulars', error);
+      },complete:()=>{
+        this.isLoading=false
       }
     })
   }

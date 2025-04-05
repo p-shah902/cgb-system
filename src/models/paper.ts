@@ -154,6 +154,11 @@ export interface Paper {
   paperTimelineDetails:PaperTimelineDetails[]
 }
 
+export interface PaperData {
+  paperDetails: Paper
+  paperTimelineDetails: PaperTimelineDetails[]
+}
+
 export interface PaperDetailsType {
   paperDetails: PaperDetails,
   consultationsDetails: ConsultationsDetails[],

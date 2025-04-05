@@ -42,7 +42,7 @@ export class VendorsComponent implements OnInit {
 
   loadVendoreDetails()
   {
-    
+    this.isLoading=true;
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
@@ -53,12 +53,11 @@ export class VendorsComponent implements OnInit {
       },
       error: (error) => {
         console.log('error', error);
-      },
+      },complete:()=>{
+        this.isLoading=false;
+      }
     });
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 2000);
+    
   }
 
   nevigate(){

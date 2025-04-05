@@ -33,11 +33,14 @@ import {EditorComponent} from '../../components/editor/editor.component';
 import {format} from 'date-fns';
 import {CommentableDirective} from '../../directives/commentable.directive';
 import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
+import {BehaviorSubject} from 'rxjs';
+import {PaperConfigService} from '../../service/paper/paper-config.service';
+import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -45,6 +48,7 @@ export class Template1Component {
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
+  private paperConfigService = inject(PaperConfigService);
   private searchTimeout: any;
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
@@ -74,6 +78,11 @@ export class Template1Component {
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
+  private allApisDone$ = new BehaviorSubject<boolean>(false);
+  private completedCount = 0;
+  private totalCalls = 4;
+  logs: any[] = [];
+  comment: string = '';
 
   constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
@@ -98,12 +107,19 @@ export class Template1Component {
       premium: true
     }).then(this._setupEditor.bind(this));
 
-    this.route.paramMap.subscribe(params => {
-      this.paperId = params.get('id');
-      if (this.paperId) {
-        this.fetchPaperDetails(Number(this.paperId))
+    this.allApisDone$.subscribe((done) => {
+      if (done) {
+        this.route.paramMap.subscribe(params => {
+          this.paperId = params.get('id');
+          if (this.paperId) {
+            this.fetchPaperDetails(Number(this.paperId))
+            this.getPaperCommentLogs(Number(this.paperId));
+          } else {
+            this.isExpanded = false;
+          }
+          console.log('Paper ID:', this.paperId);
+        });
       }
-      console.log('Paper ID:', this.paperId);
     });
 
     this.route.queryParamMap.subscribe(queryParams => {
@@ -255,6 +271,28 @@ export class Template1Component {
 
   }
 
+  getPaperCommentLogs(paperId: number) {
+    this.paperService.getPaperCommentLogs(paperId).subscribe(value => {
+      this.logs = value.data;
+    })
+  }
+
+  addPaperCommentLogs() {
+    if (this.paperId) {
+      this.paperService.addPaperCommentLogs({
+        paperId: Number(this.paperId),
+        logType: "Other",
+        remarks: this.comment,
+        description: this.comment,
+        columnName: "string",
+        isActive: true
+      }).subscribe(value => {
+        this.comment = '';
+        this.getPaperCommentLogs(Number(this.paperId));
+      })
+    }
+  }
+
   get generalInfo() {
     return this.generalInfoForm.get('generalInfo');
   }
@@ -280,6 +318,7 @@ export class Template1Component {
       next: (response) => {
         if (response.status && response.data) {
           const itemData = response.data;
+          this.incrementAndCheck(itemData.length);
           if (itemData.length > 0) {
             itemData.forEach((item) => {
               this.loadDictionaryDetails(item.itemName);
@@ -448,6 +487,10 @@ export class Template1Component {
           },
           costAllocation: patchValues.costAllocation,
         })
+        setTimeout(() => {
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+        }, 500)
 
         this.addRow(true);
         this.addBidRow(true);
@@ -460,7 +503,7 @@ export class Template1Component {
     this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-
+          this.incrementAndCheck();
           switch (itemName) {
             case 'Currencies':
               this.currenciesData = response.data || [];
@@ -608,6 +651,7 @@ export class Template1Component {
         if (reponse.status && reponse.data) {
 
           this.countryDetails = reponse.data || [];
+          this.incrementAndCheck();
         }
       },
       error: (error) => {
@@ -622,6 +666,7 @@ export class Template1Component {
         if (reponse.status && reponse.data) {
 
           this.paperStatusList = reponse.data || [];
+          this.incrementAndCheck();
         }
       },
       error: (error) => {
@@ -808,12 +853,22 @@ export class Template1Component {
             label: t.displayName,
             value: t.id
           }));
-
+          this.incrementAndCheck();
         }
       }, error: (error) => {
         console.log('error', error);
       }
     })
+  }
+
+  private incrementAndCheck(increaseCount: number | null = null) {
+    this.completedCount++;
+    if (increaseCount) {
+      this.totalCalls = this.totalCalls + increaseCount;
+    }
+    if (this.completedCount === this.totalCalls) {
+      this.allApisDone$.next(true);
+    }
   }
 
   setupMethodologyListeners() {
@@ -1059,10 +1114,19 @@ export class Template1Component {
     });
   }
 
-  setPaperStatus(status: string): void {
+  setPaperStatus(status: string, callAPI: boolean = true): void {
     if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
 
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
+    if (callAPI && this.paperId) {
+      this.paperConfigService.updateMultiplePaperStatus([{
+        paperId: this.paperId,
+        existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
+        statusId: this.paperStatusId
+      }]).subscribe(value => {
+        console.log('DD', value);
+      });
+    }
 
   }
 
