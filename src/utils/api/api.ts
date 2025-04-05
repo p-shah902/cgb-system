@@ -33,3 +33,4 @@ export const initiateCgbCycle = baseUri + '/api/Voting/InitiateCGBVotingCycle';
 export const getCkEditorToken = baseUri + '/api/UserMaster/GetCKEditorToken';
 export const getCurrentCgbCycle = baseUri + '/api/Voting/GetCGBVotingCycleData';
 export const updatePaperVote = baseUri + '/api/Voting/UpdateVote';
+export const getArchievedPaperListUri=baseUri+'/api/Paper/GetArchievedPaperList';

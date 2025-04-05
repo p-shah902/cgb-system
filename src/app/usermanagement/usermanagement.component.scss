@@ -143,3 +143,151 @@
   100% { transform: rotate(360deg); }
 }
 
+.page-card-div {
+  padding: 20px;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  background-color: #ffffff;
+  .custom-nav-div {
+    .nav.nav-tabs {
+      display: flex;
+      border: 1px solid #E8E8E8;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 240px;
+      .nav-item {
+        flex: 0 0 50%;
+        .nav-link {
+          border: none;
+          font-size: 14px;
+          font-weight: 500;
+          color: #1B202B;
+          padding: 15px 20px;
+          display: flex;
+          gap: 10px;
+          width: 100%;
+          border-radius: 0;
+          &.active {
+            background-color: #582AA2;
+            color: #ffffff;
+
+          }
+          span {
+            background-color: #EC4747;
+            color: #ffffff;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
+  .inbox-col {
+    overflow: hidden;
+    .inbox-head {
+      background-color: #000000;
+      h5 {
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 22px;
+        color: #FFFFFF;
+        display: flex;
+        gap: 5px;
+        padding: 15px;
+        span {
+          background-color: #EC4747;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 500;
+          border-radius: 50%;
+        }
+      }
+    }
+    .inbox-body {
+      .inbox-card {
+        border: 1px solid #DCDCDC;
+        padding: 15px;
+        border-radius: 12px;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        h5 {
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 22px;
+          color: #1B202B;
+        }
+        span {
+          padding: 4px 12px;
+          gap: 10px;
+          background: #BCCEE9;
+          border-radius: 14px;
+          font-weight: 600;
+          font-size: 12px;
+          line-height: 150%;
+          color: #1160D8;
+        }
+        p {
+          font-style: normal;
+          font-weight: 500;
+          font-size: 12px;
+          line-height: 150%;
+          color: #626262;
+          margin: 0;
+        }
+        .ic-btn-div {
+          .btn {
+            padding: 12px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            &:hover {
+              svg {
+                path {
+                  fill: #ffffff;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    @media screen and (max-width: 991px) {
+      .inbox-head {
+        h5 {
+          font-size: 14px;
+        }
+      }
+      .inbox-body {
+        .inbox-card {
+          h5 {
+            font-size: 14px;
+          }
+          span {
+            font-size: 12px;
+          }
+          p {
+            font-size: 14px;
+          }
+          .ic-btn-div {
+            .btn {
+              padding: 10px 15px;
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+
+  }
+}
+
