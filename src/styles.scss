@@ -300,10 +300,12 @@ a {
     }
   }
   .visitor-logs-card {
-    background: #FFFFFF;
-    border: 1px solid #DCDCDC;
-    border-radius: 12px;
-    padding: 15px;
+    background:#FFFFFF;
+    border:1px solid #DCDCDC;
+    border-radius:12px;
+    padding:15px;
+    max-height: 300px;
+    overflow:auto;
     .visitor-box {
       display: flex;
       gap: 10px;
@@ -367,7 +369,12 @@ a {
       textarea {
         height: 100px;
       }
+      position: sticky !important;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
+
   }
 }
 .cgb-table-div {
@@ -754,6 +761,8 @@ body .form-control {
   .btn {
     height: 47px;
     background-color: #ffffff;
+    min-width: 130px;
+    text-align: center;
   }
 
   .create-btn {
@@ -762,7 +771,7 @@ body .form-control {
     font-size: 14px;
     padding: 10px 15px;
     height: 44px;
-    width: 100%;
+    width: auto;
 
     &:hover {
       background-color: #582AA2;
@@ -1206,4 +1215,25 @@ hr {
 }
 .cursor-pointer {
   cursor: pointer;
+}
+
+.select2-selection__choice {
+  border-color: #582aa2 !important;
+  color: #582aa2 !important;
+  background-color: #ede1ff !important;
+}
+.select2-selection__choice__remove {
+  color: #582aa2 !important;
+}
+.select2-selection {
+  padding: 10px 10px;
+  border-color: #DCDCDC !important;
+  font-size: 14px;
+  height: auto !important;
+  background-image: url("../public/img/select-arrow.png")!important;
+  background-position:right 15px center!important;
+  background-repeat: no-repeat!important;
+  .select2-selection__arrow {
+    display: none !important;
+  }
 }
