@@ -139,13 +139,13 @@ export class Template1Component {
         contractEndDate: ['', Validators.required],
         isIFRS16: [false],
         isGIAAPCheck: [false],
-        isPHCA: [false],
+        isPHCA: [null],
         psajv: [[], Validators.required],
-        isLTCC: [false],
+        isLTCC: [null],
         ltccNotes: [''],
-        isGovtReprAligned: [false],
+        isGovtReprAligned: [null],
         govtReprAlignedComment: [''],
-        isConflictOfInterest: [false],
+        isConflictOfInterest: [null],
         conflictOfInterestComment: [''],
         strategyDescription: ['']
       }),
@@ -172,7 +172,7 @@ export class Template1Component {
         costAvoidanceValue: [0],
         costAvoidancePercent: [0],
         costAvoidanceRemarks: [''],
-      }, {validators: this.requireAllIfAny}),
+      }),
       costAllocation: this.fb.group({
         contractCommittee_SDCC: [{value: false, disabled: true}],
         contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
@@ -225,7 +225,6 @@ export class Template1Component {
     // Initialize with one row to prevent errors
     this.addRow();
     this.addBidRow();
-    this.addConsultationRow();
     // Subscribe to changes in originalCurrency or contractValueUsd
     this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
       this.updateExchangeRate();
@@ -237,6 +236,10 @@ export class Template1Component {
 
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
       this.onSelectChange();
+    });
+
+    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
+      this.addConsultationRow();
     });
 
     // Watch changes on enable/disable Methodology
@@ -677,7 +680,7 @@ export class Template1Component {
 
         if (isChecked) {
           percentageControl?.enable();
-          valueControl?.enable();
+          valueControl?.disable();
 
           if (checkbox === "isACG") {
             ACG1?.enable();
@@ -754,6 +757,7 @@ export class Template1Component {
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
           this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
+          this.calculateTotal()
         }
       });
     });
@@ -1006,7 +1010,7 @@ export class Template1Component {
         riskMitigationArray.push(
           this.fb.group({
             psa: [item.psa, Validators.required],
-            isNoExistingBudget: [item.isNoExistingBudget], // Checkbox
+            isNoExistingBudget: [false], // Checkbox
             technicalCorrect: [item.technicalCorrectId, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
@@ -1015,11 +1019,12 @@ export class Template1Component {
         );
       });
     } else {
+      const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
       this.consultationRows.push(
         this.fb.group({
           psa: ['', Validators.required],
           isNoExistingBudget: [false], // Checkbox
-          technicalCorrect: [null, Validators.required],
+          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: true }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
           id: [0]
@@ -1056,7 +1061,7 @@ export class Template1Component {
 
   onSubmit(): void {
     this.submitted = true;
-    console.log("==this.generalInfoForm?.value?", this.generalInfoForm?.value)
+    console.log("==this.generalInfoForm", this.generalInfoForm)
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
@@ -1118,7 +1123,7 @@ export class Template1Component {
         vP1UserId: generalInfoValue?.vP1UserId || "",
         procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
         pdManagerName: generalInfoValue?.pdManagerName || "",
-        isPHCA: generalInfoValue?.isPHCA,
+        isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
         totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
         currencyCode: generalInfoValue?.originalCurrency || "",
@@ -1126,13 +1131,13 @@ export class Template1Component {
         contractValue: generalInfoValue?.contractValueOriginalCurrency,
         contractStartDate: generalInfoValue?.contractStartDate,
         contractEndDate: generalInfoValue?.contractEndDate,
-        isLTCC: generalInfoValue?.isLTCC,
+        isLTCC: generalInfoValue?.isLTCC || false,
         ltccNotes: generalInfoValue?.ltccNotes,
-        isGovtReprAligned: generalInfoValue?.isGovtReprAligned,
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
         govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
-        isIFRS16: generalInfoValue?.isIFRS16,
-        isGIAAPCheck: generalInfoValue?.isGIAAPCheck,
-        isConflictOfInterest: generalInfoValue?.isConflictOfInterest,
+        isIFRS16: generalInfoValue?.isIFRS16 || false,
+        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
+        isConflictOfInterest: generalInfoValue?.isConflictOfInterest || false,
         conflictOfInterestComment: generalInfoValue?.conflictOfInterestComment,
         strategyDescription: generalInfoValue?.strategyDescription,
         remunerationType: procurementValue?.remunerationType,
