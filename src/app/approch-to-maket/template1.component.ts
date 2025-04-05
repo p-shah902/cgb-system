@@ -180,14 +180,14 @@ export class Template1Component {
         preQualificationResult: [''],
       }),
       valueDelivery: this.fb.group({
-        costReductionPercent: [0],
-        costReductionValue: [0],
+        costReductionPercent: [null],
+        costReductionValue: [null],
         costReductionRemarks: [''],
-        operatingEfficiencyValue: [0],
-        operatingEfficiencyPercent: [0],
+        operatingEfficiencyValue: [null],
+        operatingEfficiencyPercent: [null],
         operatingEfficiencyRemarks: [''],
-        costAvoidanceValue: [0],
-        costAvoidancePercent: [0],
+        costAvoidanceValue: [null],
+        costAvoidancePercent: [null],
         costAvoidanceRemarks: [''],
       }),
       costAllocation: this.fb.group({
@@ -344,7 +344,7 @@ export class Template1Component {
 
       const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === paperDetailData?.paperStatusId?.toString())
 
-      if(selectedPaperStatus?.paperStatus === "Registered") {
+      if(selectedPaperStatus?.paperStatus !== "Draft") {
         this.isRegisterPaper = true
       }
 
@@ -388,6 +388,7 @@ export class Template1Component {
 // Assign default values for all PSA/JV fields if not in API data
       Object.keys(psaNameToCheckbox).forEach(key => {
         const checkboxKey = psaNameToCheckbox[key];
+        console.log("==checkboxKey", checkboxKey)
         if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
           patchValues.costAllocation[checkboxKey] = false;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
@@ -395,6 +396,8 @@ export class Template1Component {
         }
       });
 
+      console.log("==patchValues", patchValues
+      )
 
       const selectedValues = paperDetailData.psajv
         .split(',')

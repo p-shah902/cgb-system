@@ -1,4 +1,4 @@
-import {Directive, ElementRef, Input, OnInit} from '@angular/core';
+import {Directive, ElementRef, Input, OnInit, OnChanges} from '@angular/core';
 import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '@ckeditor/ckeditor5-angular';
 import {ContextConfig} from 'ckeditor5';
 import {environment} from '../environments/environment';
@@ -20,7 +20,7 @@ const CLOUD_SERVICES_WEBSOCKET_URL = environment.ckeditorSocketUrl;
   standalone: true,
   selector: '[commentable]'
 })
-export class CommentableDirective implements OnInit {
+export class CommentableDirective implements OnChanges {
   @Input('commentable') channelId: string = "";
 
   // We'll hold a reference to the CKEditor context so we can destroy it later.
@@ -36,8 +36,8 @@ export class CommentableDirective implements OnInit {
     }
   }
 
-  public ngOnInit(): void {
-    if (this.channelId) {
+  public ngOnChanges(): void {
+    if (this.channelId && !this.context) {
       loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
     }
   }
