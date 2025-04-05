@@ -240,7 +240,7 @@ export class Template1Component {
     });
 
     this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
-      this.addConsultationRow();
+      this.addConsultationRow(false, true);
     });
 
     // Watch changes on enable/disable Methodology
@@ -1007,7 +1007,7 @@ export class Template1Component {
     }
   }
 
-  addConsultationRow(isFirst = false) {
+  addConsultationRow(isFirst = false, isChangedCamUser = false) {
     if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.consultationsDetails || []
       const riskMitigationArray = this.consultationRows;
@@ -1017,7 +1017,6 @@ export class Template1Component {
         riskMitigationArray.push(
           this.fb.group({
             psa: [item.psa, Validators.required],
-            isNoExistingBudget: [false], // Checkbox
             technicalCorrect: [item.technicalCorrectId, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
@@ -1027,10 +1026,12 @@ export class Template1Component {
       });
     } else {
       const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
+      if(isChangedCamUser) {
+        this.consultationRows.clear();
+      }
       this.consultationRows.push(
         this.fb.group({
           psa: ['', Validators.required],
-          isNoExistingBudget: [false], // Checkbox
           technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: true }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
