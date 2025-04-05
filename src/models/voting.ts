@@ -12,6 +12,7 @@ export interface VotingCycle {
 export interface ParsedData {
   voteId: number,
   paperID: number,
+  paperProvision: string,
   votingCycleId: number,
   userID: number,
   userName: string,

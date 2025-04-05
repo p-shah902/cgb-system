@@ -88,7 +88,7 @@ export class PaperListComponent implements OnInit {
     }
 
     getStatusClass(status: string): string {
-      if (status.toLowerCase().includes('approved')) {
+      if (status.toLowerCase().includes('approved') || status.toLowerCase().includes('registered')) {
         return 'p-approved';
       } else if (status.toLowerCase().includes('waiting')) {
         return 'p-waiting';

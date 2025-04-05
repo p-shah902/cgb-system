@@ -89,7 +89,7 @@ export class CgbComponent implements OnInit {
               this.cycleObject[item.paperID] = {
                 paperInfo: {
                   paperID: item.paperID,
-                  paperTitle: "Test 1",
+                  paperTitle: item.paperProvision,
                   result: '1',
                 },
                 users: []
