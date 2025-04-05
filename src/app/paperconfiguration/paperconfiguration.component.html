@@ -12,7 +12,7 @@
 </div>
 
 
-<div class="container-fluid">
+<div class="container-fluid"> 
   <div class="row">
     <div class="col-md-12">
       <div class="page-card-div">
@@ -49,11 +49,16 @@
             </button>
           </div>
           <div class="filter-btn-div ms-auto">
+            <button class="btn create-btn" (click)="onSwitchBack()">
+              Table View
+            </button>
+          </div>
+          <div class="filter-btn-div ms-auto">
             <button class="btn create-btn" (click)="open($event, content)">
               Create Paper
             </button>
           </div>
-        </div>
+        </div> 
 
         <div *ngIf="isLoading" class="table-loader">
           <div class="spinner"></div>
@@ -68,8 +73,8 @@
               </div>
               <div class="bill-detail">
                 <div class="d-flex justify-content-between mb-1">
-                  <h5>
-                    {{ paper.purposeTitle }}
+                  <h5 >
+                    {{ paper.purposeTitle | stripHtml }}
                     <div class="mt-1">
                       <span [ngClass]="getStatusClass(paper.statusName)">{{ paper.statusName }}</span>
                     </div>
@@ -157,7 +162,7 @@
                         stroke="#626262" stroke-width="1.2"/>
                     </svg>
                   </button>
-                </div>
+                </div> 
               </div>
             </div>
           </div>

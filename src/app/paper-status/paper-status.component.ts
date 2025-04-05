@@ -129,6 +129,7 @@ export class PaperStatusComponent implements OnInit {
   }
 
   loadPaperConfigList() {
+    this.isLoading = true;
     this.paperService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -140,13 +141,11 @@ export class PaperStatusComponent implements OnInit {
         }
       }, error: (error) => {
         console.log('error', error);
+      },complete:()=>{
+        this.isLoading=false;
       }
     });
 
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 1500);
   }
 
   getSelectedPapers(type: string) {

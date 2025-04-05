@@ -75,7 +75,6 @@ export class DictionariesEditComponent implements OnInit {
   
       });
 
-      // this.resetForm();
     }
 
     addDictionaryDetails(): void {
@@ -105,6 +104,7 @@ export class DictionariesEditComponent implements OnInit {
             this.toastService.show('Error Occurred','danger');
           },complete:()=>{
             this.isSubmitting=false;
+            this.router.navigate(['/dictionaries-list']); 
           }
         });
       } else {
@@ -112,21 +112,11 @@ export class DictionariesEditComponent implements OnInit {
         this.toastService.show('Please Fill All Required Fields','danger')
         return;
       }
-  
-      this.resetForm();
+
     }
   
     resetForm(): void {
-
-        if(this.isEditing&&this.editDetail)
-        {
-          console.log("here+>");
-          this.dictForm.patchValue({...this.editDetail});
-        }else{
-          console.log("here2>");
-          this.resetToDefault();
-        }
-      this.mapFormValues();
+      this.router.navigate(['/dictionaries-list']); 
     }
 
     resetToDefault()

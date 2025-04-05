@@ -189,6 +189,7 @@ export class VendorDetailComponent implements OnInit {
             else{
               this.toastService.show('Vendor Addded Successfully','success');
             }
+            this.router.navigate(['/vendors']);
            
           }
           else{

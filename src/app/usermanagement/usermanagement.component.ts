@@ -26,6 +26,7 @@ export class UsermanagementComponent implements OnInit{
   }
 
   loadUserDetails(){
+    this.isLoading=true;
     this.userService.getUserDetailsList().subscribe({
       next: (response)=>{
         if(response.status && response.data)
@@ -35,13 +36,11 @@ export class UsermanagementComponent implements OnInit{
         }
       },error:(error)=>{
         console.log('error',error);
+      },complete:()=>{
+        this.isLoading=false;
       }
     })
 
-    this.isLoading = true;
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 2000);
   }
 
   nevigate(){
