@@ -48,9 +48,14 @@
               {{ aToZ }}
             </button>
           </div>
-          <div class="filter-btn-div ms-auto">
-            <button class="btn create-btn" (click)="onSwitchBack()">
+          <div class="filter-btn-div">
+            <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="onSwitchBack()">
               Table View
+            </button>
+          </div>
+          <div class="filter-btn-div ms-auto">
+            <button class="btn create-btn" (click)="getArchivePaperList()">
+              Archived Paper
             </button>
           </div>
           <div class="filter-btn-div ms-auto">

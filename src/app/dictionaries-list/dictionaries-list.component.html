@@ -67,9 +67,7 @@
                             <label [class.active]="detail.isActive">{{ detail.isActive ? 'Active' : 'Inactive' }}</label>
                            </div>
                          </td>
-                         <td>
-                           {{detail.modifiedDate | date: 'dd MMMM yyyy'}}
-                         </td>
+                         <td>{{ (detail.modifiedDate || detail.createdDate) | date: 'dd MMMM yyyy' }}</td>
                          <td>
                            <div class="edit-btn-div">
                              <a [routerLink]="['/dictionaries-edit', item.itemName,detail.id]" class="btn">

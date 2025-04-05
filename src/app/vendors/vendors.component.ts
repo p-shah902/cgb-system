@@ -48,6 +48,7 @@ export class VendorsComponent implements OnInit {
         if (reponse.status && reponse.data) {
           
           this.vendorDetails = reponse.data;
+          this.sortByDate();
           console.log('vendor:', this.vendorDetails);
         }
       },
@@ -64,5 +65,12 @@ export class VendorsComponent implements OnInit {
     this.router.navigate(['/vendor-detail']);
   }
 
+  sortByDate(){
+    this.vendorDetails.sort((a,b)=>{
+      const dateA = new Date(a.modifiedDate || a.createdDate).getTime();
+      const dateB = new Date(b.modifiedDate || b.createdDate).getTime();
+      return dateB - dateA;
+    })
+  }
 
 }

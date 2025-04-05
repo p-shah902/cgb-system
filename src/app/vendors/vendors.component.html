@@ -93,7 +93,7 @@
                       <label> {{ vendor.isActive ? 'Active' : 'Inactive' }}</label>
                     </div>
                   </td>
-                  <td>{{vendor.modifiedDate| date: 'dd MMMM yyyy'}}</td>
+                  <td>{{ (vendor.modifiedDate || vendor.createdDate) | date: 'dd MMMM yyyy' }}</td>
                   <td>
                     <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
                       <button type="button" class="btn" id="dropdownBasic1" ngbDropdownToggle>
