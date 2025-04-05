@@ -31,7 +31,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
     RouterLink,
     PaperconfigurationComponent,
     SafeHtmlPipe,
-    
+
   ],
   templateUrl: './paper-list.component.html',
   styleUrl: './paper-list.component.scss'
@@ -51,8 +51,8 @@ export class PaperListComponent implements OnInit {
     selectedPaper: number = 0;
     isLoading:boolean=false
     isCardView:boolean=false
-  
-  
+
+
     constructor(private authService: AuthService,public toastService:ToastService) {
       this.filter = {
         statusIds: [],
@@ -66,11 +66,11 @@ export class PaperListComponent implements OnInit {
     togalView(){
       this.isCardView=!this.isCardView
     }
-  
+
     ngOnInit(): void {
       this.loadPaperConfigList();
     }
-  
+
     loadPaperConfigList() {
       this.isLoading=true
       this.paperConfigService.getPaperConfigList(this.filter).subscribe({
@@ -86,7 +86,7 @@ export class PaperListComponent implements OnInit {
         }
       });
     }
-  
+
     getStatusClass(status: string): string {
       if (status.toLowerCase().includes('approved')) {
         return 'p-approved';
@@ -96,11 +96,11 @@ export class PaperListComponent implements OnInit {
         return 'p-archive';
       }
     }
-  
+
     isDisabled(status: string): boolean {
       return status.toLowerCase().includes('approved');
     }
-  
+
     togalOrder() {
       this.isDesc = !this.isDesc;
       this.aToZ = this.aToZ.split('').reverse().join('');
@@ -112,10 +112,10 @@ export class PaperListComponent implements OnInit {
       }
       this.loadPaperConfigList();
     }
-  
-  
+
+
     private readonly _mdlSvc = inject(NgbModal);
-  
+
     public paperListData: any = [
       {
         value: '/approach-to-market',
@@ -138,7 +138,7 @@ export class PaperListComponent implements OnInit {
         label: 'Info note'
       }
     ];
-  
+
     open(event: Event, content: TemplateRef<any>, paperId?: number) {
       event.preventDefault();
       this._mdlSvc.open(content, {
@@ -153,17 +153,17 @@ export class PaperListComponent implements OnInit {
           // Handle modal dismiss
         }
       );
-  
+
       if (paperId) {
         this.selectedPaper = paperId;
       }
     }
-  
+
     openPage(value: any, modal: any) {
       this.router.navigate([value.value]);
       modal.close('Save click')
     }
-  
+
     approvePaper(modal: any, type: string) {
       if (this.selectedPaper > 0) {
         this.paperConfigService.approveRejectPaper({
@@ -184,7 +184,7 @@ export class PaperListComponent implements OnInit {
         });
       }
     }
-  
+
     addReview(modal: any) {
       if (this.selectedPaper > 0) {
         this.paperService.addPaperCommentLogs({

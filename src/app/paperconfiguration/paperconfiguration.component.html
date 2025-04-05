@@ -12,7 +12,7 @@
 </div>
 
 
-<div class="container-fluid"> 
+<div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
       <div class="page-card-div">
@@ -58,7 +58,7 @@
               Create Paper
             </button>
           </div>
-        </div> 
+        </div>
 
         <div *ngIf="isLoading" class="table-loader">
           <div class="spinner"></div>
@@ -74,7 +74,7 @@
               <div class="bill-detail">
                 <div class="d-flex justify-content-between mb-1">
                   <h5 >
-                    {{ paper.purposeTitle | stripHtml }}
+                    {{ paper.description }}
                     <div class="mt-1">
                       <span [ngClass]="getStatusClass(paper.statusName)">{{ paper.statusName }}</span>
                     </div>
@@ -116,8 +116,7 @@
                   </span>
                 </div>
 
-                <p class="mb-2">
-                  {{ paper.description }}
+                <p class="mb-2" [safeHtml]="paper.purposeTitle">
                 </p>
                 <small>Last Modify · {{ paper.lastModifyDate | date: 'dd-MMMM-yyyy' }}</small>
               </div>
@@ -162,7 +161,7 @@
                         stroke="#626262" stroke-width="1.2"/>
                     </svg>
                   </button>
-                </div> 
+                </div>
               </div>
             </div>
           </div>

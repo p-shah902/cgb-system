@@ -12,11 +12,12 @@ import { ToastService } from '../../service/toast.service';
 import {PaperService} from '../../service/paper.service';
 import {FormsModule} from '@angular/forms';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
+import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 
 @Component({
   selector: 'app-paperconfiguration',
   standalone: true,
-  imports: [CommonModule, Select2, NgbToastModule, FormsModule,SafeHtmlPipe],
+  imports: [CommonModule, Select2, NgbToastModule, FormsModule, SafeHtmlPipe, SafeHtmlDirective],
   templateUrl: './paperconfiguration.component.html',
   styleUrl: './paperconfiguration.component.scss'
 })
@@ -46,7 +47,7 @@ export class PaperconfigurationComponent implements OnInit {
     })
   }
   @Output() switchBackEvent = new EventEmitter<void>();
-  
+
   onSwitchBack() {
     this.switchBackEvent.emit();
   }
