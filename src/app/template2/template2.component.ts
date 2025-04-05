@@ -176,7 +176,7 @@ export class Template2Component {
             }),
             procurementDetails: this.fb.group({
                 supplierAwardRecommendations: ['', Validators.required],
-                inviteToBid: this.fb.array([]),
+                legalEntitiesAwarded: this.fb.array([]),
                 isConflictOfInterest: [false],
                 conflictOfInterestComment: [''],
                 isRetrospectiveApproval: [false],
@@ -549,7 +549,7 @@ export class Template2Component {
 
                 if (isChecked) {
                     percentageControl?.enable();
-                    valueControl?.enable();
+                    valueControl?.disable();
 
                     if (checkbox === "isACG") {
                         ACG1?.enable();
@@ -626,6 +626,7 @@ export class Template2Component {
                 if (percentageValue >= 0 && percentageValue <= 100) {
                     const calculatedValue = (percentageValue / 100) * contractValue;
                     this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
+                  this.calculateTotal()
                 }
             });
         });
@@ -879,7 +880,7 @@ export class Template2Component {
                 coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
                 steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
             },
-            bidInvite: procurementValue.inviteToBid || []
+          legalEntitiesAwarded: procurementValue.legalEntitiesAwarded || []
         }
 
         console.log("==params", params)
@@ -1080,7 +1081,7 @@ export class Template2Component {
     }
 
     get inviteToBid(): FormArray {
-        return this.generalInfoForm.get('procurementDetails.inviteToBid') as FormArray;
+        return this.generalInfoForm.get('procurementDetails.legalEntitiesAwarded') as FormArray;
     }
 
     addBidRow(isFirst = false) {
@@ -1109,10 +1110,10 @@ export class Template2Component {
                     contractStartDate: [''],
                     contractEndDate: [''],
                     extensionOption: [''],
-                    bidCurrencyCode: [''],
-                    bidTotalAwardValueUSD: [0],
-                    bidExchangeRate: [0],
-                    bidContractValue: [0],
+                  currencyCode: [''],
+                  totalAwardValueUSD: [0],
+                  exchangeRate: [0],
+                  contractValue: [0],
                     id: [0]
                 })
             );
