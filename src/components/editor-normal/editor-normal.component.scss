@@ -48,13 +48,6 @@
   border-right: 0;
 }
 
-.editor-container_document-editor .editor-container__editor-wrapper {
-  max-height: var(--ckeditor5-preview-height);
-  min-height: var(--ckeditor5-preview-height);
-  overflow-y: scroll;
-  background: var(--ck-color-base-foreground);
-}
-
 .editor-container_document-editor .editor-container__editor {
   margin: 0;
   height: 100%;
@@ -62,13 +55,11 @@
 
 .editor-container_document-editor .editor-container__editor .ck.ck-editor__editable {
   box-sizing: border-box;
-  //min-width: calc(210mm + 2px);
-  //max-width: calc(210mm + 2px);
-  min-width: 100%;
-  max-width: 100%;
+  min-width: calc(210mm + 2px);
+  max-width: calc(210mm + 2px);
   min-height: 297mm;
   height: fit-content;
-  padding: 10px 20px;
+  padding: 20mm 12mm;
   border: 1px hsl(0, 0%, 82.7%) solid;
   background: hsl(0, 0%, 100%);
   box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
@@ -84,14 +75,13 @@
 .editor-container_include-annotations .editor-container__editor .ck.ck-editor__editable {
   margin-right: 0;
 }
+
 .editor-container__sidebar {
   min-width: var(--ckeditor5-preview-sidebar-width);
   max-width: var(--ckeditor5-preview-sidebar-width);
   margin-top: 28px;
   margin-left: 10px;
   margin-right: 10px;
-  position: absolute;
-  right: 250px;
 }
 
 .revision-history {
@@ -125,47 +115,4 @@
 .ck-content .table tr {
   break-inside: avoid;
   break-after: auto;
-}
-@media screen and (min-width: 1701px) and (max-width: 1800px) {
-  .editor-container__sidebar {
-    position: absolute;
-    right: 140px;
-    margin-top: -80px;
-  }
-}
-@media screen and (min-width: 1601px) and (max-width: 1700px) {
-  .editor-container__sidebar {
-    position: absolute;
-    right: 110px;
-    margin-top: -80px;
-  }
-}
-@media screen and (min-width: 1501px) and (max-width: 1600px) {
-  .editor-container__sidebar {
-    position: absolute;
-    right: 80px;
-    margin-top: -80px;
-  }
-}
-@media screen and (min-width: 1301px) and (max-width: 1500px) {
-  .editor-container__sidebar {
-    position: absolute;
-    right: 50px;
-    margin-top: -80px;
-  }
-}
-@media screen and (min-width: 1200px) and (max-width: 1300px) {
-  .editor-container__sidebar {
-    position: absolute;
-    right: 20px;
-    margin-top: -80px;
-  }
-}
-@media screen and (max-width: 1199px) {
-  .editor-container__sidebar {
-    position: relative;
-    right: 0;
-    margin-top: 0;
-  }
-
 }

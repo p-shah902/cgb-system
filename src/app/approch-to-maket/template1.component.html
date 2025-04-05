@@ -78,7 +78,8 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
-                    <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"/>
+                    <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"
+                           id="paperProvision" commentable="approch-to-market"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
                       <small class="text-danger">Paper Provision is required.</small>
@@ -105,11 +106,12 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Why is this work required?* </label>
-<!--                    <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"-->
-<!--                              formControlName="whyIsThisWorkRequired" [config]="config">-->
-<!--                    </ckeditor>-->
-                    <app-editor/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('whyIsThisWorkRequired')?.hasError('required')">
+                                        <ckeditor *ngIf="( Editor && config )" data="" [editor]="Editor"
+                                                  formControlName="purposeRequired" [config]="config">
+                                        </ckeditor>
+<!--                    <app-editor/>-->
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('whyIsThisWorkRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
 
@@ -1605,4 +1607,5 @@
       </div>
     </div>
   </div>
+  <div id="context-annotations" style="width: 400px;position: absolute;right: 0;"></div>
 </div>
