@@ -924,27 +924,27 @@
                              class="form-control p-1 w-auto" placeholder="0.00">
                     </td>
                     <td>
-                      <input formControlName="value_isShah" min="0" type="number" class="form-control p-1 w-auto"
+                      <input readonly formControlName="value_isShah" min="0" type="number" class="form-control p-1 w-auto"
                              placeholder="0.00">
                     </td>
                     <td>
-                      <input formControlName="value_isSCP" min="0" type="number" class="form-control p-1 w-auto"
+                      <input readonly formControlName="value_isSCP" min="0" type="number" class="form-control p-1 w-auto"
                              placeholder="0.00">
                     </td>
                     <td>
-                      <input formControlName="value_isBTC" min="0" type="number" class="form-control p-1 w-auto"
+                      <input readonly formControlName="value_isBTC" min="0" type="number" class="form-control p-1 w-auto"
                              placeholder="0.00">
                     </td>
                     <td>
-                      <input formControlName="value_isAsiman" min="0" type="number" class="form-control p-1 w-auto"
+                      <input readonly formControlName="value_isAsiman" min="0" type="number" class="form-control p-1 w-auto"
                              placeholder="0.00">
                     </td>
                     <td>
-                      <input formControlName="value_isBPGroup" min="0" type="number" class="form-control p-1 w-auto"
+                      <input readonly formControlName="value_isBPGroup" min="0" type="number" class="form-control p-1 w-auto"
                              placeholder="0.00">
                     </td>
                     <td>
-                      <input formControlName="totalValue" min="0" type="number" class="form-control p-1 w-auto"
+                      <input readonly formControlName="totalValue" min="0" type="number" class="form-control p-1 w-auto"
                              placeholder="0.00">
                     </td>
 
@@ -1409,7 +1409,7 @@
                   <div class="col-sm-6 col-md-3">
                     <div class="form-group mb-3">
                       <label>Technically Correct</label>
-                      <select class="form-control" formControlName="technicalCorrect">
+                      <select aria-readonly="true" [disabled]="true" class="form-control" formControlName="technicalCorrect">
                         <option [value]="null">Select Status</option>
                         <ng-container *ngFor="let user of userDetails">
                           <option *ngIf="user.roleName === 'CAM'" [ngValue]="user.id">

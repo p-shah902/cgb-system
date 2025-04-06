@@ -222,12 +222,12 @@ export class Template1Component {
         percentage_isAsiman: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
         percentage_isBPGroup: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
 
-        value_isACG: [{value: '', disabled: true}],
-        value_isShah: [{value: '', disabled: true}],
-        value_isSCP: [{value: '', disabled: true}],
-        value_isBTC: [{value: '', disabled: true}],
-        value_isAsiman: [{value: '', disabled: true}],
-        value_isBPGroup: [{value: '', disabled: true}],
+        value_isACG: [null],
+        value_isShah: [null],
+        value_isSCP: [null],
+        value_isBTC: [null],
+        value_isAsiman: [null],
+        value_isBPGroup: [null],
 
         totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
         totalValue: [{value: 0, disabled: true}]
@@ -742,7 +742,6 @@ export class Template1Component {
 
         if (isChecked) {
           percentageControl?.enable();
-          valueControl?.disable();
 
           if (checkbox === "isACG") {
             ACG1?.enable();
@@ -764,7 +763,6 @@ export class Template1Component {
           percentageControl?.reset();
           percentageControl?.disable();
           valueControl?.reset();
-          valueControl?.disable();
 
           if (checkbox === "isACG") {
             ACG1?.disable();
@@ -793,12 +791,6 @@ export class Template1Component {
           }
         }
       });
-    });
-
-    // Listen for changes in percentage and value fields to update total
-    psaControls.forEach(({percentage, value}) => {
-      this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe(() => this.calculateTotal());
-      this.generalInfoForm.get(`costAllocation.${value}`)?.valueChanges.subscribe(() => this.calculateTotal());
     });
   }
 
@@ -1082,7 +1074,7 @@ export class Template1Component {
         riskMitigationArray.push(
           this.fb.group({
             psa: [item.psa, Validators.required],
-            technicalCorrect: [item.technicalCorrectId, Validators.required],
+            technicalCorrect: [{value: item.technicalCorrectId, disabled: true}, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
             id: [item.id]
