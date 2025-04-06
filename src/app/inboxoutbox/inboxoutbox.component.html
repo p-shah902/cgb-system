@@ -37,9 +37,20 @@
                                 Due Date · {{ inbox.cycleDueDate | date: 'dd-MMM-YYYY' }}
                               </p>
                               <hr class="my-2">
-                              <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb']">
+                              <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb']"
+                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && inbox.paperStatus === 'On Pre-CGB'">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                                   Vote Now
+                                </button>
+                              </div>
+                              <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'PDM' && inbox.paperStatus === 'Waiting for PDM'">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                                  Return to Originator
+                                </button>
+                              </div>
+                              <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'PDM' && inbox.paperStatus === 'Waiting for PDM'">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                                  Approve
                                 </button>
                               </div>
                             </div>
@@ -127,3 +138,74 @@
     </div>
   </div>
 </div>
+
+<ng-template #content2 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Approve Paper</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Write Comment (If Required)</label>
+      <textarea
+        class="form-control"
+        placeholder="Write here"
+        [(ngModel)]="approvalRemark"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="approvePaper(modal, 'Approval')"
+    >
+      Save
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #content3 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Return to Originator</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Review By</label>
+      <input
+        class="form-control"
+        type="text"
+        placeholder="Write here"
+        [(ngModel)]="reviewBy"
+      />
+    </div>
+    <div class="form-group mb-3">
+      <label>Write Comment</label>
+      <textarea
+        class="form-control"
+        placeholder="Write here"
+        [(ngModel)]="approvalRemark"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="approvePaper(modal, 'Return to Originator')"
+    >
+      Save
+    </button>
+  </div>
+</ng-template>
