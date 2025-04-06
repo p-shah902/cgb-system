@@ -1087,8 +1087,8 @@ hr {
 
 
 .main-container {
-  --ckeditor5-preview-sidebar-width: 270px;
-  --ckeditor5-preview-height: 700px;
+  //--ckeditor5-preview-sidebar-width: 270px;
+  //--ckeditor5-preview-height: 700px;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -1138,7 +1138,7 @@ hr {
 .editor-container_document-editor .editor-container__editor {
   margin: 0;
   height: 100%;
-  flex: 0 0 100%;
+  flex: 0 0 70%;
 }
 
 .editor-container_document-editor .editor-container__editor .ck.ck-editor__editable {
