@@ -79,7 +79,7 @@
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
                     <input type="text" class="form-control allow-comments" placeholder="Enter Title" formControlName="paperProvision"
-                           id="paperProvision" [commentable]="isRegisterPaper && paperId ? (paperId + 'paperProvision') : ''"
+                           id="paperProvision"
                     />
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
@@ -128,7 +128,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
-                    <select id="globalCGB" [commentable]="isRegisterPaper && paperId ? (paperId + 'globalCGB') : ''" class="form-control" formControlName="globalCGB">
+                    <select id="globalCGB" class="form-control allow-comments" formControlName="globalCGB">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
                         <option [value]="item.id.toString()">
@@ -144,7 +144,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
-                    <select id="bltMember" [commentable]="isRegisterPaper && paperId ? (paperId + 'bltMember') : ''" class="form-control" formControlName="bltMember">
+                    <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
