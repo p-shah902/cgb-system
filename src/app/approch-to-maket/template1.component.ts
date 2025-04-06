@@ -505,6 +505,7 @@ export class Template1Component {
         this.addRow(true);
         this.addBidRow(true);
         this.addConsultationRow(true);
+        this.setupPSAListeners()
       }
     })
   }
@@ -718,11 +719,47 @@ export class Template1Component {
       {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
       {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
     ];
+    const costAllocationJVApprovalData = this.paperDetails?.costAllocationJVApproval || []
+    const patchValues: any = {costAllocation: {}};
+
+    const psaNameToCheckbox: Record<string, string> = {
+      "ACG": "isACG",
+      "Shah Deniz": "isShah",
+      "SCP": "isSCP",
+      "BTC": "isBTC",
+      "Asiman": "isAsiman",
+      "BP Group": "isBPGroup"
+    };
+
+    // Assign PSA/JV values dynamically
+    costAllocationJVApprovalData.forEach(psa => {
+      const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      if (checkboxKey) {
+        patchValues.costAllocation[checkboxKey] = psa.psaValue;
+        patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
+        patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+      }
+    });
+
+// Assign default values for all PSA/JV fields if not in API data
+    Object.keys(psaNameToCheckbox).forEach(key => {
+      const checkboxKey = psaNameToCheckbox[key];
+      console.log("==checkboxKey", checkboxKey)
+      if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
+        patchValues.costAllocation[checkboxKey] = false;
+        patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
+        patchValues.costAllocation[`value_${checkboxKey}`] = '';
+      }
+    });
+
+    console.log("==patchValues", patchValues
+    )
 
     psaControls.forEach(({checkbox, percentage, value}) => {
       this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
         const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
+        const jvApprovalsData = this.paperDetails?.jvApprovals[0] || null
 
         //checkboxes
         const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
@@ -742,21 +779,37 @@ export class Template1Component {
 
         if (isChecked) {
           percentageControl?.enable();
+          console.log("=patchValues", patchValues)
+          console.log("==patchValues.costAllocation[percentage] || 0", patchValues.costAllocation[percentage])
+          percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, {emitEvent: false});
+          valueControl?.setValue(patchValues.costAllocation[value] || 0, {emitEvent: false});
 
           if (checkbox === "isACG") {
             ACG1?.enable();
             ACG2?.enable();
+            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, {emitEvent: false});
+
           } else if (checkbox === "isShah") {
             SD1?.enable();
             SD2?.enable();
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)?.setValue(jvApprovalsData?.contractCommittee_SDCC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)?.setValue(jvApprovalsData?.coVenturers_SDMC || false, {emitEvent: false});
           } else if (checkbox === "isSCP") {
             SCP1?.enable();
             SCP2?.enable();
             SCP3?.enable();
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)?.setValue(jvApprovalsData?.coVenturers_SCP || false, {emitEvent: false});
           } else if (checkbox === "isBTC") {
             BTC1?.enable();
             BTC2?.enable();
             BTC3?.enable();
+
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
           }
 
         } else {
@@ -769,6 +822,7 @@ export class Template1Component {
             ACG1?.reset();
             ACG2?.disable();
             ACG2?.reset();
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
           } else if (checkbox === "isShah") {
             SD1?.disable();
             SD1?.reset();
@@ -1074,7 +1128,7 @@ export class Template1Component {
         riskMitigationArray.push(
           this.fb.group({
             psa: [item.psa, Validators.required],
-            technicalCorrect: [{value: item.technicalCorrectId, disabled: true}, Validators.required],
+            technicalCorrect: [{value: item.technicalCorrectId, disabled: false}, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
             id: [item.id]
@@ -1089,7 +1143,7 @@ export class Template1Component {
       this.consultationRows.push(
         this.fb.group({
           psa: ['', Validators.required],
-          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: true }, Validators.required],
+          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
           id: [0]
