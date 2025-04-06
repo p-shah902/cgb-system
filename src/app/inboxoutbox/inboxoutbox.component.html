@@ -44,13 +44,25 @@
                                 </button>
                               </div>
                               <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'PDM' && inbox.paperStatus === 'Waiting for PDM'">
-                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="open($event, content3, inbox.paperID)">
                                   Return to Originator
                                 </button>
                               </div>
                               <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'PDM' && inbox.paperStatus === 'Waiting for PDM'">
-                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="open($event, content2, inbox.paperID)">
                                   Approve
+                                </button>
+                              </div>
+                              <div class="ic-btn-div d-flex justify-content-end" *ngIf="
+                      (loggedInUser?.roleName === 'CGB Chair' ||
+                        loggedInUser?.roleName === 'CPO' ||
+                        loggedInUser?.roleName === 'JV Admin' ||
+                        loggedInUser?.roleName === 'Legal VP-1' ||
+                        loggedInUser?.roleName === 'Performance Manager') &&
+                      inbox.paperStatus === 'On Pre-CGB'
+                    ">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="open($event, content4, inbox.paperID)">
+                                  Add Review
                                 </button>
                               </div>
                             </div>
@@ -206,6 +218,33 @@
       (click)="approvePaper(modal, 'Return to Originator')"
     >
       Save
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #content4 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Remark</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Write Comment</label>
+      <textarea
+        class="form-control"
+        placeholder="Write here"
+        [(ngModel)]="approvalRemark"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="addReview(modal)">
+      Add comment
     </button>
   </div>
 </ng-template>

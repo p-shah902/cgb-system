@@ -9,6 +9,7 @@ import {LoginUser} from '../../models/user';
 import {AuthService} from '../../service/auth.service';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
+import {PaperService} from '../../service/paper.service';
 
 @Component({
   selector: 'app-inboxoutbox',
@@ -20,8 +21,8 @@ import {PaperConfigService} from '../../service/paper/paper-config.service';
 export class InboxoutboxComponent implements OnInit {
 
   public toastService = inject(ToastService)
-
   private paperConfigService = inject(PaperConfigService);
+  private paperService = inject(PaperService);
   active = 1;
   inboxData: InboxOutbox[] = [];
   outboxData: InboxOutbox[] = [];
@@ -69,6 +70,29 @@ export class InboxoutboxComponent implements OnInit {
             if (response.status && response.data) {
               modal.close('Save click');
               this.getInboxOutBox();
+            }
+          },
+          error: (error) => {
+            console.log('error', error);
+          },
+        });
+    }
+  }
+
+  addReview(modal: any) {
+    if (this.selectedPaper > 0) {
+      this.paperService.addPaperCommentLogs({
+        paperId: this.selectedPaper,
+        logType: 'Other',
+        remarks: this.approvalRemark,
+        description: this.approvalRemark,
+        columnName: '',
+        isActive: true,
+      })
+        .subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              modal.close('Save click');
             }
           },
           error: (error) => {
