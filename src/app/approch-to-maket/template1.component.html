@@ -79,8 +79,7 @@
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
                     <input type="text" class="form-control" placeholder="Enter Title" formControlName="paperProvision"
-                           id="paperProvision" [commentable]="isRegisterPaper && paperId ? paperId : ''"
-
+                           id="paperProvision" [commentable]="isRegisterPaper && paperId ? (paperId + 'paperProvision') : ''"
                     />
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
@@ -93,14 +92,14 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB Item Ref </label>
-                    <input id="cgbItemRefNo" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="text" class="form-control" placeholder="CGB Item Ref" formControlName="cgbItemRefNo"/>
+                    <input id="cgbItemRefNo"  type="text" class="form-control" placeholder="CGB Item Ref" formControlName="cgbItemRefNo"/>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB Circulation Date</label>
                     <div class="date-input position-relative">
-                      <input id="cgbCirculationDate" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="date" class="form-control" formControlName="cgbCirculationDate" placeholder=""/>
+                      <input id="cgbCirculationDate" type="date" class="form-control" formControlName="cgbCirculationDate" placeholder=""/>
                     </div>
                   </div>
                 </div>
@@ -129,7 +128,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
-                    <select id="globalCGB" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="globalCGB">
+                    <select id="globalCGB" [commentable]="isRegisterPaper && paperId ? (paperId + 'globalCGB') : ''" class="form-control" formControlName="globalCGB">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
                         <option [value]="item.id.toString()">
@@ -145,7 +144,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
-                    <select id="bltMember" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="bltMember">
+                    <select id="bltMember" [commentable]="isRegisterPaper && paperId ? (paperId + 'bltMember') : ''" class="form-control" formControlName="bltMember">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
@@ -161,7 +160,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
-                    <select id="operatingFunction" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="operatingFunction">
+                    <select id="operatingFunction" [commentable]="isRegisterPaper && paperId ? (paperId + 'operatingFunction') : ''" class="form-control" formControlName="operatingFunction">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
                         <option [value]="item.id.toString()">
@@ -178,7 +177,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
-                    <select id="subSector" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="subSector">
+                    <select id="subSector" [commentable]="isRegisterPaper && paperId ? (paperId + 'subSector') : ''" class="form-control" formControlName="subSector">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
                         <option [value]="item.id.toString()">
@@ -194,7 +193,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Sourcing Type*</label>
-                    <select id="sourcingType" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="sourcingType">
+                    <select id="sourcingType" [commentable]="isRegisterPaper && paperId ? (paperId + 'sourcingType') : ''" class="form-control" formControlName="sourcingType">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
                         <option [value]="item.id.toString()">
@@ -213,7 +212,7 @@
                     <label>Contract Accountable Manager*</label>
 
 
-                    <select id="camUserId" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="camUserId">
+                    <select id="camUserId" [commentable]="isRegisterPaper && paperId ? (paperId + 'camUserId') : ''" class="form-control" formControlName="camUserId">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
@@ -230,10 +229,10 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>VP-1* </label>
-                    <select id="vP1UserId" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="vP1UserId">
+                    <select id="vP1UserId" [commentable]="isRegisterPaper && paperId ? (paperId + 'vP1UserId') : ''" class="form-control" formControlName="vP1UserId">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'Legal VP-1' || user.roleName === 'Legal VP'" [value]="user.id">
+                        <option *ngIf="user.roleName === 'VP-1'" [value]="user.id">
                           {{ user.displayName }}
                         </option>
                       </ng-container>
@@ -246,7 +245,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Procurement SPA*</label>
-                    <ng-select2 id="procurementSPAUsers" [commentable]="isRegisterPaper && paperId ? paperId : ''" formControlName="procurementSPAUsers" [data]="procurementTagUsers"
+                    <ng-select2 id="procurementSPAUsers" [commentable]="isRegisterPaper && paperId ? (paperId + 'procurementSPAUsers') : ''" formControlName="procurementSPAUsers" [data]="procurementTagUsers"
                                 multiple></ng-select2>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
@@ -257,7 +256,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>PDM*</label>
-                    <select id="pdManagerName" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="pdManagerName">
+                    <select id="pdManagerName" [commentable]="isRegisterPaper && paperId ? (paperId + 'pdManagerName') : ''" class="form-control" formControlName="pdManagerName">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
@@ -284,7 +283,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Total Award Value (USD)*</label>
-                    <input id="contractValueUsd" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="number" class="form-control" placeholder="0000.0" formControlName="contractValueUsd"
+                    <input id="contractValueUsd" [commentable]="isRegisterPaper && paperId ? (paperId + 'contractValueUsd') : ''" type="number" class="form-control" placeholder="0000.0" formControlName="contractValueUsd"
                            min="0" step="0.01"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
@@ -295,7 +294,7 @@
                 <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Original Currency</label>
-                    <select id="originalCurrency" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="originalCurrency">
+                    <select id="originalCurrency" [commentable]="isRegisterPaper && paperId ? (paperId + 'originalCurrency') : ''" class="form-control" formControlName="originalCurrency">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
                         <option [value]="item.id.toString()">
@@ -308,13 +307,13 @@
                 <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
-                    <input id="exchangeRate" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="text" class="form-control" placeholder="0.00" formControlName="exchangeRate" readonly/>
+                    <input id="exchangeRate" [commentable]="isRegisterPaper && paperId ? (paperId + 'exchangeRate') : ''" type="text" class="form-control" placeholder="0.00" formControlName="exchangeRate" readonly/>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value (Original Currency)*</label>
-                    <input id="contractValueOriginalCurrency" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="text" class="form-control" placeholder="0000.0"
+                    <input id="contractValueOriginalCurrency" [commentable]="isRegisterPaper && paperId ? (paperId + 'contractValueOriginalCurrency') : ''" type="text" class="form-control" placeholder="0000.0"
                            formControlName="contractValueOriginalCurrency" readonly/>
                   </div>
                 </div>
@@ -324,7 +323,7 @@
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <label class="mb-2">Start Date *</label>
-                        <input id="contractStartDate" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="date" class="form-control" placeholder="Start Date"
+                        <input id="contractStartDate" [commentable]="isRegisterPaper && paperId ? (paperId + 'contractStartDate') : ''" type="date" class="form-control" placeholder="Start Date"
                                formControlName="contractStartDate" (change)="onStartDateChange()"/>
                         <div class="text-danger"
                              *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
@@ -335,7 +334,7 @@
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <label class="mb-2">End Date *</label>
-                        <input id="contractEndDate" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="date" class="form-control" placeholder="End Date"
+                        <input id="contractEndDate" [commentable]="isRegisterPaper && paperId ? (paperId + 'contractEndDate') : ''" type="date" class="form-control" placeholder="End Date"
                                formControlName="contractEndDate" [readOnly]="isEndDateDisabled"
                                [min]="minEndDate"/>
                         <div class="text-danger"
@@ -348,7 +347,7 @@
                 </div>
 
                 <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3" id="isPHCA" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+                  <div class="form-group mb-3" id="isPHCA" [commentable]="isRegisterPaper && paperId ? (paperId + 'isPHCA') : ''">
                     <label>PHCA </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
@@ -374,7 +373,7 @@
 
                   <div class="form-group mb-3">
                     <label>PSA/JV *</label>
-                    <ng-select2 id="psajv" [commentable]="isRegisterPaper && paperId ? paperId : ''" formControlName="psajv" [data]="psaJvOptions" multiple></ng-select2>
+                    <ng-select2 id="psajv" [commentable]="isRegisterPaper && paperId ? (paperId + 'psajv') : ''" formControlName="psajv" [data]="psaJvOptions" multiple></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -382,7 +381,7 @@
                 </div>
 
                 <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3" id="isLTCC" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+                  <div class="form-group mb-3" id="isLTCC" [commentable]="isRegisterPaper && paperId ? (paperId + 'isLTCC') : ''">
                     <label>Long-Term Commercial Commitment (LTCC) </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
@@ -399,15 +398,15 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>LTCC Note</label>
-                                      <app-editor-normal  *ngIf="!isRegisterPaper" formControlName="ltccNotes"/>
-                    <app-editor  *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'ltccNotes') : ''"  formControlName="ltccNotes"/>
+                    <textarea type="text" class="form-control" placeholder="Write Description"  [commentable]="isRegisterPaper && paperId ? (paperId + 'ltccNotes') : ''"
+                              formControlName="ltccNotes"></textarea>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3" id="isGovtReprAligned" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+                  <div class="form-group mb-3" id="isGovtReprAligned" [commentable]="isRegisterPaper && paperId ? (paperId + 'isGovtReprAligned') : ''">
                     <label>Aligned with Government Representative* </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
@@ -427,8 +426,8 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>Government Representative Comment</label>
-                                        <app-editor-normal  *ngIf="!isRegisterPaper" formControlName="govtReprAlignedComment"/>
-                    <app-editor  *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'govtReprAlignedComment') : ''"  formControlName="govtReprAlignedComment"/>
+                    <textarea type="text" class="form-control" placeholder="Write Description" [commentable]="isRegisterPaper && paperId ? (paperId + 'govtReprAlignedComment') : ''"
+                              formControlName="govtReprAlignedComment"></textarea>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('govtReprAlignedComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -439,11 +438,11 @@
                   <div class="form-group mb-3">
                     <div class="form-check-list d-flex gap-3 flex-wrap">
                       <div class="form-check-box position-relative">
-                        <input id="isIFRS16" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="checkbox" name="isIFRS16" formControlName="isIFRS16">
+                        <input id="isIFRS16" [commentable]="isRegisterPaper && paperId ? (paperId + 'isIFRS16') : ''" type="checkbox" name="isIFRS16" formControlName="isIFRS16">
                         <label>IFRS16 Impact Compliance</label>
                       </div>
                       <div class="form-check-box position-relative">
-                        <input id="isGIAAPCheck" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="checkbox" name="isGIAAPCheck" formControlName="isGIAAPCheck">
+                        <input id="isGIAAPCheck" [commentable]="isRegisterPaper && paperId ? (paperId + 'isGIAAPCheck') : ''" type="checkbox" name="isGIAAPCheck" formControlName="isGIAAPCheck">
                         <label>GIAAP Compliance Check</label>
                       </div>
                     </div>
@@ -452,7 +451,7 @@
                 <div class="col-sm-6 col-md-6 mt-3">
                   <div class="form-group mb-3">
                     <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
-                    <div class="form-radio d-flex gap-3" id="isConflictOfInterest" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+                    <div class="form-radio d-flex gap-3" id="isConflictOfInterest" [commentable]="isRegisterPaper && paperId ? (paperId + 'isConflictOfInterest') : ''">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isConflictOfInterest" checked formControlName="isConflictOfInterest"
                                [value]="true">
@@ -469,8 +468,8 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>Conflict of Interest Comments</label>
-                                    <app-editor-normal  *ngIf="!isRegisterPaper" formControlName="conflictOfInterestComment"/>
-                    <app-editor  *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'conflictOfInterestComment') : ''"  formControlName="conflictOfInterestComment"/>
+                    <textarea type="text" class="form-control" placeholder="Write Description" [commentable]="isRegisterPaper && paperId ? (paperId + 'conflictOfInterestComment') : ''"
+                              formControlName="conflictOfInterestComment"></textarea>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('conflictOfInterestComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -495,7 +494,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Remuneration Type*</label>
-                    <select id="remunerationType" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="remunerationType">
+                    <select id="remunerationType" [commentable]="isRegisterPaper && paperId ? (paperId + 'remunerationType') : ''" class="form-control" formControlName="remunerationType">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of remunerationTypeData?.length ? remunerationTypeData : []">
                         <option [value]="item.id.toString()">
@@ -512,7 +511,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Proposed Contract Management Level*</label>
-                    <select id="contractMgmtLevel" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="contractMgmtLevel">
+                    <select id="contractMgmtLevel" [commentable]="isRegisterPaper && paperId ? (paperId + 'contractMgmtLevel') : ''" class="form-control" formControlName="contractMgmtLevel">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of proposedCMLData?.length ? proposedCMLData : []">
                         <option [value]="item.id.toString()">
@@ -529,7 +528,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Sourcing Rigor*</label>
-                    <select id="sourcingRigor" [commentable]="isRegisterPaper && paperId ? paperId : ''" class="form-control" formControlName="sourcingRigor">
+                    <select id="sourcingRigor" [commentable]="isRegisterPaper && paperId ? (paperId + 'sourcingRigor') : ''" class="form-control" formControlName="sourcingRigor">
                       <option [value]="''">Select Status</option>
                       <ng-container *ngFor="let item of sourcingRigorData?.length ? sourcingRigorData : []">
                         <option [value]="item.id.toString()">
@@ -551,7 +550,7 @@
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
-                  <div class="form-group mb-3" id="key_and_mitigation" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+                  <div class="form-group mb-3" id="key_and_mitigation" [commentable]="isRegisterPaper && paperId ? (paperId + 'key_and_mitigation') : ''">
                     <label>Key Risks and Mitigations</label>
                     <div class="overflow-auto">
                       <div class="key-risks-table custom-table">
@@ -620,7 +619,7 @@
                 </div>
 
                 <div class="col-sm-12 col-md-12">
-                  <div class="form-group mb-3" id="invited_to_bid" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+                  <div class="form-group mb-3" id="invited_to_bid" [commentable]="isRegisterPaper && paperId ? (paperId + 'invited_to_bid') : ''">
                     <label>Who is invited to bid?</label>
                     <div class="overflow-auto">
                       <div class="key-risks-table custom-table">
@@ -703,7 +702,7 @@
                   <div class="form-group mb-3">
                     <label>SOCAR notification sent on *</label>
                     <div class="date-input position-relative">
-                      <input id="socaRsentOn" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="date" class="form-control" placeholder="" formControlName="socaRsentOn"/>
+                      <input id="socaRsentOn" [commentable]="isRegisterPaper && paperId ? (paperId + 'socaRsentOn') : ''" type="date" class="form-control" placeholder="" formControlName="socaRsentOn"/>
                     </div>
                   </div>
                 </div>
@@ -711,22 +710,22 @@
                   <div class="form-group mb-3">
                     <label>SOCAR Response Received Date *</label>
                     <div class="date-input position-relative">
-                      <input id="socaRreceivedOn" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="date" class="form-control" placeholder="" formControlName="socaRreceivedOn"/>
+                      <input id="socaRreceivedOn" [commentable]="isRegisterPaper && paperId ? (paperId + 'socaRreceivedOn') : ''" type="date" class="form-control" placeholder="" formControlName="socaRreceivedOn"/>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>SOCAR’s response</label>
-                    <app-editor-normal  *ngIf="!isRegisterPaper" formControlName="socarDescription"/>
-                    <app-editor  *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'socarDescription') : ''"  formControlName="socarDescription"/>
+                    <textarea type="text" class="form-control" placeholder="Write Description" [commentable]="isRegisterPaper && paperId ? (paperId + 'socarDescription') : ''"
+                              formControlName="socarDescription"></textarea>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Results of Pre-qualification Exercise</label>
-                    <app-editor-normal  *ngIf="!isRegisterPaper" formControlName="preQualificationResult"/>
-                    <app-editor id="preQualificationResult" *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'preQualificationResult') : ''"  formControlName="preQualificationResult"/>
+                    <textarea type="text" class="form-control" placeholder="Write Description" [commentable]="isRegisterPaper && paperId ? (paperId + 'preQualificationResult') : ''"
+                              formControlName="preQualificationResult"></textarea>
                   </div>
                 </div>
 
@@ -742,19 +741,19 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="costReductionValue" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="number" min="0" class="form-control" placeholder="Value"
+                      <input id="costReductionValue" [commentable]="isRegisterPaper && paperId ? (paperId + 'costReductionValue') : ''" type="number" min="0" class="form-control" placeholder="Value"
                              formControlName="costReductionValue"/>
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input id="costReductionPercent" [commentable]="isRegisterPaper && paperId ? paperId : ''"  type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                      <input id="costReductionPercent" [commentable]="isRegisterPaper && paperId ? (paperId + 'costReductionPercent') : ''"  type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
                              class="form-control" placeholder="%" formControlName="costReductionPercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="costReductionRemarks" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="text" class="form-control" placeholder="Remark"
+                      <input id="costReductionRemarks" [commentable]="isRegisterPaper && paperId ? (paperId + 'costReductionRemarks') : ''" type="text" class="form-control" placeholder="Remark"
                              formControlName="costReductionRemarks"/>
                     </div>
                   </div>
@@ -765,19 +764,19 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="operatingEfficiencyValue" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="number" min="0" class="form-control" placeholder="Value"
+                      <input id="operatingEfficiencyValue" [commentable]="isRegisterPaper && paperId ? (paperId + 'operatingEfficiencyValue') : ''" type="number" min="0" class="form-control" placeholder="Value"
                              formControlName="operatingEfficiencyValue"/>
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input id="operatingEfficiencyPercent" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                      <input id="operatingEfficiencyPercent" [commentable]="isRegisterPaper && paperId ? (paperId + 'operatingEfficiencyPercent') : ''" type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
                              class="form-control" placeholder="%" formControlName="operatingEfficiencyPercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="operatingEfficiencyRemarks" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="text" class="form-control" placeholder="Remark"
+                      <input id="operatingEfficiencyRemarks" [commentable]="isRegisterPaper && paperId ? (paperId + 'operatingEfficiencyRemarks') : ''" type="text" class="form-control" placeholder="Remark"
                              formControlName="operatingEfficiencyRemarks"/>
                     </div>
                   </div>
@@ -788,19 +787,19 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="costAvoidanceValue" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="number" min="0" class="form-control" placeholder="Value"
+                      <input id="costAvoidanceValue" [commentable]="isRegisterPaper && paperId ? (paperId + 'costAvoidanceValue') : ''" type="number" min="0" class="form-control" placeholder="Value"
                              formControlName="costAvoidanceValue"/>
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
                     <div class="form-group mb-3">
-                      <input id="costAvoidancePercent" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                      <input id="costAvoidancePercent" [commentable]="isRegisterPaper && paperId ? (paperId + 'costAvoidancePercent') : ''" type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
                              class="form-control" placeholder="%" formControlName="costAvoidancePercent"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="costAvoidanceRemarks" [commentable]="isRegisterPaper && paperId ? paperId : ''" type="text" class="form-control" placeholder="Remark"
+                      <input id="costAvoidanceRemarks" [commentable]="isRegisterPaper && paperId ? (paperId + 'costAvoidanceRemarks') : ''" type="text" class="form-control" placeholder="Remark"
                              formControlName="costAvoidanceRemarks"/>
                     </div>
                   </div>
@@ -824,7 +823,7 @@
             <div id="section4" class="fb-title-div">
               <h4>4. Cost Allocation and JV Approval</h4>
             </div>
-            <div class="fb-form" formGroupName="costAllocation" id="cost_allocation_an_jv" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+            <div class="fb-form" formGroupName="costAllocation" id="cost_allocation_an_jv" [commentable]="isRegisterPaper && paperId ? (paperId + 'cost_allocation_an_jv') : ''">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
                   <thead>
@@ -1086,7 +1085,7 @@
             <div id="section5" class="fb-title-div">
               <h4>5. Cost Sharing Methodology</h4>
             </div>
-            <div class="fb-form" formGroupName="costSharing" id="cost_sharing_methodology" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+            <div class="fb-form" formGroupName="costSharing" id="cost_sharing_methodology" [commentable]="isRegisterPaper && paperId ? (paperId + 'cost_sharing_methodology') : ''">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
 
@@ -1382,7 +1381,7 @@
             <div id="section6" class="fb-title-div">
               <h4>6. Consultation</h4>
             </div>
-            <div class="fb-form" formArrayName="consultation" id="consultation" [commentable]="isRegisterPaper && paperId ? paperId : ''">
+            <div class="fb-form" formArrayName="consultation" id="consultation" [commentable]="isRegisterPaper && paperId ? (paperId + 'consultation') : ''">
               <div *ngFor="let row of consultationRows.controls; let i = index" [formGroupName]="i">
                 <div class="row">
                   <div class="col-sm-6 col-md-2">
@@ -1520,7 +1519,7 @@
                     [class.dragging]="isDragging"
                   >
                     <input
-                      [commentable]="isRegisterPaper && paperId ? paperId : ''"
+                      [commentable]="isRegisterPaper && paperId ? (paperId + 'ocument-upload') : ''"
                       type="file"
                       id="document-upload"
                       class="d-none"
