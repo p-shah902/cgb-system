@@ -1,8 +1,8 @@
-import {Directive, ElementRef, Input, OnInit, OnChanges} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '@ckeditor/ckeditor5-angular';
-import {ContextConfig} from 'ckeditor5';
 import {environment} from '../environments/environment';
-import {EditorService} from '../service/editor.service';
+import {ContextConfig} from 'ckeditor5';
+import {EditorService} from './editor.service';
 
 const cloudConfig = {
   version: '44.3.0',
@@ -12,33 +12,23 @@ const cloudConfig = {
   premium: true
 } satisfies CKEditorCloudConfig;
 
-const CLOUD_SERVICES_TOKEN_URL = environment.ckeditorTokenUrl
+
 const CLOUD_SERVICES_WEBSOCKET_URL = environment.ckeditorSocketUrl;
 
-@Directive({
-  standalone: true,
-  selector: '[commentable]'
+@Injectable({
+  providedIn: 'root'
 })
-export class CommentableDirective implements OnChanges {
-  @Input('commentable') channelId: string = "";
+export class CommentService {
 
-  // We'll hold a reference to the CKEditor context so we can destroy it later.
   private context: any;
+  private channelId: any;
 
-  constructor(private el: ElementRef, private editorService: EditorService) {
-    console.log('CHANNEL ID', this.channelId);
+  constructor(private editorService: EditorService) {
   }
 
-  ngOnDestroy(): void {
-    if (this.context) {
-      this.context.destroy();
-    }
-  }
-
-  public ngOnChanges(): void {
-    if (this.channelId && !this.context) {
-      // loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
-    }
+  loadPaper(paperId: number) {
+    this.channelId = paperId.toString();
+    loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
   }
 
   private async _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {
@@ -82,7 +72,6 @@ export class CommentableDirective implements OnChanges {
     const commentThreadsForFields = new Map();
 
     const existingThreads = commentsRepository.getCommentThreads({channelId});
-    console.log('LOg LIST LOADED', existingThreads);
     for (const thread of existingThreads) {
       if (!thread.isResolved) {
         handleNewCommentThread(thread.id);
@@ -105,29 +94,27 @@ export class CommentableDirective implements OnChanges {
       handleRemovedCommentThread(data.threadId);
     }, {priority: 'low'});
 
-    const field: HTMLElement = this.el.nativeElement;
-    if (!field.id) {
-      field.id = 'field-' + Math.random().toString(36).substr(2, 9);
-    }
+    document.querySelectorAll('.allow-comments').forEach(field => {
+      field.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const threadId = field.id + ":" + this.channelId + Date.now();
 
-    field.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      const threadId = field.id + ":" + this.channelId + Date.now();
-
-      commentsRepository.openNewCommentThread({
-        channelId: channelId as any,
-        threadId,
-        target: () => getAnnotationTarget(field, threadId),
-        context: {
-          type: 'text',
-          value: getCustomContextMessage(field)
-        },
-        isResolvable: true
-      })
-    });
+        commentsRepository.openNewCommentThread({
+          channelId: channelId as any,
+          threadId,
+          target: () => getAnnotationTarget(field as any, threadId),
+          context: {
+            type: 'text',
+            value: getCustomContextMessage(field as any)
+          },
+          isResolvable: true
+        })
+      });
+    })
 
     commentsRepository.on('change:activeCommentThread', (evt: any, propName: any, activeThread: any) => {
-      field.classList.remove('active');
+      document.querySelectorAll('.allow-comments.active')
+        .forEach(el => el.classList.remove('active'));
       if (activeThread && activeThread.channelId === channelId) {
         const targetField = document.getElementById(activeThread.id.split(':')[0]);
         if (targetField) {
@@ -153,12 +140,10 @@ export class CommentableDirective implements OnChanges {
         return;
       }
       const fieldElement = document.getElementById(threadId.split(':')[0]);
-      console.log('d', threadId.split(':')[0]);
+
       if (!fieldElement) {
         return;
       }
-
-      console.log('THEAD', thread);
 
       if (!thread.isAttached) {
         thread.attachTo(() => thread.isResolved ? null : fieldElement);
@@ -219,6 +204,12 @@ export class CommentableDirective implements OnChanges {
         fieldElement.classList.remove('has-comment', 'active');
       }
       commentThreadsForFields.set(fieldId, openThreads);
+    }
+  }
+
+  destroy() {
+    if (this.context) {
+      this.context.destroy();
     }
   }
 }

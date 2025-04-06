@@ -37,6 +37,7 @@ import {BehaviorSubject} from 'rxjs';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import {EditorService} from '../../service/editor.service';
+import {CommentService} from '../../service/comment.service';
 
 @Component({
   selector: 'app-template1',
@@ -51,6 +52,7 @@ export class Template1Component {
   private readonly paperService = inject(PaperService);
   private paperConfigService = inject(PaperConfigService);
   private editorService = inject(EditorService);
+  private commentService = inject(CommentService);
   private searchTimeout: any;
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
@@ -350,6 +352,7 @@ export class Template1Component {
 
       if(selectedPaperStatus?.paperStatus !== "Draft") {
         this.isRegisterPaper = true
+        this.commentService.loadPaper(paperId);
       }
 
       console.log("==isRegisterPaper", this.isRegisterPaper)
