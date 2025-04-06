@@ -1131,7 +1131,8 @@ export class Template1Component {
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
         statusId: this.paperStatusId
       }]).subscribe(value => {
-        console.log('DD', value);
+        this.toastService.show('Paper has been moved to ' + status);
+        this.router.navigate(['/paperconfiguration'])
       });
     }
 

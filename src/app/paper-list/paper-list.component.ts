@@ -27,6 +27,7 @@ import { Select2 } from 'ng-select2-component';
 import { FormsModule } from '@angular/forms';
 import { PaperconfigurationComponent } from '../paperconfiguration/paperconfiguration.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
+import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 
 @Component({
   selector: 'app-paper-list',
@@ -45,6 +46,7 @@ import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
     RouterLink,
     PaperconfigurationComponent,
     SafeHtmlPipe,
+    SafeHtmlDirective,
 
   ],
   templateUrl: './paper-list.component.html',

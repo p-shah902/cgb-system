@@ -38,7 +38,7 @@ export class CommentableDirective implements OnChanges {
 
   public ngOnChanges(): void {
     if (this.channelId && !this.context) {
-      loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
+      // loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
     }
   }
 

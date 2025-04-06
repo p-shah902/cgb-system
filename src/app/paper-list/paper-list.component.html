@@ -120,7 +120,7 @@
                   <div class="bill-detail">
                     <div class="d-flex justify-content-between mb-1">
                       <h5>
-                        {{ paper.purposeTitle | stripHtml }}
+                        {{ paper.description }}
                         <div class="mt-1">
                         <span
                           [ngClass]="getStatusClassCardView(paper.statusName)"
@@ -216,8 +216,7 @@
                     </span>
                     </div>
 
-                    <p class="mb-2">
-                      {{ paper.description }}
+                    <p class="mb-2" [safeHtml]="paper.purposeTitle">
                     </p>
                     <small
                     >Last Modify ·
@@ -353,7 +352,7 @@
                         </div>
                       </th>
                       <th>Paper Name</th>
-                      <th>Description</th>
+                      <th>Why this work</th>
                       <th>Status</th>
                       <th>Last Modify</th>
                       <th>Action</th>
@@ -372,23 +371,14 @@
 
                       <td>
                         <div class="paper-name">
-                          <div class="paper-img">
-                            <img
-                              src="/img/bill.png"
-                              alt="img"
-                              class="img-fluid"
-                              width="100%"
-                            />
-                          </div>
                           <div class="paper-detail">
                             <p>
-                              {{ paper.purposeTitle | stripHtml }}
+                              {{ paper.description }}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td>
-                        {{ paper.description }}
+                      <td [safeHtml]="paper.purposeTitle">
                       </td>
                       <td>
                         <div class="paper-status">
@@ -397,7 +387,7 @@
                           </label>
                         </div>
                       </td>
-                      <td>
+                      <td class="text-nowrap">
                         {{ paper.lastModifyDate | date : "dd-MMMM-yyyy" }}
                       </td>
                       <td>
