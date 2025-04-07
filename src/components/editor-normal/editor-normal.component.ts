@@ -1,5 +1,5 @@
-import {Component, ViewEncapsulation, type OnInit, ElementRef, ViewChild, inject, forwardRef } from '@angular/core';
-import {CommonModule} from '@angular/common';
+import { Component, ViewEncapsulation, type OnInit, ElementRef, ViewChild, inject, forwardRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   loadCKEditorCloud,
   CKEditorModule,
@@ -12,8 +12,8 @@ import type {
   DecoupledEditor,
   EditorConfig,
 } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import {environment} from '../../environments/environment';
-import {AuthService} from '../../service/auth.service';
+import { environment } from '../../environments/environment';
+import { AuthService } from '../../service/auth.service';
 
 const cloudConfig = {
   version: '44.3.0',
@@ -38,13 +38,13 @@ const cloudConfig = {
     }
   ]
 })
-export class EditorNormalComponent implements OnInit, ControlValueAccessor  {
+export class EditorNormalComponent implements OnInit, ControlValueAccessor {
   @ViewChild('editorToolbarElement') private editorToolbar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
   value: string = '';
 
-  onChange = (_: any) => {};
-  onTouched = () => {};
+  onChange = (_: any) => { };
+  onTouched = () => { };
   public Editor: typeof DecoupledEditor | null = null;
   public config: EditorConfig | null = null;
   public authService = inject(AuthService)
@@ -155,23 +155,6 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor  {
     this.config = {
       toolbar: {
         items: [
-          'previousPage',
-          'nextPage',
-          '|',
-          'revisionHistory',
-          '|',
-          'insertMergeField',
-          'previewMergeFields',
-          '|',
-          'formatPainter',
-          '|',
-          'heading',
-          '|',
-          'fontSize',
-          'fontFamily',
-          'fontColor',
-          'fontBackgroundColor',
-          '|',
           'bold',
           'italic',
           'underline',
@@ -184,8 +167,6 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor  {
           '|',
           'bulletedList',
           'numberedList',
-          'multiLevelList',
-          'todoList',
           'outdent',
           'indent'
         ],
@@ -317,19 +298,8 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor  {
           }
         ]
       },
-      image: {
-        toolbar: [
-          'toggleImageCaption',
-          'imageTextAlternative',
-          '|',
-          'imageStyle:inline',
-          'imageStyle:wrapText',
-          'imageStyle:breakText',
-          '|',
-          'resizeImage'
-        ]
-      },
-      initialData: this.value || "Write here",
+
+      initialData: this.value || "",
       licenseKey: environment.ckEditorLicenceKey,
       link: {
         addTargetToExternalLinks: true,
