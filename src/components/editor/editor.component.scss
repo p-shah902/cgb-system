@@ -90,6 +90,9 @@
   margin-top: 28px;
   margin-left: 10px;
   margin-right: 10px;
+  position: absolute;
+  right: 250px;
+  z-index: 99;
 }
 
 .revision-history {
@@ -123,4 +126,47 @@
 .ck-content .table tr {
   break-inside: avoid;
   break-after: auto;
+}
+@media screen and (min-width: 1701px) and (max-width: 1800px) {
+  .editor-container__sidebar {
+    position: absolute;
+    right: 140px;
+    margin-top: -80px;
+  }
+}
+@media screen and (min-width: 1601px) and (max-width: 1700px) {
+  .editor-container__sidebar {
+    position: absolute;
+    right: 110px;
+    margin-top: -80px;
+  }
+}
+@media screen and (min-width: 1501px) and (max-width: 1600px) {
+  .editor-container__sidebar {
+    position: absolute;
+    right: 80px;
+    margin-top: -80px;
+  }
+}
+@media screen and (min-width: 1301px) and (max-width: 1500px) {
+  .editor-container__sidebar {
+    position: absolute;
+    right: 50px;
+    margin-top: -80px;
+  }
+}
+@media screen and (min-width: 1200px) and (max-width: 1300px) {
+  .editor-container__sidebar {
+    position: absolute;
+    right: 20px;
+    margin-top: -80px;
+  }
+}
+@media screen and (max-width: 1199px) {
+  .editor-container__sidebar {
+    position: relative;
+    right: 0;
+    margin-top: 0;
+  }
+
 }
