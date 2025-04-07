@@ -301,7 +301,7 @@
                     <select class="form-control" formControlName="vP1UserId">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'Legal VP-1' || user.roleName === 'Legal VP'"
+                        <option *ngIf="user.roleName === 'VP-1'"
                                 [value]="user.id">
                           {{ user.displayName }}
                         </option>
@@ -1768,14 +1768,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-2">
-                    <label>No existing budget Correct</label>
-                    <div class="text-center align-middle">
-                      <input type="checkbox" formControlName="isNoExistingBudget"/>
-                    </div>
-                  </div>
-
-                  <div class="col-sm-6 col-md-2">
+                  <div class="col-sm-6 col-md-3">
                     <div class="form-group mb-3">
                       <label>Technically Correct</label>
                       <select class="form-control" formControlName="technicalCorrect">
@@ -1789,7 +1782,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-2">
+                  <div class="col-sm-6 col-md-3">
                     <div class="form-group mb-3">
                       <label>Budget Statement</label>
                       <select class="form-control" formControlName="budgetStatement">
@@ -1803,7 +1796,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-2">
+                  <div class="col-sm-6 col-md-3">
                     <div class="form-group mb-3">
                       <label>JV Review</label>
                       <select class="form-control" formControlName="jvReview">
@@ -1817,7 +1810,7 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-12 col-md-2">
+                  <div class="col-sm-12 col-md-1">
                     <div class="krt-action mt-4">
                       <button type="button" class="btn btn-outline-danger" (click)="removeConsultationRow(i)">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

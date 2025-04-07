@@ -24,10 +24,11 @@ import {UserDetails} from '../../models/user';
 import {UserService} from '../../service/user.service';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
-import {PaperStatusType} from '../../models/paper';
+import { PaperStatusType} from '../../models/paper';
 import {VendorService} from '../../service/vendor.service';
 import {VendorDetail} from '../../models/vendor';
 import {CURRENCY_LIST} from '../../utils/constant';
+import {format} from 'date-fns';
 
 @Component({
     selector: 'app-template2',
@@ -51,12 +52,13 @@ export class Template2Component {
     submitted = false;
     highlightClass = 'highlight';
     paperStatusId: number | null = null;
-    paperDetails: any = null;
+   paperDetails: any = null
     vendorList: VendorDetail[] = []
     userDetails: UserDetails[] = [];
     procurementTagUsers: any[] = [];
     countryDetails: CountryDetail[] = [];
     paperStatusList: PaperStatusType[] = [];
+  isRegisterPaper: boolean = false
 
     // Global variables for dropdown selections
     currenciesData: DictionaryDetail[] = [];
@@ -93,6 +95,7 @@ export class Template2Component {
         this.route.paramMap.subscribe(params => {
             this.paperId = params.get('id');
             if (this.paperId) {
+              this.fetchPaperDetails(Number(this.paperId))
             }
             console.log('Paper ID:', this.paperId);
         });
@@ -113,6 +116,7 @@ export class Template2Component {
         this.conflictIntrestChanges()
         this.restrospectiveChanges()
         this.addRow()
+        this.addSupplierTechnicalnRow()
         this.addBidRow()
         this.addCommericalEvaluationRow()
         this.setupPSAListeners()
@@ -132,6 +136,11 @@ export class Template2Component {
         this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
             this.onSelectChange();
         });
+
+      this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
+        this.addConsultationRow(false, true);
+      });
+
     }
 
     loadForm() {
@@ -144,7 +153,7 @@ export class Template2Component {
                 cgbItemRefNo: [''],
                 cgbCirculationDate: [''],
                 contractNo: ['', Validators.required],
-                contactNo: ['', Validators.required],
+                contactNo: [''],
                 vendorId: [null],
                 purposeRequired: ['', Validators.required],
                 globalCGB: ['', Validators.required],
@@ -207,16 +216,16 @@ export class Template2Component {
                 riskMitigation: this.fb.array([]),
             }),
             valueDelivery: this.fb.group({
-                costReductionPercent: [0],
-                costReductionValue: [0],
-                costReductionRemarks: [''],
-                operatingEfficiencyValue: [0],
-                operatingEfficiencyPercent: [0],
-                operatingEfficiencyRemarks: [''],
-                costAvoidanceValue: [0],
-                costAvoidancePercent: [0],
-                costAvoidanceRemarks: [''],
-            }, {validators: this.requireAllIfAny}),
+              costReductionPercent: [null],
+              costReductionValue: [null],
+              costReductionRemarks: [''],
+              operatingEfficiencyValue: [null],
+              operatingEfficiencyPercent: [null],
+              operatingEfficiencyRemarks: [''],
+              costAvoidanceValue: [null],
+              costAvoidancePercent: [null],
+              costAvoidanceRemarks: [''],
+            }),
             costAllocation: this.fb.group({
                 contractCommittee_SDCC: [{value: false, disabled: true}],
                 contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
@@ -243,12 +252,12 @@ export class Template2Component {
                 percentage_isAsiman: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
                 percentage_isBPGroup: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
 
-                value_isACG: [{value: '', disabled: true}],
-                value_isShah: [{value: '', disabled: true}],
-                value_isSCP: [{value: '', disabled: true}],
-                value_isBTC: [{value: '', disabled: true}],
-                value_isAsiman: [{value: '', disabled: true}],
-                value_isBPGroup: [{value: '', disabled: true}],
+              value_isACG: [null],
+              value_isShah: [null],
+              value_isSCP: [null],
+              value_isBTC: [null],
+              value_isAsiman: [null],
+              value_isBPGroup: [null],
 
                 totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
                 totalValue: [{value: 0, disabled: true}]
@@ -269,7 +278,204 @@ export class Template2Component {
 
     }
 
-    get generalInfo() {
+  fetchPaperDetails(paperId: number) {
+    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+      this.paperDetails = value.data as any;
+      const contractAwardDetails = this.paperDetails?.contractAwardDetails || null
+      const bidInvitesData = value.data?.bidInvites || []
+      const valueData = this.paperDetails?.valueDeliveries[0] || null
+      const jvApprovalsData = value.data?.jvApprovals[0] || null
+      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
+
+      const patchValues: any = {costAllocation: {}};
+
+      const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === contractAwardDetails?.paperStatusId?.toString())
+
+      if(selectedPaperStatus?.paperStatus !== "Draft") {
+        this.isRegisterPaper = true
+        // this.commentService.loadPaper(paperId);
+      }
+
+      console.log("==isRegisterPaper", this.isRegisterPaper)
+
+// Assign JV Approvals data
+      Object.assign(patchValues.costAllocation, {
+        contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
+        contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+        contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
+        contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_CGB: false, // TODO: Confirm this value
+        coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
+        coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
+        coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
+        coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
+        steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
+      });
+
+// PSA/JV mappings
+      const psaNameToCheckbox: Record<string, string> = {
+        "ACG": "isACG",
+        "Shah Deniz": "isShah",
+        "SCP": "isSCP",
+        "BTC": "isBTC",
+        "Asiman": "isAsiman",
+        "BP Group": "isBPGroup"
+      };
+
+      // Assign PSA/JV values dynamically
+      costAllocationJVApprovalData.forEach(psa => {
+        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+        if (checkboxKey) {
+          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
+          patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+        }
+      });
+
+// Assign default values for all PSA/JV fields if not in API data
+      Object.keys(psaNameToCheckbox).forEach(key => {
+        const checkboxKey = psaNameToCheckbox[key];
+        console.log("==checkboxKey", checkboxKey)
+        if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
+          patchValues.costAllocation[checkboxKey] = false;
+          patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
+          patchValues.costAllocation[`value_${checkboxKey}`] = '';
+        }
+      });
+
+      console.log("==patchValues", patchValues
+      )
+
+      const selectedValues = contractAwardDetails?.psajv
+        ? contractAwardDetails.psajv
+          .split(',')
+          .map((label: any) => label.trim())
+          .map((label: any) => this.psaJvOptions.find(option => option.label === label)?.value)
+          .filter((value: any) => value != null) // Use != null to filter both null and undefined
+        : [];
+
+      const selectedValuesProcurementTagUsers = contractAwardDetails?.procurementSPAUsers
+        ? contractAwardDetails.procurementSPAUsers
+          .split(',')
+          .map((id: any) => id.trim())
+          .map((id: any) => this.procurementTagUsers.find(option => option.value === Number(id))?.value)
+          .filter((value: any) => value != null)
+        : [];
+
+      if (value.data) {
+        this.generalInfoForm.patchValue({
+          generalInfo: {
+            paperProvision: contractAwardDetails?.paperProvision || "",
+            cgbAtmRefNo:  contractAwardDetails?.cgbAtmRefNo || "",
+            cgbApprovalDate: contractAwardDetails?.cgbApprovalDate || "",
+            isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket || "",
+            cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
+            cgbCirculationDate:contractAwardDetails?.cgbCirculationDate
+              ? format(new Date(contractAwardDetails.cgbCirculationDate), 'yyyy-MM-dd')
+              : '',
+            contractNo:contractAwardDetails?.contractNo || "",
+            contactNo: contractAwardDetails?.contactNo || "",
+            vendorId:contractAwardDetails?.vendorId || null,
+            purposeRequired:contractAwardDetails?.purposeRequired || "",
+            globalCGB: contractAwardDetails?.globalCGB || "",
+            bltMember: contractAwardDetails?.bltMemberId ? Number(contractAwardDetails.bltMemberId) : null,
+            operatingFunction:  contractAwardDetails?.operatingFunction || "",
+            subSector: contractAwardDetails?.subSector || "",
+            sourcingType: contractAwardDetails?.sourcingType || "",
+            camUserId: contractAwardDetails?.camUserId || null,
+            vP1UserId: contractAwardDetails?.vP1UserId || null,
+            procurementSPAUsers: selectedValuesProcurementTagUsers,
+            pdManagerName: contractAwardDetails?.pdManagerNameId || null,
+            isPHCA: contractAwardDetails?.isPHCA || false,
+            currencyCode: contractAwardDetails?.currencyCode || '',
+            totalAwardValueUSD: contractAwardDetails?.totalAwardValueUSD || 0,
+            exchangeRate: contractAwardDetails?.exchangeRate || 0,
+            contractValue:contractAwardDetails?.contractValue || 0,
+            remunerationType: contractAwardDetails?.remunerationType || 0,
+            isPaymentRequired: contractAwardDetails?.isPaymentRequired || false,
+            prePayPercent: contractAwardDetails?.prePayPercent || 0,
+            prePayAmount:contractAwardDetails?.prePayAmount || 0,
+            workspaceNo: contractAwardDetails?.workspaceNo || '',
+            isSplitAward: contractAwardDetails?.isSplitAward || false,
+            psajv: selectedValues,
+            isLTCC: contractAwardDetails?.isLTCC || false,
+            ltccNotes: contractAwardDetails?.ltccNotes || '',
+            isGovtReprAligned: contractAwardDetails?.isGovtReprAligned || false,
+            govtReprAlignedComment: contractAwardDetails?.govtReprAlignedComment || '',
+            contractSpendCommitment: contractAwardDetails?.contractSpendCommitment || '',
+          },
+          procurementDetails: {
+            supplierAwardRecommendations: contractAwardDetails?.supplierAwardRecommendations || '',
+            // legalEntitiesAwarded: this.fb.array([]),
+            isConflictOfInterest: contractAwardDetails?.isConflictOfInterest || false,
+            conflictOfInterestComment: contractAwardDetails?.conflictOfInterestComment || '',
+            isRetrospectiveApproval:contractAwardDetails?.isRetrospectiveApproval || false,
+            retrospectiveApprovalReason: contractAwardDetails?.retrospectiveApprovalReason || '',
+            nationalContent: contractAwardDetails?.nationalContent || '',
+          },ccd:{
+            isHighRiskContract:  contractAwardDetails?.isHighRiskContract || false,
+            cddCompleted:   contractAwardDetails?.cddCompleted
+              ? format(new Date(contractAwardDetails.cddCompleted), 'yyyy-MM-dd')
+              : '',
+            highRiskExplanation: contractAwardDetails?.highRiskExplanation || '',
+            flagRaisedCDD: contractAwardDetails?.flagRaisedCDD || '',
+            additionalCDD:contractAwardDetails?.additionalCDD || '',
+          },evaluationSummary:{
+            invitedBidders: contractAwardDetails?.invitedBidders || 0,
+            submittedBids: contractAwardDetails?.submittedBids || 0,
+            previousContractLearning: contractAwardDetails?.previousContractLearning || '',
+            performanceImprovements: contractAwardDetails?.performanceImprovements || '',
+            benchMarking: contractAwardDetails?.benchMarking || '',
+            // commericalEvaluation: this.fb.array([]),
+            // supplierTechnical: this.fb.array([]),
+          },additionalDetails:{
+            contractualControls: contractAwardDetails?.contractualControls || '',
+            contractCurrencyLinktoBaseCost: contractAwardDetails?.contractCurrencyLinktoBaseCost || false,
+            explanationsforBaseCost:contractAwardDetails?.explanationsforBaseCost || '',
+            // riskMitigation: this.fb.array([]),
+          },
+          valueDelivery: {
+            costReductionPercent: valueData?.costReductionPercent || 0,
+            costReductionValue: valueData?.costReductionValue || 0,
+            costReductionRemarks: valueData?.costReductionRemarks || '',
+            operatingEfficiencyValue: valueData?.operatingEfficiencyValue || 0,
+            operatingEfficiencyPercent: valueData?.operatingEfficiencyPercent || 0,
+            operatingEfficiencyRemarks: valueData?.operatingEfficiencyRemarks || '',
+            costAvoidanceValue: valueData?.costAvoidanceValue || 0,
+            costAvoidancePercent: valueData?.costAvoidancePercent || 0,
+            costAvoidanceRemarks: valueData?.costAvoidanceRemarks || '',
+          },
+          costSharing: {
+            isCapex: valueData?.isCapex || false,
+            isFixOpex: valueData?.isFixOpex || false,
+            isVariableOpex: valueData?.isVariableOpex || false,
+            isInventoryItems: valueData?.isInventoryItems || false,
+            capexMethodology: valueData?.capexMethodology || '',
+            fixOpexMethodology: valueData?.fixOpexMethodology || '',
+            variableOpexMethodology: valueData?.variableOpexMethodology || '',
+            inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
+          },
+          costAllocation: patchValues.costAllocation,
+        })
+        setTimeout(() => {
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+        }, 500)
+
+        this.addRow(true);
+        this.addSupplierTechnicalnRow(true);
+        this.addBidRow(true);
+        this.addConsultationRow(true);
+        this.addConsultationRow(true);
+       this.addCommericalEvaluationRow(true)
+        this.setupPSAListeners()
+      }
+    })
+  }
+
+
+  get generalInfo() {
         return this.generalInfoForm.get('generalInfo');
     }
 
@@ -516,98 +722,142 @@ export class Template2Component {
 
     }
 
-    setupPSAListeners() {
-        const psaControls = [
-            {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
-            {checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
-            {checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
-            {checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
-            {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
-            {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
-        ];
+  setupPSAListeners() {
+    const psaControls = [
+      {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
+      {checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
+      {checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
+      {checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
+      {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
+      {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
+    ];
+    const costAllocationJVApprovalData = this.paperDetails?.costAllocationJVApproval || []
+    const patchValues: any = {costAllocation: {}};
 
-        psaControls.forEach(({checkbox, percentage, value}) => {
-            this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
-                const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
-                const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
+    const psaNameToCheckbox: Record<string, string> = {
+      "ACG": "isACG",
+      "Shah Deniz": "isShah",
+      "SCP": "isSCP",
+      "BTC": "isBTC",
+      "Asiman": "isAsiman",
+      "BP Group": "isBPGroup"
+    };
 
-                //checkboxes
-                const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
-                const ACG2 = this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)
+    // Assign PSA/JV values dynamically
+    costAllocationJVApprovalData.forEach((psa: any) => {
+      const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      if (checkboxKey) {
+        patchValues.costAllocation[checkboxKey] = psa.psaValue;
+        patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
+        patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+      }
+    });
 
-                const SD1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
-                const SD2 = this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)
+// Assign default values for all PSA/JV fields if not in API data
+    Object.keys(psaNameToCheckbox).forEach(key => {
+      const checkboxKey = psaNameToCheckbox[key];
+      if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
+        patchValues.costAllocation[checkboxKey] = false;
+        patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
+        patchValues.costAllocation[`value_${checkboxKey}`] = '';
+      }
+    });
 
-                const SCP1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
-                const SCP2 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)
-                const SCP3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)
+    console.log("==patchValues", patchValues
+    )
 
-                const BTC1 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)
-                const BTC2 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)
-                const BTC3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)
+    psaControls.forEach(({checkbox, percentage, value}) => {
+      this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
+        const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
+        const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
+        const jvApprovalsData = this.paperDetails?.jvApprovals[0] || null
+
+        //checkboxes
+        const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
+        const ACG2 = this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)
+
+        const SD1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
+        const SD2 = this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)
+
+        const SCP1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
+        const SCP2 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)
+        const SCP3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)
+
+        const BTC1 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)
+        const BTC2 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)
+        const BTC3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)
 
 
-                if (isChecked) {
-                    percentageControl?.enable();
-                    valueControl?.disable();
+        if (isChecked) {
+          percentageControl?.enable();
+          console.log("=patchValues", patchValues)
+          console.log("==patchValues.costAllocation[percentage] || 0", patchValues.costAllocation[percentage])
+          percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, {emitEvent: false});
+          valueControl?.setValue(patchValues.costAllocation[value] || 0, {emitEvent: false});
 
-                    if (checkbox === "isACG") {
-                        ACG1?.enable();
-                        ACG2?.enable();
-                    } else if (checkbox === "isShah") {
-                        SD1?.enable();
-                        SD2?.enable();
-                    } else if (checkbox === "isSCP") {
-                        SCP1?.enable();
-                        SCP2?.enable();
-                        SCP3?.enable();
-                    } else if (checkbox === "isBTC") {
-                        BTC1?.enable();
-                        BTC2?.enable();
-                        BTC3?.enable();
-                    }
+          if (checkbox === "isACG") {
+            ACG1?.enable();
+            ACG2?.enable();
+            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, {emitEvent: false});
 
-                } else {
-                    percentageControl?.reset();
-                    percentageControl?.disable();
-                    valueControl?.reset();
-                    valueControl?.disable();
+          } else if (checkbox === "isShah") {
+            SD1?.enable();
+            SD2?.enable();
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)?.setValue(jvApprovalsData?.contractCommittee_SDCC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)?.setValue(jvApprovalsData?.coVenturers_SDMC || false, {emitEvent: false});
+          } else if (checkbox === "isSCP") {
+            SCP1?.enable();
+            SCP2?.enable();
+            SCP3?.enable();
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)?.setValue(jvApprovalsData?.coVenturers_SCP || false, {emitEvent: false});
+          } else if (checkbox === "isBTC") {
+            BTC1?.enable();
+            BTC2?.enable();
+            BTC3?.enable();
 
-                    if (checkbox === "isACG") {
-                        ACG1?.disable();
-                        ACG1?.reset();
-                        ACG2?.disable();
-                        ACG2?.reset();
-                    } else if (checkbox === "isShah") {
-                        SD1?.disable();
-                        SD1?.reset();
-                        SD2?.disable();
-                        SD2?.reset();
-                    } else if (checkbox === "isSCP") {
-                        SCP1?.enable();
-                        SCP2?.enable();
-                        SCP3?.enable();
-                        SCP1?.reset();
-                        SCP2?.reset();
-                        SCP3?.reset();
-                    } else if (checkbox === "isBTC") {
-                        BTC1?.disable();
-                        BTC2?.disable();
-                        BTC3?.disable();
-                        BTC1?.reset();
-                        BTC2?.reset();
-                        BTC3?.reset();
-                    }
-                }
-            });
-        });
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
+          }
 
-        // Listen for changes in percentage and value fields to update total
-        psaControls.forEach(({percentage, value}) => {
-            this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe(() => this.calculateTotal());
-            this.generalInfoForm.get(`costAllocation.${value}`)?.valueChanges.subscribe(() => this.calculateTotal());
-        });
-    }
+        } else {
+          percentageControl?.reset();
+          percentageControl?.disable();
+          valueControl?.reset();
+
+          if (checkbox === "isACG") {
+            ACG1?.disable();
+            ACG1?.reset();
+            ACG2?.disable();
+            ACG2?.reset();
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
+          } else if (checkbox === "isShah") {
+            SD1?.disable();
+            SD1?.reset();
+            SD2?.disable();
+            SD2?.reset();
+          } else if (checkbox === "isSCP") {
+            SCP1?.enable();
+            SCP2?.enable();
+            SCP3?.enable();
+            SCP1?.reset();
+            SCP2?.reset();
+            SCP3?.reset();
+          } else if (checkbox === "isBTC") {
+            BTC1?.disable();
+            BTC2?.disable();
+            BTC3?.disable();
+            BTC1?.reset();
+            BTC2?.reset();
+            BTC3?.reset();
+          }
+        }
+      });
+    });
+  }
 
     setupPSACalculations() {
         const psaControls = [
@@ -920,20 +1170,18 @@ export class Template2Component {
             const riskMitigationArray = this.riskMitigation;
             riskMitigationArray.clear(); // Clear existing controls
 
-            // riskMitigationsData?.forEach((item, index) => {
-            //   riskMitigationArray.push(
-            //     this.fb.group({
-            //       srNo: item.srNo || this.generateId(index), // Use API value or generate ID
-            //       risks: [item.risks || '', Validators.required],
-            //       mitigations: [item.mitigations || '', Validators.required],
-            //       id: [item.id]
-            //     })
-            //   );
-            // });
+            riskMitigationsData?.forEach((item: any, index: number) => {
+              riskMitigationArray.push(
+                this.fb.group({
+                  risks: [item.risks || '', Validators.required],
+                  mitigations: [item.mitigations || '', Validators.required],
+                  id: [item.id]
+                })
+              );
+            });
         } else {
             this.riskMitigation.push(
                 this.fb.group({
-                    srNo: this.generateId(this.riskMitigation.length),
                     risks: ['', Validators.required],
                     mitigations: ['', Validators.required],
                     id: [0]
@@ -956,20 +1204,19 @@ export class Template2Component {
     // Add a new risk row
     addCommericalEvaluationRow(isFirst = false) {
         if (isFirst && this.paperDetails) {
-            // const riskMitigationsData = this.paperDetails.riskMitigations || []
-            // const riskMitigationArray = this.commericalEvaluation;
-            // riskMitigationArray.clear(); // Clear existing controls
+            const riskMitigationsData = this.paperDetails.commericalEvaluation || []
+            const riskMitigationArray = this.commericalEvaluation;
+            riskMitigationArray.clear(); // Clear existing controls
 
-            // riskMitigationsData?.forEach((item, index) => {
-            //   riskMitigationArray.push(
-            //     this.fb.group({
-            //       srNo: item.srNo || this.generateId(index), // Use API value or generate ID
-            //       risks: [item.risks || '', Validators.required],
-            //       mitigations: [item.mitigations || '', Validators.required],
-            //       id: [item.id]
-            //     })
-            //   );
-            // });
+            riskMitigationsData?.forEach((item: any, index: number) => {
+              riskMitigationArray.push(
+                this.fb.group({
+                  legalName: [item.legalName || '', Validators.required],
+                  totalValue: [item.totalValue || 0, Validators.required],
+                  id: [item.id]
+                })
+              );
+            });
         } else {
             this.commericalEvaluation.push(
                 this.fb.group({
@@ -995,20 +1242,23 @@ export class Template2Component {
     // Add a new risk row
     addSupplierTechnicalnRow(isFirst = false) {
         if (isFirst && this.paperDetails) {
-            // const riskMitigationsData = this.paperDetails.riskMitigations || []
-            // const riskMitigationArray = this.commericalEvaluation;
-            // riskMitigationArray.clear(); // Clear existing controls
+            const riskMitigationsData = this.paperDetails.supplierTechnical || []
+            const riskMitigationArray = this.supplierTechnical;
+            riskMitigationArray.clear(); // Clear existing controls
 
-            // riskMitigationsData?.forEach((item, index) => {
-            //   riskMitigationArray.push(
-            //     this.fb.group({
-            //       srNo: item.srNo || this.generateId(index), // Use API value or generate ID
-            //       risks: [item.risks || '', Validators.required],
-            //       mitigations: [item.mitigations || '', Validators.required],
-            //       id: [item.id]
-            //     })
-            //   );
-            // });
+            riskMitigationsData?.forEach((item: any, index: number) => {
+              riskMitigationArray.push(
+                this.fb.group({
+                  legalName: [item.legalName, Validators.required],
+                  resultOfHSSE: [item.resultOfHSSE, Validators.required],
+                  commentary: [item.commentary],
+                  thresholdPercent: [item.thresholdPercent],
+                  technicalScorePercent: [item.technicalScorePercent],
+                  isTechnical: [item.isTechnical],
+                  id: [item.id]
+                })
+              );
+            });
         } else {
             this.supplierTechnical.push(
                 this.fb.group({
@@ -1040,30 +1290,32 @@ export class Template2Component {
         return this.generalInfoForm.get('consultation') as FormArray;
     }
 
-    addConsultationRow(isFirst = false) {
+    addConsultationRow(isFirst = false,  isChangedCamUser = false) {
         if (isFirst && this.paperDetails) {
-            // const riskMitigationsData = this.paperDetails.consultationsDetails || []
-            // const riskMitigationArray = this.consultationRows;
-            // riskMitigationArray.clear(); // Clear existing controls
-            //
-            // riskMitigationsData.forEach((item, index) => {
-            //   riskMitigationArray.push(
-            //     this.fb.group({
-            //       psa: [item.psa, Validators.required],
-            //       isNoExistingBudget: [item.isNoExistingBudget], // Checkbox
-            //       technicalCorrect: [item.technicalCorrectId, Validators.required],
-            //       budgetStatement: [item.budgetStatementId, Validators.required],
-            //       jvReview: [item.jvReviewId, Validators.required],
-            //       id: [item.id]
-            //     })
-            //   );
-            // });
+            const riskMitigationsData = this.paperDetails.consultations || []
+            const riskMitigationArray = this.consultationRows;
+            riskMitigationArray.clear(); // Clear existing controls
+
+            riskMitigationsData.forEach((item: any, index: number) => {
+              riskMitigationArray.push(
+                this.fb.group({
+                  psa: [item.psa, Validators.required],
+                  technicalCorrect: [item.technicalCorrectId, Validators.required],
+                  budgetStatement: [item.budgetStatementId, Validators.required],
+                  jvReview: [item.jvReviewId, Validators.required],
+                  id: [item.id]
+                })
+              );
+            });
         } else {
-            this.consultationRows.push(
+          const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
+          if(isChangedCamUser) {
+            this.consultationRows.clear();
+          }
+          this.consultationRows.push(
                 this.fb.group({
                     psa: ['', Validators.required],
-                    isNoExistingBudget: [false], // Checkbox
-                    technicalCorrect: [null, Validators.required],
+                  technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
                     budgetStatement: [null, Validators.required],
                     jvReview: [null, Validators.required],
                     id: [0]
@@ -1086,22 +1338,31 @@ export class Template2Component {
 
     addBidRow(isFirst = false) {
         if (isFirst && this.paperDetails) {
-            // const riskMitigationsData = this.paperDetails.bidInvites || []
-            // const riskMitigationArray = this.inviteToBid;
-            // riskMitigationArray.clear(); // Clear existing controls
-            //
-            // riskMitigationsData.forEach((item, index) => {
-            //   riskMitigationArray.push(
-            //     this.fb.group({
-            //       legalName: [item.legalName, Validators.required],
-            //       isLocalOrJV: [item.isLocalOrJV], // Checkbox
-            //       countryId: [item.countryId, Validators.required],
-            //       parentCompanyName: [item.parentCompanyName],
-            //       remarks: [item.remarks],
-            //       id: [item.id]
-            //     })
-            //   );
-            // });
+            const riskMitigationsData = this.paperDetails.legalEntitiesAwarded || []
+            const riskMitigationArray = this.inviteToBid;
+            riskMitigationArray.clear(); // Clear existing controls
+
+            riskMitigationsData.forEach((item: any, index: number) => {
+              riskMitigationArray.push(
+                this.fb.group({
+                  legalName: [item.legalName, Validators.required],
+                  isLocalOrJV: [item.isLocalOrJV], // Checkbox
+                   id: [item.id],
+                  contractStartDate:[ item.contractStartDate
+                    ? format(new Date(item.contractStartDate), 'yyyy-MM-dd')
+                    : ''],
+                  contractEndDate: [ item.contractEndDate
+                    ? format(new Date(item.contractEndDate), 'yyyy-MM-dd')
+                    : ''],
+                  extensionOption: [item.extensionOption],
+                  currencyCode: [item.currencyCode],
+                  totalAwardValueUSD: [item.totalAwardValueUSD],
+                  exchangeRate: [item.exchangeRate],
+                  contractValue: [item.contractValue],
+
+                })
+              );
+            });
         } else {
             this.inviteToBid.push(
                 this.fb.group({

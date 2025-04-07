@@ -406,18 +406,18 @@ export class Template1Component {
       console.log("==patchValues", patchValues
       )
 
-      const selectedValues = paperDetailData.psajv
+      const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
         .map(label => label.trim())
         .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
-        .filter(value => value); // Remo
+        .filter(value => value) : []
 
 
-      const selectedValuesProcurementTagUsers = paperDetailData.procurementSPAUsers
+      const selectedValuesProcurementTagUsers =  paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
         .split(',')
         .map(id => id.trim())
         .map(id => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
-        .filter(value => value); // Remo
+        .filter(value => value) : [];
 
       if (value.data) {
         this.generalInfoForm.patchValue({

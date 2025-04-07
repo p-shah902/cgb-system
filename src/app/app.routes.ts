@@ -18,6 +18,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'contract-award/:id',
+    loadComponent: () => import('./template2/template2.component').then(m => m.Template2Component),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'contract-variation-or-amendment-approval',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
