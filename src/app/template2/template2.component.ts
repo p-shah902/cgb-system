@@ -29,11 +29,13 @@ import {VendorService} from '../../service/vendor.service';
 import {VendorDetail} from '../../models/vendor';
 import {CURRENCY_LIST} from '../../utils/constant';
 import {format} from 'date-fns';
+import {BehaviorSubject} from 'rxjs';
+import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 
 @Component({
     selector: 'app-template2',
     standalone: true,
-    imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule],
+    imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe],
     templateUrl: './template2.component.html',
     styleUrl: './template2.component.scss'
 })
@@ -44,7 +46,8 @@ export class Template2Component {
     private searchTimeout: any;
     public Editor: typeof ClassicEditor | null = null;
     public config: EditorConfig | null = null;
-    @ViewChild('searchInput') searchInput!: ElementRef;
+   private allApisDone$ = new BehaviorSubject<boolean>(false);
+  @ViewChild('searchInput') searchInput!: ElementRef;
     generalInfoForm!: FormGroup;
     isExpanded: boolean = true; // Default expanded
     paperId: string | null = null;
@@ -59,7 +62,8 @@ export class Template2Component {
     countryDetails: CountryDetail[] = [];
     paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
-
+  private completedCount = 0;
+  private totalCalls = 5;
     // Global variables for dropdown selections
     currenciesData: DictionaryDetail[] = [];
     globalCGBData: DictionaryDetail[] = [];
@@ -91,16 +95,22 @@ export class Template2Component {
             premium: true
         }).then(this._setupEditor.bind(this));
 
-
-        this.route.paramMap.subscribe(params => {
+      this.allApisDone$.subscribe((done) => {
+        if (done) {
+          this.route.paramMap.subscribe(params => {
             this.paperId = params.get('id');
             if (this.paperId) {
               this.fetchPaperDetails(Number(this.paperId))
+            } else {
+              this.isExpanded = false;
             }
             console.log('Paper ID:', this.paperId);
-        });
+          });
+        }
+      });
 
-        this.route.queryParamMap.subscribe(queryParams => {
+
+      this.route.queryParamMap.subscribe(queryParams => {
             this.isCopy = queryParams.get('isCopy') === 'true';
             console.log('Is Copy:', this.isCopy);
         });
@@ -571,7 +581,8 @@ export class Template2Component {
             next: (response) => {
                 if (response.status && response.data) {
                     const itemData = response.data;
-                    if (itemData.length > 0) {
+                  this.incrementAndCheck(itemData.length);
+                  if (itemData.length > 0) {
                         itemData.forEach((item) => {
                             this.loadDictionaryDetails(item.itemName);
                         });
@@ -588,7 +599,7 @@ export class Template2Component {
             next: (response) => {
                 if (response.status && response.data) {
                     console.log('Dictionary Detail:', response.data);
-
+                  this.incrementAndCheck();
                     switch (itemName) {
                         case 'Currencies':
                             this.currenciesData = response.data || [];
@@ -638,22 +649,49 @@ export class Template2Component {
         });
     }
 
-    loadUserDetails() {
-        this.userService.getUserDetailsList().subscribe({
-            next: (response) => {
-                if (response.status && response.data) {
-                    this.userDetails = response.data;
-                    this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({
-                        label: t.displayName,
-                        value: t.id
-                    }));
+  loadUserDetails() {
+    this.userService.getUserDetailsList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.userDetails = response.data;
+          this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({
+            label: t.displayName,
+            value: t.id
+          }));
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
 
-                }
-            }, error: (error) => {
-                console.log('error', error);
-            }
-        })
+  private incrementAndCheck(increaseCount: number | null = null) {
+    this.completedCount++;
+    if (increaseCount) {
+      this.totalCalls = this.totalCalls + increaseCount;
     }
+    if (this.completedCount === this.totalCalls) {
+      this.allApisDone$.next(true);
+    }
+  }
+
+    // loadUserDetails() {
+    //     this.userService.getUserDetailsList().subscribe({
+    //         next: (response) => {
+    //             if (response.status && response.data) {
+    //                 this.userDetails = response.data;
+    //                 this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({
+    //                     label: t.displayName,
+    //                     value: t.id
+    //                 }));
+    //
+    //             }
+    //         }, error: (error) => {
+    //             console.log('error', error);
+    //         }
+    //     })
+    // }
 
     loadCountry() {
         this.countryService.getCountryDetails().subscribe({
@@ -661,6 +699,8 @@ export class Template2Component {
                 if (reponse.status && reponse.data) {
 
                     this.countryDetails = reponse.data || [];
+                  this.incrementAndCheck();
+
                 }
             },
             error: (error) => {
@@ -675,6 +715,8 @@ export class Template2Component {
                 if (reponse.status && reponse.data) {
 
                     this.paperStatusList = reponse.data || [];
+                  this.incrementAndCheck();
+
                 }
             },
             error: (error) => {
@@ -690,6 +732,7 @@ export class Template2Component {
                 if (reponse.status && reponse.data) {
                     this.vendorList = reponse.data;
                     console.log('vendor:', this.vendorList);
+                  this.incrementAndCheck();
                 }
             },
             error: (error) => {
