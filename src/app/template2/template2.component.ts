@@ -31,11 +31,16 @@ import {CURRENCY_LIST} from '../../utils/constant';
 import {format} from 'date-fns';
 import {BehaviorSubject} from 'rxjs';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
+import {EditorComponent} from '../../components/editor/editor.component';
+import {CommentableDirective} from '../../directives/commentable.directive';
+import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
+import {CommentService} from '../../service/comment.service';
+import {EditorService} from '../../service/editor.service';
 
 @Component({
     selector: 'app-template2',
     standalone: true,
-    imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe],
+    imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent],
     templateUrl: './template2.component.html',
     styleUrl: './template2.component.scss'
 })
@@ -43,7 +48,9 @@ export class Template2Component {
     private readonly userService = inject(UserService);
     private readonly paperService = inject(PaperService);
     private readonly vendorService = inject(VendorService);
-    private searchTimeout: any;
+  private commentService = inject(CommentService);
+  private editorService = inject(EditorService);
+  private searchTimeout: any;
     public Editor: typeof ClassicEditor | null = null;
     public config: EditorConfig | null = null;
    private allApisDone$ = new BehaviorSubject<boolean>(false);
@@ -90,10 +97,13 @@ export class Template2Component {
     }
 
     public ngOnInit(): void {
-        loadCKEditorCloud({
-            version: '44.3.0',
-            premium: true
-        }).then(this._setupEditor.bind(this));
+      loadCKEditorCloud({
+        version: '44.3.0',
+        premium: true
+      }).then(this._setupEditor.bind(this));
+
+      this.editorService.getEditorToken().subscribe();
+
 
       this.allApisDone$.subscribe((done) => {
         if (done) {
@@ -303,7 +313,7 @@ export class Template2Component {
 
       if(selectedPaperStatus?.paperStatus !== "Draft") {
         this.isRegisterPaper = true
-        // this.commentService.loadPaper(paperId);
+        this.commentService.loadPaper(paperId);
       }
 
       console.log("==isRegisterPaper", this.isRegisterPaper)
@@ -346,16 +356,12 @@ export class Template2Component {
 // Assign default values for all PSA/JV fields if not in API data
       Object.keys(psaNameToCheckbox).forEach(key => {
         const checkboxKey = psaNameToCheckbox[key];
-        console.log("==checkboxKey", checkboxKey)
         if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
           patchValues.costAllocation[checkboxKey] = false;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
           patchValues.costAllocation[`value_${checkboxKey}`] = '';
         }
       });
-
-      console.log("==patchValues", patchValues
-      )
 
       const selectedValues = contractAwardDetails?.psajv
         ? contractAwardDetails.psajv
@@ -806,9 +812,6 @@ export class Template2Component {
       }
     });
 
-    console.log("==patchValues", patchValues
-    )
-
     psaControls.forEach(({checkbox, percentage, value}) => {
       this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
@@ -833,8 +836,6 @@ export class Template2Component {
 
         if (isChecked) {
           percentageControl?.enable();
-          console.log("=patchValues", patchValues)
-          console.log("==patchValues.costAllocation[percentage] || 0", patchValues.costAllocation[percentage])
           percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, {emitEvent: false});
           valueControl?.setValue(patchValues.costAllocation[value] || 0, {emitEvent: false});
 
@@ -1175,8 +1176,6 @@ export class Template2Component {
             },
           legalEntitiesAwarded: procurementValue.legalEntitiesAwarded || []
         }
-
-        console.log("==params", params)
 
         if (this.generalInfoForm.valid) {
             this.paperService.upsertContractAward(params).subscribe({
