@@ -8,8 +8,10 @@ export interface PaperConfig {
   lastModifyName: string,
   lastModifyDate: string,
   price: number,
-  isActive: boolean
-  checked?: boolean
+  isActive: boolean,
+  checked?: boolean,
+  logCounts:number,
+  fileCounts:number
 }
 
 export interface PaperDetails {
@@ -151,7 +153,14 @@ export interface Paper {
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[]
   jvApprovals: JvApprovals[]
   costAllocationJVApproval: CostAllocationJVApproval[]
-  paperTimelineDetails:PaperTimelineDetails[]
+  paperTimelineDetails:PaperTimelineDetails[],
+  contractAwardDetails:ContractAwardDetails,
+  consultations:ConsultationsDetails[],
+  legalEntitiesAwarded:LegalEntitiesAwarded[],
+  valueDeliveries:ValueDeliveriesCostsharing[],
+  commericalEvaluation:CommericalEvaluation[],
+  supplierTechnical:SupplierTechnical[],
+
 }
 
 export interface PaperData {
@@ -184,4 +193,104 @@ export interface PaperTimelineDetails{
   isActivityDone: boolean,
   activityDate: Date | string,
 
+}
+
+export interface ContractAwardDetails{
+  id: number,
+  paperType: string,
+  paperStatusId: number,
+  paperStatusName: string,
+  paperProvision: string,
+  purposeRequired: string,
+  contactNo: string,
+  isActive: boolean,
+  cgbAtmRefNo: number,
+  cgbApprovalDate: string,
+  contractNo: number,
+  isChangeinApproachMarket: boolean,
+  cgbItemRefNo: string,
+  cgbCirculationDate:string,
+  vendorId: number,
+  globalCGB: string,
+  bltMemberId: number,
+  bltMemberName: number,
+  operatingFunction: string,
+  subSector: string,
+  sourcingType: string,
+  camUserId: number,
+  camUserName:string,
+  vP1UserId: number,
+  vP1UserName: string,
+  procurementSPAUsers:number,
+  pdManagerNameId:number,
+  pdManagerName: string,
+  isPHCA: boolean,
+  psajv: string,
+  totalAwardValueUSD:number,
+  currencyCode:number,
+  exchangeRate: number,
+  contractValue:number,
+  remunerationType: string,
+  isPaymentRequired:boolean,
+  prePayPercent:number,
+  prePayAmount:number,
+  workspaceNo: string,
+  isSplitAward: boolean,
+  isLTCC: boolean,
+  ltccNotes: string,
+  isGovtReprAligned:boolean,
+  govtReprAlignedComment: string,
+  isIFRS16:boolean,
+  isGIAAPCheck:boolean,
+  supplierAwardRecommendations: string,
+  isConflictOfInterest: boolean,
+  conflictOfInterestComment: string,
+  isRetrospectiveApproval: boolean,
+  retrospectiveApprovalReason: string,
+  nationalContent:string,
+  isHighRiskContract:string,
+  cddCompleted:string,
+  highRiskExplanation:string,
+  flagRaisedCDD:string,
+  additionalCDD:string,
+  invitedBidders:number,
+  submittedBids:number,
+  previousContractLearning:string,
+  performanceImprovements:string,
+  benchMarking:string,
+  contractualControls:string,
+  contractCurrencyLinktoBaseCost:string,
+  explanationsforBaseCost:string,
+  contractSpendCommitment:string,
+  createdBy:number,
+  createdDate:string,
+}
+
+export interface LegalEntitiesAwarded{
+  id:number,
+  legalName:string,
+  isLocalOrJV:boolean,
+  totalAwardValueUSD:number,
+  currencyCode:number,
+  exchangeRate:number,
+  contractValue:number,
+  contractStartDate:string,
+  contractEndDate:string,
+  extensionOption:string,
+}
+
+export interface SupplierTechnical{
+  id:number
+  legalName:string
+  thresholdPercent:number,
+  isTechnical:boolean,
+  technicalScorePercent:number,
+  resultOfHSSE:string,
+  commentary:string,             
+}
+
+export interface CommericalEvaluation{
+  id:number,
+  legalName:string,
+  totalValue:number,                 
 }

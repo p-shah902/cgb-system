@@ -88,6 +88,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'preview2/:id',
+    loadComponent: () => import('./preview2/preview2.component').then(m => m.Preview2Component),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [AuthGuard]
