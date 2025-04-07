@@ -268,10 +268,8 @@
                       <button
                         class="btn action-btn"
                         (click)="
-                        router.navigate(
-                          ['/approach-to-market', paper.paperID],
-                          { queryParams: { isCopy: 'true' } }
-                        )
+                        goToApproachToMarket(paper, true)
+
                       "
                       >
                         <svg
@@ -314,7 +312,7 @@
                       <button
                         class="btn action-btn"
                         (click)="
-                        router.navigate(['/approach-to-market', paper.paperID])
+                        goToApproachToMarket(paper)
                       "
                       >
                         <svg
@@ -400,7 +398,7 @@
                             </svg>
                           </button>
                           <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                            <a class="links" ngbDropdownItem [routerLink]="['/approach-to-market', paper.paperID]">
+                            <a class="links" ngbDropdownItem  (click)="goToApproachToMarket(paper)">
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                    xmlns="http://www.w3.org/2000/svg">
                                 <path
