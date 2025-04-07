@@ -1241,3 +1241,48 @@ hr {
     display: none !important;
   }
 }
+.tbl-div {
+  max-height: 70vh;
+}
+.table-wrapper {
+  border: 1px solid var(--borderColor);
+  overflow: auto;
+
+
+
+  th, td {
+    border-bottom: 1px solid var(--borderColor);
+  }
+
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+
+  /*
+  STICKY ROW
+  Normal css box-shadow works for the header as it is a single html element
+  */
+
+  tr.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--stickyBackground);
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+  }
+
+
+  /*
+  STICKY COLUMN
+  Avoid undesirable overlapping shadows by creating a faux shadow on the ::after psudo-element instead of using the css box-shadow property.
+  */
+
+  th.sticky,
+  td.sticky {
+    position: sticky;
+    left: 0;
+    background: var(--stickyBackground);
+  }
+}
