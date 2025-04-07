@@ -287,4 +287,32 @@ export class PaperListComponent implements OnInit {
       return dateB - dateA;
     });
   }
+
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove non-word characters
+      .replace(/\s+/g, '-')     // Replace spaces with dashes
+  }
+
+
+  goToApproachToMarket(paper: any, isCopy: boolean = false): void {
+    const routePath = this.slugify(paper.paperType);
+
+    const queryParams: any = {};
+    if (isCopy) {
+      queryParams.isCopy = 'true';
+    }
+
+    this.router.navigate([`/${routePath}`, paper.paperID], {
+      queryParams: queryParams
+    });
+  }
+
+
+
+
+
+
 }

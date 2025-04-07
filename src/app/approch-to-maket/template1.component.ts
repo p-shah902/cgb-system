@@ -396,7 +396,6 @@ export class Template1Component {
       // Assign default values for all PSA/JV fields if not in API data
       Object.keys(psaNameToCheckbox).forEach(key => {
         const checkboxKey = psaNameToCheckbox[key];
-        console.log("==checkboxKey", checkboxKey)
         if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
           patchValues.costAllocation[checkboxKey] = false;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
@@ -404,10 +403,7 @@ export class Template1Component {
         }
       });
 
-      console.log("==patchValues", patchValues
-      )
-
-      const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
+           const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
         .map(label => label.trim())
         .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
@@ -745,7 +741,6 @@ export class Template1Component {
     // Assign default values for all PSA/JV fields if not in API data
     Object.keys(psaNameToCheckbox).forEach(key => {
       const checkboxKey = psaNameToCheckbox[key];
-      console.log("==checkboxKey", checkboxKey)
       if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
         patchValues.costAllocation[checkboxKey] = false;
         patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
@@ -753,8 +748,6 @@ export class Template1Component {
       }
     });
 
-    console.log("==patchValues", patchValues
-    )
 
     psaControls.forEach(({ checkbox, percentage, value }) => {
       this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
@@ -780,8 +773,6 @@ export class Template1Component {
 
         if (isChecked) {
           percentageControl?.enable();
-          console.log("=patchValues", patchValues)
-          console.log("==patchValues.costAllocation[percentage] || 0", patchValues.costAllocation[percentage])
           percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, { emitEvent: false });
           valueControl?.setValue(patchValues.costAllocation[value] || 0, { emitEvent: false });
 
