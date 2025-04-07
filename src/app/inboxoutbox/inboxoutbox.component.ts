@@ -1,15 +1,15 @@
-import {Component, inject, OnInit, TemplateRef} from '@angular/core';
-import {NgbDropdownItem, NgbModal, NgbNavModule, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
-import {ToastService} from '../../service/toast.service';
-import {CommonModule} from '@angular/common';
-import {InboxOutbox} from '../../models/inbox-outbox';
-import {InboxOutboxService} from '../../service/inbox-outbox.service';
-import {RouterLink} from '@angular/router';
-import {LoginUser} from '../../models/user';
-import {AuthService} from '../../service/auth.service';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {PaperConfigService} from '../../service/paper/paper-config.service';
-import {PaperService} from '../../service/paper.service';
+import { Component, inject, OnInit, TemplateRef } from '@angular/core';
+import { NgbDropdownItem, NgbModal, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../service/toast.service';
+import { CommonModule } from '@angular/common';
+import { InboxOutbox } from '../../models/inbox-outbox';
+import { InboxOutboxService } from '../../service/inbox-outbox.service';
+import { RouterLink } from '@angular/router';
+import { LoginUser } from '../../models/user';
+import { AuthService } from '../../service/auth.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PaperConfigService } from '../../service/paper/paper-config.service';
+import { PaperService } from '../../service/paper.service';
 
 @Component({
   selector: 'app-inboxoutbox',
@@ -69,6 +69,9 @@ export class InboxoutboxComponent implements OnInit {
           next: (response) => {
             if (response.status && response.data) {
               modal.close('Save click');
+              this.approvalRemark = ''; // Reset the approval remark
+              this.reviewBy = ''; // Reset the review by
+              this.selectedPaper = 0; // Reset the selected paper ID
               this.getInboxOutBox();
             }
           },
@@ -111,13 +114,13 @@ export class InboxoutboxComponent implements OnInit {
         size: 'lg', // Adjust size as needed (sm, lg, xl)
       })
       .result.then(
-      (result) => {
-        // Handle modal close
-      },
-      (reason) => {
-        // Handle modal dismiss
-      }
-    );
+        (result) => {
+          // Handle modal close
+        },
+        (reason) => {
+          // Handle modal dismiss
+        }
+      );
 
     if (paperId) {
       this.selectedPaper = paperId;

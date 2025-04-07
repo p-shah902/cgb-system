@@ -1,12 +1,7 @@
 <!-- Toasts Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
-  <ngb-toast
-    *ngFor="let toast of toastService.toasts"
-    [class]="'bg-' + toast.type +' text-white'"
-    [autohide]="true"
-    [delay]="5000"
-    (hidden)="toastService.remove(toast)"
-  >
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type +' text-white'" [autohide]="true"
+    [delay]="5000" (hidden)="toastService.remove(toast)">
     {{ toast.message }}
   </ngb-toast>
 </div>
@@ -17,17 +12,16 @@
 
   <div class="timeline-main-div mb-5">
 
-    <div *ngFor="let activity of paperTimelineDetails; let i = index"
-    [class]="getStatusClass(i)">
+    <div *ngFor="let activity of paperTimelineDetails; let i = index" [class]="getStatusClass(i)">
       <div class="tb-head d-flex gap-2">
         <div>
           <h1>{{ activity.id }}</h1>
         </div>
-      <div>
-        <h6>{{ activity.activityName }}</h6>
-        <p>
-          {{ activity.activityDate ? (activity.activityDate | date: 'dd-MMM, yyyy hh:mm a') : 'Pending' }}
-         </p>
+        <div>
+          <h6>{{ activity.activityName }}</h6>
+          <p>
+            {{ activity.activityDate ? (activity.activityDate | date: 'dd-MMM, yyyy hh:mm a') : 'Pending' }}
+          </p>
         </div>
       </div>
     </div>
@@ -77,7 +71,7 @@
                   <div class="col-md-12">
                     <div class="form-group mb-3">
                       <label>Scope of Work </label>
-                      <h6>{{paperInfo?.scopeOfWork}}</h6>
+                      <h6 [innerHTML]="paperInfo?.scopeOfWork">{{paperInfo?.scopeOfWork}}</h6>
 
                     </div>
                   </div>
@@ -184,7 +178,7 @@
                     </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
-                        <label >End Date</label>
+                        <label>End Date</label>
                         <h6>{{paperInfo?.contractEndDate| date: 'dd MMMM yyyy'}}</h6>
 
                       </div>
@@ -264,7 +258,7 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Strategy Description</label>
-                    <h6>{{paperInfo?.strategyDescription }}</h6>
+                    <h6 [innerHTML]="paperInfo?.strategyDescription"></h6>
 
                   </div>
                 </div>
@@ -277,7 +271,7 @@
               <h4>2. Procurement Strategy</h4>
             </div>
 
-            <div class="fb-form" >
+            <div class="fb-form">
               <div class="row">
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
@@ -300,7 +294,7 @@
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Sourcing Strategy</label>
-                    <h6>{{paperInfo?.sourcingStrategy}}</h6>
+                    <h6 [innerHTML]="paperInfo?.sourcingStrategy"></h6>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
@@ -310,22 +304,22 @@
                       <div class="key-risks-table custom-table">
                         <table class="table">
                           <thead>
-                          <tr>
-                            <th>ID</th>
-                            <th>Risks</th>
-                            <th>Mitigations</th>
-                          </tr>
+                            <tr>
+                              <th>ID</th>
+                              <th>Risks</th>
+                              <th>Mitigations</th>
+                            </tr>
                           </thead>
                           <tbody formArrayName="risks">
-                          <tr *ngFor="let risk of riskMitigation; let i = index">
-                            <td>{{ risk.srNo }}</td>
-                            <td>
-                              <h6>{{risk.risks}}</h6>
-                            </td>
-                            <td>
-                              <h6>{{risk.mitigations}}</h6>
-                            </td>
-                          </tr>
+                            <tr *ngFor="let risk of riskMitigation; let i = index">
+                              <td>{{ risk.srNo }}</td>
+                              <td>
+                                <h6>{{risk.risks}}</h6>
+                              </td>
+                              <td>
+                                <h6>{{risk.mitigations}}</h6>
+                              </td>
+                            </tr>
                           </tbody>
                         </table>
 
@@ -350,34 +344,34 @@
                       <div class="key-risks-table custom-table">
                         <table class="table">
                           <thead>
-                          <tr>
-                            <th>Full Name of Legal Entity</th>
-                            <th>Local/JV</th>
-                            <th>Country of Incorporation</th>
-                            <th>Parent Company name</th>
-                            <th>Remarks (If any)</th>
+                            <tr>
+                              <th>Full Name of Legal Entity</th>
+                              <th>Local/JV</th>
+                              <th>Country of Incorporation</th>
+                              <th>Parent Company name</th>
+                              <th>Remarks (If any)</th>
 
-                          </tr>
+                            </tr>
                           </thead>
                           <tbody formArrayName="inviteToBid">
-                          <tr *ngFor="let bid of bidInvites; let i = index">
-                            <td>
-                              <h6>{{bid.legalName}}</h6>
-                            </td>
-                            <td class="text-center align-middle">
-                              <h6>{{ bid.isLocalOrJV ? 'Yes' : 'No' }}</h6>
-                            </td>
-                            <td>
-                              <h6>{{ bid.countryName }}</h6>
-                            </td>
-                            <td>
-                              <h6>{{ bid.parentCompanyName }}</h6>
-                            </td>
-                            <td>
-                              <h6>{{ bid.remarks }}</h6>
-                            </td>
+                            <tr *ngFor="let bid of bidInvites; let i = index">
+                              <td>
+                                <h6>{{bid.legalName}}</h6>
+                              </td>
+                              <td class="text-center align-middle">
+                                <h6>{{ bid.isLocalOrJV ? 'Yes' : 'No' }}</h6>
+                              </td>
+                              <td>
+                                <h6>{{ bid.countryName }}</h6>
+                              </td>
+                              <td>
+                                <h6>{{ bid.parentCompanyName }}</h6>
+                              </td>
+                              <td>
+                                <h6>{{ bid.remarks }}</h6>
+                              </td>
 
-                          </tr>
+                            </tr>
                           </tbody>
                         </table>
                       </div>
@@ -402,7 +396,7 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>SOCAR’s response</label>
-                    <h6>{{paperInfo?.socarDescription}}</h6>
+                    <h6 [innerHTML]="paperInfo?.socarDescription"></h6>
 
 
                   </div>
@@ -410,7 +404,7 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Results of Pre-qualification Exercise</label>
-                    <h6>{{paperInfo?.preQualificationResult}}</h6>
+                    <h6 [innerHTML]="paperInfo?.preQualificationResult"></h6>
                   </div>
                 </div>
 
@@ -536,7 +530,8 @@
                     <tr>
                       <td><b>As%</b></td>
                       <td *ngFor="let column of psaColumns">
-                        <label>{{ column.percentage !== null ? (column.percentage | number:'1.2-2') + '%' : '' }}</label>
+                        <label>{{ column.percentage !== null ? (column.percentage | number:'1.2-2') + '%' : ''
+                          }}</label>
                       </td>
                       <td>
                         <label>{{ totalPercentage > 0 ? (totalPercentage | number:'1.2-2') + '%' : '' }}</label>
@@ -570,8 +565,9 @@
                             <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CC" disabled>
                             <label>SCP Co CC</label>
                           </div>
-                          <div class="form-check-box position-relative" >
-                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote" disabled>
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"
+                              disabled>
                             <label>SCP Co CC info note</label>
                           </div>
                         </div>
@@ -582,8 +578,9 @@
                             <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_BTC_CC" disabled>
                             <label>BTC CC</label>
                           </div>
-                          <div class="form-check-box position-relative" >
-                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"  disabled>
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"
+                              disabled>
                             <label>BTC CC Info Note</label>
                           </div>
                         </div>
@@ -591,7 +588,7 @@
                       <td> {{jvApprovals[0].contractCommittee_ShAsimanValue}} </td>
                       <td> {{jvApprovals[0].contractCommittee_BPGroupValue}} </td>
                       <td>
-                        <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_CGB"  disabled>
+                        <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_CGB" disabled>
                         <label>CGB</label>
                       </td>
                     </tr>
@@ -775,12 +772,12 @@
                     </div>
                   </div>
 
-                  <div class="col-sm-6 col-md-2">
-                      <label>No existing budget Correct</label>
-                      <div class="text-center align-middle">
-                        <h6>{{consultation.isNoExistingBudget ? 'Yes':'No'}}</h6>
-                      </div>
-                  </div>
+                  <!-- <div class="col-sm-6 col-md-2">
+                    <label>No existing budget Correct</label>
+                    <div class="text-center align-middle">
+                      <h6>{{consultation.isNoExistingBudget ? 'Yes':'No'}}</h6>
+                    </div>
+                  </div> -->
 
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
@@ -836,6 +833,7 @@
                 {{ log.description }}
               </p>
               <small>{{ log.logCreateDate | timeAgo }}</small>
+
             </div>
           </div>
           <div class="chat-input-group position-relative">
@@ -844,9 +842,9 @@
               <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M0.636705 0.0448581C0.556778 0.00584078 0.46695 -0.00818904 0.378933 0.00459804C0.290916 0.0173851 0.208793 0.0563957 0.143274 0.116543C0.077754 0.176691 0.0318774 0.255185 0.0116255 0.341789C-0.00862634 0.428394 -0.0023138 0.519092 0.0297403 0.602056L2.55624 7.37997C2.70525 7.78008 2.70525 8.22045 2.55624 8.62056L0.0306291 15.3985C-0.00126334 15.4813 -0.00749372 15.5719 0.0127476 15.6583C0.0329889 15.7448 0.078766 15.8231 0.14413 15.8832C0.209493 15.9433 0.291421 15.9824 0.379265 15.9953C0.46711 16.0082 0.556808 15.9944 0.636705 15.9557L16.6328 8.40195C16.7089 8.36596 16.7732 8.3091 16.8183 8.23799C16.8633 8.16688 16.8872 8.08444 16.8872 8.00027C16.8872 7.91609 16.8633 7.83365 16.8183 7.76254C16.7732 7.69143 16.7089 7.63457 16.6328 7.59859L0.636705 0.0448581Z"
-                  fill="#582AA2"/>
+                  fill="#582AA2" />
                 <path d="M3.2002 8H16.0002" stroke="#E6EFFC" stroke-width="0.646308" stroke-linecap="round"
-                      stroke-linejoin="round"/>
+                  stroke-linejoin="round" />
               </svg>
 
             </button>
