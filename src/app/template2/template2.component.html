@@ -144,9 +144,9 @@
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <label>Changes since AtM / Why is this work required?* </label>
-                    <ckeditor *ngIf="( Editor && config )" formControlName="purposeRequired" data="" [editor]="Editor"
-                              [config]="config">
-                    </ckeditor>
+                    <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired" />
+                    <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
+                                formControlName="purposeRequired" />
                   </div>
                 </div>
 
@@ -491,9 +491,8 @@
                   </div>
                   <div class="form-group mb-3">
                     <label>LTCC Note</label>
-                    <ckeditor formControlName="ltccNotes" *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="ltccNotes" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="ltccNotes"></textarea>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -518,9 +517,8 @@
 
                   <div class="form-group mb-3">
                     <label>Government Representative Comment</label>
-                    <ckeditor formControlName="govtReprAlignedComment" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="govtReprAlignedComment" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="govtReprAlignedComment"></textarea>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('govtReprAlignedComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -569,10 +567,10 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>Supplier Award Recommendation Text</label>
-                    <ckeditor formControlName="supplierAwardRecommendations" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <label>Supplier Award Recommendation</label>
+                    <app-editor-normal *ngIf="!isRegisterPaper" formControlName="supplierAwardRecommendations" />
+                    <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'supplierAwardRecommendations') : ''"
+                                formControlName="supplierAwardRecommendations" />
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
@@ -689,9 +687,8 @@
                   </div>
                   <div class="form-group mb-3">
                     <label>Conflict of Interest Comments</label>
-                    <ckeditor formControlName="conflictOfInterestComment" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="conflictOfInterestComment" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="conflictOfInterestComment"></textarea>
                     <div class="text-danger"
                          *ngIf="submitted && procurementDetailsInfo?.get('conflictOfInterestComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -716,9 +713,8 @@
                   </div>
                   <div class="form-group mb-3">
                     <label>Conflict of Interest Comments</label>
-                    <ckeditor formControlName="retrospectiveApprovalReason" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="retrospectiveApprovalReason" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="retrospectiveApprovalReason"></textarea>
                     <div class="text-danger"
                          *ngIf="submitted && procurementDetailsInfo?.get('retrospectiveApprovalReason')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -729,9 +725,9 @@
 
                   <div class="form-group mb-3">
                     <label>National Content</label>
-                    <ckeditor formControlName="nationalContent" *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              [config]="config">
-                    </ckeditor>
+                    <app-editor-normal *ngIf="!isRegisterPaper" formControlName="nationalContent" />
+                    <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'nationalContent') : ''"
+                                formControlName="nationalContent" />
                   </div>
                 </div>
               </div>
@@ -772,27 +768,24 @@
 
                   <div class="form-group mb-3">
                     <label>Explanation for High Risk</label>
-                    <ckeditor formControlName="highRiskExplanation" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="highRiskExplanation" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="highRiskExplanation"></textarea>
                   </div>
                 </div>
                 <div class="col-sm-6">
 
                   <div class="form-group mb-3">
                     <label>Flags raised during initial CDD / CDD refresh</label>
-                    <ckeditor formControlName="flagRaisedCDD" *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="flagRaisedCDD" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="flagRaisedCDD"></textarea>
                   </div>
                 </div>
                 <div class="col-sm-6">
 
                   <div class="form-group mb-3">
                     <label>Additional CDD Controls for High Risk Contracts</label>
-                    <ckeditor formControlName="additionalCDD" *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="additionalCDD" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="additionalCDD"></textarea>
                   </div>
                 </div>
               </div>
@@ -900,14 +893,6 @@
                     <!--                  </div>-->
                   </div>
                 </div>
-                <div class="col-sm-12 col-md-12">
-                  <div class="form-group mb-3">
-                    <label>Benchmarking for Sole Awards</label>
-                    <ckeditor formControlName="benchMarking" *ngIf="( Editor && config )" data="" [editor]="Editor"
-                              [config]="config">
-                    </ckeditor>
-                  </div>
-                </div>
               </div>
 
               <div class="row">
@@ -989,9 +974,8 @@
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
                   <label>Benchmarking for Sole Awards</label>
-                  <ckeditor formControlName="benchMarking" *ngIf="( Editor && config )" data="" [editor]="Editor"
-                            [config]="config">
-                  </ckeditor>
+                  <textarea type="text" id="benchMarking" class="form-control allow-comments" placeholder="Write Description"
+                            formControlName="benchMarking"></textarea>
                 </div>
               </div>
             </div>
@@ -1004,9 +988,8 @@
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
                     <label>Contractual Controls for Key Cost Drivers</label>
-                    <ckeditor formControlName="contractualControls" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="contractualControls" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="contractualControls"></textarea>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
@@ -1031,9 +1014,8 @@
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
                     <label>Explanation (if "No")</label>
-                    <ckeditor formControlName="explanationsforBaseCost" *ngIf="( Editor && config )" data=""
-                              [editor]="Editor" [config]="config">
-                    </ckeditor>
+                    <textarea type="text" id="explanationsforBaseCost" class="form-control allow-comments" placeholder="Write Description"
+                              formControlName="explanationsforBaseCost"></textarea>
                   </div>
                 </div>
               </div>
