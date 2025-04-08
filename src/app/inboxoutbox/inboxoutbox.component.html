@@ -38,7 +38,7 @@
                               </p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb']"
-                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && inbox.paperStatus === 'On Pre-CGB'">
+                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && inbox.paperStatus === 'On CGB'">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                                   Vote Now
                                 </button>
@@ -79,12 +79,12 @@
                       <div class="inbox-body">
                         <div class="row">
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let outbox of outboxData">
-                            <div class="inbox-card mb-3">
+                            <div class="inbox-card mb-3 cursor-pointer" [routerLink]="['/preview' + (outbox.paperType !== 'Approach to Market' ? '2': ''), outbox.paperID]">
                               <h5 class="mb-0">{{ outbox.paperProvision }}</h5>
                               <div>
                                 <span class="status-blue">{{ outbox.paperStatus }}</span>
                               </div>
-                              <p>Received Timestamp · {{ outbox.cycleStartDate | date: 'dd-MMM-YYYY, hh:mm a' }}</p>
+                              <p *ngIf="outbox.cycleStartDate">Received Timestamp · {{ outbox.cycleStartDate | date: 'dd-MMM-YYYY, hh:mm a' }}</p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end gap-3">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">

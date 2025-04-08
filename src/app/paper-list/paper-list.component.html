@@ -350,7 +350,6 @@
                         </div>
                       </th>
                       <th>Paper Name</th>
-                      <th>Why this work</th>
                       <th>Status</th>
                       <th>Last Modify</th>
                       <th>Action</th>
@@ -375,8 +374,6 @@
                             </p>
                           </div>
                         </div>
-                      </td>
-                      <td [safeHtml]="paper.purposeTitle">
                       </td>
                       <td>
                         <div class="paper-status">
@@ -449,7 +446,7 @@
 
                               Copy
                             </a>
-                            
+
                             <a class="links cursor-pointer" *ngIf="user?.roleName === 'PDM' && paper.statusName === 'Waiting for PDM'"
                                (click)="open($event, content3, paper.paperID)" ngbDropdownItem>
                               Return to Originator
