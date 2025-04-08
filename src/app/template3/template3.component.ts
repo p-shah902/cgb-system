@@ -27,7 +27,6 @@ import {CountryDetail} from '../../models/general';
 import {PaperStatusType} from '../../models/paper';
 import {VendorService} from '../../service/vendor.service';
 import {VendorDetail} from '../../models/vendor';
-import {CURRENCY_LIST} from '../../utils/constant';
 
 @Component({
   selector: 'app-template3',

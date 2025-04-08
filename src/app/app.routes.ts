@@ -23,7 +23,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'contract-variation-or-amendment-approval',
+    path: 'contract-variation',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
   },
