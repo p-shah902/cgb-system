@@ -47,11 +47,6 @@
               margin-right: 3px;
             }
           }
-          .children {
-            .content {
-              padding-left: 35px;
-            }
-          }
         }
       }
     }
@@ -103,6 +98,7 @@
         text-decoration: none;
         .children {
           position: relative;
+          padding-left: 10px;
           &:after {
             content: "";
             width: 1px;
