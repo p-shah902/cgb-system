@@ -78,6 +78,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'pre-cgb-review',
+    loadComponent: () => import('./pre-cgb-review/pre-cgb-review.component').then(m => m.PreCgbReviewComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'createpaper',
     loadComponent: () => import('./createpaper/createpaper.component').then(m => m.CreatepaperComponent),
     canActivate: [AuthGuard]
@@ -119,7 +124,6 @@ export const routes: Routes = [
     path: 'forgot-password',
     loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
-
 
   {
     path: 'vendors',

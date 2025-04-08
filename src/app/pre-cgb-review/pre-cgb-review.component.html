@@ -1,0 +1,123 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type + ' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-card-div">
+        <div *ngIf="isLoading; else contentPart" class="table-loader">
+          <div class="spinner"></div>
+          <p>Loading data, please wait...</p>
+        </div>
+        <ng-template #contentPart>
+          <div class="page-card-body">
+            <div class="table-responsive">
+              <div class="approach-table custom-table tbl-div pb-5">
+                <table class="table table-wrapper">
+                  <thead>
+                  <tr class="sticky">
+                    <th width="5%">
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input type="checkbox"/>
+                          <label><span class="opacity-0">-</span></label>
+                        </div>
+                      </div>
+                    </th>
+                    <th>Paper Name</th>
+                    <th>Status</th>
+                    <th>Last Modify</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let paper of paperList; let i = index">
+                    <td>
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input type="checkbox"/>
+                          <label><span class="opacity-0">-</span></label>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="paper-name">
+                        <div class="paper-detail">
+                          <p>
+                            {{ paper.description }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="paper-status">
+                        <label [ngClass]="getStatusClass(paper.statusName)">
+                          {{ paper.statusName }}
+                        </label>
+                      </div>
+                    </td>
+                    <td class="text-nowrap">
+                      {{ paper.lastModifyDate | date : "dd-MMMM-yyyy" }}
+                    </td>
+                    <td>
+                      <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
+                        <button type="button" class="btn" id="dropdownBasic1" ngbDropdownToggle>
+                          <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                  d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z"
+                                  fill="#898989"/>
+                          </svg>
+                        </button>
+                        <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                          <a class="links" href="/vendor-detail" ngbDropdownItem
+                             [routerLink]="['/preview', paper.paperID]">
+                            View
+                          </a>
+                          <a class="links cursor-pointer"
+                             (click)="open($event, content, paper, 'widthdraw')" ngbDropdownItem>
+                            Withdraw
+                          </a>
+                          <a class="links cursor-pointer"
+                             (click)="open($event, content, paper, 'action')" ngbDropdownItem>
+                            Action Required
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{openType === 'widthdraw' ? 'Withdraw Paper' : 'Action Required'}}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Write Comment</label>
+      <textarea class="form-control" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="addReview(modal)">Add comment</button>
+  </div>
+</ng-template>

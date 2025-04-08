@@ -120,7 +120,7 @@ export const menuItems: Menu[] = [
           </svg>`,
     children: [
       {
-        path: '#',
+        path: '/pre-cgb-review',
         title: 'Pre CGB Review',
         roleMap: 'Pre-CGB Review',
         checkPermission: true,

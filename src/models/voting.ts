@@ -13,6 +13,8 @@ export interface ParsedData {
   voteId: number,
   paperID: number,
   paperProvision: string,
+  paperType: string,
+  cgbItemRef: string,
   votingCycleId: number,
   userID: number,
   userName: string,

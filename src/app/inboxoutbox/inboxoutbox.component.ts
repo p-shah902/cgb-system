@@ -4,7 +4,7 @@ import { ToastService } from '../../service/toast.service';
 import { CommonModule } from '@angular/common';
 import { InboxOutbox } from '../../models/inbox-outbox';
 import { InboxOutboxService } from '../../service/inbox-outbox.service';
-import { RouterLink } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import { LoginUser } from '../../models/user';
 import { AuthService } from '../../service/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -33,12 +33,20 @@ export class InboxoutboxComponent implements OnInit {
 
   private readonly _mdlSvc = inject(NgbModal);
 
-  constructor(private inboxOutboxService: InboxOutboxService, private authService: AuthService) {
+  constructor(private inboxOutboxService: InboxOutboxService, private authService: AuthService, private router: Router) {
     this.loggedInUser = this.authService.getUser();
   }
 
   ngOnInit() {
     this.getInboxOutBox()
+  }
+
+  gotoPaper(paperId: any, type: string) {
+    let route = 'preview';
+    if (type === 'Contact Award') {
+      route = 'preview2';
+    }
+    this.router.navigate([route, paperId])
   }
 
   getInboxOutBox() {
@@ -80,6 +88,17 @@ export class InboxoutboxComponent implements OnInit {
           },
         });
     }
+  }
+
+  updateProject(paperId: any, currentStatus: any) {
+    this.paperConfigService.updateMultiplePaperStatus([{
+      paperId: paperId,
+      existingStatusId: Number(currentStatus),
+      statusId: Number(10)
+    }]).subscribe(value => {
+      this.getInboxOutBox();
+      this.toastService.show('Paper status updated.');
+    });
   }
 
   addReview(modal: any) {

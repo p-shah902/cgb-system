@@ -7,11 +7,12 @@ import {VotingCycle} from '../../models/voting';
 import {LoginUser} from '../../models/user';
 import {AuthService} from '../../service/auth.service';
 import {FormsModule} from '@angular/forms';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-cgb',
   standalone: true,
-  imports: [NgbToastModule, CommonModule, FormsModule],
+  imports: [NgbToastModule, CommonModule, FormsModule, RouterLink],
   templateUrl: './cgb.component.html',
   styleUrl: './cgb.component.scss'
 })
@@ -32,6 +33,8 @@ export class CgbComponent implements OnInit {
         paperID: number;
         paperTitle: string;
         result: string;
+        cgbRef: string;
+        paperType: string;
       };
       users: any[];
     }
@@ -50,7 +53,7 @@ export class CgbComponent implements OnInit {
 
   private readonly _mdlSvc = inject(NgbModal);
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private router: Router) {
     this.loggedInUser = this.authService.getUser();
   }
 
@@ -77,6 +80,14 @@ export class CgbComponent implements OnInit {
     this.getCgbCycle();
   }
 
+  gotoPaper(paperId: any, type: string) {
+    let route = 'preview';
+    if (type === 'Contact Award') {
+      route = 'preview2';
+    }
+    this.router.navigate([route, paperId])
+  }
+
   getCgbCycle() {
     this.cycleObject = {};
     this.votingService.getCgbCycle().subscribe({
@@ -89,7 +100,9 @@ export class CgbComponent implements OnInit {
               this.cycleObject[item.paperID] = {
                 paperInfo: {
                   paperID: item.paperID,
+                  paperType: item.paperType,
                   paperTitle: item.paperProvision,
+                  cgbRef: item.cgbItemRef.replaceAll('/', ''),
                   result: '1',
                 },
                 users: []
