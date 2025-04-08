@@ -102,7 +102,7 @@ export class CgbComponent implements OnInit {
                   paperID: item.paperID,
                   paperType: item.paperType,
                   paperTitle: item.paperProvision,
-                  cgbRef: item.cgbItemRef.replaceAll('/', ''),
+                  cgbRef: (item.cgbItemRef || '').replaceAll('/', ''),
                   result: '1',
                 },
                 users: []

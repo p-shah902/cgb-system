@@ -90,11 +90,11 @@ export class InboxoutboxComponent implements OnInit {
     }
   }
 
-  updateProject(paperId: any, currentStatus: any) {
+  updateProject(paperId: any, currentStatus: any, id: number = 10) {
     this.paperConfigService.updateMultiplePaperStatus([{
       paperId: paperId,
       existingStatusId: Number(currentStatus),
-      statusId: Number(10)
+      statusId: id
     }]).subscribe(value => {
       this.getInboxOutBox();
       this.toastService.show('Paper status updated.');

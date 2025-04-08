@@ -281,7 +281,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Total Award Value (USD)*</label>
+                    <label>Contract Value (USD)*</label>
                     <input id="contractValueUsd" type="number" class="form-control allow-comments" placeholder="0000.0"
                            formControlName="contractValueUsd" min="0" step="0.01"/>
                     <div class="text-danger"
@@ -1644,6 +1644,11 @@
                        *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && paperDetails?.paperDetails?.paperStatusName === 'On CGB'">
                     <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                       Vote Now
+                    </button>
+                  </div>
+                  <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'Procurement Tag' && paperDetails?.paperDetails?.paperStatusName === 'Action Required by CGB'">
+                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="setPaperStatus('On CGB')">
+                      Return to requested
                     </button>
                   </div>
                 </ng-container>
