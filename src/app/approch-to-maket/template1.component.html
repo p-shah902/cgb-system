@@ -1640,7 +1640,7 @@
                       Add Review
                     </button>
                   </div>
-                  <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb']"
+                  <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
                        *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && paperDetails?.paperDetails?.paperStatusName === 'On CGB'">
                     <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                       Vote Now

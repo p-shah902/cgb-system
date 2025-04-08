@@ -38,7 +38,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'cgb',
+    path: 'cgb-voting',
     loadComponent: () => import('./cgb/cgb.component').then(m => m.CgbComponent),
     canActivate: [AuthGuard]
   },

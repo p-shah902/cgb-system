@@ -109,7 +109,7 @@ export const menuItems: Menu[] = [
           </svg>`
   },
   {
-    path: '/cgb',
+    path: '/cgb-voting',
     title: 'CGB Voting',
     roleMap: 'CGB Voting',
     checkPermission: true,
@@ -126,7 +126,7 @@ export const menuItems: Menu[] = [
         checkPermission: true,
       },
       {
-        path: '/cgb',
+        path: '/cgb-voting',
         title: 'CGB Voting',
         roleMap: 'CGB Voting',
         checkPermission: true,
