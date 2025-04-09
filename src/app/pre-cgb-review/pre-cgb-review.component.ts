@@ -70,6 +70,13 @@ export class PreCgbReviewComponent implements OnInit {
       this.user = d;
     });
   }
+  gotoPaper(paperId: any, type: string) {
+    let route = 'preview/approach-to-market';
+    if (type === 'Contract Award') {
+      route = 'preview/contract-award';
+    }
+    this.router.navigate([route, paperId])
+  }
 
   ngOnInit(): void {
     this.loadPaperConfigList();

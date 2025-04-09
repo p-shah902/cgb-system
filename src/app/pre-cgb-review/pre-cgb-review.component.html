@@ -76,10 +76,10 @@
                             </svg>
                           </button>
                           <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                            <a class="links" href="/vendor-detail" ngbDropdownItem
-                              [routerLink]="['/preview', paper.paperID]">
+                            <p class="links cursor-pointer" href="/vendor-detail" ngbDropdownItem
+                              (click)="gotoPaper(paper.paperID, paper.paperType)">
                               View
-                            </a>
+                            </p>
                             <a class="links cursor-pointer" (click)="open($event, content, paper, 'approve')"
                               ngbDropdownItem>
                               Approve
