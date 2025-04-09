@@ -189,7 +189,7 @@ export class Template2Component {
         cgbApprovalDate: [{value: '', disabled: true}],
         isChangeinApproachMarket: [false],
         cgbItemRefNo: [''],
-        cgbCirculationDate: [''],
+        cgbCirculationDate: [null],
         contractNo: [''],
         contactNo: [''],
         vendorId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -235,7 +235,7 @@ export class Template2Component {
       }),
       ccd: this.fb.group({
         isHighRiskContract: [false],
-        cddCompleted: [''],
+        cddCompleted: [null],
         highRiskExplanation: [''],
         flagRaisedCDD: [''],
         additionalCDD: [''],
@@ -410,7 +410,7 @@ export class Template2Component {
             cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
             cgbCirculationDate: contractAwardDetails?.cgbCirculationDate
               ? format(new Date(contractAwardDetails.cgbCirculationDate), 'yyyy-MM-dd')
-              : '',
+              : null,
             contractNo: contractAwardDetails?.contractNo || "",
             contactNo: contractAwardDetails?.contactNo || "",
             vendorId: contractAwardDetails?.vendorId || null,
@@ -454,7 +454,7 @@ export class Template2Component {
             isHighRiskContract: contractAwardDetails?.isHighRiskContract || false,
             cddCompleted: contractAwardDetails?.cddCompleted
               ? format(new Date(contractAwardDetails.cddCompleted), 'yyyy-MM-dd')
-              : '',
+              : null,
             highRiskExplanation: contractAwardDetails?.highRiskExplanation || '',
             flagRaisedCDD: contractAwardDetails?.flagRaisedCDD || '',
             additionalCDD: contractAwardDetails?.additionalCDD || '',
