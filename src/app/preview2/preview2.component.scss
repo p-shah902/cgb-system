@@ -1,0 +1,71 @@
+.timeline-main-div {
+    display: flex;
+  
+  
+  
+  
+    .st-pen {
+      .tb-head {
+        h1 {
+          color: #626262;
+        }
+        h6 {
+          color: #626262;
+        }
+  
+      }
+    }
+    .st-ns {
+        background-color: #f0f0f0; 
+        border: 1px dashed #999; 
+        color: #999;
+      }
+  }
+  .form-main-div {
+    .form-body {
+      .fb-form {
+        .fb-title-div {
+          h4 {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 17px;
+            color: #1B202B;
+            background-color: #EEEEEE;
+          }
+        }
+        .form-view-group {
+          label {
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 15px;
+            color: #626262;
+            margin-bottom: 8px;
+          }
+          h6 {
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 17px;
+            color: #1B202B;
+          }
+        }
+        .attchment-view {
+          border: 1px solid #DCDCDC;
+          border-radius: 8px;
+          padding: 10px;
+          h6 {
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 15px;
+            color: #0C0C0C;
+          }
+          p {
+            font-weight: 500;
+            font-size: 10px;
+            line-height: 12px;
+            color: #626262;
+          }
+        }
+      }
+    }
+  }
+  

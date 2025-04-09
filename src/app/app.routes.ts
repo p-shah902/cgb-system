@@ -38,7 +38,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'cgb',
+    path: 'cgb-voting',
     loadComponent: () => import('./cgb/cgb.component').then(m => m.CgbComponent),
     canActivate: [AuthGuard]
   },
@@ -78,6 +78,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'pre-cgb-review',
+    loadComponent: () => import('./pre-cgb-review/pre-cgb-review.component').then(m => m.PreCgbReviewComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'createpaper',
     loadComponent: () => import('./createpaper/createpaper.component').then(m => m.CreatepaperComponent),
     canActivate: [AuthGuard]
@@ -85,6 +90,11 @@ export const routes: Routes = [
   {
     path: 'preview/:id',
     loadComponent: () => import('./preview/preview.component').then(m => m.PreviewComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'preview2/:id',
+    loadComponent: () => import('./preview2/preview2.component').then(m => m.Preview2Component),
     canActivate: [AuthGuard]
   },
   {
@@ -114,7 +124,6 @@ export const routes: Routes = [
     path: 'forgot-password',
     loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
   },
-
 
   {
     path: 'vendors',

@@ -37,19 +37,27 @@
                                 Due Date · {{ inbox.cycleDueDate | date: 'dd-MMM-YYYY' }}
                               </p>
                               <hr class="my-2">
-                              <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb']"
-                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && inbox.paperStatus === 'On Pre-CGB'">
+                              <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
+                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && inbox.paperStatus === 'On CGB'">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                                   Vote Now
                                 </button>
                               </div>
-                              <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'PDM' && inbox.paperStatus === 'Waiting for PDM'">
-                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="open($event, content3, inbox.paperID)">
+                              <button class="btn btn-primary" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4)"
+                                      *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB'))">
+                                Send For PDM {{inbox.paperStatus === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
+                              </button>
+                              <div class="ic-btn-div d-flex justify-content-end"
+                                   *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
+                                        (click)="open($event, content3, inbox.paperID)">
                                   Return to Originator
                                 </button>
                               </div>
-                              <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'PDM' && inbox.paperStatus === 'Waiting for PDM'">
-                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="open($event, content2, inbox.paperID)">
+                              <div class="ic-btn-div d-flex justify-content-end"
+                                   *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
+                                        (click)="open($event, content2, inbox.paperID)">
                                   Approve
                                 </button>
                               </div>
@@ -61,8 +69,16 @@
                         loggedInUser?.roleName === 'Performance Manager') &&
                       inbox.paperStatus === 'On Pre-CGB'
                     ">
-                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="open($event, content4, inbox.paperID)">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
+                                        (click)="open($event, content4, inbox.paperID)">
                                   Add Review
+                                </button>
+                              </div>
+                              <div class="ic-btn-div d-flex justify-content-end"
+                                   *ngIf="loggedInUser?.roleName === 'Procurement Tag' && inbox.paperStatus === 'Action Required by CGB'">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
+                                        (click)="updateProject(inbox.paperID, inbox.paperStatusId)">
+                                  Return to requested
                                 </button>
                               </div>
                             </div>
@@ -79,12 +95,14 @@
                       <div class="inbox-body">
                         <div class="row">
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let outbox of outboxData">
-                            <div class="inbox-card mb-3">
+                            <div class="inbox-card mb-3 cursor-pointer"
+                                 (click)="gotoPaper(outbox.paperID, outbox.paperType)">
                               <h5 class="mb-0">{{ outbox.paperProvision }}</h5>
                               <div>
                                 <span class="status-blue">{{ outbox.paperStatus }}</span>
                               </div>
-                              <p>Received Timestamp · {{ outbox.cycleStartDate | date: 'dd-MMM-YYYY, hh:mm a' }}</p>
+                              <p *ngIf="outbox.cycleStartDate">Received Timestamp
+                                · {{ outbox.cycleStartDate | date: 'dd-MMM-YYYY, hh:mm a' }}</p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end gap-3">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">

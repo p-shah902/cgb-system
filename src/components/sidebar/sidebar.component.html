@@ -21,39 +21,44 @@
   </div>
   <div class="content">
     <ng-container *ngFor="let menuItem of menuItems">
-      <ng-container *ngIf="(menuItem.children || []).length > 0; else singleMenu">
-        <a class="link with-children">
-          <div class="content" (click)="toggleSubmenu(menuItem.title)">
-            <div class="icon" [safeHtml]="menuItem.icon"></div>
-            <div class="title">{{ menuItem.title }}</div>
-            <span class="arrow" [ngClass]="{ 'open': expandedMenus[menuItem.title] }">
-              <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14.0667 1.66797L8.00002 8.2013L1.93335 1.66797" stroke="#626262" stroke-width="1.6"
-                      stroke-linecap="square"/>
-              </svg>
-            </span>
-          </div>
-          <div class="children" *ngIf="expandedMenus[menuItem.title]">
-            <ng-container *ngFor="let child of menuItem.children">
-              <a [href]="child.path" class="link">
-                <div class="content">
-                  <div class="title">{{ child.title }}</div>
-                </div>
-              </a>
-            </ng-container>
-          </div>
-        </a>
-      </ng-container>
+      <ng-template
+        [ngTemplateOutlet]="recursiveMenu"
+        [ngTemplateOutletContext]="{ $implicit: menuItem }">
+      </ng-template>
+    </ng-container>
+
+    <ng-template #recursiveMenu let-item>
+      <div *ngIf="item.children?.length > 0; else singleMenu" class="link with-children">
+        <div class="content" (click)="toggleSubmenu(item.title)">
+          <div class="icon" [safeHtml]="item.icon"></div>
+          <div class="title">{{ item.title }}</div>
+          <span class="arrow" [ngClass]="{ 'open': expandedMenus[item.title] }">
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14.0667 1.66797L8.00002 8.2013L1.93335 1.66797" stroke="#626262" stroke-width="1.6"
+                stroke-linecap="square"/>
+        </svg>
+      </span>
+        </div>
+
+        <div class="children" *ngIf="expandedMenus[item.title]">
+          <ng-container *ngFor="let child of item.children">
+            <ng-template
+              [ngTemplateOutlet]="recursiveMenu"
+              [ngTemplateOutletContext]="{ $implicit: child }">
+            </ng-template>
+          </ng-container>
+        </div>
+      </div>
+
       <ng-template #singleMenu>
-        <a [href]="menuItem.path" class="link">
+        <a [href]="item.path" class="link">
           <div class="content">
-            <div class="icon" [safeHtml]="menuItem.icon">
-            </div>
-            <div class="title">{{ menuItem.title }}</div>
+            <div class="icon" [safeHtml]="item.icon"></div>
+            <div class="title">{{ item.title }}</div>
           </div>
         </a>
       </ng-template>
-    </ng-container>
+    </ng-template>
   </div>
   <div class="footer"></div>
 </div>

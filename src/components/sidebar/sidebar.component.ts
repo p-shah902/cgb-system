@@ -1,4 +1,4 @@
-import {NgClass, NgForOf, NgIf} from '@angular/common';
+import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from '@angular/common';
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Menu, menuItems} from '../../models/menu';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
@@ -9,7 +9,7 @@ import {AuthService} from '../../service/auth.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [NgClass, NgIf, NgForOf, SafeHtmlDirective],
+  imports: [NgClass, NgIf, NgForOf, SafeHtmlDirective, NgTemplateOutlet],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
@@ -19,7 +19,7 @@ export class SidebarComponent {
   @Output() toggleSidebar: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   expandedMenus: { [key: string]: boolean } = {};
-  protected readonly menuItems: Menu[] = [];
+  protected menuItems: Menu[] = [];
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
     this.router.events.pipe(
@@ -29,39 +29,85 @@ export class SidebarComponent {
     });
 
     this.authService.userRoleAccess$.subscribe(value => {
-      menuItems.forEach(item => {
-        if (!item.checkPermission) {
-          this.menuItems.push(item);
-        } else {
-          if (item.title === 'Admin Panel') {
-            if (value.some(f => f.typeName === item.roleMap && (f.isWriteAccess || f.isReadAccess))) {
-              let findChild = value.find(f => f.typeName === item.title && f.particularsName === "All Access" && (f.isWriteAccess || f.isReadAccess));
-              if (findChild) {
-                this.menuItems.push(item);
-              } else {
-                item.children = (item.children || []).filter(child => {
-                  return value.some(f => f.particularsName === child.roleMap && (f.isWriteAccess || f.isReadAccess));
-                }) as any;
+      console.log('d', value);
+      this.menuItems = this.filterMenuItemsByPermissions(menuItems, value);
+      console.log('d', this.menuItems);
+    });
+  }
 
-                if (item.children && item.children?.length > 0) {
-                  this.menuItems.push(item);
-                }
-              }
-            }
-          } else {
-            if (value.some(f => f.typeName === item.title && (f.isWriteAccess || f.isReadAccess))) {
-              this.menuItems.push(item);
-            }
-          }
+  filterMenuItemsByPermissions(items: any[], accessList: any[]): any[] {
+    const result: any[] = [];
+
+    for (const item of items) {
+      const hasPermission = (key: string) =>
+        accessList.some(f =>
+          (f.typeName === key || f.particularsName === key) &&
+          (f.isWriteAccess || f.isReadAccess)
+        );
+
+      const hasAllAccess = accessList.some(f =>
+        f.typeName === item.title &&
+        f.particularsName === 'All Access' &&
+        (f.isWriteAccess || f.isReadAccess)
+      );
+
+      if (!item.checkPermission) {
+        // No permission check needed — include as-is
+        result.push({ ...item });
+        continue;
+      }
+
+      if (hasAllAccess) {
+        // Parent has full access — include everything under it
+        result.push({ ...item });
+        continue;
+      }
+
+      // Filter children recursively
+      const filteredChildren = this.filterMenuItemsByPermissions(item.children || [], accessList);
+
+      const allowParent = hasPermission(item.title) || hasPermission(item.roleMap) || filteredChildren.length > 0;
+
+      if (allowParent) {
+        result.push({
+          ...item,
+          children: filteredChildren.length > 0 ? filteredChildren : undefined
+        });
+      }
+    }
+
+    return result;
+  }
+
+  findMenuItemPath(items: any[], path: string, trail: any[] = []): any[] | null {
+    for (const item of items) {
+      const newTrail = [...trail, item];
+
+      if (item.path === path) {
+        return newTrail;
+      }
+
+      if (item.children?.length) {
+        const result = this.findMenuItemPath(item.children, path, newTrail);
+        if (result) {
+          return result;
         }
-      })
-    })
+      }
+    }
+
+    return null;
   }
 
   updateCurrentPath(): void {
-    let menuItem = this.menuItems.find(f => f.path === this.getFullPath(this.activatedRoute) || (f.children || []).find(d => d.path === this.getFullPath(this.activatedRoute)));
-    if (menuItem?.title) {
-      this.toggleSubmenu(menuItem?.title);
+    const fullPath = this.getFullPath(this.activatedRoute);
+    const itemTrail = this.findMenuItemPath(this.menuItems, fullPath);
+
+    if (itemTrail) {
+      for (const item of itemTrail) {
+        if (item.title) {
+          this.toggleSubmenu(item.title);
+        }
+      }
     }
   }
 

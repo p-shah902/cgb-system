@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef} from '@angular/core';
+import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
 import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
@@ -10,7 +10,7 @@ import {
     AbstractControl,
     ValidationErrors, FormsModule
 } from '@angular/forms';
-import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {CommonModule} from '@angular/common';
 import {environment} from '../../environments/environment';
 import {Select2} from 'ng-select2-component';
@@ -18,9 +18,9 @@ import {DictionaryService} from '../../service/dictionary.service';
 import {Generalervice} from '../../service/general.service';
 import {UploadService} from '../../service/document.service';
 import {ToastService} from '../../service/toast.service';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {DictionaryDetail} from '../../models/dictionary';
-import {UserDetails} from '../../models/user';
+import {LoginUser, UserDetails} from '../../models/user';
 import {UserService} from '../../service/user.service';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
@@ -36,11 +36,13 @@ import {CommentableDirective} from '../../directives/commentable.directive';
 import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
 import {CommentService} from '../../service/comment.service';
 import {EditorService} from '../../service/editor.service';
+import {PaperConfigService} from '../../service/paper/paper-config.service';
+import {AuthService} from '../../service/auth.service';
 
 @Component({
     selector: 'app-template2',
     standalone: true,
-    imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink],
     templateUrl: './template2.component.html',
     styleUrl: './template2.component.scss'
 })
@@ -48,8 +50,10 @@ export class Template2Component {
     private readonly userService = inject(UserService);
     private readonly paperService = inject(PaperService);
     private readonly vendorService = inject(VendorService);
+  private paperConfigService = inject(PaperConfigService);
   private commentService = inject(CommentService);
   private editorService = inject(EditorService);
+  private authService = inject(AuthService);
   private searchTimeout: any;
     public Editor: typeof ClassicEditor | null = null;
     public config: EditorConfig | null = null;
@@ -81,6 +85,11 @@ export class Template2Component {
     sourcingRigorData: DictionaryDetail[] = [];
     sourcingTypeData: DictionaryDetail[] = [];
     subsectorData: DictionaryDetail[] = [];
+  loggedInUser: LoginUser | null = null;
+  selectedPaper: number = 0;
+  approvalRemark: string = '';
+  reviewBy: string = '';
+  private readonly _mdlSvc = inject(NgbModal);
 
     public psaJvOptions = [
         {value: 'ACG', label: 'ACG'},
@@ -94,6 +103,9 @@ export class Template2Component {
     constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
                 private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
     ) {
+      this.authService.userDetails$.subscribe((d) => {
+        this.loggedInUser = d;
+      });
     }
 
     public ngOnInit(): void {
@@ -1058,11 +1070,20 @@ export class Template2Component {
         });
     }
 
-    setPaperStatus(status: string): void {
+    setPaperStatus(status: string, callAPI: boolean = true): void {
         if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
 
         this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
-
+      if (callAPI && this.paperId) {
+        this.paperConfigService.updateMultiplePaperStatus([{
+          paperId: this.paperId,
+          existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
+          statusId: this.paperStatusId
+        }]).subscribe(value => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/paperconfiguration'])
+        });
+      }
     }
 
     onSubmit() {
@@ -1435,5 +1456,75 @@ export class Template2Component {
     toggleComments() {
         this.isExpanded = !this.isExpanded;
     }
+
+  open(event: Event, content: TemplateRef<any>, paperId?: any) {
+    event.preventDefault();
+    this._mdlSvc
+      .open(content, {
+        ariaLabelledBy: 'modal-basic-title',
+        centered: true, // Ensure modal is centered
+        size: 'lg', // Adjust size as needed (sm, lg, xl)
+      })
+      .result.then(
+      (result) => {
+        // Handle modal close
+      },
+      (reason) => {
+        // Handle modal dismiss
+      }
+    );
+
+    if (paperId) {
+      this.selectedPaper = paperId;
+    }
+  }
+
+  approvePaper(modal: any, type: string) {
+    if (this.selectedPaper > 0) {
+      this.paperConfigService.approveRejectPaper({
+        paperId: this.selectedPaper,
+        remarks: this.reviewBy || '',
+        description: this.approvalRemark,
+        type:
+          this.loggedInUser?.roleName === 'PDM' ? 'PDM Approval' : 'Pre-CGB Approval',
+        check: type,
+      })
+        .subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              modal.close('Save click');
+              this.router.navigate(['/paperconfiguration'])
+              this.toastService.show('Paper Status updated successfully');
+            }
+          },
+          error: (error) => {
+            console.log('error', error);
+          },
+        });
+    }
+  }
+
+  addReview(modal: any) {
+    if (this.selectedPaper > 0) {
+      this.paperService.addPaperCommentLogs({
+        paperId: this.selectedPaper,
+        logType: 'Other',
+        remarks: this.approvalRemark,
+        description: this.approvalRemark,
+        columnName: '',
+        isActive: true,
+      })
+        .subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              modal.close('Save click');
+            }
+          },
+          error: (error) => {
+            console.log('error', error);
+          },
+        });
+    }
+  }
 
 }

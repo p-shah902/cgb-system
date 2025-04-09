@@ -148,15 +148,20 @@ export class PreviewComponent implements OnInit {
 
   getStatusClass(index: number): string {
     const current = this.paperTimelineDetails[index];
-    const previous = index > 0 ? this.paperTimelineDetails[index - 1] : null;
+    // const previous = index > 0 ? this.paperTimelineDetails[index - 1] : null;
 
     if (current.isActivityDone) {
       return 'timeline-box st-aprv position-relative'; // Approved
-    } else if (previous && previous.isActivityDone) {
-      return 'timeline-box st-prog position-relative'; // In progress (prev completed)
-    } else {
-      return 'timeline-box st-pen position-relative'; // Pending
     }
+
+    if (current.activityName === 'Pre CGB' && this.paperDetails?.paperDetails?.paperDetails?.paperStatusName === 'On Pre-CGB') {
+      return 'timeline-box st-prog position-relative'; // In progress (prev completed)
+    }
+
+    if (current.activityName === 'CGB' && this.paperDetails?.paperDetails?.paperDetails?.paperStatusName === 'On CGB') {
+      return 'timeline-box st-prog position-relative'; // In progress (prev completed)
+    }
+    return "timeline-box st-pen position-relative";
   }
 
 }

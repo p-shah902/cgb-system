@@ -76,7 +76,7 @@
             </div>
             <div class="fb-form" formGroupName="generalInfo">
               <div class="row">
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
                     <input type="text" id="paperProvision" class="form-control allow-comments" placeholder="Enter value" formControlName="paperProvision"/>
@@ -86,7 +86,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB AtM Ref No* </label>
                     <input id="cgbAtmRefNo" formControlName="cgbAtmRefNo" type="text" class="form-control allow-comments" placeholder="Enter value"/>
@@ -95,7 +95,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>CGB AtM Approval Date</label>
                     <div class="date-input position-relative">
@@ -106,11 +106,11 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>Contact No* </label>
+                    <label>Contract No* </label>
                     <input formControlName="contactNo" id="contactNo" type="text" class="form-control allow-comments"
-                           placeholder="Enter contact number"/>
+                           placeholder="Enter contract number"/>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('contactNo')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
+                      <small class="text-danger">Please enter value.</small>
                     </div>
                   </div>
                 </div>
@@ -1821,23 +1821,70 @@
             <div class="fb-form pt-0">
               <div class="ff-btn-list d-flex gap-3 justify-content-end">
                 <ng-container *ngIf="!paperId || (paperId && isCopy)">
-                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft')">
+                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)">
                     Draft
                   </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)">
                     Register
                   </button>
                 </ng-container>
                 <ng-container *ngIf="paperId && !isCopy">
-                  <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')">
+                  <button class="btn btn-outline-dark" type="button" *ngIf="(loggedInUser?.roleName === 'Procurement Tag')"
+                          (click)="setPaperStatus('Archived')">
                     Archive
                   </button>
-                  <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')">
-                    Send For PDM Approval
+                  <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')"
+                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
+                    Send For PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
                   </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered')">
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
+                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
                     Update
                   </button>
+                  <div
+                    class="d-flex align-items-center justify-content-between gap-3"
+                    *ngIf="
+                      loggedInUser?.roleName === 'PDM' &&
+                      paperDetails?.paperDetails?.paperStatusName === 'Waiting for PDM'
+                    "
+                  >
+                    <button
+                      class="btn normal-btn"
+                      (click)="open($event, content3, paperId)"
+                    >
+                      Return to Originator
+                    </button>
+                    <button
+                      class="btn update-btn"
+                      (click)="open($event, content2, paperId)"
+                    >
+                      Approve
+                    </button>
+                  </div>
+                  <div
+                    class="d-flex align-items-center justify-content-between gap-3"
+                    *ngIf="
+                      (loggedInUser?.roleName === 'CGB Chair' ||
+                        loggedInUser?.roleName === 'CPO' ||
+                        loggedInUser?.roleName === 'JV Admin' ||
+                        loggedInUser?.roleName === 'Legal VP-1' ||
+                        loggedInUser?.roleName === 'Performance Manager') &&
+                      paperDetails?.paperDetails?.paperStatusName === 'On Pre-CGB'
+                    "
+                  >
+                    <button
+                      class="btn update-btn"
+                      (click)="open($event, content4, paperId)"
+                    >
+                      Add Review
+                    </button>
+                  </div>
+                  <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
+                       *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && paperDetails?.paperDetails?.paperStatusName === 'On CGB'">
+                    <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                      Vote Now
+                    </button>
+                  </div>
                 </ng-container>
               </div>
             </div>
@@ -1891,3 +1938,101 @@
   </div>
   <div id="context-annotations" style="width: 400px;position: absolute;right: 0;"></div>
 </div>
+
+<ng-template #content2 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Approve Paper</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Write Comment (If Required)</label>
+      <textarea
+        class="form-control"
+        placeholder="Write here"
+        [(ngModel)]="approvalRemark"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="approvePaper(modal, 'Approval')"
+    >
+      Save
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #content3 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Return to Originator</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Review By</label>
+      <input
+        class="form-control"
+        type="text"
+        placeholder="Write here"
+        [(ngModel)]="reviewBy"
+      />
+    </div>
+    <div class="form-group mb-3">
+      <label>Write Comment</label>
+      <textarea
+        class="form-control"
+        placeholder="Write here"
+        [(ngModel)]="approvalRemark"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="approvePaper(modal, 'Return to Originator')"
+    >
+      Save
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #content4 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Remark</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Write Comment</label>
+      <textarea
+        class="form-control"
+        placeholder="Write here"
+        [(ngModel)]="approvalRemark"
+      ></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="addReview(modal)">
+      Add comment
+    </button>
+  </div>
+</ng-template>
