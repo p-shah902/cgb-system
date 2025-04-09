@@ -13,6 +13,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'preview/approach-to-market/:id',
+    loadComponent: () => import('./preview/preview.component').then(m => m.PreviewComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'contract-award',
     loadComponent: () => import('./template2/template2.component').then(m => m.Template2Component),
     canActivate: [AuthGuard]
@@ -23,7 +28,17 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'preview/contract-award/:id',
+    loadComponent: () => import('./preview2/preview2.component').then(m => m.Preview2Component),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'contract-variation',
+    loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'contract-variation/i:d',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
   },
@@ -85,16 +100,6 @@ export const routes: Routes = [
   {
     path: 'createpaper',
     loadComponent: () => import('./createpaper/createpaper.component').then(m => m.CreatepaperComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'preview/:id',
-    loadComponent: () => import('./preview/preview.component').then(m => m.PreviewComponent),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'preview2/:id',
-    loadComponent: () => import('./preview2/preview2.component').then(m => m.Preview2Component),
     canActivate: [AuthGuard]
   },
   {

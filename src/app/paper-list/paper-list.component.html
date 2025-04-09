@@ -294,7 +294,8 @@
                       </button>
                       <button
                         class="btn action-btn"
-                        (click)="router.navigate(['/preview', paper.paperID])"
+                         (click)="
+                        goToPreview(paper)"
                       >
                         <svg
                           width="18"
@@ -405,8 +406,8 @@
 
                               Edit
                             </a>
-                            <a class="links" href="/vendor-detail" ngbDropdownItem
-                               [routerLink]="['/preview', paper.paperID]">
+                            <a class="links" ngbDropdownItem
+                               (click)="goToPreview(paper)">
                               <svg width="16" height="14" viewBox="0 0 16 14" fill="none"
                                    xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_202_1532)">
@@ -423,7 +424,7 @@
 
                               View
                             </a>
-                            <a class="links" ngbDropdownItem  (click)="goToApproachToMarket(paper)">
+                            <a class="links" ngbDropdownItem  (click)="goToApproachToMarket(paper, true)">
                               <svg
                               width="18"
                               height="18"

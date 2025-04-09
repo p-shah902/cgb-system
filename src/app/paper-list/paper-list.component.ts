@@ -310,6 +310,12 @@ export class PaperListComponent implements OnInit {
     });
   }
 
+  goToPreview(paper: any): void {
+    const routePath = this.slugify(paper.paperType);
+
+    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
+  }
+
 
 
 
