@@ -714,6 +714,10 @@
                     <div class="date-input position-relative">
                       <input id="socaRsentOn" type="date" class="form-control allow-comments" placeholder=""
                              formControlName="socaRsentOn"/>
+                      <div class="text-danger"
+                           *ngIf="submitted && procurementDetailsInfo?.get('socaRsentOn')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -723,6 +727,10 @@
                     <div class="date-input position-relative">
                       <input id="socaRreceivedOn" type="date" class="form-control allow-comments" placeholder=""
                              formControlName="socaRreceivedOn"/>
+                      <div class="text-danger"
+                           *ngIf="submitted && procurementDetailsInfo?.get('socaRreceivedOn')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
                     </div>
                   </div>
                 </div>
