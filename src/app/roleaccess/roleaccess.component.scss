@@ -124,11 +124,15 @@
   .table-width-set {
     tr {
       display: flex;
+      .col-17-td {
+        flex: 0 0 100%;
+      }
     }
     .accordion-body {
       table {
         tr {
           display: flex;
+
           td:nth-child(2) {
             width: 50px;
           }
