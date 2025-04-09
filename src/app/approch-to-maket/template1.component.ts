@@ -909,8 +909,9 @@ export class Template1Component {
     this.userService.getUserDetailsList().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.userDetails = response.data;
-          this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({
+          const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
+          this.userDetails = dataList
+          this.procurementTagUsers = dataList.filter(user => user.roleName === 'Procurement Tag').map(t => ({
             label: t.displayName,
             value: t.id
           }));
