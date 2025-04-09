@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
+import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
 import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
@@ -16,7 +16,7 @@ import {
 } from '@angular/forms';
 import { CURRENCY_LIST } from '../../utils/constant';
 import { UserService } from '../../service/user.service';
-import {LoginUser, UserDetails} from '../../models/user';
+import { LoginUser, UserDetails } from '../../models/user';
 import { PaperService } from '../../service/paper.service';
 import { CountryDetail } from '../../models/general';
 import { Generalervice } from '../../service/general.service';
@@ -26,7 +26,7 @@ import { ToastService } from '../../service/toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { DictionaryService } from '../../service/dictionary.service';
 import { DictionaryDetail, Item } from '../../models/dictionary';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Paper, PaperStatusType } from '../../models/paper';
 import { environment } from '../../environments/environment';
 import { EditorComponent } from '../../components/editor/editor.component';
@@ -39,9 +39,9 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 import { EditorService } from '../../service/editor.service';
 import { CommentService } from '../../service/comment.service';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {AuthService} from '../../service/auth.service';
-import {ThresholdService} from '../../service/threshold.service';
-import {ThresholdType} from '../../models/threshold';
+import { AuthService } from '../../service/auth.service';
+import { ThresholdService } from '../../service/threshold.service';
+import { ThresholdType } from '../../models/threshold';
 
 @Component({
   selector: 'app-template1',
@@ -416,14 +416,14 @@ export class Template1Component {
         }
       });
 
-           const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
+      const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
         .map(label => label.trim())
         .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
         .filter(value => value) : []
 
 
-      const selectedValuesProcurementTagUsers =  paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
+      const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
         .split(',')
         .map(id => id.trim())
         .map(id => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
@@ -1335,7 +1335,7 @@ export class Template1Component {
 
     if (this.generalInfoForm.valid) {
       const isPassedCheck = this.checkThreshold(generalInfoValue?.contractValueUsd || 0, Number(generalInfoValue?.sourcingType || 0))
-      if(!isPassedCheck) {
+      if (!isPassedCheck) {
         this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
         return;
       }
@@ -1365,11 +1365,10 @@ export class Template1Component {
   }
 
   checkThreshold(value: number, type: number) {
-    console.log("==value", value,type)
     if (this.thresholdData && this.thresholdData.length > 0) {
       const data = this.thresholdData.find(item => item.paperType === "Approach to Market" && item.sourcingType === type)
       return !(data && data.contractValueLimit > value);
-    }else {
+    } else {
       return true
     }
   }
@@ -1444,13 +1443,13 @@ export class Template1Component {
         size: 'lg', // Adjust size as needed (sm, lg, xl)
       })
       .result.then(
-      (result) => {
-        // Handle modal close
-      },
-      (reason) => {
-        // Handle modal dismiss
-      }
-    );
+        (result) => {
+          // Handle modal close
+        },
+        (reason) => {
+          // Handle modal dismiss
+        }
+      );
 
     if (paperId) {
       this.selectedPaper = paperId;

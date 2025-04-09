@@ -42,9 +42,9 @@ export class InboxoutboxComponent implements OnInit {
   }
 
   gotoPaper(paperId: any, type: string) {
-    let route = 'preview';
+    let route = 'preview/approach-to-market';
     if (type === 'Contract Award') {
-      route = 'preview2';
+      route = 'preview/contract-award';
     }
     this.router.navigate([route, paperId])
   }
