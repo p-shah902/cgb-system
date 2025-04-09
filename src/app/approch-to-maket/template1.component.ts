@@ -40,6 +40,8 @@ import { EditorService } from '../../service/editor.service';
 import { CommentService } from '../../service/comment.service';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {AuthService} from '../../service/auth.service';
+import {ThresholdService} from '../../service/threshold.service';
+import {ThresholdType} from '../../models/threshold';
 
 @Component({
   selector: 'app-template1',
@@ -57,6 +59,8 @@ export class Template1Component {
   private commentService = inject(CommentService);
   private authService = inject(AuthService);
   private searchTimeout: any;
+  private readonly thresholdService = inject(ThresholdService);
+
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
@@ -87,14 +91,14 @@ export class Template1Component {
   isDragging = false;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
-  private totalCalls = 4;
+  private totalCalls = 5;
   logs: any[] = [];
   comment: string = '';
   loggedInUser: LoginUser | null = null;
   selectedPaper: number = 0;
   approvalRemark: string = '';
   reviewBy: string = '';
-
+  selectedPaperThreshold: ThresholdType | null = null
   constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
@@ -146,7 +150,7 @@ export class Template1Component {
     this.loadCountry();
     this.loadDictionaryItems();
     this.loadPaperStatusListData();
-
+    this.loadThresholdData()
 
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
@@ -918,6 +922,24 @@ export class Template1Component {
     })
   }
 
+  loadThresholdData() {
+    this.thresholdService.getThresholdList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const data = response.data;
+
+          if(data.length > 0) {
+            this.selectedPaperThreshold = data.find(item => item.paperType === "Approach to Market") || null
+          }
+
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
   private incrementAndCheck(increaseCount: number | null = null) {
     this.completedCount++;
     if (increaseCount) {
@@ -1316,6 +1338,16 @@ export class Template1Component {
     }
 
     if (this.generalInfoForm.valid) {
+
+      if (
+        this.selectedPaperThreshold &&
+        (this.selectedPaperThreshold.contractValue > (generalInfoValue?.contractValueUsd || 0))
+      ) {
+        this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
+        return;
+      }
+
+
       this.paperService.upsertApproachToMarkets(params).subscribe({
         next: (response) => {
           if (response.status && response.data) {
