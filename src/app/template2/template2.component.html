@@ -89,12 +89,9 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>CGB AtM Ref No* </label>
+                    <label>CGB AtM Ref No </label>
                     <input id="cgbAtmRefNo" formControlName="cgbAtmRefNo" type="text"
                            class="form-control allow-comments" placeholder="Enter value"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('cgbAtmRefNo')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -109,12 +106,12 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>Contract No* </label>
-                    <input formControlName="contactNo" id="contactNo" type="text" class="form-control allow-comments"
+                    <label>Contract Number </label>
+                    <input formControlName="contractNo" id="contractNo" type="text" class="form-control allow-comments"
                            placeholder="Enter contract number"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('contactNo')?.hasError('required')">
-                      <small class="text-danger">Please enter value.</small>
-                    </div>
+<!--                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('contactNo')?.hasError('required')">-->
+<!--                      <small class="text-danger">Please enter value.</small>-->
+<!--                    </div>-->
                   </div>
                 </div>
 
@@ -174,12 +171,9 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract No </label>
-                    <input formControlName="contractNo" type="text" id="contractNo" class="form-control allow-comments"
-                           placeholder="Enter Sub-sector"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractNo')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
+                    <label>Contact No </label>
+                    <input formControlName="contactNo" type="text" id="contactNo" class="form-control allow-comments"
+                           placeholder="Enter Value"/>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -1909,7 +1903,7 @@
                     PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review' : 'Approval'}}
                   </button>
                   <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
+                          >
                     Update
                   </button>
                   <div

@@ -185,12 +185,12 @@ export class Template2Component {
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
-        cgbAtmRefNo: ['', Validators.required],
+        cgbAtmRefNo: [{ value: '', disabled: true }],
         cgbApprovalDate: [{value: '', disabled: true}],
         isChangeinApproachMarket: [false],
         cgbItemRefNo: [''],
         cgbCirculationDate: [''],
-        contractNo: ['', Validators.required],
+        contractNo: [''],
         contactNo: [''],
         vendorId: [null],
         purposeRequired: ['', Validators.required],
