@@ -38,6 +38,8 @@ import {CommentService} from '../../service/comment.service';
 import {EditorService} from '../../service/editor.service';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {AuthService} from '../../service/auth.service';
+import {ThresholdService} from '../../service/threshold.service';
+import {ThresholdType} from '../../models/threshold';
 
 @Component({
   selector: 'app-template2',
@@ -54,6 +56,7 @@ export class Template2Component {
   private commentService = inject(CommentService);
   private editorService = inject(EditorService);
   private authService = inject(AuthService);
+  private readonly thresholdService = inject(ThresholdService);
   private searchTimeout: any;
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
@@ -74,7 +77,7 @@ export class Template2Component {
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
   private completedCount = 0;
-  private totalCalls = 5;
+  private totalCalls = 6;
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
   globalCGBData: DictionaryDetail[] = [];
@@ -90,6 +93,7 @@ export class Template2Component {
   approvalRemark: string = '';
   reviewBy: string = '';
   private readonly _mdlSvc = inject(NgbModal);
+  selectedPaperThreshold: ThresholdType | null = null
 
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
@@ -140,6 +144,7 @@ export class Template2Component {
     this.loadForm()
     this.loadDictionaryItems()
     this.loadUserDetails()
+    this.loadThresholdData()
     this.loadCountry();
     this.loadPaperStatusListData();
     this.loadVendoreDetails()
@@ -694,23 +699,6 @@ export class Template2Component {
     }
   }
 
-  // loadUserDetails() {
-  //     this.userService.getUserDetailsList().subscribe({
-  //         next: (response) => {
-  //             if (response.status && response.data) {
-  //                 this.userDetails = response.data;
-  //                 this.procurementTagUsers = response.data.filter(user => user.roleName === 'Procurement Tag').map(t => ({
-  //                     label: t.displayName,
-  //                     value: t.id
-  //                 }));
-  //
-  //             }
-  //         }, error: (error) => {
-  //             console.log('error', error);
-  //         }
-  //     })
-  // }
-
   loadCountry() {
     this.countryService.getCountryDetails().subscribe({
       next: (reponse) => {
@@ -726,6 +714,27 @@ export class Template2Component {
       },
     });
   }
+
+  loadThresholdData() {
+    this.thresholdService.getThresholdList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const data = response.data;
+
+          if(data.length > 0) {
+            this.selectedPaperThreshold = data.find(item => item.paperType === "Contact Award") || null
+          }
+
+          console.log("==selectedPaperThreshold",  this.selectedPaperThreshold)
+
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
 
   loadPaperStatusListData() {
     this.paperService.getPaperStatusList().subscribe({
@@ -1199,6 +1208,13 @@ export class Template2Component {
     }
 
     if (this.generalInfoForm.valid) {
+      if (
+        this.selectedPaperThreshold &&
+        (this.selectedPaperThreshold.contractValueLimit > (generalInfoValue?.totalAwardValueUSD || 0))
+      ) {
+        this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
+        return;
+      }
       this.paperService.upsertContractAward(params).subscribe({
         next: (response) => {
           if (response.status && response.data) {

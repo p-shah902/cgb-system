@@ -4,7 +4,7 @@ export interface ThresholdType {
   paperType: string;
   status: boolean;
   psaAgreement: string;
-  contractValue: number;
+  contractValueLimit: number;
   variationPercent: number;
   thresholdType: string
 }

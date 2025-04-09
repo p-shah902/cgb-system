@@ -98,7 +98,7 @@ export class Template1Component {
   selectedPaper: number = 0;
   approvalRemark: string = '';
   reviewBy: string = '';
-  paperThresholdList: ThresholdType[] = []
+  selectedPaperThreshold: ThresholdType | null = null
   constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
@@ -929,10 +929,10 @@ export class Template1Component {
           const data = response.data;
 
           if(data.length > 0) {
-            this.paperThresholdList = data.filter(item => item.paperType === "Approach to Market") || []
+            this.selectedPaperThreshold = data.find(item => item.paperType === "Approach to Market") || null
           }
 
-          console.log("=this.paperThresholdList", this.paperThresholdList)
+          console.log("==selectedPaperThreshold",  this.selectedPaperThreshold)
 
           this.incrementAndCheck();
         }
@@ -1266,7 +1266,7 @@ export class Template1Component {
       },
       approachMarket: {
         cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
-        cgbCirculationDate: null,
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
         scopeOfWork: generalInfoValue?.scopeOfWork,
         globalCGB: generalInfoValue?.globalCGB,
         bltMember: generalInfoValue?.bltMember,
@@ -1341,13 +1341,13 @@ export class Template1Component {
 
     if (this.generalInfoForm.valid) {
 
-      // if (
-      //   this.selectedPaperThreshold &&
-      //   (this.selectedPaperThreshold.contractValue > (generalInfoValue?.contractValueUsd || 0))
-      // ) {
-      //   this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
-      //   return;
-      // }
+      if (
+        this.selectedPaperThreshold &&
+        (this.selectedPaperThreshold.contractValueLimit > (generalInfoValue?.contractValueUsd || 0))
+      ) {
+        this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
+        return;
+      }
 
 
       this.paperService.upsertApproachToMarkets(params).subscribe({
