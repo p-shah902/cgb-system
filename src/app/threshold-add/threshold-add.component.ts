@@ -1,30 +1,33 @@
-import { Component, inject } from '@angular/core';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
-import { ToastService } from '../../service/toast.service';
-import { CommonModule } from '@angular/common';
+import {Component, inject} from '@angular/core';
+import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
+import {ToastService} from '../../service/toast.service';
+import {CommonModule} from '@angular/common';
 import {Router} from '@angular/router';
 import {
   Validators,
   ReactiveFormsModule,
-  FormsModule,FormGroup,FormBuilder
+  FormsModule, FormGroup, FormBuilder
 } from '@angular/forms';
 import {DictionaryService} from '../../service/dictionary.service';
 import {ThresholdService} from '../../service/threshold.service';
+
 @Component({
   selector: 'app-threshold-add',
   standalone: true,
-  imports: [NgbToastModule,CommonModule,  FormsModule, ReactiveFormsModule],
+  imports: [NgbToastModule, CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './threshold-add.component.html',
   styleUrl: './threshold-add.component.scss'
 })
 export class ThresholdAddComponent {
- public toastService=inject(ToastService)
+  public toastService = inject(ToastService)
   private readonly thresholdService = inject(ThresholdService);
   submitted = false;
 
   thresholdForm!: FormGroup;
   psaList: any = []
-  constructor(private fb: FormBuilder,private router: Router, private dictionaryService: DictionaryService) {}
+
+  constructor(private fb: FormBuilder, private router: Router, private dictionaryService: DictionaryService) {
+  }
 
   public paperTypeData: any = [
     {
@@ -36,7 +39,7 @@ export class ThresholdAddComponent {
       label: 'Contact Award',
     },
     {
-      value:'Variation Paper',
+      value: 'Variation Paper',
       label: 'Variation Paper',
     },
     {
@@ -65,31 +68,39 @@ export class ThresholdAddComponent {
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.thresholdForm.valid) {
-      console.log('Form Submitted:', this.thresholdForm.value);
-      const params = {...this.thresholdForm.value,
-        thresholdType: "Internal", extension: "",notificationSendTo: ""}
-      this.thresholdService.createThreshold(params).subscribe({
-        next: (response) => {
-          if (response.status && response.data) {
-            this.thresholdForm.reset();
-            this.submitted = false;
-            this.toastService.show(response.message || "Added Successfully", 'success');
-            setTimeout(() => {
-              this.router.navigate(['/threshold']);
-            }, 2000);
-          } else {
-            this.toastService.show(response.message || "Something went wrong.", 'danger');
-          }
-        },
-        error: (error) => {
-          console.log('Error', error);
-          this.toastService.show("Something went wrong.", 'danger');
-        },
-      });
-    } else {
-      console.log("Invalid form")
+
+    if (this.thresholdForm.invalid) {
+      console.warn('Invalid form submission');
+      return;
     }
+
+    const formValues = this.thresholdForm.value;
+    const payload = {
+      ...formValues,
+      thresholdType: "Internal",
+      extension: "",
+      notificationSendTo: ""
+    };
+
+    this.thresholdService.createThreshold(payload).subscribe({
+      next: ({status, data, message}) => {
+        if (status && data) {
+          this.thresholdForm.reset();
+          this.submitted = false;
+          this.toastService.show(message || "Added Successfully", 'success');
+
+          setTimeout(() => {
+            this.router.navigate(['/threshold']);
+          }, 2000);
+        } else {
+          this.toastService.show(message || "Something went wrong.", 'danger');
+        }
+      },
+      error: (error) => {
+        console.error('Threshold creation error:', error);
+        this.toastService.show("Something went wrong.", 'danger');
+      }
+    });
   }
 
   loadDictionaryDetails() {
@@ -97,7 +108,7 @@ export class ThresholdAddComponent {
       next: (response) => {
         if (response.status && response.data) {
           console.log('Dictionary Detail:', response.data);
-          this.psaList =response.data || [];
+          this.psaList = response.data || [];
         }
       },
       error: (error) => {

@@ -20,12 +20,18 @@
             <form [formGroup]="thresholdForm" (ngSubmit)="onSubmit()">
               <div class="form-group mb-3">
                 <label>Threshold Name *</label>
-                <input type="text" class="form-control" formControlName="thresholdName" placeholder="ie.High-Value Contracts"/>
+                <input type="text" class="form-control" formControlName="thresholdName"
+                       placeholder="ie.High-Value Contracts"/>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('thresholdName')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+
               </div>
 
               <div class="form-group mb-3">
                 <label>Description</label>
-                <textarea class="form-control" formControlName="description" placeholder="Enter Description" rows="4"></textarea>
+                <textarea class="form-control" formControlName="description" placeholder="Enter Description"
+                          rows="4"></textarea>
               </div>
 
               <div class="form-group mb-3">
@@ -39,13 +45,18 @@
                     </option>
                   </ng-container>
                 </select>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+
               </div>
 
               <div class="form-group mb-3">
                 <div class="d-flex align-items-center gap-3">
                   <label>Status</label>
                   <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" formControlName="isActive" id="flt-sw1">
+                    <input class="form-check-input" type="checkbox" role="switch" formControlName="isActive"
+                           id="flt-sw1">
                     <label class="form-check-label ms-2 text-dark" for="flt-sw1">Active</label>
                   </div>
                 </div>
@@ -62,21 +73,31 @@
                     </option>
                   </ng-container>
                 </select>
-<!--                <div class="text-danger"-->
-<!--                     *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">-->
-<!--                  <small class="text-danger">This field is required.</small>-->
-<!--                </div>-->
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('psaAgreement')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+
               </div>
 
               <div class="form-group mb-3">
                 <label>Contract Absolute Value *</label>
-                <input type="number" class="form-control" formControlName="contractValueLimit" placeholder="Ie. >= $5,000,000"/>
+                <input min="0" type="number" class="form-control" formControlName="contractValueLimit"
+                       placeholder="Ie. >= $5,000,000"/>
+                <div class="text-danger"
+                     *ngIf="submitted && thresholdForm.get('contractValueLimit')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
               </div>
 
               <div class="form-group mb-3">
                 <label>Contract Variation (%) *</label>
                 <input min="0" oninput="if (this.value > 100) this.value = 100"
-                       max="100" type="number" class="form-control" formControlName="variationPercent" placeholder="Ie. >= 20%"/>
+                       max="100" type="number" class="form-control" formControlName="variationPercent"
+                       placeholder="Ie. >= 20%"/>
+                <div class="text-danger"
+                     *ngIf="submitted && thresholdForm.get('variationPercent')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
               </div>
 
               <div class="fb-form pt-0">
