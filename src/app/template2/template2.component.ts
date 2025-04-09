@@ -40,11 +40,12 @@ import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {AuthService} from '../../service/auth.service';
 import {ThresholdService} from '../../service/threshold.service';
 import {ThresholdType} from '../../models/threshold';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-template2',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink, NgbTooltip],
   templateUrl: './template2.component.html',
   styleUrl: './template2.component.scss'
 })
