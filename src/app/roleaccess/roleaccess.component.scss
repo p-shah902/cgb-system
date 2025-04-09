@@ -49,6 +49,13 @@
          font-size: 14px;
          line-height: 17px;
          color: #1B202B;
+         &:first-child {
+           small {
+             width: 290px;
+             font-size: 14px;
+             word-break: break-word;
+           }
+         }
        }
       }
       .custom-accordion {
@@ -89,7 +96,20 @@
                     font-size: 14px;
                     color: #626262;
                   }
+                  .table-title-div {
+                    width: 300px;
+                    font-size: 14px;
+                    word-break: break-word;
+                  }
+                 /* &:nth-child(2) {
+                    width: 54px;
+                  }
+
+                  &:nth-child(3) {
+                    width: 200px;
+                  }*/
                 }
+
               }
             }
             .form-check-list {
@@ -101,10 +121,41 @@
       }
     }
   }
-  .table-title-div {
-    width: 80px;
-    font-size: 14px;
-    word-break: break-word;
+  .table-width-set {
+    tr {
+      display: flex;
+    }
+    .accordion-body {
+      table {
+        tr {
+          display: flex;
+          td:nth-child(2) {
+            width: 50px;
+          }
+          td:nth-child(3) {
+            width: 210px;
+          }
+          td:nth-child(9) {
+            width: 190px;
+          }
+          td:nth-child(10) {
+            width: 100px;
+          }
+          td:nth-child(11) {
+            width: 100px;
+          }
+          td:nth-child(12) {
+            width: 95px;
+          }
+          td:nth-child(14) {
+            width: 130px;
+          }
+          td:nth-child(16) {
+            width: 110px;
+          }
+        }
+      }
+    }
   }
   .roll-small {
     display: block;
@@ -167,7 +218,9 @@
   thead {
     tr {
       th {
-        width: 100px;
+        width: auto;
+        white-space:pre;
+
       }
     }
   }
