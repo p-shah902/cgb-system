@@ -192,7 +192,7 @@ export class Template2Component {
         cgbCirculationDate: [''],
         contractNo: [''],
         contactNo: [''],
-        vendorId: [null],
+        vendorId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         purposeRequired: ['', Validators.required],
         globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -205,7 +205,10 @@ export class Template2Component {
         pdManagerName: [null, Validators.required],
         isPHCA: [false],
         currencyCode: [''],
-        totalAwardValueUSD: [0], // Number input
+        totalAwardValueUSD: [
+          null,
+          [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]
+        ],
         exchangeRate: [0], // Number input
         contractValue: [0],
         remunerationType: ['', Validators.required],
@@ -514,7 +517,7 @@ export class Template2Component {
   }
 
   get procurementDetailsInfo() {
-    return this.generalInfoForm.get('generalInfo');
+    return this.generalInfoForm.get('procurementDetails');
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<{ version: '44.3.0', premium: true }>) {

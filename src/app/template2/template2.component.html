@@ -147,6 +147,10 @@
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
                                 formControlName="purposeRequired"/>
+
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
 
@@ -178,7 +182,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>Vendor ID </label>
+                    <label>Vendor ID *</label>
                     <select class="form-control allow-comments" id="vendorId" formControlName="vendorId">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let item of vendorList?.length ? vendorList : []">
@@ -187,6 +191,9 @@
                         </option>
                       </ng-container>
                     </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('vendorId')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
 
@@ -360,10 +367,13 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Total Award Value (USD) </label>
+                    <label>Total Award Value (USD) *</label>
                     <input type="number" class="form-control allow-comments" id="totalAwardValueUSD"
                            formControlName="totalAwardValueUSD" placeholder="0.00"
                            min="0"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('totalAwardValueUSD')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-2">
@@ -578,11 +588,14 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>Supplier Award Recommendation</label>
+                    <label>Supplier Award Recommendation *</label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="supplierAwardRecommendations"/>
                     <app-editor *ngIf="isRegisterPaper"
                                 [paperId]="paperId ? (paperId + 'supplierAwardRecommendations') : ''"
                                 formControlName="supplierAwardRecommendations"/>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('supplierAwardRecommendations')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
@@ -911,9 +924,9 @@
                       </button>
                     </div>
 
-                    <!--                  <div class="text-danger" *ngIf="submitted && supplierTechnical.invalid">-->
-                    <!--                    <small class="text-danger">This field is required.</small>-->
-                    <!--                  </div>-->
+                               <div class="text-danger" *ngIf="submitted && supplierTechnical.invalid">
+                                 <small class="text-danger">This field is required.</small>
+                                </div>
                   </div>
                 </div>
               </div>
@@ -1877,6 +1890,10 @@
                   </svg>
                   Add New Row
                 </button>
+              </div>
+
+              <div class="text-danger" *ngIf="submitted && consultationRows.invalid">
+                <small class="text-danger">This field is required.</small>
               </div>
 
             </div>
