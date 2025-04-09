@@ -12,7 +12,9 @@ export interface PaperConfig {
   checked?: boolean,
   logCounts: number,
   fileCounts: number,
-  totalContractValue: number
+  totalContractValue: number,
+  paperType: string
+
 }
 
 export interface PaperDetails {
