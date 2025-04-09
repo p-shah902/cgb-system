@@ -318,7 +318,7 @@ export class Template1Component {
   }
 
   get procurementDetailsInfo() {
-    return this.generalInfoForm.get('generalInfo');
+    return this.generalInfoForm.get('procurementDetails');
   }
 
   onLTCCChange() {
