@@ -1,13 +1,13 @@
-import {Component, inject, OnInit, TemplateRef} from '@angular/core';
-import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
-import {ToastService} from '../../service/toast.service';
-import {CommonModule} from '@angular/common';
-import {VotingService} from '../../service/voting.service';
-import {VotingCycle} from '../../models/voting';
-import {LoginUser} from '../../models/user';
-import {AuthService} from '../../service/auth.service';
-import {FormsModule} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
+import { Component, inject, OnInit, TemplateRef } from '@angular/core';
+import { NgbModal, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../../service/toast.service';
+import { CommonModule } from '@angular/common';
+import { VotingService } from '../../service/voting.service';
+import { VotingCycle } from '../../models/voting';
+import { LoginUser } from '../../models/user';
+import { AuthService } from '../../service/auth.service';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-cgb',
@@ -102,7 +102,7 @@ export class CgbComponent implements OnInit {
                   paperID: item.paperID,
                   paperType: item.paperType,
                   paperTitle: item.paperProvision,
-                  cgbRef: (item.cgbItemRef || '').replaceAll('/', ''),
+                  cgbRef: (item.cgbItemRef || ''),
                   result: '1',
                 },
                 users: []

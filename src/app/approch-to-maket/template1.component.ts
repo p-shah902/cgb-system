@@ -1207,7 +1207,7 @@ export class Template1Component {
         statusId: this.paperStatusId
       }]).subscribe(value => {
         this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/paperconfiguration'])
+        this.router.navigate(['/all-papers'])
       });
     }
 
@@ -1360,7 +1360,7 @@ export class Template1Component {
             this.submitted = false;
             this.toastService.show(response.message || "Added Successfully", 'success');
             setTimeout(() => {
-              this.router.navigate(['/paperconfiguration']);
+              this.router.navigate(['/all-papers']);
             }, 2000);
           } else {
             this.toastService.show(response.message || "Something went wrong.", 'danger');
@@ -1473,7 +1473,7 @@ export class Template1Component {
           next: (response) => {
             if (response.status && response.data) {
               modal.close('Save click');
-              this.router.navigate(['/paperconfiguration'])
+              this.router.navigate(['/all-papers'])
               this.toastService.show('Paper Status updated successfully');
             }
           },

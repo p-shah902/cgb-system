@@ -93,7 +93,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'paperconfiguration',
+    path: 'all-papers',
     loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),
     canActivate: [AuthGuard]
   },

@@ -51,7 +51,7 @@ export const menuItems: Menu[] = [
   //         </svg>`
   // },
   {
-    path: '/paperconfiguration',
+    path: '/all-papers',
     title: 'Papers',
     roleMap: 'Papers',
     checkPermission: true,
@@ -62,7 +62,7 @@ export const menuItems: Menu[] = [
           </svg>`,
     children: [
       {
-        path: '/paperconfiguration',
+        path: '/all-papers',
         title: 'All Papers'
       },
       {
