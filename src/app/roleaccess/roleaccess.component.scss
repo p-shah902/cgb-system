@@ -134,9 +134,15 @@
           }
           td:nth-child(3) {
             width: 210px;
+            div {
+              padding-left: 80px;
+            }
           }
           td:nth-child(9) {
             width: 190px;
+            div {
+              padding-left: 70px;
+            }
           }
           td:nth-child(10) {
             width: 100px;
