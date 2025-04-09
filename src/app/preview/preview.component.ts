@@ -27,11 +27,11 @@ export class PreviewComponent implements OnInit {
   riskMitigation: RiskMitigations[] = [];
   bidInvites: BidInvites[] = [];
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[] = [];
-  costAllocationJVApproval:CostAllocationJVApproval[]=[];
-  jvApprovals:JvApprovals[]=[];
-  consultationsDetails:ConsultationsDetails[]=[];
-  paperTimelineDetails:PaperTimelineDetails[]=[];
-  paperInfo:PaperDetails|null=null;
+  costAllocationJVApproval: CostAllocationJVApproval[] = [];
+  jvApprovals: JvApprovals[] = [];
+  consultationsDetails: ConsultationsDetails[] = [];
+  paperTimelineDetails: PaperTimelineDetails[] = [];
+  paperInfo: PaperDetails | null = null;
   totalPercentage: number = 0;
   totalValue: number = 0
   userDetails: UserDetails[] = [];
@@ -183,29 +183,25 @@ export class PreviewComponent implements OnInit {
         console.log('Value Delivery', this.valueDeliveriesCostsharing);
       }
 
-      if(this.paperDetails.paperDetails.jvApprovals )
-      {
-        this.jvApprovals=this.paperDetails.paperDetails.jvApprovals;
-        console.log('jvApprovals ',this.jvApprovals);
+      if (this.paperDetails.paperDetails.jvApprovals) {
+        this.jvApprovals = this.paperDetails.paperDetails.jvApprovals;
+        console.log('jvApprovals ', this.jvApprovals);
       }
 
-      if(this.paperDetails.paperDetails.costAllocationJVApproval)
-      {
-        this.costAllocationJVApproval=this.paperDetails.paperDetails.costAllocationJVApproval;
-        console.log('costAllocationJVApproval ',this.costAllocationJVApproval);
+      if (this.paperDetails.paperDetails.costAllocationJVApproval) {
+        this.costAllocationJVApproval = this.paperDetails.paperDetails.costAllocationJVApproval;
+        console.log('costAllocationJVApproval ', this.costAllocationJVApproval);
         this.populateTableData();
         this.calculateTotals();
       }
-      if(this.paperDetails.paperDetails.consultationsDetails)
-      {
-          this.consultationsDetails=this.paperDetails.paperDetails.consultationsDetails;
-          console.log('consultationsDetails ',this.consultationsDetails);
+      if (this.paperDetails.paperDetails.consultationsDetails) {
+        this.consultationsDetails = this.paperDetails.paperDetails.consultationsDetails;
+        console.log('consultationsDetails ', this.consultationsDetails);
       }
 
-      if(this.paperDetails.paperDetails.paperDetails)
-      {
-            this.paperInfo=this.paperDetails.paperDetails.paperDetails;
-            console.log('paper Info ',this.paperInfo);
+      if (this.paperDetails.paperDetails.paperDetails) {
+        this.paperInfo = this.paperDetails.paperDetails.paperDetails;
+        console.log('paper Info ', this.paperInfo);
       }
 this.loadUserDetails()
       this.loadDictionaryItems()
@@ -276,7 +272,6 @@ this.loadUserDetails()
 
   populateTableData(): void {
     // Process PSA columns from costAllocationJVApproval
-    console.log('ddddd',this.costAllocationJVApproval);
     this.costAllocationJVApproval.forEach(item => {
       const psaColumn = this.psaColumns.find(col => col.name === item.psaName);
       if (psaColumn) {
@@ -300,20 +295,38 @@ this.loadUserDetails()
 
   getStatusClass(index: number): string {
     const current = this.paperTimelineDetails[index];
-    // const previous = index > 0 ? this.paperTimelineDetails[index - 1] : null;
+    const status = this.paperDetails?.paperDetails?.paperDetails?.paperStatusName;
 
+
+
+    if (current.activityName === 'Pre CGB' && status === 'On Pre-CGB') {
+      return 'timeline-box st-prog position-relative'; // In progress
+    }
+    if (current.activityName === 'Pre CGB' && status === 'Action Required by Pre-CGB') {
+      return 'timeline-box st-warn position-relative'; // In progress
+    }
+    if (current.activityName === 'Pre CGB' && status === 'Withdrawn by Pre-CGB') {
+      return 'timeline-box st-rejected position-relative'; // In progress
+    }
+
+    if (current.activityName === 'CGB' && status === 'On CGB') {
+      return 'timeline-box st-prog position-relative'; // In progress
+    }
+    if (current.activityName === 'CGB' && status === 'Action Required by CGB') {
+      return 'timeline-box st-warn position-relative'; // In progress
+    }
+    if (current.activityName === 'CGB' && status === 'Withdrawn by CGB') {
+      return 'timeline-box st-rejected position-relative'; // In progress
+    }
+
+    // ✅ Handle PDM "in progress" status
+    if (current.activityName === 'PDM Approval' && status === 'Waiting for PDM') {
+      return 'timeline-box st-prog position-relative'; // In progress for PDM
+    }
     if (current.isActivityDone) {
       return 'timeline-box st-aprv position-relative'; // Approved
     }
-
-    if (current.activityName === 'Pre CGB' && this.paperDetails?.paperDetails?.paperDetails?.paperStatusName === 'On Pre-CGB') {
-      return 'timeline-box st-prog position-relative'; // In progress (prev completed)
-    }
-
-    if (current.activityName === 'CGB' && this.paperDetails?.paperDetails?.paperDetails?.paperStatusName === 'On CGB') {
-      return 'timeline-box st-prog position-relative'; // In progress (prev completed)
-    }
-    return "timeline-box st-pen position-relative";
+    return 'timeline-box st-pen position-relative'; // Pending
   }
 
 }

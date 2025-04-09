@@ -35,8 +35,8 @@ export class ThresholdAddComponent {
       label: 'Approach to Market',
     },
     {
-      value: 'Contact Award',
-      label: 'Contact Award',
+      value: 'Contract Award',
+      label: 'Contract Award',
     },
     {
       value: 'Variation Paper',

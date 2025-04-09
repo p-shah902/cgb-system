@@ -727,7 +727,7 @@ export class Template2Component {
           const data = response.data;
 
           if(data.length > 0) {
-            this.selectedPaperThreshold = data.find(item => item.paperType === "Contact Award") || null
+            this.selectedPaperThreshold = data.find(item => item.paperType === "Contract Award") || null
           }
 
           console.log("==selectedPaperThreshold",  this.selectedPaperThreshold)

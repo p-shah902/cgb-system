@@ -1,5 +1,5 @@
-import {Routes} from '@angular/router';
-import {AuthGuard} from '../guards/auth.guard';
+import { Routes } from '@angular/router';
+import { AuthGuard } from '../guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -87,6 +87,11 @@ export const routes: Routes = [
   //   loadComponent: () => import('./paperconfiguration/paperconfiguration.component').then(m => m.PaperconfigurationComponent),
   //   canActivate: [AuthGuard]
   // },
+  {
+    path: 'my-drafts',
+    loadComponent: () => import('./my-drafts/paper-list.component').then(m => m.PaperListComponent),
+    canActivate: [AuthGuard]
+  },
   {
     path: 'paperconfiguration',
     loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),

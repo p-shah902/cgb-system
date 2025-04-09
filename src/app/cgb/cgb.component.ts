@@ -82,7 +82,7 @@ export class CgbComponent implements OnInit {
 
   gotoPaper(paperId: any, type: string) {
     let route = 'preview';
-    if (type === 'Contact Award') {
+    if (type === 'Contract Award') {
       route = 'preview2';
     }
     this.router.navigate([route, paperId])

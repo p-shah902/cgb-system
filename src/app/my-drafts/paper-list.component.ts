@@ -95,9 +95,10 @@ export class PaperListComponent implements OnInit {
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter((paper: any) =>
-            !paper.statusName?.toLowerCase().includes('draft')
+            paper.statusName?.toLowerCase().includes('draft')
           );
           this.sortByDate();
+          console.log('paper List', this.paperList);
         }
       },
       error: (error) => {

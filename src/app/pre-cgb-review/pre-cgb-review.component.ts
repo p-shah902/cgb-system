@@ -4,7 +4,7 @@ import {
   OnInit,
   TemplateRef,
 } from '@angular/core';
-import {CommonModule, DatePipe, NgForOf} from '@angular/common';
+import { CommonModule, DatePipe, NgForOf } from '@angular/common';
 import {
   NgbDropdown,
   NgbDropdownItem,
@@ -13,17 +13,17 @@ import {
   NgbModal,
   NgbToastModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import {ToastService} from '../../service/toast.service';
-import {PaperConfigService} from '../../service/paper/paper-config.service';
-import {PaperService} from '../../service/paper.service';
-import {Router, RouterLink} from '@angular/router';
-import {PaperFilter} from '../../models/general';
-import {PaperConfig} from '../../models/paper';
-import {LoginUser} from '../../models/user';
-import {AuthService} from '../../service/auth.service';
-import {Select2} from 'ng-select2-component';
-import {FormsModule} from '@angular/forms';
-import {SafeHtmlDirective} from '../../directives/safe-html.directive';
+import { ToastService } from '../../service/toast.service';
+import { PaperConfigService } from '../../service/paper/paper-config.service';
+import { PaperService } from '../../service/paper.service';
+import { Router, RouterLink } from '@angular/router';
+import { PaperFilter } from '../../models/general';
+import { PaperConfig } from '../../models/paper';
+import { LoginUser } from '../../models/user';
+import { AuthService } from '../../service/auth.service';
+import { Select2 } from 'ng-select2-component';
+import { FormsModule } from '@angular/forms';
+import { SafeHtmlDirective } from '../../directives/safe-html.directive';
 
 @Component({
   selector: 'app-pre-cgb-review',
@@ -80,7 +80,9 @@ export class PreCgbReviewComponent implements OnInit {
     this.paperConfigService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.paperList = response.data;
+          this.paperList = response.data.filter((paper: any) =>
+            paper.statusName?.toLowerCase().includes('pre-cgb')
+          );
           this.sortByDate();
         }
       },
@@ -114,15 +116,15 @@ export class PreCgbReviewComponent implements OnInit {
         size: 'lg', // Adjust size as needed (sm, lg, xl)
       })
       .result.then(
-      (result) => {
-        // Handle modal close
-        this.approvalRemark = "";
-      },
-      (reason) => {
-        // Handle modal dismiss
-        this.approvalRemark = "";
-      }
-    );
+        (result) => {
+          // Handle modal close
+          this.approvalRemark = "";
+        },
+        (reason) => {
+          // Handle modal dismiss
+          this.approvalRemark = "";
+        }
+      );
 
     if (paper) {
       this.selectedPaper = paper;
@@ -159,7 +161,7 @@ export class PreCgbReviewComponent implements OnInit {
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.selectedPaper.paperID,
         existingStatusId: this.selectedPaper.statusId,
-        statusId: this.openType === 'widthdraw' ? 9 : 8,
+        statusId: this.openType === 'approve' ? 7 : this.openType === 'widthdraw' ? 9 : 8,
         emailRemarks: this.approvalRemark
       }]).subscribe({
         next: (response) => {

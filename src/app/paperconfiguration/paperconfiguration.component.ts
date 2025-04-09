@@ -120,7 +120,7 @@ export class PaperconfigurationComponent implements OnInit {
     },
     {
       value: '/contract-award',
-      label: 'Contact Award',
+      label: 'Contract Award',
     },
     {
       value: '/contract-variation-or-amendment-approval',

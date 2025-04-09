@@ -10,8 +10,9 @@ export interface PaperConfig {
   price: number,
   isActive: boolean,
   checked?: boolean,
-  logCounts:number,
-  fileCounts:number
+  logCounts: number,
+  fileCounts: number,
+  totalContractValue: number
 }
 
 export interface PaperDetails {
@@ -63,10 +64,10 @@ export interface PaperDetails {
   socaRreceivedOn: Date | string
   socarDescription: string
   preQualificationResult: string
-  cgbItemRefNo:string
-  conflictOfInterestCommen:string
-  remunerationTypeData:string
-  isConflictOfInteres:boolean
+  cgbItemRefNo: string
+  conflictOfInterestCommen: string
+  remunerationTypeData: string
+  isConflictOfInteres: boolean
 
 }
 
@@ -153,13 +154,13 @@ export interface Paper {
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[]
   jvApprovals: JvApprovals[]
   costAllocationJVApproval: CostAllocationJVApproval[]
-  paperTimelineDetails:PaperTimelineDetails[],
-  contractAwardDetails:ContractAwardDetails,
-  consultations:ConsultationsDetails[],
-  legalEntitiesAwarded:LegalEntitiesAwarded[],
-  valueDeliveries:ValueDeliveriesCostsharing[],
-  commericalEvaluation:CommericalEvaluation[],
-  supplierTechnical:SupplierTechnical[],
+  paperTimelineDetails: PaperTimelineDetails[],
+  contractAwardDetails: ContractAwardDetails,
+  consultations: ConsultationsDetails[],
+  legalEntitiesAwarded: LegalEntitiesAwarded[],
+  valueDeliveries: ValueDeliveriesCostsharing[],
+  commericalEvaluation: CommericalEvaluation[],
+  supplierTechnical: SupplierTechnical[],
 
 }
 
@@ -187,7 +188,7 @@ export interface PaperStatusType {
 
 }
 
-export interface PaperTimelineDetails{
+export interface PaperTimelineDetails {
   id: number,
   activityName: string,
   isActivityDone: boolean,
@@ -195,7 +196,7 @@ export interface PaperTimelineDetails{
 
 }
 
-export interface ContractAwardDetails{
+export interface ContractAwardDetails {
   id: number,
   paperType: string,
   paperStatusId: number,
@@ -209,7 +210,7 @@ export interface ContractAwardDetails{
   contractNo: number,
   isChangeinApproachMarket: boolean,
   cgbItemRefNo: string,
-  cgbCirculationDate:string,
+  cgbCirculationDate: string,
   vendorId: string,
   globalCGB: string,
   bltMemberId: number,
@@ -218,7 +219,7 @@ export interface ContractAwardDetails{
   subSector: string,
   sourcingType: string,
   camUserId: number,
-  camUserName:string,
+  camUserName: string,
   vP1UserId: number,
   vP1UserName: string,
   procurementSPAUsers:string,
@@ -229,54 +230,54 @@ export interface ContractAwardDetails{
   totalAwardValueUSD:number,
   currencyCode:string,
   exchangeRate: number,
-  contractValue:number,
+  contractValue: number,
   remunerationType: string,
-  isPaymentRequired:boolean,
-  prePayPercent:number,
-  prePayAmount:number,
+  isPaymentRequired: boolean,
+  prePayPercent: number,
+  prePayAmount: number,
   workspaceNo: string,
   isSplitAward: boolean,
   isLTCC: boolean,
   ltccNotes: string,
-  isGovtReprAligned:boolean,
+  isGovtReprAligned: boolean,
   govtReprAlignedComment: string,
-  isIFRS16:boolean,
-  isGIAAPCheck:boolean,
+  isIFRS16: boolean,
+  isGIAAPCheck: boolean,
   supplierAwardRecommendations: string,
   isConflictOfInterest: boolean,
   conflictOfInterestComment: string,
   isRetrospectiveApproval: boolean,
   retrospectiveApprovalReason: string,
-  nationalContent:string,
-  isHighRiskContract:string,
-  cddCompleted:string,
-  highRiskExplanation:string,
-  flagRaisedCDD:string,
-  additionalCDD:string,
-  invitedBidders:number,
-  submittedBids:number,
-  previousContractLearning:string,
-  performanceImprovements:string,
-  benchMarking:string,
-  contractualControls:string,
-  contractCurrencyLinktoBaseCost:string,
-  explanationsforBaseCost:string,
-  contractSpendCommitment:string,
-  createdBy:number,
-  createdDate:string,
+  nationalContent: string,
+  isHighRiskContract: string,
+  cddCompleted: string,
+  highRiskExplanation: string,
+  flagRaisedCDD: string,
+  additionalCDD: string,
+  invitedBidders: number,
+  submittedBids: number,
+  previousContractLearning: string,
+  performanceImprovements: string,
+  benchMarking: string,
+  contractualControls: string,
+  contractCurrencyLinktoBaseCost: string,
+  explanationsforBaseCost: string,
+  contractSpendCommitment: string,
+  createdBy: number,
+  createdDate: string,
 }
 
-export interface LegalEntitiesAwarded{
-  id:number,
-  legalName:string,
-  isLocalOrJV:boolean,
-  totalAwardValueUSD:number,
-  currencyCode:number,
-  exchangeRate:number,
-  contractValue:number,
-  contractStartDate:string,
-  contractEndDate:string,
-  extensionOption:string,
+export interface LegalEntitiesAwarded {
+  id: number,
+  legalName: string,
+  isLocalOrJV: boolean,
+  totalAwardValueUSD: number,
+  currencyCode: number,
+  exchangeRate: number,
+  contractValue: number,
+  contractStartDate: string,
+  contractEndDate: string,
+  extensionOption: string,
 }
 
 export interface SupplierTechnical{

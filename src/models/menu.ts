@@ -75,7 +75,7 @@ export const menuItems: Menu[] = [
           },
           {
             path: '/contract-award',
-            title: 'Contact Award'
+            title: 'Contract Award'
           },
           {
             path: '/contract-variation-or-amendment-approval',
@@ -92,8 +92,8 @@ export const menuItems: Menu[] = [
         ],
       },
       {
-        path: '/paperconfiguration',
-        title: 'My Draft'
+        path: '/my-drafts',
+        title: 'My Drafts'
       },
     ]
   },
