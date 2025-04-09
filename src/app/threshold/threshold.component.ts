@@ -9,6 +9,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../service/toast.service';
 import { CommonModule } from '@angular/common';
+import {Router} from '@angular/router';
+
 
 @Component({
   selector: 'app-threshold',
@@ -26,4 +28,13 @@ import { CommonModule } from '@angular/common';
 export class ThresholdComponent {
   public toastService=inject(ToastService)
   active = 1;
+
+  constructor(private router: Router) {
+
+  }
+
+  navigateToThreshold(): void {
+    const type = this.active === 1 ? 'internal' : 'partner';
+    this.router.navigate(['/threshold-add'], { queryParams: { type } });
+  }
 }

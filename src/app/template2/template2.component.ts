@@ -94,7 +94,7 @@ export class Template2Component {
   approvalRemark: string = '';
   reviewBy: string = '';
   private readonly _mdlSvc = inject(NgbModal);
-  selectedPaperThreshold: ThresholdType | null = null
+  thresholdData: ThresholdType[] = []
 
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
@@ -724,14 +724,7 @@ export class Template2Component {
     this.thresholdService.getThresholdList().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          const data = response.data;
-
-          if(data.length > 0) {
-            this.selectedPaperThreshold = data.find(item => item.paperType === "Contract Award") || null
-          }
-
-          console.log("==selectedPaperThreshold",  this.selectedPaperThreshold)
-
+          this.thresholdData = response.data;
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1213,10 +1206,8 @@ export class Template2Component {
     }
 
     if (this.generalInfoForm.valid) {
-      if (
-        this.selectedPaperThreshold &&
-        (this.selectedPaperThreshold.contractValueLimit > (generalInfoValue?.totalAwardValueUSD || 0))
-      ) {
+      const isPassedCheck = this.checkThreshold(generalInfoValue?.totalAwardValueUSD || 0, Number(generalInfoValue?.sourcingType || 0))
+      if(!isPassedCheck) {
         this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
         return;
       }
@@ -1240,6 +1231,17 @@ export class Template2Component {
       });
     } else {
       console.log("Form is invalid");
+    }
+  }
+
+  checkThreshold(value: number, type: number) {
+    console.log("==value", value,type)
+    if (this.thresholdData && this.thresholdData.length > 0) {
+      const data = this.thresholdData.find(item => item.paperType === "Contract Award" && item.sourcingType === type)
+      console.log("==data.contractValueLimit",data?.contractValueLimit)
+      return !(data && data.contractValueLimit > value);
+    } else {
+      return true
     }
   }
 

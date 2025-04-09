@@ -98,7 +98,7 @@ export class Template1Component {
   selectedPaper: number = 0;
   approvalRemark: string = '';
   reviewBy: string = '';
-  selectedPaperThreshold: ThresholdType | null = null
+  thresholdData: ThresholdType[] = []
   constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
@@ -927,14 +927,7 @@ export class Template1Component {
     this.thresholdService.getThresholdList().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          const data = response.data;
-
-          if(data.length > 0) {
-            this.selectedPaperThreshold = data.find(item => item.paperType === "Approach to Market") || null
-          }
-
-          console.log("==selectedPaperThreshold",  this.selectedPaperThreshold)
-
+          this.thresholdData = response.data;
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1341,16 +1334,11 @@ export class Template1Component {
     }
 
     if (this.generalInfoForm.valid) {
-
-      if (
-        this.selectedPaperThreshold &&
-        (this.selectedPaperThreshold.contractValueLimit > (generalInfoValue?.contractValueUsd || 0))
-      ) {
+      const isPassedCheck = this.checkThreshold(generalInfoValue?.contractValueUsd || 0, Number(generalInfoValue?.sourcingType || 0))
+      if(!isPassedCheck) {
         this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
         return;
       }
-
-
       this.paperService.upsertApproachToMarkets(params).subscribe({
         next: (response) => {
           if (response.status && response.data) {
@@ -1373,6 +1361,16 @@ export class Template1Component {
       });
     } else {
       console.log("Form is invalid");
+    }
+  }
+
+  checkThreshold(value: number, type: number) {
+    console.log("==value", value,type)
+    if (this.thresholdData && this.thresholdData.length > 0) {
+      const data = this.thresholdData.find(item => item.paperType === "Approach to Market" && item.sourcingType === type)
+      return !(data && data.contractValueLimit > value);
+    }else {
+      return true
     }
   }
 
