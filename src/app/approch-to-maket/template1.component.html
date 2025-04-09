@@ -1618,7 +1618,7 @@
                     Send For PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
                   </button>
                   <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
+                          >
                     Update
                   </button>
 

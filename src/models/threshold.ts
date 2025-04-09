@@ -3,8 +3,9 @@ export interface ThresholdType {
   description?: string;
   paperType: string;
   status: boolean;
-  psaAgreement: string;
+  psaAgreement?: string;
   contractValueLimit: number;
   variationPercent: number;
   thresholdType: string
+  sourcingType?: number
 }

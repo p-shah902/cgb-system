@@ -2,7 +2,7 @@ import {Component, inject} from '@angular/core';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../../service/toast.service';
 import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {
   Validators,
   ReactiveFormsModule,
@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import {DictionaryService} from '../../service/dictionary.service';
 import {ThresholdService} from '../../service/threshold.service';
+import {DictionaryDetail} from '../../models/dictionary';
 
 @Component({
   selector: 'app-threshold-add',
@@ -22,11 +23,12 @@ export class ThresholdAddComponent {
   public toastService = inject(ToastService)
   private readonly thresholdService = inject(ThresholdService);
   submitted = false;
-
+  type: string = ""
   thresholdForm!: FormGroup;
-  psaList: any = []
+  psaList: DictionaryDetail[] = []
+  sourcingTypeData: DictionaryDetail[] = [];
 
-  constructor(private fb: FormBuilder, private router: Router, private dictionaryService: DictionaryService) {
+  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService) {
   }
 
   public paperTypeData: any = [
@@ -54,16 +56,41 @@ export class ThresholdAddComponent {
 
 
   ngOnInit(): void {
-    this.loadDictionaryDetails()
     this.thresholdForm = this.fb.group({
       thresholdName: ['', Validators.required],
       description: [''],
-      paperType: ['', Validators.required],
+      paperType: [null, Validators.required],
+      sourcingType: [null],
       isActive: [true],
-      psaAgreement: ['', Validators.required],
+      psaAgreement: [null, Validators.required],
       contractValueLimit: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       variationPercent: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
     });
+
+    this.route.queryParamMap.subscribe(queryParams => {
+      this.type = queryParams.get('type') || "";
+      console.log('Type:', this.type);
+
+      if (this.type === 'internal') {
+        this.thresholdForm.get('sourcingType')?.setValidators(Validators.required);
+      } else {
+        this.thresholdForm.get('sourcingType')?.clearValidators();
+      }
+
+      // Dynamic validation for psaAgreement (if type === 'partner')
+      if (this.type === 'partner') {
+        this.thresholdForm.get('psaAgreement')?.setValidators(Validators.required);
+      } else {
+        this.thresholdForm.get('psaAgreement')?.clearValidators();
+      }
+
+      this.thresholdForm.get('sourcingType')?.updateValueAndValidity();
+      this.thresholdForm.get('psaAgreement')?.updateValueAndValidity();
+    });
+
+    this.loadPSADictionaryDetails()
+    this.loadSourcingDictionaryDetails()
+
   }
 
   onSubmit(): void {
@@ -77,9 +104,10 @@ export class ThresholdAddComponent {
     const formValues = this.thresholdForm.value;
     const payload = {
       ...formValues,
-      thresholdType: "Internal",
+      thresholdType: this.type ? "Internal" : "Partner",
       extension: "",
-      notificationSendTo: ""
+      notificationSendTo: "",
+      psaAgreement:0
     };
 
     this.thresholdService.createThreshold(payload).subscribe({
@@ -103,12 +131,25 @@ export class ThresholdAddComponent {
     });
   }
 
-  loadDictionaryDetails() {
+  loadPSADictionaryDetails() {
     this.dictionaryService.getDictionaryListByItem('psa').subscribe({
       next: (response) => {
         if (response.status && response.data) {
           console.log('Dictionary Detail:', response.data);
           this.psaList = response.data || [];
+        }
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      }
+    });
+  }
+
+  loadSourcingDictionaryDetails() {
+    this.dictionaryService.getDictionaryListByItem('Sourcing Type').subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.sourcingTypeData = response.data || [];
         }
       },
       error: (error) => {

@@ -62,7 +62,7 @@
                 </div>
               </div>
 
-              <div class="form-group mb-3">
+              <div *ngIf="this.type === 'partner'" class="form-group mb-3">
                 <label>PSA Agreement *</label>
                 <select id="remunerationType" class="form-control allow-comments"
                         formControlName="psaAgreement">
@@ -74,6 +74,23 @@
                   </ng-container>
                 </select>
                 <div class="text-danger" *ngIf="submitted && thresholdForm.get('psaAgreement')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+
+              </div>
+
+              <div *ngIf="this.type === 'internal'" class="form-group mb-3">
+                <label>Sourcing Type *</label>
+                <select id="sourcingType" class="form-control allow-comments"
+                        formControlName="sourcingType">
+                  <option [value]="null">Select Status</option>
+                  <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
+                    <option [value]="item.id">
+                      {{ item.itemValue }}
+                    </option>
+                  </ng-container>
+                </select>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('sourcingType')?.hasError('required')">
                   <small>This field is required.</small>
                 </div>
 
