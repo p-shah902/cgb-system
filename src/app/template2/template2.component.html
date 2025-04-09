@@ -1910,7 +1910,7 @@
                 </ng-container>
                 <ng-container *ngIf="paperId && !isCopy">
                   <button class="btn btn-outline-dark" type="button"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag')"
+                  *ngIf="(loggedInUser?.roleName === 'Procurement Tag'|| loggedInUser?.roleName === 'Secretary')"
                           (click)="setPaperStatus('Archived')">
                     Archive
                   </button>
