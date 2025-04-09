@@ -211,7 +211,7 @@ export class Template2Component {
         remunerationType: ['', Validators.required],
         isPaymentRequired: [false],
         prePayPercent: [0],
-        prePayAmount: [{value: null, disabled: true}],
+        prePayAmount: [0],
         workspaceNo: [''],
         isSplitAward: [false],
         psajv: [[], Validators.required],
