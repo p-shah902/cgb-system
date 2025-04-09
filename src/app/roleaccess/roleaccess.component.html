@@ -45,6 +45,7 @@
         <div class="page-card-body" *ngIf="!isLoading">
           <div class="role-access-table">
             <div class="table-responsive">
+              <div class="table-width-set">
               <table class="table table-borderless" width="100%">
                 <thead>
                 <tr>
@@ -61,7 +62,7 @@
                 <tbody>
                 <ng-container *ngFor="let access of accessTypes">
                   <tr>
-                    <td class="p-0" colspan="17">
+                    <td class="p-0 col-17-td" colspan="17">
                       <div class="custom-accordion" ngbAccordion>
                         <div ngbAccordionItem [collapsed]="false">
                           <h2 ngbAccordionHeader>
@@ -104,6 +105,7 @@
                 </ng-container>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>
