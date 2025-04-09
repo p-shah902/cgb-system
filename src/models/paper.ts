@@ -210,7 +210,7 @@ export interface ContractAwardDetails{
   isChangeinApproachMarket: boolean,
   cgbItemRefNo: string,
   cgbCirculationDate:string,
-  vendorId: number,
+  vendorId: string,
   globalCGB: string,
   bltMemberId: number,
   bltMemberName: number,
@@ -221,13 +221,13 @@ export interface ContractAwardDetails{
   camUserName:string,
   vP1UserId: number,
   vP1UserName: string,
-  procurementSPAUsers:number,
+  procurementSPAUsers:string,
   pdManagerNameId:number,
   pdManagerName: string,
   isPHCA: boolean,
   psajv: string,
   totalAwardValueUSD:number,
-  currencyCode:number,
+  currencyCode:string,
   exchangeRate: number,
   contractValue:number,
   remunerationType: string,
@@ -286,11 +286,11 @@ export interface SupplierTechnical{
   isTechnical:boolean,
   technicalScorePercent:number,
   resultOfHSSE:string,
-  commentary:string,             
+  commentary:string,
 }
 
 export interface CommericalEvaluation{
   id:number,
   legalName:string,
-  totalValue:number,                 
+  totalValue:number,
 }

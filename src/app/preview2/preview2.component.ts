@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {PaperService} from '../../service/paper.service';
 import {BidInvites, CommericalEvaluation, ConsultationsDetails, ContractAwardDetails, CostAllocationJVApproval, JvApprovals, LegalEntitiesAwarded, Paper, PaperData, PaperDetails, PaperTimelineDetails, RiskMitigations, SupplierTechnical, ValueDeliveriesCostsharing} from '../../models/paper';
@@ -9,6 +9,12 @@ import { ToastService } from '../../service/toast.service';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { SafeHtmlDirective } from '../../directives/safe-html.directive';
+import {DictionaryService} from '../../service/dictionary.service';
+import {UserService} from '../../service/user.service';
+import {DictionaryDetail} from '../../models/dictionary';
+import {UserDetails} from '../../models/user';
+import {VendorDetail} from '../../models/vendor';
+import {VendorService} from '../../service/vendor.service';
 
 @Component({
   selector: 'app-preview2',
@@ -17,7 +23,9 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
   templateUrl: './preview2.component.html',
   styleUrl: './preview2.component.scss'
 })
-export class Preview2Component {
+export class Preview2Component implements OnInit {
+  private readonly userService = inject(UserService);
+  private readonly vendorService = inject(VendorService);
 
   paperDetails: PaperData | null = null;
     comment: string = '';
@@ -36,47 +44,59 @@ export class Preview2Component {
     paperInfo:PaperDetails|null=null;
     totalPercentage: number = 0;
     totalValue: number = 0
-  
-  
-    constructor(private activatedRoutes: ActivatedRoute, private paperService: PaperService,public toastService:ToastService) {
+  // Global variables for dropdown selections
+  currenciesData: DictionaryDetail[] = [];
+  globalCGBData: DictionaryDetail[] = [];
+  operatingFunctionsData: DictionaryDetail[] = [];
+  proposedCMLData: DictionaryDetail[] = [];
+  psaData: DictionaryDetail[] = [];
+  remunerationTypeData: DictionaryDetail[] = [];
+  sourcingRigorData: DictionaryDetail[] = [];
+  sourcingTypeData: DictionaryDetail[] = [];
+  subsectorData: DictionaryDetail[] = [];
+  userDetails: UserDetails[] = [];
+  vendorList: VendorDetail[] = []
+
+
+    constructor(private activatedRoutes: ActivatedRoute,private dictionaryService: DictionaryService, private paperService: PaperService,public toastService:ToastService) {
     }
-  
+
     ngOnInit() {
       this.fetchPaperDetails(this.activatedRoutes.snapshot.params['id']);
       this.getPaperCommentLogs(this.activatedRoutes.snapshot.params['id']);
     }
-  
+
     fetchPaperDetails(paperId: number) {
       this.paperService.getPaperDetailsWithPreview(paperId).subscribe(value => {
         this.paperDetails = value.data;
         console.log('Paper Detail', this.paperDetails);
-  
+
         if (this.paperDetails.paperTimelineDetails) {
           this.paperTimelineDetails = this.paperDetails.paperTimelineDetails;
           console.log('paperTimelineDetails', this.paperTimelineDetails)
         }
-  
+
         if (this.paperDetails.paperDetails.riskMitigations) {
           this.riskMitigation = this.paperDetails.paperDetails.riskMitigations;
           console.log('Risk Mitigation', this.riskMitigation)
         }
-  
+
         if (this.paperDetails.paperDetails.bidInvites) {
           this.bidInvites = this.paperDetails.paperDetails.bidInvites;
           console.log('Bid Invites', this.bidInvites);
         }
-  
+
         if (this.paperDetails.paperDetails.valueDeliveries) {
           this.valueDeliveriesCostsharing = this.paperDetails.paperDetails.valueDeliveries;
           console.log('Value Delivery', this.valueDeliveriesCostsharing);
         }
-  
+
         if(this.paperDetails.paperDetails.jvApprovals )
         {
           this.jvApprovals=this.paperDetails.paperDetails.jvApprovals;
           console.log('jvApprovals ',this.jvApprovals);
         }
-  
+
         if(this.paperDetails.paperDetails.costAllocationJVApproval)
         {
           this.costAllocationJVApproval=this.paperDetails.paperDetails.costAllocationJVApproval;
@@ -89,7 +109,7 @@ export class Preview2Component {
             this.consultationsDetails=this.paperDetails.paperDetails.consultations;
             console.log('consultationsDetails ',this.consultationsDetails);
         }
-  
+
         if(this.paperDetails.paperDetails.paperDetails)
         {
               this.paperInfo=this.paperDetails.paperDetails.paperDetails;
@@ -119,15 +139,175 @@ export class Preview2Component {
               this.supplierTechnical=this.paperDetails.paperDetails.supplierTechnical;
               console.log('supplierTechnical ',this.supplierTechnical);
         }
+
+        this.loadUserDetails()
+        this.loadDictionaryItems()
+        this.loadVendoreDetails()
       })
     }
-  
-    getPaperCommentLogs(paperId: number) {
+
+  loadVendoreDetails() {
+
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+          this.vendorList = reponse.data;
+
+          if(this.contractAwardDetails &&  this.contractAwardDetails?.vendorId) {
+            const data  = this.vendorList.find(item => item.id === Number(this.contractAwardDetails?.vendorId))
+            this.contractAwardDetails = {...this.contractAwardDetails, vendorId: data?.vendorName || ""}
+          }
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  loadDictionaryItems() {
+
+    this.dictionaryService.getDictionaryItemList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const itemData = response.data;
+          if (itemData.length > 0) {
+            itemData.forEach((item) => {
+              this.loadDictionaryDetails(item.itemName);
+            });
+          }
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+
+  loadDictionaryDetails(itemName: string) {
+    this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          switch (itemName) {
+            case 'Currencies':
+              this.currenciesData = (response.data || []).filter(item => item.isActive);
+              if(this.contractAwardDetails &&  this.contractAwardDetails?.currencyCode) {
+                const data  = this.currenciesData.find(item => item.id === Number(this.contractAwardDetails?.currencyCode))
+                 this.contractAwardDetails = {...this.contractAwardDetails, currencyCode: data?.itemValue || ""}
+              }
+              break;
+
+            case 'Global CGB':
+              this.globalCGBData = (response.data || []).filter(item => item.isActive);
+              if( this.contractAwardDetails &&  this.contractAwardDetails?.globalCGB) {
+                const data  = this.globalCGBData.find(item => item.id === Number( this.contractAwardDetails?.globalCGB))
+                 this.contractAwardDetails = {... this.contractAwardDetails, globalCGB: data?.itemValue || ""}
+              }
+              break;
+
+            case 'Operating Functions':
+              this.operatingFunctionsData = (response.data || []).filter(item => item.isActive);
+              if( this.contractAwardDetails &&  this.contractAwardDetails?.operatingFunction) {
+                const data  = this.operatingFunctionsData.find(item => item.id === Number( this.contractAwardDetails?.operatingFunction))
+                 this.contractAwardDetails = {... this.contractAwardDetails, operatingFunction: data?.itemValue || ""}
+              }
+              break;
+
+            case 'Proposed CML':
+              this.proposedCMLData = (response.data || []).filter(item => item.isActive);
+              // if( this.contractAwardDetails &&  this.contractAwardDetails?.contractMgmtLevel) {
+              //   const data  = this.proposedCMLData.find(item => item.id === Number( this.contractAwardDetails?.contractMgmtLevel))
+              //    this.contractAwardDetails = {... this.contractAwardDetails, contractMgmtLevel: data?.itemValue || ""}
+              // }
+              break;
+
+            case 'PSA':
+              this.psaData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Remuneration Type':
+              this.remunerationTypeData = (response.data || []).filter(item => item.isActive);
+              if( this.contractAwardDetails &&  this.contractAwardDetails?.remunerationType) {
+                const data  = this.remunerationTypeData.find(item => item.id === Number( this.contractAwardDetails?.remunerationType))
+                 this.contractAwardDetails = {... this.contractAwardDetails, remunerationType: data?.itemValue || ""}
+              }
+              break;
+
+            case 'Sourcing Rigor':
+              this.sourcingRigorData = (response.data || []).filter(item => item.isActive);
+              // if( this.contractAwardDetails &&  this.contractAwardDetails?.sourcingRigor) {
+              //   const data  = this.sourcingRigorData.find(item => item.id === Number( this.contractAwardDetails?.sourcingRigor))
+              //    this.contractAwardDetails = {... this.contractAwardDetails, sourcingRigor: data?.itemValue || ""}
+              // }
+              break;
+
+            case 'Sourcing Type':
+              this.sourcingTypeData = (response.data || []).filter(item => item.isActive);
+              if( this.contractAwardDetails &&  this.contractAwardDetails?.sourcingType) {
+                const data  = this.sourcingTypeData.find(item => item.id === Number( this.contractAwardDetails?.sourcingType))
+                 this.contractAwardDetails = {... this.contractAwardDetails, sourcingType: data?.itemValue || ""}
+              }
+              break;
+
+            case 'Subsector':
+              this.subsectorData = (response.data || []).filter(item => item.isActive);
+              if( this.contractAwardDetails &&  this.contractAwardDetails?.subSector) {
+                const data  = this.subsectorData.find(item => item.id === Number( this.contractAwardDetails?.subSector))
+                 this.contractAwardDetails = {... this.contractAwardDetails, subSector: data?.itemValue || ""}
+              }
+              break;
+
+            default:
+              console.log('Unknown item:', itemName);
+              break;
+          }
+        }
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      }
+    });
+  }
+
+  loadUserDetails() {
+    this.userService.getUserDetailsList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.userDetails  = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
+
+          if (this.contractAwardDetails?.procurementSPAUsers) {
+            const ids =  this.contractAwardDetails.procurementSPAUsers
+              .split(',')
+              .map(id => id.trim())
+              .map(id => Number(id));
+
+            console.log("==ids", ids)
+
+            const names = ids
+              .map(id => this.userDetails.find(item => item.id === id)?.displayName)
+              .filter(name => !!name) // remove undefined/null if not found
+
+            console.log("==names",names)
+
+             this.contractAwardDetails = {
+              ... this.contractAwardDetails,
+              procurementSPAUsers: names.join(', ')
+            };
+          }
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+
+  getPaperCommentLogs(paperId: number) {
       this.paperService.getPaperCommentLogs(paperId).subscribe(value => {
         this.logs = value.data;
       })
     }
-  
+
     addPaperCommentLogs() {
       this.paperService.addPaperCommentLogs({
         paperId: this.activatedRoutes.snapshot.params['id'],
@@ -141,7 +321,7 @@ export class Preview2Component {
         this.getPaperCommentLogs(this.activatedRoutes.snapshot.params['id']);
       })
     }
-  
+
     // Data structure to hold PSA columns
     psaColumns = [
       { name: 'ACG', value: false, percentage: null as number | null, amount: null as number | null },
@@ -151,7 +331,7 @@ export class Preview2Component {
       { name: 'Sh-Asiman', value: false, percentage: null as number | null, amount: null as number | null },
       { name: 'BP Group', value: false, percentage: null as number | null, amount: null as number | null }
     ];
-  
+
     populateTableData(): void {
       // Process PSA columns from costAllocationJVApproval
       console.log('ddddd',this.costAllocationJVApproval);
@@ -175,11 +355,11 @@ export class Preview2Component {
         }
       });
     }
-  
+
     getStatusClass(index: number): string {
       const current = this.paperTimelineDetails[index];
       const previous = index > 0 ? this.paperTimelineDetails[index - 1] : null;
-  
+
       if (current.isActivityDone) {
         return 'timeline-box st-aprv position-relative'; // Approved
       } else if (previous && previous.isActivityDone) {
@@ -188,6 +368,6 @@ export class Preview2Component {
         return 'timeline-box st-pen position-relative'; // Pending
       }
     }
-  
+
 
 }
