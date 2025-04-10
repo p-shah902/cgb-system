@@ -69,7 +69,7 @@
             </div>
           </div>
         </div>
-        <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
           <div class="form-body">
             <div id="section1" class="fb-title-div ft-bg2">
               <h4>1. General Information</h4>

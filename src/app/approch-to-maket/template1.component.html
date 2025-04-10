@@ -67,7 +67,7 @@
           <div id="section1" class="fb-title-div">
             <h4>1. General Information</h4>
           </div>
-          <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
+          <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
             <div class="fb-form" formGroupName="generalInfo">
               <div class="row">
                 <div class="col-md-12">

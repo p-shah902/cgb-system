@@ -65,6 +65,7 @@ export class Template1Component {
   minEndDate: string = '';
   submitted = false;
   paperStatusId: number | null = null;
+  currentPaperStatus: string | null = null;
   paperId: string | null = null;
   isCopy = false;
   paperStatusList: PaperStatusType[] = [];
@@ -1120,7 +1121,7 @@ export class Template1Component {
         this.fb.group({
           legalName: ['', Validators.required],
           isLocalOrJV: [false], // Checkbox
-          countryId: ['', Validators.required],
+          countryId: [null, Validators.required],
           parentCompanyName: [''],
           remarks: [''],
           id: [0]
@@ -1193,6 +1194,7 @@ export class Template1Component {
     if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
 
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
+    this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
@@ -1267,18 +1269,18 @@ export class Template1Component {
         operatingFunction: generalInfoValue?.operatingFunction,
         subSector: generalInfoValue?.subSector,
         sourcingType: generalInfoValue?.sourcingType,
-        camUserId: generalInfoValue?.camUserId || "",
-        vP1UserId: generalInfoValue?.vP1UserId || "",
+        camUserId: generalInfoValue?.camUserId || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
         procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
-        pdManagerName: generalInfoValue?.pdManagerName || "",
+        pdManagerName: generalInfoValue?.pdManagerName || null,
         isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
         totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
-        currencyCode: generalInfoValue?.originalCurrency || "",
+        currencyCode: generalInfoValue?.originalCurrency || null,
         exchangeRate: generalInfoValue?.exchangeRate,
         contractValue: generalInfoValue?.contractValueOriginalCurrency,
-        contractStartDate: generalInfoValue?.contractStartDate,
-        contractEndDate: generalInfoValue?.contractEndDate,
+        contractStartDate: generalInfoValue?.contractStartDate || null,
+        contractEndDate: generalInfoValue?.contractEndDate || null,
         isLTCC: generalInfoValue?.isLTCC || false,
         ltccNotes: generalInfoValue?.ltccNotes,
         isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
@@ -1293,8 +1295,8 @@ export class Template1Component {
         sourcingRigor: procurementValue?.sourcingRigor,
         sourcingStrategy: procurementValue?.sourcingStrategy,
         singleSourceJustification: procurementValue?.singleSourceJustification,
-        socaRsentOn: procurementValue?.socaRsentOn,
-        socaRreceivedOn: procurementValue?.socaRreceivedOn,
+        socaRsentOn: procurementValue?.socaRsentOn || null,
+        socaRreceivedOn: procurementValue?.socaRreceivedOn || null,
         socarDescription: procurementValue?.socarDescription,
         preQualificationResult: procurementValue?.preQualificationResult,
       },
@@ -1333,35 +1335,43 @@ export class Template1Component {
       }
     }
 
-    if (this.generalInfoForm.valid) {
+    console.log("IS Valid Form", this.generalInfoForm.valid)
+    console.log("==currentPaperStatus", this.currentPaperStatus)
+    if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
       const isPassedCheck = this.checkThreshold(generalInfoValue?.contractValueUsd || 0, Number(generalInfoValue?.sourcingType || 0))
       if (!isPassedCheck) {
         this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
         return;
       }
-      this.paperService.upsertApproachToMarkets(params).subscribe({
-        next: (response) => {
-          if (response.status && response.data) {
-            const docId = response.data || null
-            this.uploadFiles(docId)
-            this.generalInfoForm.reset();
-            this.submitted = false;
-            this.toastService.show(response.message || "Added Successfully", 'success');
-            setTimeout(() => {
-              this.router.navigate(['/all-papers']);
-            }, 2000);
-          } else {
-            this.toastService.show(response.message || "Something went wrong.", 'danger');
-          }
-        },
-        error: (error) => {
-          console.log('Error', error);
-          this.toastService.show("Something went wrong.", 'danger');
-        },
-      });
-    } else {
-      console.log("Form is invalid");
+
+      this.generatePaper(params)
+
+    } else if (this.currentPaperStatus === "Draft") {
+      this.generatePaper(params)
     }
+  }
+
+  generatePaper(params: any) {
+    this.paperService.upsertApproachToMarkets(params).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const docId = response.data || null
+          this.uploadFiles(docId)
+          this.generalInfoForm.reset();
+          this.submitted = false;
+          this.toastService.show(response.message || "Added Successfully", 'success');
+          setTimeout(() => {
+            this.router.navigate(['/all-papers']);
+          }, 2000);
+        } else {
+          this.toastService.show(response.message || "Something went wrong.", 'danger');
+        }
+      },
+      error: (error) => {
+        console.log('Error', error);
+        this.toastService.show("Something went wrong.", 'danger');
+      },
+    });
   }
 
   checkThreshold(value: number, type: number) {
