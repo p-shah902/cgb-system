@@ -158,7 +158,7 @@ export class PaperListComponent implements OnInit {
       label: 'Contract Award',
     },
     {
-      value: '/contract-variation-or-amendment-approval',
+      value: '/contract-variation',
       label: 'Variation Paper',
     },
     {

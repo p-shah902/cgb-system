@@ -38,7 +38,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'contract-variation/i:d',
+    path: 'contract-variation/:id',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
   },

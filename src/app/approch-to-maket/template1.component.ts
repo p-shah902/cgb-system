@@ -42,6 +42,7 @@ import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../service/auth.service';
 import { ThresholdService } from '../../service/threshold.service';
 import { ThresholdType } from '../../models/threshold';
+import { cleanObject } from '../../utils';
 
 @Component({
   selector: 'app-template1',
@@ -1252,6 +1253,18 @@ export class Template1Component {
       })
       .filter(item => item !== null);
 
+
+    const mitigationList = procurementValue.riskMitigation || []
+    const bidList = procurementValue.inviteToBid || []
+
+    const filteredRisks = mitigationList.filter((row: any) =>
+      row.risks?.trim() !== '' && row.mitigations?.trim() !== ''
+    );
+
+    const filteredBids = bidList.filter((row: any) =>
+      row.countryId?.trim() !== '' && row.legalName?.trim() !== ''
+    );
+
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
@@ -1300,9 +1313,9 @@ export class Template1Component {
         socarDescription: procurementValue?.socarDescription,
         preQualificationResult: procurementValue?.preQualificationResult,
       },
-      consultations: consultationsValue,
-      bidInvite: procurementValue.inviteToBid,
-      riskMitigation: procurementValue.riskMitigation,
+      consultations: consultationsValue || [],
+      bidInvite: filteredBids || [],
+      riskMitigation: filteredRisks || [],
       valueDeliveriesCostSharings: {
         costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
         costReductionValue: valueDeliveryValues?.costReductionValue || 0,
@@ -1318,9 +1331,8 @@ export class Template1Component {
         variableOpexMethodology: costSharingValues.variableOpexMethodology || "",
         inventoryItemsMethodology: costSharingValues.inventoryItemsMethodology || "",
       },
-      costAllocationJVApproval: costAllocationJVApproval,
+      costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
-        // ...costAllocationValues,
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
         contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,
         contractCommittee_SCP_Co_CCInfoNote: costAllocationValues?.contractCommittee_SCP_Co_CCInfoNote || false,
@@ -1347,7 +1359,9 @@ export class Template1Component {
       this.generatePaper(params)
 
     } else if (this.currentPaperStatus === "Draft") {
-      this.generatePaper(params)
+      const updatedParams = cleanObject(params);
+
+      this.generatePaper(updatedParams)
     }
   }
 
