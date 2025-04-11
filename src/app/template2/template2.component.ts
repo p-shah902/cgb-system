@@ -41,6 +41,7 @@ import {AuthService} from '../../service/auth.service';
 import {ThresholdService} from '../../service/threshold.service';
 import {ThresholdType} from '../../models/threshold';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {cleanObject} from '../../utils/index';
 
 @Component({
   selector: 'app-template2',
@@ -70,6 +71,7 @@ export class Template2Component {
   submitted = false;
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
+  currentPaperStatus: string | null = null;
   paperDetails: any = null
   vendorList: VendorDetail[] = []
   userDetails: UserDetails[] = [];
@@ -186,7 +188,7 @@ export class Template2Component {
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
         cgbAtmRefNo: [{ value: '', disabled: true }],
-        cgbApprovalDate: [{value: '', disabled: true}],
+        cgbApprovalDate: [{value: null, disabled: true}],
         isChangeinApproachMarket: [false],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: null, disabled: true}],
@@ -405,7 +407,7 @@ export class Template2Component {
           generalInfo: {
             paperProvision: contractAwardDetails?.paperProvision || "",
             cgbAtmRefNo: contractAwardDetails?.cgbAtmRefNo || "",
-            cgbApprovalDate: contractAwardDetails?.cgbApprovalDate || "",
+            cgbApprovalDate: contractAwardDetails?.cgbApprovalDate || null,
             isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket || "",
             cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
             cgbCirculationDate: contractAwardDetails?.cgbCirculationDate
@@ -503,7 +505,6 @@ export class Template2Component {
         this.addRow(true);
         this.addSupplierTechnicalnRow(true);
         this.addBidRow(true);
-        this.addConsultationRow(true);
         this.addConsultationRow(true);
         this.addCommericalEvaluationRow(true)
         this.setupPSAListeners()
@@ -1081,6 +1082,8 @@ export class Template2Component {
     if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
 
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
+    this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
+
     if (callAPI && this.paperId) {
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
@@ -1140,6 +1143,24 @@ export class Template2Component {
       })
       .filter(item => item !== null);
 
+    const filteredRisks = this.riskMitigation.controls
+      .filter(group => group.valid)
+      .map(group => group.value);
+
+
+    const filteredBids = this.inviteToBid.controls
+      .filter(group => group.valid)
+      .map(group => group.value);
+
+    const filterSupplierTechnical = this.supplierTechnical.controls
+      .filter(group => group.valid)
+      .map(group => group.value);
+
+    const filterCommericalEvaluation = this.commericalEvaluation.controls
+      .filter(group => group.valid)
+      .map(group => group.value);
+
+
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
@@ -1168,10 +1189,10 @@ export class Template2Component {
         psajv: generalInfoValue?.psajv?.join(',') || "",
         procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
       },
-      consultations: consultationsValue,
-      riskMitigation: additionalDetailsValue.riskMitigation,
-      commericalEvaluation: evaluationSummaryValue.commericalEvaluation,
-      supplierTechnical: evaluationSummaryValue.supplierTechnical,
+      consultations: consultationsValue || [],
+      riskMitigation: filteredRisks || [],
+      commericalEvaluation: filterCommericalEvaluation || [],
+      supplierTechnical: filterSupplierTechnical || [],
       valueDeliveriesCostSharings: {
         costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
         costReductionValue: valueDeliveryValues?.costReductionValue || 0,
@@ -1187,7 +1208,7 @@ export class Template2Component {
         variableOpexMethodology: costSharingValues.variableOpexMethodology || "",
         inventoryItemsMethodology: costSharingValues.inventoryItemsMethodology || "",
       },
-      costAllocationJVApproval: costAllocationJVApproval,
+      costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
         // ...costAllocationValues,
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
@@ -1202,43 +1223,49 @@ export class Template2Component {
         coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
         steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
       },
-      legalEntitiesAwarded: procurementValue.legalEntitiesAwarded || []
+      legalEntitiesAwarded: filteredBids || []
     }
 
-    if (this.generalInfoForm.valid) {
+    if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
       const isPassedCheck = this.checkThreshold(generalInfoValue?.totalAwardValueUSD || 0, Number(generalInfoValue?.sourcingType || 0))
-      if(!isPassedCheck) {
+      if (!isPassedCheck) {
         this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
         return;
       }
-      this.paperService.upsertContractAward(params).subscribe({
-        next: (response) => {
-          if (response.status && response.data) {
-            this.generalInfoForm.reset();
-            this.submitted = false;
-            this.toastService.show(response.message || "Added Successfully", 'success');
-            setTimeout(() => {
-              this.router.navigate(['/paperconfiguration']);
-            }, 2000);
-          } else {
-            this.toastService.show(response.message || "Something went wrong.", 'danger');
-          }
-        },
-        error: (error) => {
-          console.log('Error', error);
-          this.toastService.show("Something went wrong.", 'danger');
-        },
-      });
-    } else {
-      console.log("Form is invalid");
+
+      this.generatePaper(params)
+
+    } else if (this.currentPaperStatus === "Draft") {
+      const updatedParams = cleanObject(params);
+
+      this.generatePaper(updatedParams)
     }
   }
 
+  generatePaper(params: any) {
+    this.paperService.upsertContractAward(params).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.generalInfoForm.reset();
+          this.submitted = false;
+          this.toastService.show(response.message || "Added Successfully", 'success');
+          setTimeout(() => {
+            this.router.navigate(['/paperconfiguration']);
+          }, 2000);
+        } else {
+          this.toastService.show(response.message || "Something went wrong.", 'danger');
+        }
+      },
+      error: (error) => {
+        console.log('Error', error);
+        this.toastService.show("Something went wrong.", 'danger');
+      },
+    });
+  }
+
   checkThreshold(value: number, type: number) {
-    console.log("==value", value,type)
     if (this.thresholdData && this.thresholdData.length > 0) {
       const data = this.thresholdData.find(item => item.paperType === "Contract Award" && item.sourcingType === type)
-      console.log("==data.contractValueLimit",data?.contractValueLimit)
       return !(data && data.contractValueLimit > value);
     } else {
       return true

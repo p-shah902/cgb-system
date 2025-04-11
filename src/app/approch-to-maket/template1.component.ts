@@ -1254,16 +1254,14 @@ export class Template1Component {
       .filter(item => item !== null);
 
 
-    const mitigationList = procurementValue.riskMitigation || []
-    const bidList = procurementValue.inviteToBid || []
+    const filteredRisks = this.riskMitigation.controls
+      .filter(group => group.valid)
+      .map(group => group.value);
 
-    const filteredRisks = mitigationList.filter((row: any) =>
-      row.risks?.trim() !== '' && row.mitigations?.trim() !== ''
-    );
 
-    const filteredBids = bidList.filter((row: any) =>
-      row.countryId?.trim() !== '' && row.legalName?.trim() !== ''
-    );
+    const filteredBids = this.inviteToBid.controls
+      .filter(group => group.valid)
+      .map(group => group.value); // only include valid rows
 
     const params = {
       papers: {
@@ -1347,8 +1345,6 @@ export class Template1Component {
       }
     }
 
-    console.log("IS Valid Form", this.generalInfoForm.valid)
-    console.log("==currentPaperStatus", this.currentPaperStatus)
     if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
       const isPassedCheck = this.checkThreshold(generalInfoValue?.contractValueUsd || 0, Number(generalInfoValue?.sourcingType || 0))
       if (!isPassedCheck) {
