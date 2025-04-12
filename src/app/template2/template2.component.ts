@@ -1250,8 +1250,8 @@ export class Template2Component {
           this.submitted = false;
           this.toastService.show(response.message || "Added Successfully", 'success');
           setTimeout(() => {
-            this.router.navigate(['/paperconfiguration']);
-          }, 2000);
+            this.router.navigate(['/all-papers']);
+          }, 1000);
         } else {
           this.toastService.show(response.message || "Something went wrong.", 'danger');
         }
