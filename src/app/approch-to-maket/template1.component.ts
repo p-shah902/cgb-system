@@ -83,7 +83,7 @@ export class Template1Component {
   sourcingRigorData: DictionaryDetail[] = [];
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
-
+  isShowJustification = true
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
@@ -262,7 +262,7 @@ export class Template1Component {
     });
 
     // Initialize with one row to prevent errors
-    this.addRow();
+    // this.addRow();
     this.addBidRow();
     // Subscribe to changes in originalCurrency or contractValueUsd
     this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
@@ -288,7 +288,8 @@ export class Template1Component {
     this.setupMethodologyListeners()
     this.setupPSACalculations()
     this.onLTCCChange()
-    this.alignGovChange()
+    // this.alignGovChange()
+    this.onSourcingTypeChange()
     this.conflictIntrestChanges()
 
   }
@@ -333,6 +334,14 @@ export class Template1Component {
       this.generalInfoForm.get('generalInfo.ltccNotes')?.updateValueAndValidity(); // Refresh validation
     });
   }
+
+  onSourcingTypeChange() {
+    this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe((value) => {
+      const selectedType = this.sourcingTypeData.find(item => item.id === Number(value));
+      this.isShowJustification = !selectedType || selectedType.itemValue !== "Competitive Bid";
+    });
+  }
+
 
   loadDictionaryItems() {
 
@@ -1064,16 +1073,18 @@ export class Template1Component {
       const riskMitigationArray = this.riskMitigation;
       riskMitigationArray.clear(); // Clear existing controls
 
-      riskMitigationsData.forEach((item, index) => {
-        riskMitigationArray.push(
-          this.fb.group({
-            srNo: item.srNo || this.generateId(index), // Use API value or generate ID
-            risks: [item.risks || '', Validators.required],
-            mitigations: [item.mitigations || '', Validators.required],
-            id: [item.id]
-          })
-        );
-      });
+      if(riskMitigationsData.length > 0){
+        riskMitigationsData.forEach((item, index) => {
+          riskMitigationArray.push(
+            this.fb.group({
+              srNo: item.srNo || this.generateId(index), // Use API value or generate ID
+              risks: [item.risks || '', Validators.required],
+              mitigations: [item.mitigations || '', Validators.required],
+              id: [item.id]
+            })
+          );
+        });
+      }
     } else {
       this.riskMitigation.push(
         this.fb.group({
@@ -1358,6 +1369,8 @@ export class Template1Component {
       const updatedParams = cleanObject(params);
 
       this.generatePaper(updatedParams)
+    } else if (!this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
+      this.toastService.show("Please fill all mandatory fields", "danger")
     }
   }
 
