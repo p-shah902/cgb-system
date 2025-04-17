@@ -97,6 +97,7 @@ export class Template2Component {
   reviewBy: string = '';
   private readonly _mdlSvc = inject(NgbModal);
   thresholdData: ThresholdType[] = []
+  isShowBenchmarking = true
 
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
@@ -152,7 +153,7 @@ export class Template2Component {
     this.loadPaperStatusListData();
     this.loadVendoreDetails()
     this.onLTCCChange()
-    this.alignGovChange()
+    // this.alignGovChange()
     this.conflictIntrestChanges()
     this.restrospectiveChanges()
     this.addRow()
@@ -194,7 +195,7 @@ export class Template2Component {
         cgbCirculationDate: [{value: null, disabled: true}],
         contractNo: [''],
         contactNo: [''],
-        vendorId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        vendorId: [null],
         purposeRequired: ['', Validators.required],
         globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -221,7 +222,7 @@ export class Template2Component {
         isSplitAward: [false],
         psajv: [[], Validators.required],
         isLTCC: [false],
-        ltccNotes: [''],
+        ltccNotes: [{ value: '', disabled: true }],
         isGovtReprAligned: [false],
         govtReprAlignedComment: [''],
         contractSpendCommitment: [''],
@@ -512,6 +513,12 @@ export class Template2Component {
     })
   }
 
+  onSourcingTypeChange() {
+    this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe((value) => {
+      const selectedType = this.sourcingTypeData.find(item => item.id === Number(value));
+      this.isShowBenchmarking = !selectedType || selectedType.itemValue !== "Competitive Bid";
+    });
+  }
 
   get generalInfo() {
     return this.generalInfoForm.get('generalInfo');
@@ -1044,15 +1051,19 @@ export class Template2Component {
     });
   }
 
-
   onLTCCChange() {
     this.generalInfoForm.get('generalInfo.isLTCC')?.valueChanges.subscribe((value) => {
+      const ltccNotesControl = this.generalInfoForm.get('generalInfo.ltccNotes');
+
       if (value === true) {
-        this.generalInfoForm.get('generalInfo.ltccNotes')?.setValidators([Validators.required]);
+        ltccNotesControl?.setValidators([Validators.required]);
+        ltccNotesControl?.enable();
       } else {
-        this.generalInfoForm.get('generalInfo.ltccNotes')?.clearValidators();
+        ltccNotesControl?.clearValidators();
+        ltccNotesControl?.disable(); // <- disables the field
       }
-      this.generalInfoForm.get('generalInfo.ltccNotes')?.updateValueAndValidity(); // Refresh validation
+
+      ltccNotesControl?.updateValueAndValidity();
     });
   }
 
