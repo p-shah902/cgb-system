@@ -138,6 +138,11 @@ export class Template1Component {
             this.getPaperCommentLogs(Number(this.paperId));
           } else {
             this.isExpanded = false;
+            if(!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
+              setTimeout(() => {
+                this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue([this.loggedInUser?.id || null]);
+              }, 1000)
+            }
           }
           console.log('Paper ID:', this.paperId);
         });
@@ -154,6 +159,12 @@ export class Template1Component {
     this.loadPaperStatusListData();
     this.loadThresholdData()
 
+    let camId = null
+
+    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+      camId = this.loggedInUser?.id || null
+    }
+
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
@@ -166,7 +177,7 @@ export class Template1Component {
         operatingFunction: ['', Validators.required],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        camUserId: [camId, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
@@ -281,6 +292,10 @@ export class Template1Component {
       this.addConsultationRow(false, true);
     });
 
+    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+      this.addConsultationRow(false, true);
+    }
+
     // Watch changes on enable/disable Methodology
 
 
@@ -291,7 +306,11 @@ export class Template1Component {
     // this.alignGovChange()
     this.onSourcingTypeChange()
     this.conflictIntrestChanges()
-
+    if(!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
+      setTimeout(() => {
+        this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue([this.loggedInUser?.id || null]);
+      }, 1000)
+    }
   }
 
   getPaperCommentLogs(paperId: number) {
