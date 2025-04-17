@@ -123,7 +123,7 @@
 
                 </div>
 
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
                     <select id="globalCGB" class="form-control allow-comments" formControlName="globalCGB">
@@ -139,7 +139,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
                     <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
@@ -155,7 +155,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
                     <select id="operatingFunction" class="form-control allow-comments"
@@ -173,7 +173,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
                     <select id="subSector" class="form-control allow-comments" formControlName="subSector">
@@ -189,7 +189,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Sourcing Type*</label>
                     <select id="sourcingType" class="form-control allow-comments" formControlName="sourcingType">
@@ -206,7 +206,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager*</label>
 
@@ -224,8 +224,19 @@
                     </div>
                   </div>
                 </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Procurement SPA*</label>
+                    <ng-select2 id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
+                                [data]="procurementTagUsers" multiple></ng-select2>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
 
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>VP-1* </label>
                     <select id="vP1UserId" class="form-control allow-comments" formControlName="vP1UserId">
@@ -241,18 +252,8 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
-                    <ng-select2 id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
-                                [data]="procurementTagUsers" multiple></ng-select2>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
+
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PDM*</label>
                     <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
