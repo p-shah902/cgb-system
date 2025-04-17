@@ -84,6 +84,7 @@ export class Template1Component {
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
   isShowJustification = true
+  isShowBoxSection = false
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
@@ -192,7 +193,7 @@ export class Template1Component {
         isPHCA: [null],
         psajv: [[], Validators.required],
         isLTCC: [null],
-        ltccNotes: [''],
+        ltccNotes: [{ value: '', disabled: true }],
         isGovtReprAligned: [null],
         govtReprAlignedComment: [''],
         isConflictOfInterest: [null],
@@ -264,10 +265,10 @@ export class Template1Component {
         isFixOpex: [false],
         isVariableOpex: [false],
         isInventoryItems: [false],
-        capexMethodology: [{ value: '', disabled: true }],
-        fixOpexMethodology: [{ value: '', disabled: true }],
-        variableOpexMethodology: [{ value: '', disabled: true }],
-        inventoryItemsMethodology: [{ value: '', disabled: true }]
+        capexMethodology: [''],
+        fixOpexMethodology: [''],
+        variableOpexMethodology: [''],
+        inventoryItemsMethodology: ['']
       }),
       consultation: this.fb.array([]),
     });
@@ -285,16 +286,12 @@ export class Template1Component {
     });
 
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
-      this.onSelectChange();
+      this.onSelectChangePSAJV();
     });
 
-    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
-      this.addConsultationRow(false, true);
-    });
-
-    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
-      this.addConsultationRow(false, true);
-    }
+    // this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
+    //   this.addConsultationRow(false, true);
+    // });
 
     // Watch changes on enable/disable Methodology
 
@@ -345,14 +342,22 @@ export class Template1Component {
 
   onLTCCChange() {
     this.generalInfoForm.get('generalInfo.isLTCC')?.valueChanges.subscribe((value) => {
+      const ltccNotesControl = this.generalInfoForm.get('generalInfo.ltccNotes');
+
       if (value === true) {
-        this.generalInfoForm.get('generalInfo.ltccNotes')?.setValidators([Validators.required]);
+        ltccNotesControl?.setValidators([Validators.required]);
+        ltccNotesControl?.enable();
+        this.isShowBoxSection= true
       } else {
-        this.generalInfoForm.get('generalInfo.ltccNotes')?.clearValidators();
+        ltccNotesControl?.clearValidators();
+        ltccNotesControl?.disable(); // <- disables the field
+        this.isShowBoxSection= false
       }
-      this.generalInfoForm.get('generalInfo.ltccNotes')?.updateValueAndValidity(); // Refresh validation
+
+      ltccNotesControl?.updateValueAndValidity();
     });
   }
+
 
   onSourcingTypeChange() {
     this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe((value) => {
@@ -726,8 +731,7 @@ export class Template1Component {
     });
   }
 
-  onSelectChange() {
-
+  onSelectChangePSAJV() {
     const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
 
     const costAllocationControl = this.generalInfoForm.get('costAllocation');
@@ -745,6 +749,9 @@ export class Template1Component {
         const controlName = mapping[key];
         const isSelected = selectedOptions.includes(key);
         costAllocationControl.get(controlName)?.setValue(isSelected);
+        if(isSelected) {
+          this.addConsultationRowOnChangePSAJV(key)
+        }
       });
     }
 
@@ -985,18 +992,26 @@ export class Template1Component {
     ];
 
     controls.forEach(({ checkbox, methodology }) => {
-      this.generalInfoForm.get(`costSharing.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
-        const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
+      const checkboxControl = this.generalInfoForm.get(`costSharing.${checkbox}`);
+      const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
 
-        if (isChecked) {
-          methodControl?.enable();
-        } else {
-          methodControl?.reset(); // Clears value and sets it to default (empty string in your case)
-          methodControl?.disable();
-        }
+      // Disable the checkbox so users can't manually change it
+      checkboxControl?.disable({ emitEvent: false });
+
+      // Set initial state based on methodology value
+      const initialHasValue = !!methodControl?.value;
+      checkboxControl?.setValue(initialHasValue, { emitEvent: false });
+
+      // 🔁 Watch for value changes on methodology field
+      methodControl?.valueChanges.subscribe((value) => {
+        const hasValue = value !== null && value !== undefined && value !== '';
+        console.log("==hasValue", hasValue)
+        checkboxControl?.setValue(hasValue, { emitEvent: false });
       });
     });
   }
+
+
 
 
   updateExchangeRate() {
@@ -1118,9 +1133,7 @@ export class Template1Component {
 
   // Remove a risk row
   removeRow(index: number) {
-    if (this.riskMitigation.length > 1) {
       this.riskMitigation.removeAt(index);
-    }
   }
 
   // Generate ID dynamically (001, 002, etc.)
@@ -1167,6 +1180,32 @@ export class Template1Component {
     if (this.inviteToBid.length > 1) {
       this.inviteToBid.removeAt(index);
     }
+  }
+
+  addConsultationRowOnChangePSAJV(jvValue: string) {
+    // Check if the JV value already exists in the rows
+    const alreadyExists = this.consultationRows.controls.some(group =>
+      group.get('psa')?.value === jvValue
+    );
+
+    if (alreadyExists) {
+      return; // Skip adding duplicate
+    }
+
+    const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
+
+    this.consultationRows.push(
+      this.fb.group({
+        psa: [jvValue, Validators.required],
+        technicalCorrect: [
+          { value: camUserId ? Number(camUserId) : null, disabled: false },
+          Validators.required
+        ],
+        budgetStatement: [null, Validators.required],
+        jvReview: [null, Validators.required],
+        id: [0]
+      })
+    );
   }
 
   addConsultationRow(isFirst = false, isChangedCamUser = false) {

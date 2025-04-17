@@ -348,7 +348,18 @@
                   </div>
                 </div>
 
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV *</label>
+                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
+                                multiple></ng-select2>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3 allow-comments" id="isPHCA">
                     <label>PHCA </label>
                     <div class="form-radio d-flex gap-3">
@@ -360,25 +371,6 @@
                         <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="false">
                         <label>No</label>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-6">
-                  <!--                  <div class="form-group mb-3">-->
-                  <!--                    <label>PSA/JV</label>-->
-                  <!--                    <select class="form-control" formControlName="psajv" multiple (change)="onSelectChange($event)">-->
-                  <!--                      <option *ngFor="let option of psaJvOptions" [value]="option">-->
-                  <!--                        {{ option }}-->
-                  <!--                      </option>-->
-                  <!--                    </select>-->
-                  <!--                  </div>-->
-
-                  <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
-                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
-                                multiple></ng-select2>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -405,6 +397,23 @@
                               formControlName="ltccNotes"></textarea>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="isShowBoxSection" class="col-md-12">
+                  <div class="form-group mb-3">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative">
+                        <input id="isIFRS16" class="allow-comments" type="checkbox" name="isIFRS16"
+                               formControlName="isIFRS16">
+                        <label>IFRS16 Impact Compliance</label>
+                      </div>
+                      <div class="form-check-box position-relative">
+                        <input id="isGIAAPCheck" class="allow-comments" type="checkbox" name="isGIAAPCheck"
+                               formControlName="isGIAAPCheck">
+                        <label>GIAAP Compliance Check</label>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -436,22 +445,7 @@
 <!--                    </div>-->
                   </div>
                 </div>
-                <div class="col-md-12">
-                  <div class="form-group mb-3">
-                    <div class="form-check-list d-flex gap-3 flex-wrap">
-                      <div class="form-check-box position-relative">
-                        <input id="isIFRS16" class="allow-comments" type="checkbox" name="isIFRS16"
-                               formControlName="isIFRS16">
-                        <label>IFRS16 Impact Compliance</label>
-                      </div>
-                      <div class="form-check-box position-relative">
-                        <input id="isGIAAPCheck" class="allow-comments" type="checkbox" name="isGIAAPCheck"
-                               formControlName="isGIAAPCheck">
-                        <label>GIAAP Compliance Check</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
                 <div class="col-sm-6 col-md-6 mt-3">
                   <div class="form-group mb-3">
                     <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
@@ -575,17 +569,15 @@
                           <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
                             <td>{{ generateId(i) }}</td>
                             <td>
-                              <input type="text" class="form-control border-0 p-0 shadow-none"
+                              <input type="text" class="form-control"
                                      placeholder="Enter here" formControlName="risks"/>
-                            </td>
                             <td>
-                              <input type="text" class="form-control border-0 p-0 shadow-none"
+                              <input type="text" class="form-control"
                                      placeholder="Enter here" formControlName="mitigations"/>
                             </td>
                             <td>
                               <div class="krt-action">
-                                <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)"
-                                        [disabled]="riskMitigation.length <= 1">
+                                <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)">
                                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                        xmlns="http://www.w3.org/2000/svg">
                                     <path
@@ -939,64 +931,86 @@
                   <tr>
                     <td><b>As%</b></td>
                     <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" min="0"
-                             max="100" type="number" placeholder="%" formControlName="percentage_isACG">
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
+                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" min="0"
+                               max="100" type="number" placeholder="%" formControlName="percentage_isACG">
+                      </div>
+                    </td>
+                    <td> <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah"></div>
                     </td>
                     <td>
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
                       <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah">
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP"></div>
                     </td>
                     <td>
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
                       <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP">
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC"></div>
                     </td>
                     <td>
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
                       <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC">
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman"></div>
                     </td>
                     <td>
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
                       <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman">
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup"></div>
                     </td>
                     <td>
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
                       <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup">
-                    </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage">
+                             placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage"></div>
                     </td>
                   </tr>
 
                   <tr>
                     <td><b>By value $</b></td>
                     <td>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isACG" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
-                    <td>
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isShah" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
-                    <td>
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isSCP" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
-                    <td>
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isBTC" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
-                    <td>
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isAsiman" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
-                    <td>
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isBPGroup" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
-                    <td>
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
                       <input readonly formControlName="totalValue" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00">
+                             class="form-control p-1 w-auto" placeholder="0.00"></div>
                     </td>
 
                   </tr>
@@ -1547,10 +1561,11 @@
                       </td>
                       <td>
                         <div class="krt-action">
-                          <button type="button" class="btn btn-outline-danger" (click)="removeConsultationRow(i)">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <button class="btn p-0" type="button" (click)="removeConsultationRow(i)">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
                               <path
-                                d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659Z"
+                                d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
                                 fill="#EC4747"/>
                             </svg>
                           </button>
