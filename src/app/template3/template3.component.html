@@ -27,9 +27,9 @@
                     <option value="section4">4. Contract Values ($)</option>
                     <option value="section5">5. CDD (Counterparty Due Diligence)</option>
                     <option value="section6">6. Value Delivery</option>
-                    <option value="section7">6. JV Approval</option>
-                    <option value="section8">7. APPENDIX: Cost Allocation and PSA Approval</option>
-                    <option value="section9">8. Consultation</option>
+                    <option value="section7">7. JV Approval</option>
+                    <option value="section8">8. APPENDIX: Cost Allocation and PSA Approval</option>
+                    <option value="section9">9. Consultation</option>
                   </select>
                 </div>
                 <div class="fh-search">
@@ -1089,381 +1089,56 @@
             <div id="section8" class="fb-title-div ft-bg3">
               <h4>8. APPENDIX: Cost Allocation and PSA Approval</h4>
             </div>
-            <div class="fb-form">
-              <div class="mb-4">
-                <h6 class="mb-3"><b>Original Value</b></h6>
-                <div class="cost-table-div custom-table table-responsive">
-                  <table class="table table-bordered">
-                    <tbody>
-                    <tr>
-                      <td>
-                        <b>PSA</b>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>ACG</label>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Shah
-                              Deniz</label>
-                          </div>
+            <div *ngFor="let group of allowedGroups">
+              <h6 class="mb-3"><b>{{ group.label }}</b></h6>
 
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>SCP</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BTC</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Sh-Asiman</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BP
-                              Group</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td class="text-center">
-                        <b>Total</b>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><b>As%</b></td>
-                      <td class="text-center">%</td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                    </tr>
-                    <tr>
-                      <td><b>By value $%</b></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <h6 class="mb-3"><b>Previous Value</b></h6>
-                <div class="cost-table-div custom-table table-responsive">
-                  <table class="table table-bordered">
-                    <tbody>
-                    <tr>
-                      <td>
-                        <b>PSA</b>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>ACG</label>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Shah
-                              Deniz</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>SCP</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BTC</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Sh-Asiman</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BP
-                              Group</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td class="text-center">
-                        <b>Total</b>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><b>As%</b></td>
-                      <td class="text-center">%</td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                    </tr>
-                    <tr>
-                      <td><b>By value $%</b></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="mb-4">
-                <h6 class="mb-3"><b>This Value</b></h6>
-                <div class="cost-table-div custom-table table-responsive">
-                  <table class="table table-bordered">
-                    <tbody>
-                    <tr>
-                      <td>
-                        <b>PSA</b>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>ACG</label>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Shah
-                              Deniz</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>SCP</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BTC</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Sh-Asiman</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BP
-                              Group</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td class="text-center">
-                        <b>Total</b>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><b>As%</b></td>
-                      <td class="text-center">%</td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                    </tr>
-                    <tr>
-                      <td><b>By value $%</b></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              <div class="mb-4">
-                <h6 class="mb-3"><b>Revised Value</b></h6>
-                <div class="cost-table-div custom-table table-responsive">
-                  <table class="table table-bordered">
-                    <tbody>
-                    <tr>
-                      <td>
-                        <b>PSA</b>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>ACG</label>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Shah
-                              Deniz</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>SCP</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BTC</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>Sh-Asiman</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox">
-                            <label>BP
-                              Group</label>
-                          </div>
-
-                        </div>
-                      </td>
-                      <td class="text-center">
-                        <b>Total</b>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><b>As%</b></td>
-                      <td class="text-center">%</td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                      <td class="text-center"><span class="text-secondary">%</span></td>
-                    </tr>
-                    <tr>
-                      <td><b>By value $%</b></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div class="cost-table-div custom-table table-responsive" [formGroup]="getGroupForm(group.key)">
+                <table class="table table-bordered">
+                  <thead>
+                  <tr>
+                    <th>PSA</th>
+                    <th *ngFor="let psa of psaItems"><input type="checkbox" [formControlName]="psa.control"> {{" "}}{{ psa.psaName }} </th>
+                    <th>Total</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <td><b>As%</b></td>
+                    <td *ngFor="let psa of psaItems">
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
+                        <input type="number" class="form-control p-1 w-auto"
+                               [formControlName]="psa.percentage" min="0" max="100">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
+                        <input type="number" class="form-control p-1 w-auto" formControlName="totalPercentage">
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><b>By value $%</b></td>
+                    <td *ngFor="let psa of psaItems">
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control p-1 w-auto"
+                               [formControlName]="psa.value">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" class="form-control p-1 w-auto" formControlName="totalValue">
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
+
 
 
             <div id="section9" class="fb-title-div ft-bg3">

@@ -299,3 +299,14 @@ export interface CommericalEvaluation{
   legalName:string,
   totalValue:number,
 }
+
+export type AllowedValueType = "Original Value" | "Previous Value" | "This Value" | "Revised Value";
+
+export interface PSAEntry {
+  id: number;
+  paperType: string;
+  psaName: string;
+  psaValue: boolean;
+  percentage: number;
+  value: number;
+}

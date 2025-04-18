@@ -24,7 +24,7 @@ import {LoginUser, UserDetails} from '../../models/user';
 import {UserService} from '../../service/user.service';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
-import {PaperStatusType} from '../../models/paper';
+import {PaperStatusType, PSAEntry} from '../../models/paper';
 import {VendorService} from '../../service/vendor.service';
 import {VendorDetail} from '../../models/vendor';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
@@ -99,6 +99,23 @@ export class Template3Component {
   logs: any[] = [];
   isShowBoxSection = false
 
+  psaItems = [
+    { psaName: 'ACG', control: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG' },
+    {psaName: 'Shah Deniz', control: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah' },
+    { psaName: 'SCP', control: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP' },
+    { psaName: 'BTC', control: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC' },
+    { psaName: 'Sh-Asiman', control: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
+    { psaName: 'BP Group', control: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+  ];
+
+  allowedGroups = [
+    { key: 'originalValue', label: 'Original Value' },
+    { key: 'previousValue', label: 'Previous Value' },
+    { key: 'thisValue', label: 'This Value' },
+    { key: 'revisedValue', label: 'Revised Value' }
+  ];
+
+
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
     {value: 'Shah Deniz', label: 'Shah Deniz'},
@@ -148,7 +165,6 @@ export class Template3Component {
 
     this.route.queryParamMap.subscribe(queryParams => {
       this.isCopy = queryParams.get('isCopy') === 'true';
-      console.log('Is Copy:', this.isCopy);
     });
     this.loadUserDetails();
     this.loadDictionaryItems();
@@ -316,11 +332,57 @@ export class Template3Component {
         // isBPGroup: [{value: false, disabled: true}],
       }),
       consultation: this.fb.array([]),
-      costAllocationJVApproval: this.fb.array([]),
-
+      originalValue: this.createPsaFormGroup(),
+      previousValue: this.createPsaFormGroup(),
+      thisValue: this.createPsaFormGroup(),
+      revisedValue: this.createPsaFormGroup(),
     });
 
   }
+
+  createPsaFormGroup(): FormGroup {
+    const group: any = {};
+
+    this.psaItems.forEach(item => {
+      group[item.control] = [false];
+      group[item.percentage] = [0];
+      group[item.value] = [0];
+    });
+
+    group.totalPercentage = [0];
+    group.totalValue = [0];
+
+    return this.fb.group(group)
+  }
+
+  getGroupForm(key: string): FormGroup {
+    return this.generalInfoForm.get(key) as FormGroup;
+  }
+
+  getAllSelectedPsa(): PSAEntry[] {
+    const result: PSAEntry[] = [];
+
+    this.allowedGroups.forEach(group => {
+      const section = this.generalInfoForm.get(group.key) as FormGroup;
+      const values = section.value;
+
+      this.psaItems.forEach(psa => {
+        if (values[psa.control]) {
+          result.push({
+            id: 0,
+            paperType: group.label,
+            psaName: psa.psaName,
+            psaValue: true,
+            percentage: values[psa.percentage],
+            value: values[psa.value]
+          });
+        }
+      });
+    });
+
+    return result;
+  }
+
 
   private incrementAndCheck(increaseCount: number | null = null) {
     this.completedCount++;
@@ -338,7 +400,6 @@ export class Template3Component {
       next: (reponse) => {
         if (reponse.status && reponse.data) {
           this.vendorList = reponse.data;
-          console.log('vendor:', this.vendorList);
           this.incrementAndCheck();
         }
       },
@@ -495,7 +556,6 @@ export class Template3Component {
       const generatlInfoData = this.paperDetails?.paperDetails || null
       const jvApprovalsData = value.data?.jvApprovals[0] || null
       const costAllocationsData = value.data?.costAllocations || []
-      const consultationsData = value.data?.consultationsDetails || []
       const valueDeliveriesCostSharingData = value.data?.valueDeliveriesCostSharing[0] || null
 
       const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === generatlInfoData?.paperStatusId?.toString())
@@ -564,7 +624,7 @@ export class Template3Component {
             isLTCC: generatlInfoData?.isLTCC || false,
             ltccNotes:generatlInfoData?.ltccNotes || '',
             isGovtReprAligned: generatlInfoData?.isGovtReprAligned || false,
-            govtReprAlignedComment: generatlInfoData?.isGovtReprAligned || '',
+            govtReprAlignedComment: generatlInfoData?.govtReprAlignedComment || '',
             isIFRS16: generatlInfoData?.isIFRS16 || false,
             isGIAAPCheck: generatlInfoData?.isGIAAPCheck || false,
           },
@@ -628,8 +688,6 @@ export class Template3Component {
             coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
             steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
           }
-          // consultation: this.fb.array([]),
-          // costAllocationJVApproval: this.fb.array([]),
         })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
@@ -637,10 +695,46 @@ export class Template3Component {
         }, 500)
 
         this.addConsultationRow(true);
+        this.patchPsaData(costAllocationsData);
+
 
       }
     })
   }
+
+  patchPsaData(psaData: any[]) {
+    psaData.forEach(entry => {
+      const groupKey = this.getGroupKeyFromLabel(entry.paperType);
+      const group = this.generalInfoForm.get(groupKey) as FormGroup;
+      if (!group) return;
+
+      const psaConfig = this.psaItems.find(p => p.psaName === entry.psaName);
+      if (!psaConfig) return;
+
+      group.patchValue({
+        [psaConfig.control]: entry.psaValue,
+        [psaConfig.percentage]: entry.percentage,
+        [psaConfig.value]: entry.value ?? 0
+      });
+    });
+  }
+
+
+  getGroupKeyFromLabel(label: string): string {
+    switch (label) {
+      case 'Original Value':
+        return 'originalValue';
+      case 'Previous Value':
+        return 'previousValue';
+      case 'This Value':
+        return 'thisValue';
+      case 'Revised Value':
+        return 'revisedValue';
+      default:
+        return '';
+    }
+  }
+
 
 
   requireAllIfAny(group: AbstractControl): ValidationErrors | null {
@@ -670,7 +764,7 @@ export class Template3Component {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
-
+    const costAllocationJVApproval = this.getAllSelectedPsa()
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
     const justificationSectionValue = this.generalInfoForm?.value?.justificationSection
     const contractInfoValue = this.generalInfoForm?.value?.contractInfo
@@ -679,7 +773,6 @@ export class Template3Component {
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.value?.costAllocation
     const consultationsValue = this.generalInfoForm?.value?.consultation
-
 
     const params = {
       papers: {
@@ -764,7 +857,7 @@ export class Template3Component {
         costAvoidancePercent: valueDeliveryValues?.costAvoidancePercent || 0,
         costAvoidanceRemarks: valueDeliveryValues?.costAvoidanceRemarks || "",
       },
-      costAllocationJVApproval: [],
+      costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
         contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,

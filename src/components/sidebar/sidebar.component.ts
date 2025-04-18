@@ -29,9 +29,7 @@ export class SidebarComponent {
     });
 
     this.authService.userRoleAccess$.subscribe(value => {
-      console.log('d', value);
       this.menuItems = this.filterMenuItemsByPermissions(menuItems, value);
-      console.log('d', this.menuItems);
     });
   }
 
