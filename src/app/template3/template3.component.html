@@ -135,7 +135,7 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>What is the change?</label>
+                    <label>What is the change? *</label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
                                 formControlName="purposeRequired"/>
@@ -476,7 +476,7 @@
                               formControlName="govtReprAlignedComment"></textarea>
                   </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-12" *ngIf="isShowBoxSection">
                   <div class="form-group mb-3">
                     <div class="form-check-list d-flex gap-3 flex-wrap">
                       <div class="form-check-box position-relative">
@@ -643,16 +643,13 @@
 
 
               </div>
-
             </div>
-
 
             <div id="section4" class="fb-title-div ft-bg3">
               <h4>4. Contract Values ($)</h4>
             </div>
             <div class="fb-form" formGroupName="contractValues">
               <div class="row">
-
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Original Contract Value</label>
@@ -660,7 +657,6 @@
                            formControlName="originalContractValue" placeholder="0.00"
                            min="0"/>
                   </div>
-
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
@@ -669,7 +665,6 @@
                            formControlName="previousVariationTotal" placeholder="0.00"
                            min="0"/>
                   </div>
-
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
@@ -1721,6 +1716,7 @@
       </div>
     </div>
   </div>
+  <div id="context-annotations" style="width: 400px;position: absolute;right: 0;"></div>
 </div>
 
 <ng-template #content2 let-modal>

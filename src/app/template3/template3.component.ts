@@ -97,7 +97,7 @@ export class Template3Component {
   private readonly _mdlSvc = inject(NgbModal);
   thresholdData: ThresholdType[] = []
   logs: any[] = [];
-
+  isShowBoxSection = false
 
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
@@ -161,6 +161,9 @@ export class Template3Component {
       this.addConsultationRow(false, true);
     });
 
+    this.onLTCCChange()
+
+
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<{ version: '44.3.0', premium: true }>) {
@@ -206,6 +209,11 @@ export class Template3Component {
   }
 
   loadForm() {
+    // let camId = null
+    //
+    // if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+    //   camId = this.loggedInUser?.id || null
+    // }
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
@@ -460,187 +468,175 @@ export class Template3Component {
     });
   }
 
+  onLTCCChange() {
+    this.generalInfoForm.get('generalInfo.isLTCC')?.valueChanges.subscribe((value) => {
+      const ltccNotesControl = this.generalInfoForm.get('generalInfo.ltccNotes');
+
+      if (value === true) {
+        ltccNotesControl?.setValidators([Validators.required]);
+        ltccNotesControl?.enable();
+        this.isShowBoxSection= true
+      } else {
+        ltccNotesControl?.clearValidators();
+        ltccNotesControl?.disable(); // <- disables the field
+        this.isShowBoxSection= false
+      }
+
+      ltccNotesControl?.updateValueAndValidity();
+    });
+  }
+
+
 
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId).subscribe((value) => {
       this.paperDetails = value.data as any;
-      const contractAwardDetails = this.paperDetails?.contractAwardDetails || null
-      const bidInvitesData = value.data?.bidInvites || []
-      const valueData = this.paperDetails?.valueDeliveries[0] || null
+      console.log("==this.paperDetails", this.paperDetails)
+      const generatlInfoData = this.paperDetails?.paperDetails || null
       const jvApprovalsData = value.data?.jvApprovals[0] || null
-      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
+      const costAllocationsData = value.data?.costAllocations || []
+      const consultationsData = value.data?.consultationsDetails || []
+      const valueDeliveriesCostSharingData = value.data?.valueDeliveriesCostSharing[0] || null
 
-      const patchValues: any = {costAllocation: {}};
-
-      const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === contractAwardDetails?.paperStatusId?.toString())
+      const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === generatlInfoData?.paperStatusId?.toString())
 
       if (selectedPaperStatus?.paperStatus !== "Draft") {
         this.isRegisterPaper = true
         this.commentService.loadPaper(paperId);
       }
 
-      console.log("==isRegisterPaper", this.isRegisterPaper)
+      const selectedValuesPSAJV = generatlInfoData?.psajv ? generatlInfoData.psajv
+        .split(',')
+        .map((label: any) => label.trim())
+        .map((label: any) => this.psaJvOptions.find((option) => option.label === label)?.value) // Convert label to value
+        .filter((value: any) => value) : []
 
-// Assign JV Approvals data
-      Object.assign(patchValues.costAllocation, {
-        contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
-        contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
-        contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
-        contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
-        contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
-        contractCommittee_CGB: false, // TODO: Confirm this value
-        coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
-        coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
-        coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
-        coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
-        steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
-      });
 
-// PSA/JV mappings
-      const psaNameToCheckbox: Record<string, string> = {
-        "ACG": "isACG",
-        "Shah Deniz": "isShah",
-        "SCP": "isSCP",
-        "BTC": "isBTC",
-        "Asiman": "isAsiman",
-        "BP Group": "isBPGroup"
-      };
-
-      // Assign PSA/JV values dynamically
-      costAllocationJVApprovalData.forEach(psa => {
-        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
-        if (checkboxKey) {
-          patchValues.costAllocation[checkboxKey] = psa.psaValue;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
-          patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
-        }
-      });
-
-// Assign default values for all PSA/JV fields if not in API data
-      Object.keys(psaNameToCheckbox).forEach(key => {
-        const checkboxKey = psaNameToCheckbox[key];
-        if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
-          patchValues.costAllocation[checkboxKey] = false;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
-          patchValues.costAllocation[`value_${checkboxKey}`] = '';
-        }
-      });
-
-      const selectedValues = contractAwardDetails?.psajv
-        ? contractAwardDetails.psajv
-          .split(',')
-          .map((label: any) => label.trim())
-          .map((label: any) => this.psaJvOptions.find(option => option.label === label)?.value)
-          .filter((value: any) => value != null) // Use != null to filter both null and undefined
-        : [];
-
-      const selectedValuesProcurementTagUsers = contractAwardDetails?.procurementSPAUsers
-        ? contractAwardDetails.procurementSPAUsers
-          .split(',')
-          .map((id: any) => id.trim())
-          .map((id: any) => this.procurementTagUsers.find(option => option.value === Number(id))?.value)
-          .filter((value: any) => value != null)
-        : [];
+      const selectedValuesProcurementTagUsers = generatlInfoData?.procurementSPAUsers ? generatlInfoData.procurementSPAUsers
+        .split(',')
+        .map((id: any) => id.trim())
+        .map((id: any) => this.procurementTagUsers.find((option: any) => option.value === Number(id))?.value) // Convert label to value
+        .filter((value: any) => value) : [];
 
       if (value.data) {
         this.generalInfoForm.patchValue({
           generalInfo: {
-            paperProvision: contractAwardDetails?.paperProvision || "",
-            cgbAtmRefNo: contractAwardDetails?.cgbAtmRefNo || "",
-            cgbApprovalDate: contractAwardDetails?.cgbApprovalDate || "",
-            isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket || "",
-            cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
-            cgbCirculationDate: contractAwardDetails?.cgbCirculationDate
-              ? format(new Date(contractAwardDetails.cgbCirculationDate), 'yyyy-MM-dd')
-              : '',
-            contractNo: contractAwardDetails?.contractNo || "",
-            contactNo: contractAwardDetails?.contactNo || "",
-            vendorId: contractAwardDetails?.vendorId || null,
-            purposeRequired: contractAwardDetails?.purposeRequired || "",
-            globalCGB: contractAwardDetails?.globalCGB || "",
-            bltMember: contractAwardDetails?.bltMemberId ? Number(contractAwardDetails.bltMemberId) : null,
-            operatingFunction: contractAwardDetails?.operatingFunction || "",
-            subSector: contractAwardDetails?.subSector || "",
-            sourcingType: contractAwardDetails?.sourcingType || "",
-            camUserId: contractAwardDetails?.camUserId || null,
-            vP1UserId: contractAwardDetails?.vP1UserId || null,
+            paperProvision: generatlInfoData.paperProvision || "",
+            purposeRequired:  generatlInfoData.purposeRequired || "",
+            isChangeinSOW:generatlInfoData.isChangeinSOW || false,
+            isIncreaseInValue: generatlInfoData.isIncreaseInValue || false,
+            isExtensionOfDuration: generatlInfoData.isExtensionOfDuration || false,
+            isTEToCompleteBidding: generatlInfoData.isTEToCompleteBidding || false,
+            isChangeInRates: generatlInfoData.isChangeInRates || false,
+            cgbItemRefNo: generatlInfoData.cgbItemRefNo || '',
+            cgbCirculationDate:  generatlInfoData.cgbCirculationDate
+              ? format(new Date(generatlInfoData.cgbCirculationDate), 'yyyy-MM-dd')
+              : null,
+            cgbAwardRefNo: generatlInfoData.cgbAwardRefNo || '',
+            cgbApprovalDate:  generatlInfoData.cgbApprovalDate
+              ? format(new Date(generatlInfoData.cgbApprovalDate), 'yyyy-MM-dd')
+              : null,
+            fullLegalName: generatlInfoData.fullLegalName || '',
+            contractNo: generatlInfoData.contractNo || '',
+            vendorId: generatlInfoData.vendorId || null,
+            globalCGB: generatlInfoData.globalCGB || null,
+            camUserId:generatlInfoData.camUserId || null,
+            vP1UserId: generatlInfoData.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
-            pdManagerName: contractAwardDetails?.pdManagerNameId || null,
-            isPHCA: contractAwardDetails?.isPHCA || false,
-            currencyCode: contractAwardDetails?.currencyCode || '',
-            totalAwardValueUSD: contractAwardDetails?.totalAwardValueUSD || 0,
-            exchangeRate: contractAwardDetails?.exchangeRate || 0,
-            contractValue: contractAwardDetails?.contractValue || 0,
-            remunerationType: contractAwardDetails?.remunerationType || 0,
-            isPaymentRequired: contractAwardDetails?.isPaymentRequired || false,
-            prePayPercent: contractAwardDetails?.prePayPercent || 0,
-            prePayAmount: contractAwardDetails?.prePayAmount || 0,
-            workspaceNo: contractAwardDetails?.workspaceNo || '',
-            isSplitAward: contractAwardDetails?.isSplitAward || false,
-            psajv: selectedValues,
-            isLTCC: contractAwardDetails?.isLTCC || false,
-            ltccNotes: contractAwardDetails?.ltccNotes || '',
-            isGovtReprAligned: contractAwardDetails?.isGovtReprAligned || false,
-            govtReprAlignedComment: contractAwardDetails?.govtReprAlignedComment || '',
-            contractSpendCommitment: contractAwardDetails?.contractSpendCommitment || '',
-          },
-          procurementDetails: {
-            supplierAwardRecommendations: contractAwardDetails?.supplierAwardRecommendations || '',
-            // legalEntitiesAwarded: this.fb.array([]),
-            isConflictOfInterest: contractAwardDetails?.isConflictOfInterest || false,
-            conflictOfInterestComment: contractAwardDetails?.conflictOfInterestComment || '',
-            isRetrospectiveApproval: contractAwardDetails?.isRetrospectiveApproval || false,
-            retrospectiveApprovalReason: contractAwardDetails?.retrospectiveApprovalReason || '',
-            nationalContent: contractAwardDetails?.nationalContent || '',
-          }, ccd: {
-            isHighRiskContract: contractAwardDetails?.isHighRiskContract || false,
-            cddCompleted: contractAwardDetails?.cddCompleted
-              ? format(new Date(contractAwardDetails.cddCompleted), 'yyyy-MM-dd')
+            pdManagerName:  generatlInfoData?.pdManagerNameId || null,
+            operatingFunction: generatlInfoData?.operatingFunction || '',
+            bltMember: generatlInfoData?.bltMemberId || null,
+            subSector: generatlInfoData?.subSector || '',
+            sourcingType:generatlInfoData?.sourcingType || '',
+            contractStartDate: generatlInfoData.contractStartDate
+              ? format(new Date(generatlInfoData.contractStartDate), 'yyyy-MM-dd')
               : '',
-            highRiskExplanation: contractAwardDetails?.highRiskExplanation || '',
-            flagRaisedCDD: contractAwardDetails?.flagRaisedCDD || '',
-            additionalCDD: contractAwardDetails?.additionalCDD || '',
-          }, evaluationSummary: {
-            invitedBidders: contractAwardDetails?.invitedBidders || 0,
-            submittedBids: contractAwardDetails?.submittedBids || 0,
-            previousContractLearning: contractAwardDetails?.previousContractLearning || '',
-            performanceImprovements: contractAwardDetails?.performanceImprovements || '',
-            benchMarking: contractAwardDetails?.benchMarking || '',
-            // commericalEvaluation: this.fb.array([]),
-            // supplierTechnical: this.fb.array([]),
-          }, additionalDetails: {
-            contractualControls: contractAwardDetails?.contractualControls || '',
-            contractCurrencyLinktoBaseCost: contractAwardDetails?.contractCurrencyLinktoBaseCost || false,
-            explanationsforBaseCost: contractAwardDetails?.explanationsforBaseCost || '',
-            // riskMitigation: this.fb.array([]),
+            contractEndDate:  generatlInfoData.contractEndDate
+              ? format(new Date(generatlInfoData.contractEndDate), 'yyyy-MM-dd')
+              : '',
+            variationStartDate:  generatlInfoData.variationStartDate
+              ? format(new Date(generatlInfoData.variationStartDate), 'yyyy-MM-dd')
+              : '',
+            variationEndDate: generatlInfoData.variationEndDate
+              ? format(new Date(generatlInfoData.variationEndDate), 'yyyy-MM-dd')
+              : '',
+            psajv: selectedValuesPSAJV,
+            isLTCC: generatlInfoData?.isLTCC || false,
+            ltccNotes:generatlInfoData?.ltccNotes || '',
+            isGovtReprAligned: generatlInfoData?.isGovtReprAligned || false,
+            govtReprAlignedComment: generatlInfoData?.isGovtReprAligned || '',
+            isIFRS16: generatlInfoData?.isIFRS16 || false,
+            isGIAAPCheck: generatlInfoData?.isGIAAPCheck || false,
+          },
+          justificationSection:{
+            whyChangeRequired:  generatlInfoData?.whyChangeRequired || '',
+            longTermStrategy:  generatlInfoData?.longTermStrategy || '',
+          },
+          contractInfo:{
+            isPHCA: generatlInfoData?.isPHCA || false,
+            workspaceNo: generatlInfoData?.workspaceNo || '',
+            remunerationType: generatlInfoData?.remunerationType || '',
+            previousCGBRefNo: generatlInfoData?.previousCGBRefNo || '',
+            isPaymentRequired: generatlInfoData?.isPaymentRequired || false,
+            prePayAmount:generatlInfoData?.prePayAmount || 0,
+            isRetrospectiveApproval: generatlInfoData?.isRetrospectiveApproval || false,
+            retrospectiveApprovalReason: generatlInfoData?.retrospectiveApprovalReason || '',
+          },
+          contractValues:{
+            originalContractValue: generatlInfoData?.originalContractValue || 0,
+            previousVariationTotal: generatlInfoData?.previousVariationTotal || 0,
+            thisVariationNote: generatlInfoData?.thisVariationNote || '',
+            exchangeRate:generatlInfoData?.exchangeRate || 0,
+            contractValue: generatlInfoData?.contractValue || 0,
+            revisedContractValue: generatlInfoData?.revisedContractValue || 0,
+            spendOnContract: generatlInfoData?.spendOnContract || 0,
+            isCurrencyLinktoBaseCost: generatlInfoData?.isCurrencyLinktoBaseCost || false,
+            isConflictOfInterest: generatlInfoData?.isConflictOfInterest || false,
+            conflictOfInterestComment: generatlInfoData?.conflictOfInterestComment || '',
+            // explain: [''], //TODO missing
+          },
+          ccd: {
+            isHighRiskContract: generatlInfoData?.isHighRiskContract || false,
+            daCDDCompleted:  generatlInfoData.daCDDCompleted
+              ? format(new Date(generatlInfoData.daCDDCompleted), 'yyyy-MM-dd')
+              : '',
+            highRiskExplanation: generatlInfoData?.highRiskExplanation || '',
+            flagRaisedCDD: generatlInfoData?.highRiskExplanation || '',
+            additionalCDD: generatlInfoData?.highRiskExplanation || '',
           },
           valueDelivery: {
-            costReductionPercent: valueData?.costReductionPercent || null,
-            costReductionValue: valueData?.costReductionValue || null,
-            costReductionRemarks: valueData?.costReductionRemarks || '',
-            operatingEfficiencyValue: valueData?.operatingEfficiencyValue || null,
-            operatingEfficiencyPercent: valueData?.operatingEfficiencyPercent || null,
-            operatingEfficiencyRemarks: valueData?.operatingEfficiencyRemarks || '',
-            costAvoidanceValue: valueData?.costAvoidanceValue || null,
-            costAvoidancePercent: valueData?.costAvoidancePercent || null,
-            costAvoidanceRemarks: valueData?.costAvoidanceRemarks || '',
+            costReductionPercent: valueDeliveriesCostSharingData?.costReductionPercent || null,
+            costReductionValue: valueDeliveriesCostSharingData?.costReductionValue || null,
+            costReductionRemarks:  valueDeliveriesCostSharingData?.costReductionRemarks || '',
+            operatingEfficiencyValue: valueDeliveriesCostSharingData?.operatingEfficiencyValue || null,
+            operatingEfficiencyPercent: valueDeliveriesCostSharingData?.operatingEfficiencyPercent || null,
+            operatingEfficiencyRemarks:valueDeliveriesCostSharingData?.operatingEfficiencyRemarks || '',
+            costAvoidanceValue: valueDeliveriesCostSharingData?.costAvoidanceValue || null,
+            costAvoidancePercent: valueDeliveriesCostSharingData?.costAvoidancePercent || null,
+            costAvoidanceRemarks:valueDeliveriesCostSharingData?.costAvoidanceRemarks || '',
           },
-          costSharing: {
-            isCapex: valueData?.isCapex || false,
-            isFixOpex: valueData?.isFixOpex || false,
-            isVariableOpex: valueData?.isVariableOpex || false,
-            isInventoryItems: valueData?.isInventoryItems || false,
-            capexMethodology: valueData?.capexMethodology || '',
-            fixOpexMethodology: valueData?.fixOpexMethodology || '',
-            variableOpexMethodology: valueData?.variableOpexMethodology || '',
-            inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
-          },
-          costAllocation: patchValues.costAllocation,
+          costAllocation: {
+            contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
+            contractCommittee_SCP_Co_CC:jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+            contractCommittee_SCP_Co_CCInfoNote:jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+            contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
+            contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+            contractCommittee_CGB: jvApprovalsData?.contractCommittee_CGB || false,
+            coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
+            coVenturers_SDMC:jvApprovalsData?.coVenturers_SDMC || false,
+            coVenturers_SCP:jvApprovalsData?.coVenturers_SCP || false,
+            coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
+            steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
+          }
+          // consultation: this.fb.array([]),
+          // costAllocationJVApproval: this.fb.array([]),
         })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV);
         }, 500)
+
+        this.addConsultationRow(true);
 
       }
     })
@@ -733,7 +729,7 @@ export class Template3Component {
 
         isPHCA: contractInfoValue?.isPHCA || false,
         workspaceNo: contractInfoValue?.workspaceNo || '',
-        remunerationType: contractInfoValue?.remunerationType || null,
+        remunerationType: contractInfoValue?.remunerationType || '',
         previousCGBRefNo: contractInfoValue?.previousCGBRefNo || null,
         isPaymentRequired: contractInfoValue?.isPaymentRequired || false,
         prePayAmount: contractInfoValue?.prePayAmount || 0,

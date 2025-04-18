@@ -143,6 +143,7 @@ export interface JvApprovals {
 export interface CostAllocationJVApproval {
   id: number
   psaName: string
+  paperType?: string
   psaValue: boolean
   percentage: number
   value: number
@@ -154,6 +155,7 @@ export interface Paper {
   bidInvites: BidInvites[]
   riskMitigations: RiskMitigations[],
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[]
+  valueDeliveriesCostSharing: ValueDeliveriesCostsharing[]
   jvApprovals: JvApprovals[]
   costAllocationJVApproval: CostAllocationJVApproval[]
   paperTimelineDetails: PaperTimelineDetails[],
@@ -163,7 +165,7 @@ export interface Paper {
   valueDeliveries: ValueDeliveriesCostsharing[],
   commericalEvaluation: CommericalEvaluation[],
   supplierTechnical: SupplierTechnical[],
-
+  costAllocations: any[]
 }
 
 export interface PaperData {
