@@ -1588,4 +1588,8 @@ export class Template2Component {
     }
   }
 
+  scrollToTop(): void {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
 }

@@ -71,8 +71,21 @@
         </div>
         <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
           <div class="form-body">
-            <div id="section1" class="fb-title-div ft-bg2">
-              <h4>1. General Information</h4>
+            <div id="section1" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">1. General Information</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="generalInfo">
               <div class="row">
@@ -583,8 +596,21 @@
               </div>
             </div>
 
-            <div id="section2" class="fb-title-div ft-bg2">
-              <h4>2. Procurement Details</h4>
+            <div id="section2" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">2. Procurement Details</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="procurementDetails">
               <div class="row">
@@ -765,11 +791,23 @@
               </div>
             </div>
 
-            <div id="section3" class="fb-title-div ft-bg2">
-              <h4>3. CDD (Counterparty Due Diligence)</h4>
+            <div id="section3" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">3. CDD (Counterparty Due Diligence)</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="ccd">
-
               <div class="row">
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
@@ -827,8 +865,21 @@
               </div>
             </div>
 
-            <div id="section4" class="fb-title-div ft-bg2">
-              <h4>4. Evaluation Summary</h4>
+            <div id="section4" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">4. Evaluation Summary</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="evaluationSummary">
               <h6 class="mb-3"><b>Technical Evaluation</b></h6>
@@ -1021,8 +1072,21 @@
               </div>
             </div>
 
-            <div id="section5" class="fb-title-div ft-bg2">
-              <h4>5. Additional Award Details</h4>
+            <div id="section5" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">5. Additional Award Details</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="additionalDetails">
               <div class="row">
@@ -1124,9 +1188,21 @@
               </div>
             </div>
 
-
-            <div id="section6" class="fb-title-div ft-bg2">
-              <h4>6. Value Delivery</h4>
+            <div id="section6" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">6. Value Delivery</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="valueDelivery">
               <div class="mb-1">
@@ -1225,8 +1301,21 @@
               </small>
             </div>
 
-            <div id="section7" class="fb-title-div ft-bg2">
-              <h4>7. Cost Allocation and JV Approval</h4>
+            <div id="section7" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">7. Cost Allocation and JV Approval</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form allow-comments" formGroupName="costAllocation" id="costAllocation">
               <div class="cost-table-div custom-table table-responsive">
@@ -1487,8 +1576,21 @@
               </div>
             </div>
 
-            <div id="section8" class="fb-title-div ft-bg2">
-              <h4>8. Cost Sharing Methodology</h4>
+            <div id="section8" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">8. Cost Sharing Methodology</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form allow-comments" formGroupName="costSharing" id="costSharing">
               <div class="cost-table-div custom-table table-responsive">
@@ -1806,9 +1908,21 @@
               </div>
             </div>
 
-
-            <div id="section9" class="fb-title-div ft-bg2">
-              <h4>9. Consultation</h4>
+            <div id="section9" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+              <h4  class="mb-0">9. Consultation</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form allow-comments" formArrayName="consultation" id="consultation">
               <div *ngFor="let row of consultationRows.controls; let i = index" [formGroupName]="i">
