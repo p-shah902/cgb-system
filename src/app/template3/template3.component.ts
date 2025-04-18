@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef} from '@angular/core';
+import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
 import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
@@ -37,11 +37,15 @@ import {EditorService} from '../../service/editor.service';
 import {AuthService} from '../../service/auth.service';
 import {format} from 'date-fns';
 import {BehaviorSubject} from 'rxjs';
+import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
+import {cleanObject} from '../../utils/index';
+import {ThresholdType} from '../../models/threshold';
+import {ThresholdService} from '../../service/threshold.service';
 
 @Component({
   selector: 'app-template3',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink],
   templateUrl: './template3.component.html',
   styleUrl: './template3.component.scss'
 })
@@ -50,6 +54,7 @@ export class Template3Component {
   private readonly paperService = inject(PaperService);
   private readonly vendorService = inject(VendorService);
   private paperConfigService = inject(PaperConfigService);
+  private readonly thresholdService = inject(ThresholdService);
   private commentService = inject(CommentService);
   private editorService = inject(EditorService);
   private authService = inject(AuthService);
@@ -88,7 +93,11 @@ export class Template3Component {
   selectedPaper: number = 0;
   approvalRemark: string = '';
   reviewBy: string = '';
+  currentPaperStatus: string | null = null;
   private readonly _mdlSvc = inject(NgbModal);
+  thresholdData: ThresholdType[] = []
+  logs: any[] = [];
+
 
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
@@ -122,8 +131,14 @@ export class Template3Component {
           this.paperId = params.get('id');
           if (this.paperId) {
             this.fetchPaperDetails(Number(this.paperId))
+            this.getPaperCommentLogs(Number(this.paperId));
           } else {
             this.isExpanded = false;
+            if (!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
+              setTimeout(() => {
+                this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue([this.loggedInUser?.id || null]);
+              }, 1000)
+            }
           }
           console.log('Paper ID:', this.paperId);
         });
@@ -135,9 +150,16 @@ export class Template3Component {
       this.isCopy = queryParams.get('isCopy') === 'true';
       console.log('Is Copy:', this.isCopy);
     });
-
+    this.loadUserDetails();
+    this.loadDictionaryItems();
+    this.loadPaperStatusListData();
+    this.loadThresholdData()
+    this.loadVendoreDetails()
     this.loadForm()
 
+    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
+      this.addConsultationRow(false, true);
+    });
 
   }
 
@@ -177,91 +199,95 @@ export class Template3Component {
     };
   }
 
+  getPaperCommentLogs(paperId: number) {
+    this.paperService.getPaperCommentLogs(paperId).subscribe(value => {
+      this.logs = value.data;
+    })
+  }
 
   loadForm() {
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
-        cgbAtmRefNo: ['', Validators.required],
-        cgbApprovalDate: [{value: '', disabled: true}],
-        isChangeinApproachMarket: [false],
+        purposeRequired: ['', Validators.required],
+        isChangeinSOW: [false],
+        isIncreaseInValue: [false],
+        isExtensionOfDuration: [false],
+        isTEToCompleteBidding: [false],
+        isChangeInRates: [false],
         cgbItemRefNo: [''],
         cgbCirculationDate: [''],
+        cgbAwardRefNo: ['', Validators.required],
+        cgbApprovalDate: [{value: '', disabled: true}],
+        fullLegalName: ['', Validators.required],
         contractNo: ['', Validators.required],
         vendorId: [null],
-        purposeRequired: ['', Validators.required],
         globalCGB: ['', Validators.required],
-        bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
-        operatingFunction: ['', Validators.required],
-        subSector: ['', Validators.required],
-        sourcingType: ['', Validators.required],
         camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
-        isPHCA: [false],
-        currencyCode: [''],
-        totalAwardValueUSD: [0], // Number input
-        exchangeRate: [0], // Number input
-        contractValue: [0],
-        remunerationType: ['', Validators.required],
-        isPaymentRequired: [false],
-        prePayPercent: [0],
-        prePayAmount: [{value: null, disabled: true}],
-        workspaceNo: [''],
-        isSplitAward: [false],
-        psajv: [[], Validators.required],
-        isLTCC: [false],
-        ltccNotes: [''],
-        isGovtReprAligned: [false],
-        govtReprAlignedComment: [''],
-        contractSpendCommitment: [''],
-      }),
-      justificationSection: this.fb.group({
-        supplierAwardRecommendations: ['', Validators.required],
+        operatingFunction: ['', Validators.required],
+        bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        subSector: ['', Validators.required],
+        sourcingType: ['', Validators.required],
         contractStartDate: [''],
         contractEndDate: [''],
-        extensionOption: [''],
-        isConflictOfInterest: [false],
-        conflictOfInterestComment: [''],
-        isRetrospectiveApproval: [false],
-        retrospectiveApprovalReason: [''],
-        nationalContent: [''],
+        variationStartDate: [''],
+        variationEndDate: [''],
+        psajv: [[], Validators.required],
+        isLTCC: [null],
+        ltccNotes: [''],
+        isGovtReprAligned: [null],
+        govtReprAlignedComment: [''],
+        isIFRS16: [false],
+        isGIAAPCheck: [false],
+      }),
+      justificationSection: this.fb.group({
+        whyChangeRequired: [''],
+        longTermStrategy: [''],
       }),
       contractInfo: this.fb.group({
-        isHighRiskContract: [false],
-        cddCompleted: [''],
+        isPHCA: [null],
+        workspaceNo: [''],
+        remunerationType: ['', Validators.required],
+        previousCGBRefNo: [''],
+        isPaymentRequired: [null],
+        prePayAmount: [0],
+        isRetrospectiveApproval: [null],
+        retrospectiveApprovalReason: [''],
+      }),
+      contractValues: this.fb.group({
+        originalContractValue: [0],
+        previousVariationTotal: [0],
+        thisVariationNote: [''],
+        exchangeRate: [0],
+        contractValue: [0],
+        revisedContractValue: [0],
+        spendOnContract: [0],
+        isCurrencyLinktoBaseCost: [null],
+        isConflictOfInterest: [null],
+        conflictOfInterestComment: [''],
+        // explain: [''], //TODO missing
+      }),
+      ccd: this.fb.group({
+        isHighRiskContract: [null],
+        daCDDCompleted: [null],
         highRiskExplanation: [''],
         flagRaisedCDD: [''],
         additionalCDD: [''],
-
-      }),
-      evaluationSummary: this.fb.group({
-        invitedBidders: [0],
-        submittedBids: [0],
-        previousContractLearning: [''],
-        performanceImprovements: [''],
-        benchMarking: [''],
-        commericalEvaluation: this.fb.array([]),
-        supplierTechnical: this.fb.array([]),
-      }),
-      additionalDetails: this.fb.group({
-        contractualControls: [''],
-        contractCurrencyLinktoBaseCost: [false],
-        explanationsforBaseCost: [''],
-        riskMitigation: this.fb.array([]),
       }),
       valueDelivery: this.fb.group({
-        costReductionPercent: [0],
-        costReductionValue: [0],
+        costReductionPercent: [null],
+        costReductionValue: [null],
         costReductionRemarks: [''],
-        operatingEfficiencyValue: [0],
-        operatingEfficiencyPercent: [0],
+        operatingEfficiencyValue: [null],
+        operatingEfficiencyPercent: [null],
         operatingEfficiencyRemarks: [''],
-        costAvoidanceValue: [0],
-        costAvoidancePercent: [0],
+        costAvoidanceValue: [null],
+        costAvoidancePercent: [null],
         costAvoidanceRemarks: [''],
-      }, {validators: this.requireAllIfAny}),
+      }),
       costAllocation: this.fb.group({
         contractCommittee_SDCC: [{value: false, disabled: true}],
         contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
@@ -274,45 +300,166 @@ export class Template3Component {
         coVenturers_SCP: [{value: false, disabled: true}],
         coVenturers_SCP_Board: [{value: false, disabled: true}],
         steeringCommittee_SC: [{value: false, disabled: true}],
-        isACG: [{value: false, disabled: true}],
-        isShah: [{value: false, disabled: true}],
-        isSCP: [{value: false, disabled: true}],
-        isBTC: [{value: false, disabled: true}],
-        isAsiman: [{value: false, disabled: true}],
-        isBPGroup: [{value: false, disabled: true}],
-        // Percentage fields with validation (0-100)
-        percentage_isACG: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-        percentage_isShah: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-        percentage_isSCP: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-        percentage_isBTC: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-        percentage_isAsiman: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-        percentage_isBPGroup: [{value: '', disabled: true}, [Validators.min(0), Validators.max(100)]],
-
-        value_isACG: [{value: '', disabled: true}],
-        value_isShah: [{value: '', disabled: true}],
-        value_isSCP: [{value: '', disabled: true}],
-        value_isBTC: [{value: '', disabled: true}],
-        value_isAsiman: [{value: '', disabled: true}],
-        value_isBPGroup: [{value: '', disabled: true}],
-
-        totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
-        totalValue: [{value: 0, disabled: true}]
-      }),
-      costSharing: this.fb.group({
-        isCapex: [false],
-        isFixOpex: [false],
-        isVariableOpex: [false],
-        isInventoryItems: [false],
-        capexMethodology: [{value: '', disabled: true}],
-        fixOpexMethodology: [{value: '', disabled: true}],
-        variableOpexMethodology: [{value: '', disabled: true}],
-        inventoryItemsMethodology: [{value: '', disabled: true}]
+        // isACG: [{value: false, disabled: true}],
+        // isShah: [{value: false, disabled: true}],
+        // isSCP: [{value: false, disabled: true}],
+        // isBTC: [{value: false, disabled: true}],
+        // isAsiman: [{value: false, disabled: true}],
+        // isBPGroup: [{value: false, disabled: true}],
       }),
       consultation: this.fb.array([]),
+      costAllocationJVApproval: this.fb.array([]),
 
     });
 
   }
+
+  private incrementAndCheck(increaseCount: number | null = null) {
+    this.completedCount++;
+    if (increaseCount) {
+      this.totalCalls = this.totalCalls + increaseCount;
+    }
+    if (this.completedCount === this.totalCalls) {
+      this.allApisDone$.next(true);
+    }
+  }
+
+  loadVendoreDetails() {
+
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+          this.vendorList = reponse.data;
+          console.log('vendor:', this.vendorList);
+          this.incrementAndCheck();
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  loadPaperStatusListData() {
+    this.paperService.getPaperStatusList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+
+          this.paperStatusList = reponse.data || [];
+          this.incrementAndCheck();
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  loadUserDetails() {
+    this.userService.getUserDetailsList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
+          this.userDetails = dataList
+          this.procurementTagUsers = dataList.filter(user => user.roleName === 'Procurement Tag').map(t => ({
+            label: t.displayName,
+            value: t.id
+          }));
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+  loadThresholdData() {
+    this.thresholdService.getThresholdList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.thresholdData = response.data;
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+
+  loadDictionaryItems() {
+
+    this.dictionaryService.getDictionaryItemList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const itemData = response.data;
+          this.incrementAndCheck(itemData.length);
+          if (itemData.length > 0) {
+            itemData.forEach((item) => {
+              this.loadDictionaryDetails(item.itemName);
+            });
+          }
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+  loadDictionaryDetails(itemName: string) {
+    this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.incrementAndCheck();
+          switch (itemName) {
+            case 'Currencies':
+              this.currenciesData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Global CGB':
+              this.globalCGBData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Operating Functions':
+              this.operatingFunctionsData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Proposed CML':
+              this.proposedCMLData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'PSA':
+              this.psaData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Remuneration Type':
+              this.remunerationTypeData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Sourcing Rigor':
+              this.sourcingRigorData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Sourcing Type':
+              this.sourcingTypeData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            case 'Subsector':
+              this.subsectorData = (response.data || []).filter(item => item.isActive);
+              break;
+
+            default:
+              console.log('Unknown item:', itemName);
+              break;
+          }
+        }
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      }
+    });
+  }
+
 
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId).subscribe((value) => {
@@ -520,18 +667,164 @@ export class Template3Component {
   }
 
 
-  onSubmit() {
-    console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
+  onSubmit(): void {
+    this.submitted = true;
+    console.log("==this.generalInfoForm", this.generalInfoForm)
+    if (!this.paperStatusId) {
+      this.toastService.show("Paper status id not found", "danger")
+      return
+    }
+
+    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
+    const procurementValue = this.generalInfoForm?.value?.procurementDetails
+    const consultationsValue = this.generalInfoForm?.value?.consultation
+    const costSharingValues = this.generalInfoForm?.value?.costSharing
+    const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
+    const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+
+    const params = {
+      papers: {
+        paperStatusId: this.paperStatusId,
+        paperProvision: generalInfoValue?.paperProvision,
+        purposeRequired: generalInfoValue?.purposeRequired,
+        isActive: true,
+        ...(this.paperId && !this.isCopy ? {id: Number(this.paperId)} : {})
+      },
+      variationPaper: {
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
+        scopeOfWork: generalInfoValue?.scopeOfWork,
+        globalCGB: generalInfoValue?.globalCGB,
+        bltMember: generalInfoValue?.bltMember,
+        operatingFunction: generalInfoValue?.operatingFunction,
+        subSector: generalInfoValue?.subSector,
+        sourcingType: generalInfoValue?.sourcingType,
+        camUserId: generalInfoValue?.camUserId || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        pdManagerName: generalInfoValue?.pdManagerName || null,
+        isPHCA: generalInfoValue?.isPHCA || false,
+        psajv: generalInfoValue?.psajv?.join(',') || "",
+        totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
+        currencyCode: generalInfoValue?.originalCurrency || null,
+        exchangeRate: generalInfoValue?.exchangeRate,
+        contractValue: generalInfoValue?.contractValueOriginalCurrency,
+        contractStartDate: generalInfoValue?.contractStartDate || null,
+        contractEndDate: generalInfoValue?.contractEndDate || null,
+        isLTCC: generalInfoValue?.isLTCC || false,
+        ltccNotes: generalInfoValue?.ltccNotes,
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
+        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
+        isIFRS16: generalInfoValue?.isIFRS16 || false,
+        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
+        isConflictOfInterest: generalInfoValue?.isConflictOfInterest || false,
+        conflictOfInterestComment: generalInfoValue?.conflictOfInterestComment,
+        strategyDescription: generalInfoValue?.strategyDescription,
+        remunerationType: procurementValue?.remunerationType,
+        contractMgmtLevel: procurementValue?.contractMgmtLevel,
+        sourcingRigor: procurementValue?.sourcingRigor,
+        sourcingStrategy: procurementValue?.sourcingStrategy,
+        singleSourceJustification: procurementValue?.singleSourceJustification,
+        socaRsentOn: procurementValue?.socaRsentOn || null,
+        socaRreceivedOn: procurementValue?.socaRreceivedOn || null,
+        socarDescription: procurementValue?.socarDescription,
+        preQualificationResult: procurementValue?.preQualificationResult,
+      },
+      consultations: consultationsValue || [],
+      valueDeliveriesCostSharings: {
+        costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
+        costReductionValue: valueDeliveryValues?.costReductionValue || 0,
+        costReductionRemarks: valueDeliveryValues?.costReductionRemarks || "",
+        operatingEfficiencyValue: valueDeliveryValues?.operatingEfficiencyValue || 0,
+        operatingEfficiencyPercent: valueDeliveryValues?.operatingEfficiencyPercent || 0,
+        operatingEfficiencyRemarks: valueDeliveryValues?.operatingEfficiencyRemarks || "",
+        costAvoidanceValue: valueDeliveryValues?.costAvoidanceValue || 0,
+        costAvoidancePercent: valueDeliveryValues?.costAvoidancePercent || 0,
+        costAvoidanceRemarks: valueDeliveryValues?.costAvoidanceRemarks || "",
+      },
+      costAllocationJVApproval: [],
+      jvApproval: {
+        contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
+        contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,
+        contractCommittee_SCP_Co_CCInfoNote: costAllocationValues?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BTC_CC: costAllocationValues?.contractCommittee_BTC_CC || false,
+        contractCommittee_BTC_CCInfoNote: costAllocationValues?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_CGB: costAllocationValues?.contractCommittee_CGB || false,
+        coVenturers_CMC: costAllocationValues?.coVenturers_CMC || false,
+        coVenturers_SDMC: costAllocationValues?.coVenturers_SDMC || false,
+        coVenturers_SCP: costAllocationValues?.coVenturers_SCP || false,
+        coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
+        steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
+      }
+    }
+
+    if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
+      // const isPassedCheck = this.checkThreshold(generalInfoValue?.contractValueUsd || 0, Number(generalInfoValue?.sourcingType || 0))
+      // if (!isPassedCheck) {
+      //   this.toastService.show('Contract value must meet or exceed the selected threshold.', 'danger');
+      //   return;
+      // }
+
+      this.generatePaper(params)
+
+    } else if (this.currentPaperStatus === "Draft") {
+      const updatedParams = cleanObject(params);
+
+      this.generatePaper(updatedParams)
+    } else if (!this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
+      this.toastService.show("Please fill all mandatory fields", "danger")
+    }
+  }
+
+  checkThreshold(value: number, type: number) {
+    if (this.thresholdData && this.thresholdData.length > 0) {
+      const data = this.thresholdData.find(item => item.paperType === "Approach to Market" && item.sourcingType === type)
+      return !(data && data.contractValueLimit > value);
+    } else {
+      return true
+    }
+  }
+
+  generatePaper(params: any) {
+    this.paperService.upsertVariationPaper(params).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.generalInfoForm.reset();
+          this.submitted = false;
+          this.toastService.show(response.message || "Added Successfully", 'success');
+          setTimeout(() => {
+            this.router.navigate(['/all-papers']);
+          }, 2000);
+        } else {
+          this.toastService.show(response.message || "Something went wrong.", 'danger');
+        }
+      },
+      error: (error) => {
+        console.log('Error', error);
+        this.toastService.show("Something went wrong.", 'danger');
+      },
+    });
   }
 
   toggleComments() {
     this.isExpanded = !this.isExpanded;
   }
 
-  setPaperStatus(status: string): void {
+  setPaperStatus(status: string, callAPI: boolean = true): void {
     if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
 
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
+    this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
+    if (callAPI && this.paperId) {
+      this.paperConfigService.updateMultiplePaperStatus([{
+        paperId: this.paperId,
+        existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
+        statusId: this.paperStatusId
+      }]).subscribe(value => {
+        this.toastService.show('Paper has been moved to ' + status);
+        this.router.navigate(['/all-papers'])
+      });
+    }
 
   }
 
@@ -581,4 +874,144 @@ export class Template3Component {
       section.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
   }
+
+  scrollToTop(): void {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  get generalInfo() {
+    return this.generalInfoForm.get('generalInfo');
+  }
+
+  get contractInfo() {
+    return this.generalInfoForm.get('contractInfo');
+  }
+
+  // Getter for FormArray
+  get consultationRows(): FormArray {
+    return this.generalInfoForm.get('consultation') as FormArray;
+  }
+
+  addConsultationRow(isFirst = false, isChangedCamUser = false) {
+    if (isFirst && this.paperDetails) {
+      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+      const riskMitigationArray = this.consultationRows;
+      riskMitigationArray.clear(); // Clear existing controls
+
+      riskMitigationsData.forEach((item: any, index: number) => {
+        riskMitigationArray.push(
+          this.fb.group({
+            psa: [item.psa, Validators.required],
+            technicalCorrect: [{value: item.technicalCorrectId, disabled: false}, Validators.required],
+            budgetStatement: [item.budgetStatementId, Validators.required],
+            jvReview: [item.jvReviewId, Validators.required],
+            id: [item.id]
+          })
+        );
+      });
+    } else {
+      const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
+      if (isChangedCamUser) {
+        this.consultationRows.clear();
+      }
+      this.consultationRows.push(
+        this.fb.group({
+          psa: ['', Validators.required],
+          technicalCorrect: [{value: camUserId ? Number(camUserId) : null, disabled: false}, Validators.required],
+          budgetStatement: [null, Validators.required],
+          jvReview: [null, Validators.required],
+          id: [0]
+        })
+      );
+    }
+  }
+
+
+  // Function to remove a row
+  removeConsultationRow(index: number) {
+    if (this.consultationRows.length > 1) {
+      this.consultationRows.removeAt(index);
+    }
+  }
+
+  open(event: Event, content: TemplateRef<any>, paperId?: any) {
+    event.preventDefault();
+    this._mdlSvc
+      .open(content, {
+        ariaLabelledBy: 'modal-basic-title',
+        centered: true, // Ensure modal is centered
+        size: 'lg', // Adjust size as needed (sm, lg, xl)
+      })
+      .result.then(
+      (result) => {
+        // Handle modal close
+      },
+      (reason) => {
+        // Handle modal dismiss
+      }
+    );
+
+    if (paperId) {
+      this.selectedPaper = paperId;
+    }
+  }
+
+  openModal() {
+    const modalRef = this._mdlSvc.open(DummyCompComponent);
+    modalRef.result.then((result) => {
+      if (result) {
+        console.log(result);
+      }
+    });
+  }
+
+  addReview(modal: any) {
+    if (this.selectedPaper > 0) {
+      this.paperService.addPaperCommentLogs({
+        paperId: this.selectedPaper,
+        logType: 'Other',
+        remarks: this.approvalRemark,
+        description: this.approvalRemark,
+        columnName: '',
+        isActive: true,
+      })
+        .subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              modal.close('Save click');
+            }
+          },
+          error: (error) => {
+            console.log('error', error);
+          },
+        });
+    }
+  }
+
+
+  approvePaper(modal: any, type: string) {
+    if (this.selectedPaper > 0) {
+      this.paperConfigService.approveRejectPaper({
+        paperId: this.selectedPaper,
+        remarks: this.reviewBy || '',
+        description: this.approvalRemark,
+        type:
+          this.loggedInUser?.roleName === 'PDM' ? 'PDM Approval' : 'Pre-CGB Approval',
+        check: type,
+      })
+        .subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              modal.close('Save click');
+              this.router.navigate(['/all-papers'])
+              this.toastService.show('Paper Status updated successfully');
+            }
+          },
+          error: (error) => {
+            console.log('error', error);
+          },
+        });
+    }
+  }
+
 }

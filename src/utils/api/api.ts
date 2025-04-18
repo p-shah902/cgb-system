@@ -23,6 +23,7 @@ export const getPaperConfigurationsList = baseUri + '/api/PaperConfiguration/Get
 export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
 export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
 export const upsertContractAward = baseUri + '/api/PaperConfiguration/UpsertContractAward';
+export const upsertVariationPaper = baseUri + '/api/PaperConfiguration/UpsertVariationPaper';
 export const getVendorDetailsByIdUri = baseUri + '/api/VendorMaster/GetVendorDetailsById';
 export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsById';
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
