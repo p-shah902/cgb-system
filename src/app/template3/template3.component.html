@@ -71,7 +71,7 @@
         </div>
         <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
           <div class="form-body">
-            <div id="section1" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section1" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">1. General Information</h4>
               <button
                 type="button"
@@ -167,7 +167,8 @@
                     <label>CGB Award Ref No*</label>
                     <input id="cgbAwardRefNo" type="text" class="form-control" placeholder="CGB Award Ref No"
                            formControlName="cgbAwardRefNo"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
@@ -187,7 +188,8 @@
                     <input id="fullLegalName" type="text" class="form-control allow-comments"
                            placeholder="Full Legal Name"
                            formControlName="fullLegalName"/>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('fullLegalName')?.hasError('required')">
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('fullLegalName')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
@@ -372,7 +374,8 @@
                         <div class="form-group mb-3">
                           <input id="contractStartDate" formControlName="contractStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
-                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
+                          <div class="text-danger"
+                               *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
                             <small class="text-danger">This field is required.</small>
                           </div>
                         </div>
@@ -381,7 +384,8 @@
                         <div class="form-group mb-3">
                           <input id="contractEndDate" formControlName="contractEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
-                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
+                          <div class="text-danger"
+                               *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
                             <small class="text-danger">This field is required.</small>
                           </div>
                         </div>
@@ -398,7 +402,8 @@
                         <div class="form-group mb-3">
                           <input id="variationStartDate" formControlName="variationStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
-                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('variationStartDate')?.hasError('required')">
+                          <div class="text-danger"
+                               *ngIf="submitted && generalInfo?.get('variationStartDate')?.hasError('required')">
                             <small class="text-danger">This field is required.</small>
                           </div>
                         </div>
@@ -407,7 +412,8 @@
                         <div class="form-group mb-3">
                           <input id="variationEndDate" formControlName="variationEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
-                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('variationEndDate')?.hasError('required')">
+                          <div class="text-danger"
+                               *ngIf="submitted && generalInfo?.get('variationEndDate')?.hasError('required')">
                             <small class="text-danger">This field is required.</small>
                           </div>
                         </div>
@@ -496,8 +502,21 @@
               </div>
             </div>
 
-            <div id="section2" class="fb-title-div ft-bg3">
-              <h4>2. Justification Section</h4>
+            <div id="section2" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">2. Justification Section</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="justificationSection">
               <div class="row">
@@ -529,8 +548,21 @@
 
             </div>
 
-            <div id="section3" class="fb-title-div ft-bg3">
-              <h4>3. Contract Information</h4>
+            <div id="section3" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">3. Contract Information</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="contractInfo">
               <div class="row">
@@ -645,8 +677,21 @@
               </div>
             </div>
 
-            <div id="section4" class="fb-title-div ft-bg3">
-              <h4>4. Contract Values ($)</h4>
+            <div id="section4" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">4. Contract Values ($)</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="contractValues">
               <div class="row">
@@ -770,8 +815,21 @@
               </div>
             </div>
 
-            <div id="section5" class="fb-title-div ft-bg3">
-              <h4>5. CDD (Counterparty Due Diligence)</h4>
+            <div id="section5" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">5. CDD (Counterparty Due Diligence)</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="ccd">
               <div class="row">
@@ -831,8 +889,21 @@
               </div>
             </div>
 
-            <div id="section6" class="fb-title-div ft-bg3">
-              <h4>6. Value Delivery</h4>
+            <div id="section6" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">6. Value Delivery</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
 
             <div class="fb-form" formGroupName="valueDelivery">
@@ -951,8 +1022,21 @@
               </small>
             </div>
 
-            <div id="section7" class="fb-title-div ft-bg3">
-              <h4>7. JV Approval</h4>
+            <div id="section7" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">7. JV Approval</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="fb-form" formGroupName="costAllocation">
               <div class="cost-table-div custom-table table-responsive">
@@ -1084,10 +1168,21 @@
                 </table>
               </div>
             </div>
-
-
-            <div id="section8" class="fb-title-div ft-bg3">
-              <h4>8. APPENDIX: Cost Allocation and PSA Approval</h4>
+            <div id="section8" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">8. APPENDIX: Cost Allocation and PSA Approval</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div *ngFor="let group of allowedGroups">
               <h6 class="mb-3"><b>{{ group.label }}</b></h6>
@@ -1097,7 +1192,9 @@
                   <thead>
                   <tr>
                     <th>PSA</th>
-                    <th *ngFor="let psa of psaItems"><input type="checkbox" [formControlName]="psa.control"> {{" "}}{{ psa.psaName }} </th>
+                    <th *ngFor="let psa of psaItems"><input type="checkbox"
+                                                            [formControlName]="psa.control"> {{" "}}{{ psa.psaName }}
+                    </th>
                     <th>Total</th>
                   </tr>
                   </thead>
@@ -1139,10 +1236,21 @@
               </div>
             </div>
 
-
-
-            <div id="section9" class="fb-title-div ft-bg3">
-              <h4>9. Consultation</h4>
+            <div id="section9" class="fb-title-div ft-bg3 d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">9. Consultation</h4>
+              <button
+                type="button"
+                class="btn btn-sm btn-light me-2"
+                style="margin-top: 8px; margin-bottom: 8px;"
+                (click)="scrollToTop()"
+                title="Back to Top"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-arrow-up" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd"
+                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
+                </svg>
+              </button>
             </div>
             <div class="form-group mb-3 allow-comments fb-form" id="consultation">
               <div class="overflow-auto">

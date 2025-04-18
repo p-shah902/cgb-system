@@ -100,19 +100,19 @@ export class Template3Component {
   isShowBoxSection = false
 
   psaItems = [
-    { psaName: 'ACG', control: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG' },
-    {psaName: 'Shah Deniz', control: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah' },
-    { psaName: 'SCP', control: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP' },
-    { psaName: 'BTC', control: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC' },
-    { psaName: 'Sh-Asiman', control: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
-    { psaName: 'BP Group', control: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+    {psaName: 'ACG', control: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
+    {psaName: 'Shah Deniz', control: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
+    {psaName: 'SCP', control: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
+    {psaName: 'BTC', control: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
+    {psaName: 'Sh-Asiman', control: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
+    {psaName: 'BP Group', control: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
   ];
 
   allowedGroups = [
-    { key: 'originalValue', label: 'Original Value' },
-    { key: 'previousValue', label: 'Previous Value' },
-    { key: 'thisValue', label: 'This Value' },
-    { key: 'revisedValue', label: 'Revised Value' }
+    {key: 'originalValue', label: 'Original Value'},
+    {key: 'previousValue', label: 'Previous Value'},
+    {key: 'thisValue', label: 'This Value'},
+    {key: 'revisedValue', label: 'Revised Value'}
   ];
 
 
@@ -245,7 +245,7 @@ export class Template3Component {
         cgbApprovalDate: [null],
         fullLegalName: ['', Validators.required],
         contractNo: [''],
-        vendorId:[null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        vendorId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         globalCGB: ['', Validators.required],
         camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -255,10 +255,10 @@ export class Template3Component {
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        contractStartDate:  [null, Validators.required],
+        contractStartDate: [null, Validators.required],
         contractEndDate: [null, Validators.required],
         variationStartDate: [null, Validators.required],
-        variationEndDate:  [null, Validators.required],
+        variationEndDate: [null, Validators.required],
         psajv: [[], Validators.required],
         isLTCC: [null],
         ltccNotes: [''],
@@ -268,8 +268,8 @@ export class Template3Component {
         isGIAAPCheck: [false],
       }),
       justificationSection: this.fb.group({
-        whyChangeRequired:  ['', Validators.required],
-        longTermStrategy:  ['', Validators.required],
+        whyChangeRequired: ['', Validators.required],
+        longTermStrategy: ['', Validators.required],
       }),
       contractInfo: this.fb.group({
         isPHCA: [null],
@@ -314,13 +314,13 @@ export class Template3Component {
       }),
       costAllocation: this.fb.group({
         contractCommittee_SDCC: [false],
-        contractCommittee_SCP_Co_CC:[false],
-        contractCommittee_SCP_Co_CCInfoNote:[false],
+        contractCommittee_SCP_Co_CC: [false],
+        contractCommittee_SCP_Co_CCInfoNote: [false],
         contractCommittee_BTC_CC: [false],
         contractCommittee_BTC_CCInfoNote: [false],
         contractCommittee_CGB: [false], //TODO discuss
         coVenturers_CMC: [false],
-        coVenturers_SDMC:[false],
+        coVenturers_SDMC: [false],
         coVenturers_SCP: [false],
         coVenturers_SCP_Board: [false],
         steeringCommittee_SC: [false],
@@ -536,17 +536,16 @@ export class Template3Component {
       if (value === true) {
         ltccNotesControl?.setValidators([Validators.required]);
         ltccNotesControl?.enable();
-        this.isShowBoxSection= true
+        this.isShowBoxSection = true
       } else {
         ltccNotesControl?.clearValidators();
         ltccNotesControl?.disable(); // <- disables the field
-        this.isShowBoxSection= false
+        this.isShowBoxSection = false
       }
 
       ltccNotesControl?.updateValueAndValidity();
     });
   }
-
 
 
   fetchPaperDetails(paperId: number) {
@@ -582,39 +581,39 @@ export class Template3Component {
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: generatlInfoData.paperProvision || "",
-            purposeRequired:  generatlInfoData.purposeRequired || "",
-            isChangeinSOW:generatlInfoData.isChangeinSOW || false,
+            purposeRequired: generatlInfoData.purposeRequired || "",
+            isChangeinSOW: generatlInfoData.isChangeinSOW || false,
             isIncreaseInValue: generatlInfoData.isIncreaseInValue || false,
             isExtensionOfDuration: generatlInfoData.isExtensionOfDuration || false,
             isTEToCompleteBidding: generatlInfoData.isTEToCompleteBidding || false,
             isChangeInRates: generatlInfoData.isChangeInRates || false,
             cgbItemRefNo: generatlInfoData.cgbItemRefNo || '',
-            cgbCirculationDate:  generatlInfoData.cgbCirculationDate
+            cgbCirculationDate: generatlInfoData.cgbCirculationDate
               ? format(new Date(generatlInfoData.cgbCirculationDate), 'yyyy-MM-dd')
               : null,
             cgbAwardRefNo: generatlInfoData.cgbAwardRefNo || '',
-            cgbApprovalDate:  generatlInfoData.cgbApprovalDate
+            cgbApprovalDate: generatlInfoData.cgbApprovalDate
               ? format(new Date(generatlInfoData.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
             fullLegalName: generatlInfoData.fullLegalName || '',
             contractNo: generatlInfoData.contractNo || '',
             vendorId: generatlInfoData.vendorId || null,
             globalCGB: generatlInfoData.globalCGB || null,
-            camUserId:generatlInfoData.camUserId || null,
+            camUserId: generatlInfoData.camUserId || null,
             vP1UserId: generatlInfoData.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
-            pdManagerName:  generatlInfoData?.pdManagerNameId || null,
+            pdManagerName: generatlInfoData?.pdManagerNameId || null,
             operatingFunction: generatlInfoData?.operatingFunction || '',
             bltMember: generatlInfoData?.bltMemberId || null,
             subSector: generatlInfoData?.subSector || '',
-            sourcingType:generatlInfoData?.sourcingType || '',
+            sourcingType: generatlInfoData?.sourcingType || '',
             contractStartDate: generatlInfoData.contractStartDate
               ? format(new Date(generatlInfoData.contractStartDate), 'yyyy-MM-dd')
               : '',
-            contractEndDate:  generatlInfoData.contractEndDate
+            contractEndDate: generatlInfoData.contractEndDate
               ? format(new Date(generatlInfoData.contractEndDate), 'yyyy-MM-dd')
               : '',
-            variationStartDate:  generatlInfoData.variationStartDate
+            variationStartDate: generatlInfoData.variationStartDate
               ? format(new Date(generatlInfoData.variationStartDate), 'yyyy-MM-dd')
               : '',
             variationEndDate: generatlInfoData.variationEndDate
@@ -622,31 +621,31 @@ export class Template3Component {
               : '',
             psajv: selectedValuesPSAJV,
             isLTCC: generatlInfoData?.isLTCC || false,
-            ltccNotes:generatlInfoData?.ltccNotes || '',
+            ltccNotes: generatlInfoData?.ltccNotes || '',
             isGovtReprAligned: generatlInfoData?.isGovtReprAligned || false,
             govtReprAlignedComment: generatlInfoData?.govtReprAlignedComment || '',
             isIFRS16: generatlInfoData?.isIFRS16 || false,
             isGIAAPCheck: generatlInfoData?.isGIAAPCheck || false,
           },
-          justificationSection:{
-            whyChangeRequired:  generatlInfoData?.whyChangeRequired || '',
-            longTermStrategy:  generatlInfoData?.longTermStrategy || '',
+          justificationSection: {
+            whyChangeRequired: generatlInfoData?.whyChangeRequired || '',
+            longTermStrategy: generatlInfoData?.longTermStrategy || '',
           },
-          contractInfo:{
+          contractInfo: {
             isPHCA: generatlInfoData?.isPHCA || false,
             workspaceNo: generatlInfoData?.workspaceNo || '',
             remunerationType: generatlInfoData?.remunerationType || '',
             previousCGBRefNo: generatlInfoData?.previousCGBRefNo || '',
             isPaymentRequired: generatlInfoData?.isPaymentRequired || false,
-            prePayAmount:generatlInfoData?.prePayAmount || 0,
+            prePayAmount: generatlInfoData?.prePayAmount || 0,
             isRetrospectiveApproval: generatlInfoData?.isRetrospectiveApproval || false,
             retrospectiveApprovalReason: generatlInfoData?.retrospectiveApprovalReason || '',
           },
-          contractValues:{
+          contractValues: {
             originalContractValue: generatlInfoData?.originalContractValue || 0,
             previousVariationTotal: generatlInfoData?.previousVariationTotal || 0,
             thisVariationNote: generatlInfoData?.thisVariationNote || '',
-            exchangeRate:generatlInfoData?.exchangeRate || 0,
+            exchangeRate: generatlInfoData?.exchangeRate || 0,
             contractValue: generatlInfoData?.contractValue || 0,
             revisedContractValue: generatlInfoData?.revisedContractValue || 0,
             spendOnContract: generatlInfoData?.spendOnContract || 0,
@@ -657,7 +656,7 @@ export class Template3Component {
           },
           ccd: {
             isHighRiskContract: generatlInfoData?.isHighRiskContract || false,
-            daCDDCompleted:  generatlInfoData.daCDDCompleted
+            daCDDCompleted: generatlInfoData.daCDDCompleted
               ? format(new Date(generatlInfoData.daCDDCompleted), 'yyyy-MM-dd')
               : '',
             highRiskExplanation: generatlInfoData?.highRiskExplanation || '',
@@ -667,24 +666,24 @@ export class Template3Component {
           valueDelivery: {
             costReductionPercent: valueDeliveriesCostSharingData?.costReductionPercent || null,
             costReductionValue: valueDeliveriesCostSharingData?.costReductionValue || null,
-            costReductionRemarks:  valueDeliveriesCostSharingData?.costReductionRemarks || '',
+            costReductionRemarks: valueDeliveriesCostSharingData?.costReductionRemarks || '',
             operatingEfficiencyValue: valueDeliveriesCostSharingData?.operatingEfficiencyValue || null,
             operatingEfficiencyPercent: valueDeliveriesCostSharingData?.operatingEfficiencyPercent || null,
-            operatingEfficiencyRemarks:valueDeliveriesCostSharingData?.operatingEfficiencyRemarks || '',
+            operatingEfficiencyRemarks: valueDeliveriesCostSharingData?.operatingEfficiencyRemarks || '',
             costAvoidanceValue: valueDeliveriesCostSharingData?.costAvoidanceValue || null,
             costAvoidancePercent: valueDeliveriesCostSharingData?.costAvoidancePercent || null,
-            costAvoidanceRemarks:valueDeliveriesCostSharingData?.costAvoidanceRemarks || '',
+            costAvoidanceRemarks: valueDeliveriesCostSharingData?.costAvoidanceRemarks || '',
           },
           costAllocation: {
             contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
-            contractCommittee_SCP_Co_CC:jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
-            contractCommittee_SCP_Co_CCInfoNote:jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+            contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+            contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
             contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
             contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
             contractCommittee_CGB: jvApprovalsData?.contractCommittee_CGB || false,
             coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
-            coVenturers_SDMC:jvApprovalsData?.coVenturers_SDMC || false,
-            coVenturers_SCP:jvApprovalsData?.coVenturers_SCP || false,
+            coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
+            coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
             coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
             steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
           }
@@ -734,7 +733,6 @@ export class Template3Component {
         return '';
     }
   }
-
 
 
   requireAllIfAny(group: AbstractControl): ValidationErrors | null {
