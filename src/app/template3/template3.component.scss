@@ -7,3 +7,9 @@
   border: 2px solid yellow !important;
   background-color: yellow !important;
 }
+
+::ng-deep .ck-editor__editable {
+  min-height: 250px !important;
+  max-height: 400px;
+  overflow: auto;
+}

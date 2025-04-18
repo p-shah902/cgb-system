@@ -123,7 +123,7 @@ export class PaperconfigurationComponent implements OnInit {
       label: 'Contract Award',
     },
     {
-      value: '/contract-variation',
+      value: '/variation-paper',
       label: 'Variation Paper',
     },
     {

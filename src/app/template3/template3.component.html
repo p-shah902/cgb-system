@@ -167,6 +167,9 @@
                     <label>CGB Award Ref No*</label>
                     <input id="cgbAwardRefNo" type="text" class="form-control" placeholder="CGB Award Ref No"
                            formControlName="cgbAwardRefNo"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-3">
@@ -180,10 +183,13 @@
 
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
-                    <label>Full Legal Name</label>
+                    <label>Full Legal Name *</label>
                     <input id="fullLegalName" type="text" class="form-control allow-comments"
                            placeholder="Full Legal Name"
                            formControlName="fullLegalName"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('fullLegalName')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-3">
@@ -360,18 +366,24 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label><b>Contract Date</b></label>
+                    <label><b>Contract Date *</b></label>
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
                           <input id="contractStartDate" formControlName="contractStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
+                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
+                            <small class="text-danger">This field is required.</small>
+                          </div>
                         </div>
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
                           <input id="contractEndDate" formControlName="contractEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
+                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
+                            <small class="text-danger">This field is required.</small>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -380,18 +392,24 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label><b>Variation Date</b></label>
+                    <label><b>Variation Date *</b></label>
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
                           <input id="variationStartDate" formControlName="variationStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
+                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('variationStartDate')?.hasError('required')">
+                            <small class="text-danger">This field is required.</small>
+                          </div>
                         </div>
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
                           <input id="variationEndDate" formControlName="variationEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
+                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('variationEndDate')?.hasError('required')">
+                            <small class="text-danger">This field is required.</small>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -486,16 +504,25 @@
 
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Why is the change required?</label>
+                    <label>Why is the change required? *</label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="whyChangeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'whyChangeRequired') : ''"
                                 formControlName="whyChangeRequired"/>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfoForm.get('justificationSection.whyChangeRequired')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                   <div class="form-group mb-3">
-                    <label>Long-Term Strategy</label>
+                    <label>Long-Term Strategy*</label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="longTermStrategy"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'longTermStrategy') : ''"
                                 formControlName="longTermStrategy"/>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfoForm.get('justificationSection.longTermStrategy')?.hasError('required')"
+                    >
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -646,9 +673,13 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>This Variation (Info Note)</label>
+                    <label>This Variation (Info Note) *</label>
                     <input type="text" class="form-control allow-comments" formControlName="thisVariationNote"
                            placeholder="Enter Here"/>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfoForm.get('contractValues.thisVariationNote')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
 
                 </div>
@@ -732,8 +763,9 @@
                     <textarea type="text" id="conflictOfInterestComment" class="form-control allow-comments"
                               placeholder="Write Description"
                               formControlName="conflictOfInterestComment"></textarea>
+
                     <div class="text-danger"
-                         *ngIf="submitted && generalInfoForm?.get('contractValues.conflictOfInterestComment')?.hasError('required')">
+                         *ngIf="submitted && generalInfoForm.get('contractValues.conflictOfInterestComment')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>

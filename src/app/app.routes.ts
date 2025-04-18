@@ -33,12 +33,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'contract-variation',
+    path: 'variation-paper',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
   },
   {
-    path: 'contract-variation/:id',
+    path: 'variation-paper/:id',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
   },

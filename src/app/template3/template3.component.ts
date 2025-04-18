@@ -215,13 +215,13 @@ export class Template3Component {
         isExtensionOfDuration: [false],
         isTEToCompleteBidding: [false],
         isChangeInRates: [false],
-        cgbItemRefNo: [''],
-        cgbCirculationDate: [''],
+        cgbItemRefNo: [{value: '', disabled: true}],
+        cgbCirculationDate: [{value: '', disabled: true}],
         cgbAwardRefNo: ['', Validators.required],
-        cgbApprovalDate: [{value: '', disabled: true}],
+        cgbApprovalDate: [null],
         fullLegalName: ['', Validators.required],
-        contractNo: ['', Validators.required],
-        vendorId: [null],
+        contractNo: [''],
+        vendorId:[null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         globalCGB: ['', Validators.required],
         camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -231,10 +231,10 @@ export class Template3Component {
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        contractStartDate: [''],
-        contractEndDate: [''],
-        variationStartDate: [''],
-        variationEndDate: [''],
+        contractStartDate:  [null, Validators.required],
+        contractEndDate: [null, Validators.required],
+        variationStartDate: [null, Validators.required],
+        variationEndDate:  [null, Validators.required],
         psajv: [[], Validators.required],
         isLTCC: [null],
         ltccNotes: [''],
@@ -244,8 +244,8 @@ export class Template3Component {
         isGIAAPCheck: [false],
       }),
       justificationSection: this.fb.group({
-        whyChangeRequired: [''],
-        longTermStrategy: [''],
+        whyChangeRequired:  ['', Validators.required],
+        longTermStrategy:  ['', Validators.required],
       }),
       contractInfo: this.fb.group({
         isPHCA: [null],
@@ -260,7 +260,7 @@ export class Template3Component {
       contractValues: this.fb.group({
         originalContractValue: [0],
         previousVariationTotal: [0],
-        thisVariationNote: [''],
+        thisVariationNote: ['', Validators.required],
         exchangeRate: [0],
         contractValue: [0],
         revisedContractValue: [0],
@@ -289,17 +289,17 @@ export class Template3Component {
         costAvoidanceRemarks: [''],
       }),
       costAllocation: this.fb.group({
-        contractCommittee_SDCC: [{value: false, disabled: true}],
-        contractCommittee_SCP_Co_CC: [{value: false, disabled: true}],
-        contractCommittee_SCP_Co_CCInfoNote: [{value: false, disabled: true}],
-        contractCommittee_BTC_CC: [{value: false, disabled: true}],
-        contractCommittee_BTC_CCInfoNote: [{value: false, disabled: true}],
+        contractCommittee_SDCC: [false],
+        contractCommittee_SCP_Co_CC:[false],
+        contractCommittee_SCP_Co_CCInfoNote:[false],
+        contractCommittee_BTC_CC: [false],
+        contractCommittee_BTC_CCInfoNote: [false],
         contractCommittee_CGB: [false], //TODO discuss
-        coVenturers_CMC: [{value: false, disabled: true}],
-        coVenturers_SDMC: [{value: false, disabled: true}],
-        coVenturers_SCP: [{value: false, disabled: true}],
-        coVenturers_SCP_Board: [{value: false, disabled: true}],
-        steeringCommittee_SC: [{value: false, disabled: true}],
+        coVenturers_CMC: [false],
+        coVenturers_SDMC:[false],
+        coVenturers_SCP: [false],
+        coVenturers_SCP_Board: [false],
+        steeringCommittee_SC: [false],
         // isACG: [{value: false, disabled: true}],
         // isShah: [{value: false, disabled: true}],
         // isSCP: [{value: false, disabled: true}],
@@ -676,61 +676,87 @@ export class Template3Component {
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
-    const procurementValue = this.generalInfoForm?.value?.procurementDetails
-    const consultationsValue = this.generalInfoForm?.value?.consultation
-    const costSharingValues = this.generalInfoForm?.value?.costSharing
+    const justificationSectionValue = this.generalInfoForm?.value?.justificationSection
+    const contractInfoValue = this.generalInfoForm?.value?.contractInfo
+    const contractValues = this.generalInfoForm?.value?.contractValues
+    const ccdValues = this.generalInfoForm?.value?.ccd
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+    const consultationsValue = this.generalInfoForm?.value?.consultation
+
 
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
-        paperProvision: generalInfoValue?.paperProvision,
-        purposeRequired: generalInfoValue?.purposeRequired,
+        paperProvision: generalInfoValue?.paperProvision || "",
+        purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
         ...(this.paperId && !this.isCopy ? {id: Number(this.paperId)} : {})
       },
       variationPaper: {
-        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
+        isChangeinSOW: generalInfoValue?.isChangeinSOW || false,
+        isIncreaseInValue: generalInfoValue?.isIncreaseInValue || false,
+        isExtensionOfDuration: generalInfoValue?.isExtensionOfDuration || false,
+        isTEToCompleteBidding: generalInfoValue?.isTEToCompleteBidding || false,
+        isChangeInRates: generalInfoValue?.isChangeInRates || false,
         cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        scopeOfWork: generalInfoValue?.scopeOfWork,
+        cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
+        cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
+        fullLegalName: generalInfoValue?.fullLegalName || '',
+        contractNo: generalInfoValue?.contractNo || '',
+        vendorId: generalInfoValue?.vendorId || null,
         globalCGB: generalInfoValue?.globalCGB,
-        bltMember: generalInfoValue?.bltMember,
-        operatingFunction: generalInfoValue?.operatingFunction,
-        subSector: generalInfoValue?.subSector,
-        sourcingType: generalInfoValue?.sourcingType,
         camUserId: generalInfoValue?.camUserId || null,
         vP1UserId: generalInfoValue?.vP1UserId || null,
         procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
         pdManagerName: generalInfoValue?.pdManagerName || null,
-        isPHCA: generalInfoValue?.isPHCA || false,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
-        currencyCode: generalInfoValue?.originalCurrency || null,
-        exchangeRate: generalInfoValue?.exchangeRate,
-        contractValue: generalInfoValue?.contractValueOriginalCurrency,
+        operatingFunction: generalInfoValue?.operatingFunction,
+        bltMember: generalInfoValue?.bltMember,
+        subSector: generalInfoValue?.subSector,
+        sourcingType: generalInfoValue?.sourcingType,
         contractStartDate: generalInfoValue?.contractStartDate || null,
         contractEndDate: generalInfoValue?.contractEndDate || null,
+        variationStartDate: generalInfoValue?.variationStartDate || null,
+        variationEndDate: generalInfoValue?.variationEndDate || null,
+        psajv: generalInfoValue?.psajv?.join(',') || "",
         isLTCC: generalInfoValue?.isLTCC || false,
         ltccNotes: generalInfoValue?.ltccNotes,
         isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
         govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
         isIFRS16: generalInfoValue?.isIFRS16 || false,
         isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
-        isConflictOfInterest: generalInfoValue?.isConflictOfInterest || false,
-        conflictOfInterestComment: generalInfoValue?.conflictOfInterestComment,
-        strategyDescription: generalInfoValue?.strategyDescription,
-        remunerationType: procurementValue?.remunerationType,
-        contractMgmtLevel: procurementValue?.contractMgmtLevel,
-        sourcingRigor: procurementValue?.sourcingRigor,
-        sourcingStrategy: procurementValue?.sourcingStrategy,
-        singleSourceJustification: procurementValue?.singleSourceJustification,
-        socaRsentOn: procurementValue?.socaRsentOn || null,
-        socaRreceivedOn: procurementValue?.socaRreceivedOn || null,
-        socarDescription: procurementValue?.socarDescription,
-        preQualificationResult: procurementValue?.preQualificationResult,
+        //justificationSection
+        whyChangeRequired: justificationSectionValue?.whyChangeRequired || '',
+        longTermStrategy: justificationSectionValue?.longTermStrategy || '',
+        //contractInfo
+
+        isPHCA: contractInfoValue?.isPHCA || false,
+        workspaceNo: contractInfoValue?.workspaceNo || '',
+        remunerationType: contractInfoValue?.remunerationType || null,
+        previousCGBRefNo: contractInfoValue?.previousCGBRefNo || null,
+        isPaymentRequired: contractInfoValue?.isPaymentRequired || false,
+        prePayAmount: contractInfoValue?.prePayAmount || 0,
+        isRetrospectiveApproval: contractInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: contractInfoValue?.retrospectiveApprovalReason || '',
+        //contractValues
+        originalContractValue: contractValues?.originalContractValue || 0,
+        previousVariationTotal: contractValues?.previousVariationTotal || 0,
+        exchangeRate: contractValues?.exchangeRate || 0,
+        contractValue: contractValues?.contractValue || 0,
+        revisedContractValue: contractValues?.revisedContractValue || 0,
+        spendOnContract: contractValues?.spendOnContract || 0,
+        thisVariationNote: contractValues?.thisVariationNote || '',
+        isCurrencyLinktoBaseCost: contractValues?.isCurrencyLinktoBaseCost || false,
+        isConflictOfInterest: contractValues?.isConflictOfInterest || false,
+        conflictOfInterestComment: contractValues?.conflictOfInterestComment || '',
+        //ccd
+        isHighRiskContract: ccdValues?.isHighRiskContract || false,
+        daCDDCompleted: ccdValues?.daCDDCompleted || null,
+        highRiskExplanation: ccdValues?.highRiskExplanation || '',
+        flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
+        additionalCDD: ccdValues?.additionalCDD || '',
       },
-      consultations: consultationsValue || [],
       valueDeliveriesCostSharings: {
         costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
         costReductionValue: valueDeliveryValues?.costReductionValue || 0,
@@ -755,7 +781,9 @@ export class Template3Component {
         coVenturers_SCP: costAllocationValues?.coVenturers_SCP || false,
         coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
         steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
-      }
+      },
+      consultations: consultationsValue || [],
+
     }
 
     if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {

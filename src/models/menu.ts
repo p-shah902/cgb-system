@@ -78,7 +78,7 @@ export const menuItems: Menu[] = [
             title: 'Contract Award'
           },
           {
-            path: '/contract-variation',
+            path: '/variation-paper',
             title: 'Variation Paper'
           },
           {
