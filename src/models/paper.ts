@@ -166,6 +166,7 @@ export interface Paper {
   commericalEvaluation: CommericalEvaluation[],
   supplierTechnical: SupplierTechnical[],
   costAllocations: any[]
+  noExistingBudgetCorrect?: boolean
 }
 
 export interface PaperData {

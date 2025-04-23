@@ -271,6 +271,7 @@ export class Template1Component {
         inventoryItemsMethodology: ['']
       }),
       consultation: this.fb.array([]),
+      noExistingBudgetCorrect: [false]
     });
 
     // Initialize with one row to prevent errors
@@ -541,6 +542,7 @@ export class Template1Component {
             inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
           },
           costAllocation: patchValues.costAllocation,
+          noExistingBudgetCorrect: this.paperDetails?.noExistingBudgetCorrect || false
         })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
@@ -1399,6 +1401,7 @@ export class Template1Component {
         inventoryItemsMethodology: costSharingValues.inventoryItemsMethodology || "",
       },
       costAllocationJVApproval: costAllocationJVApproval || [],
+      noExistingBudgetCorrect:  this.generalInfoForm?.value?.noExistingBudgetCorrect || false,
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
         contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,
