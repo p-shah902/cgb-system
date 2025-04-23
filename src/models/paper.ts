@@ -70,13 +70,13 @@ export interface PaperDetails {
   conflictOfInterestCommen: string
   remunerationTypeData: string
   isConflictOfInteres: boolean
-
+  isNoExistingBudget: boolean
 }
 
 export interface ConsultationsDetails {
   id: number
   psa: string
-  isNoExistingBudget: boolean
+  isNoExistingBudget?: boolean
   technicalCorrectId: number
   technicalCorrectName: string
   budgetStatementId: number
@@ -166,7 +166,6 @@ export interface Paper {
   commericalEvaluation: CommericalEvaluation[],
   supplierTechnical: SupplierTechnical[],
   costAllocations: any[]
-  noExistingBudgetCorrect?: boolean
 }
 
 export interface PaperData {
