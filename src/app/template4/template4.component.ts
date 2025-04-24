@@ -29,7 +29,7 @@ import {EditorService} from '../../service/editor.service';
 import {CommentService} from '../../service/comment.service';
 import {AuthService} from '../../service/auth.service';
 import {ThresholdService} from '../../service/threshold.service';
-import {Paper, PaperStatusType} from '../../models/paper';
+import {CostAllocationJVApproval, Paper, PaperStatusType} from '../../models/paper';
 import {DictionaryDetail} from '../../models/dictionary';
 import {ThresholdType} from '../../models/threshold';
 import {DictionaryService} from '../../service/dictionary.service';
@@ -477,18 +477,51 @@ export class Template4Component {
 
   setupPSAListeners() {
     const psaControls = [
-      {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
-      {checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
-      {checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
-      {checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
-      {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
-      {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
+      { checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG' },
+      { checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah' },
+      { checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP' },
+      { checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC' },
+      { checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
+      { checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
     ];
+    const costAllocationJVApprovalData = (this.paperDetails?.costAllocationJVApproval || []) as CostAllocationJVApproval[]
+    const patchValues: any = { costAllocation: {} };
 
-    psaControls.forEach(({checkbox, percentage, value}) => {
+    const psaNameToCheckbox: Record<string, string> = {
+      "ACG": "isACG",
+      "Shah Deniz": "isShah",
+      "SCP": "isSCP",
+      "BTC": "isBTC",
+      "Asiman": "isAsiman",
+      "BP Group": "isBPGroup"
+    };
+
+    // Assign PSA/JV values dynamically
+    costAllocationJVApprovalData.forEach(psa => {
+      const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      if (checkboxKey) {
+        patchValues.costAllocation[checkboxKey] = psa.psaValue;
+        patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
+        patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+      }
+    });
+
+    // Assign default values for all PSA/JV fields if not in API data
+    Object.keys(psaNameToCheckbox).forEach(key => {
+      const checkboxKey = psaNameToCheckbox[key];
+      if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
+        patchValues.costAllocation[checkboxKey] = false;
+        patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
+        patchValues.costAllocation[`value_${checkboxKey}`] = '';
+      }
+    });
+
+
+    psaControls.forEach(({ checkbox, percentage, value }) => {
       this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
         const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
+        const jvApprovalsData = this.paperDetails?.jvApprovals[0] || null
 
         //checkboxes
         const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
@@ -508,35 +541,48 @@ export class Template4Component {
 
         if (isChecked) {
           percentageControl?.enable();
-          valueControl?.enable();
+          percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, { emitEvent: false });
+          valueControl?.setValue(patchValues.costAllocation[value] || 0, { emitEvent: false });
 
           if (checkbox === "isACG") {
             ACG1?.enable();
             ACG2?.enable();
+            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, { emitEvent: false });
+
           } else if (checkbox === "isShah") {
             SD1?.enable();
             SD2?.enable();
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)?.setValue(jvApprovalsData?.contractCommittee_SDCC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)?.setValue(jvApprovalsData?.coVenturers_SDMC || false, { emitEvent: false });
           } else if (checkbox === "isSCP") {
             SCP1?.enable();
             SCP2?.enable();
             SCP3?.enable();
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)?.setValue(jvApprovalsData?.coVenturers_SCP || false, { emitEvent: false });
           } else if (checkbox === "isBTC") {
             BTC1?.enable();
             BTC2?.enable();
             BTC3?.enable();
+
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, { emitEvent: false });
           }
 
         } else {
           percentageControl?.reset();
           percentageControl?.disable();
           valueControl?.reset();
-          valueControl?.disable();
 
           if (checkbox === "isACG") {
             ACG1?.disable();
             ACG1?.reset();
             ACG2?.disable();
             ACG2?.reset();
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, { emitEvent: false });
           } else if (checkbox === "isShah") {
             SD1?.disable();
             SD1?.reset();
@@ -559,12 +605,6 @@ export class Template4Component {
           }
         }
       });
-    });
-
-    // Listen for changes in percentage and value fields to update total
-    psaControls.forEach(({percentage, value}) => {
-      this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe(() => this.calculateTotal());
-      this.generalInfoForm.get(`costAllocation.${value}`)?.valueChanges.subscribe(() => this.calculateTotal());
     });
   }
 
@@ -708,7 +748,6 @@ export class Template4Component {
     if (increaseCount) {
       this.totalCalls = this.totalCalls + increaseCount;
     }
-    console.log("===this.completedCount", this.completedCount, this.totalCalls)
     if (this.completedCount === this.totalCalls) {
       this.allApisDone$.next(true);
     }

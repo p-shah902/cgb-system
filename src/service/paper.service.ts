@@ -7,7 +7,7 @@ import {
   getPaperPreviewById,
   getPaperStatus,
   getPaperVisitorLogs,
-  UpsertApproachToMarkets, UpsertApprovalOfSales, upsertContractAward, upsertVariationPaper
+  UpsertApproachToMarkets, UpsertApprovalOfSales, upsertContractAward, upsertInfoNoteUri, upsertVariationPaper
 } from '../utils/api/api';
 import {ApiResponse} from '../models/role';
 import {Paper, PaperData, PaperStatusType} from '../models/paper';
@@ -28,6 +28,9 @@ export class PaperService {
 
   private isUpsertApprovalOfSalesSubject = new BehaviorSubject<boolean>(false);
   public isUpsertApprovalOfSales$ = this.isUpsertApprovalOfSalesSubject.asObservable();
+
+  private isUpsertInfoNoteSubject = new BehaviorSubject<boolean>(false);
+  public isUpsertInfoNote$ = this.isUpsertInfoNoteSubject.asObservable();
 
   private paperStatusListSubject = new BehaviorSubject<any[]>([]);
   paperStatusList$ = this.paperStatusListSubject.asObservable();
@@ -91,6 +94,22 @@ export class PaperService {
         if (response && response.success) {
 
           this.isUpsertApprovalOfSalesSubject.next(true);
+        }
+      }),
+      catchError(error => {
+        console.error(error);
+        return of({success: false, message: error.error?.message || 'Error Accured'});
+      })
+    );
+  }
+
+  upsertInfoNote(upsertPayload: any) {
+    return this.http.post<any>(upsertInfoNoteUri, upsertPayload).pipe(
+      tap(response => {
+        console.log(response);
+        if (response && response.success) {
+
+          this.isUpsertInfoNoteSubject.next(true);
         }
       }),
       catchError(error => {
