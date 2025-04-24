@@ -71,6 +71,14 @@ export interface PaperDetails {
   remunerationTypeData: string
   isConflictOfInteres: boolean
   isNoExistingBudget: boolean
+  saleDisposeValue?: number
+  technicalApprovar ?: number |  string
+  referenceNo?: string
+  transactionType?: string
+  cgbItemRef?: string
+  isRetrospectiveApproval?: boolean
+  retrospectiveApprovalReason?: string
+  purchaserName?: string
 }
 
 export interface ConsultationsDetails {

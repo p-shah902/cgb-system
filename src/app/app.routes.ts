@@ -48,6 +48,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'approval-of-sale-disposal-form/:id',
+    loadComponent: () => import('./template4/template4.component').then(m => m.Template4Component),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'info-note',
     loadComponent: () => import('./template5/template5.component').then(m => m.Template5Component),
     canActivate: [AuthGuard]
