@@ -14,7 +14,6 @@ import {
   AbstractControl,
   ValidationErrors
 } from '@angular/forms';
-import {CURRENCY_LIST} from '../../utils/constant';
 import {UserService} from '../../service/user.service';
 import {LoginUser, UserDetails} from '../../models/user';
 import {PaperService} from '../../service/paper.service';
@@ -42,7 +41,6 @@ import {EditorNormalComponent} from '../../components/editor-normal/editor-norma
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
-import { format } from 'date-fns';
 
 @Component({
   selector: 'app-template4',
@@ -77,14 +75,11 @@ export class Template4Component {
   currenciesData: DictionaryDetail[] = [];
   globalCGBData: DictionaryDetail[] = [];
   operatingFunctionsData: DictionaryDetail[] = [];
-  proposedCMLData: DictionaryDetail[] = [];
   psaData: DictionaryDetail[] = [];
   remunerationTypeData: DictionaryDetail[] = [];
   sourcingRigorData: DictionaryDetail[] = [];
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
-  isShowJustification = true
-  isShowBoxSection = false
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
@@ -104,7 +99,7 @@ export class Template4Component {
   thresholdData: ThresholdType[] = []
 
   constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
-              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
