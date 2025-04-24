@@ -162,7 +162,7 @@ export class Template4Component {
         cgbItemRef: [{value: '', disabled: true}],
         referenceNo: ['', Validators.required],
         cgbCirculationDate: [{value: '', disabled: true}],
-        technicalApprovar: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        technicalApprover: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -316,7 +316,7 @@ export class Template4Component {
             bltMember: paperDetailData?.bltMemberId || null,
             operatingFunction: paperDetailData?.operatingFunction || '',
             purchaserName: paperDetailData?.purchaserName || '',
-            technicalApprovar: paperDetailData?.technicalApprovar ? Number(paperDetailData?.technicalApprovar) : null,
+            technicalApprover: paperDetailData?.technicalApprover ? Number(paperDetailData?.technicalApprover) : null,
             vP1UserId: paperDetailData?.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: paperDetailData?.pdManagerNameId || null,
@@ -458,13 +458,13 @@ export class Template4Component {
       return; // Skip adding duplicate
     }
 
-    const technicalApprovar = this.generalInfoForm.get('generalInfo.technicalApprovar')?.value || null;
+    const technicalApprover = this.generalInfoForm.get('generalInfo.technicalApprover')?.value || null;
 
     this.consultationRows.push(
       this.fb.group({
         psa: [jvValue, Validators.required],
         technicalCorrect: [
-          {value: technicalApprovar ? Number(technicalApprovar) : null, disabled: false},
+          {value: technicalApprover ? Number(technicalApprover) : null, disabled: false},
           Validators.required
         ],
         budgetStatement: [null, Validators.required],
@@ -811,7 +811,7 @@ export class Template4Component {
         );
       });
     } else {
-      const camUserId = this.generalInfoForm.get('generalInfo.technicalApprovar')?.value || null;
+      const camUserId = this.generalInfoForm.get('generalInfo.technicalApprover')?.value || null;
       if (isChangedCamUser) {
         this.consultationRows.clear();
       }
@@ -899,7 +899,7 @@ export class Template4Component {
         cgbItemRef: generalInfoValue?.cgbItemRef || null,
         referenceNo: generalInfoValue?.referenceNo || null,
         cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        technicalApprovar: generalInfoValue?.technicalApprovar || null,
+        technicalApprover: generalInfoValue?.technicalApprover || null,
         vP1UserId: generalInfoValue?.vP1UserId || null,
         operatingFunction: generalInfoValue?.operatingFunction,
         bltMember: generalInfoValue?.bltMember,

@@ -154,8 +154,8 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Technical Approver *</label>
-                    <select id="technicalApprovar" class="form-control allow-comments"
-                            formControlName="technicalApprovar">
+                    <select id="technicalApprover" class="form-control allow-comments"
+                            formControlName="technicalApprover">
                       <option [value]="null">Select Status</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
@@ -164,7 +164,7 @@
                       </ng-container>
                     </select>
                     <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('technicalApprovar')?.hasError('required')">
+                         *ngIf="submitted && generalInfo?.get('technicalApprover')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>

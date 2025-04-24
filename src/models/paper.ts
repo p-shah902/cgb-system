@@ -72,7 +72,7 @@ export interface PaperDetails {
   isConflictOfInteres: boolean
   isNoExistingBudget: boolean
   saleDisposeValue?: number
-  technicalApprovar ?: number |  string
+  technicalApprover?:string
   referenceNo?: string
   transactionType?: string
   cgbItemRef?: string
