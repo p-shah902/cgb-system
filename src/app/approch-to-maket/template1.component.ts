@@ -997,21 +997,42 @@ export class Template1Component {
       const checkboxControl = this.generalInfoForm.get(`costSharing.${checkbox}`);
       const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
 
-      // Disable the checkbox so users can't manually change it
-      checkboxControl?.disable({ emitEvent: false });
+      if (!checkboxControl || !methodControl) return;
 
-      // Set initial state based on methodology value
-      const initialHasValue = !!methodControl?.value;
-      checkboxControl?.setValue(initialHasValue, { emitEvent: false });
+      const hasInitialValue = !!methodControl.value;
 
-      // 🔁 Watch for value changes on methodology field
-      methodControl?.valueChanges.subscribe((value) => {
+      // Set initial checkbox state
+      checkboxControl.setValue(hasInitialValue, { emitEvent: false });
+
+      // Enable only if method has value
+      if (hasInitialValue) {
+        checkboxControl.enable({ emitEvent: false });
+      } else {
+        checkboxControl.disable({ emitEvent: false });
+      }
+
+      // Watch methodology field changes
+      methodControl.valueChanges.subscribe((value) => {
         const hasValue = value !== null && value !== undefined && value !== '';
-        console.log("==hasValue", hasValue)
-        checkboxControl?.setValue(hasValue, { emitEvent: false });
+        checkboxControl.setValue(hasValue, { emitEvent: false });
+
+        if (hasValue) {
+          checkboxControl.enable({ emitEvent: false });
+        } else {
+          checkboxControl.disable({ emitEvent: false });
+        }
+      });
+
+      // Watch checkbox changes (only uncheck allowed)
+      checkboxControl.valueChanges.subscribe((checked) => {
+        if (!checked && methodControl.value) {
+          methodControl.setValue(null);
+        }
       });
     });
   }
+
+
 
 
 
