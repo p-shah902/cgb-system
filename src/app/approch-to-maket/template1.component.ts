@@ -5,6 +5,7 @@ import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckedito
 import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
   FormBuilder,
   FormArray,
@@ -72,6 +73,7 @@ export class Template1Component {
   paperStatusList: PaperStatusType[] = [];
   paperDetails: Paper | null = null
   isRegisterPaper: boolean = false
+  isInitialLoad = true;
 
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -286,13 +288,21 @@ export class Template1Component {
       this.updateContractValueOriginalCurrency();
     });
 
-    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
-      this.onSelectChangePSAJV();
+    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
+      .pipe(
+        debounceTime(300), // wait for 300ms pause
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+      )
+      .subscribe(() => {
+        if (!this.isInitialLoad) {
+          this.onSelectChangePSAJV();
+        }
+      });
+
+    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe((newCamUserId) => {
+      this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
 
-    // this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
-    //   this.addConsultationRow(false, true);
-    // });
 
     // Watch changes on enable/disable Methodology
 
@@ -404,8 +414,6 @@ export class Template1Component {
         this.isRegisterPaper = true
         this.commentService.loadPaper(paperId);
       }
-
-      console.log("==isRegisterPaper", this.isRegisterPaper)
 
       // Assign JV Approvals data
       Object.assign(patchValues.costAllocation, {
@@ -543,10 +551,11 @@ export class Template1Component {
           },
           costAllocation: patchValues.costAllocation,
           isNoExistingBudget: paperDetailData?.isNoExistingBudget || false
-        })
+        },{ emitEvent: false })
         setTimeout(() => {
-          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          this.isInitialLoad = false;
         }, 500)
 
         this.addRow(true);
@@ -751,8 +760,10 @@ export class Template1Component {
         const controlName = mapping[key];
         const isSelected = selectedOptions.includes(key);
         costAllocationControl.get(controlName)?.setValue(isSelected);
-        if(isSelected) {
-          this.addConsultationRowOnChangePSAJV(key)
+        if (isSelected) {
+          this.addConsultationRowOnChangePSAJV(key);
+        } else {
+          this.removeConsultationRowByPSAJV(key);
         }
       });
     }
@@ -1230,6 +1241,26 @@ export class Template1Component {
       })
     );
   }
+
+  removeConsultationRowByPSAJV(jvValue: string) {
+      const index = this.consultationRows.controls.findIndex(
+        group => group.get('psa')?.value === jvValue
+      );
+      if (index > -1) {
+        this.consultationRows.removeAt(index);
+      }
+  }
+
+  updateTechnicalCorrectInAllRows(newCamUserId: number | null) {
+    this.consultationRows.controls.forEach(group => {
+      const technicalCorrectControl = group.get('technicalCorrect');
+      if (technicalCorrectControl) {
+        technicalCorrectControl.setValue(Number(newCamUserId) || null);
+      }
+    });
+  }
+
+
 
   addConsultationRow(isFirst = false, isChangedCamUser = false) {
     if (isFirst && this.paperDetails) {
