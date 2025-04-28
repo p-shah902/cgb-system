@@ -300,7 +300,6 @@ export class Template1Component {
       )
       .subscribe(() => {
         if (!this.isInitialLoad || !this.paperId) {
-          console.log("==nnnn")
           this.onSelectChangePSAJV();
         }
       });
