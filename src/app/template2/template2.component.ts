@@ -43,6 +43,7 @@ import {ThresholdType} from '../../models/threshold';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
 import {ToggleService} from '../shared/services/toggle.service';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-template2',
@@ -99,6 +100,7 @@ export class Template2Component {
   private readonly _mdlSvc = inject(NgbModal);
   thresholdData: ThresholdType[] = []
   isShowBenchmarking = true
+  isInitialLoad = true;
 
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
@@ -179,12 +181,19 @@ export class Template2Component {
       this.updateContractValueOriginalCurrency();
     });
 
-    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
-      this.onSelectChange();
-    });
+    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
+      .pipe(
+        debounceTime(300), // wait for 300ms pause
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+      )
+      .subscribe(() => {
+        if (!this.isInitialLoad || !this.paperId) {
+          this.onSelectChangePSAJV();
+        }
+      });
 
-    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
-      this.addConsultationRow(false, true);
+    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe((newCamUserId) => {
+      this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
 
   }
@@ -506,6 +515,7 @@ export class Template2Component {
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.isInitialLoad = false;
         }, 500)
 
         this.addRow(true);
@@ -779,8 +789,7 @@ export class Template2Component {
     });
   }
 
-  onSelectChange() {
-
+  onSelectChangePSAJV() {
     const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
 
     const costAllocationControl = this.generalInfoForm.get('costAllocation');
@@ -798,6 +807,11 @@ export class Template2Component {
         const controlName = mapping[key];
         const isSelected = selectedOptions.includes(key);
         costAllocationControl.get(controlName)?.setValue(isSelected);
+        if (isSelected) {
+          this.addConsultationRowOnChangePSAJV(key);
+        } else {
+          this.removeConsultationRowByPSAJV(key);
+        }
       });
     }
 
@@ -1453,12 +1467,55 @@ export class Template2Component {
     }
   }
 
-
   // Function to remove a row
   removeConsultationRow(index: number) {
     if (this.consultationRows.length > 1) {
       this.consultationRows.removeAt(index);
     }
+  }
+
+  addConsultationRowOnChangePSAJV(jvValue: string) {
+    // Check if the JV value already exists in the rows
+    const alreadyExists = this.consultationRows.controls.some(group =>
+      group.get('psa')?.value === jvValue
+    );
+
+    if (alreadyExists) {
+      return; // Skip adding duplicate
+    }
+
+    const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
+
+    this.consultationRows.push(
+      this.fb.group({
+        psa: [jvValue, Validators.required],
+        technicalCorrect: [
+          { value: camUserId ? Number(camUserId) : null, disabled: false },
+          Validators.required
+        ],
+        budgetStatement: [null, Validators.required],
+        jvReview: [null, Validators.required],
+        id: [0]
+      })
+    );
+  }
+
+  removeConsultationRowByPSAJV(jvValue: string) {
+    const index = this.consultationRows.controls.findIndex(
+      group => group.get('psa')?.value === jvValue
+    );
+    if (index > -1) {
+      this.consultationRows.removeAt(index);
+    }
+  }
+
+  updateTechnicalCorrectInAllRows(newCamUserId: number | null) {
+    this.consultationRows.controls.forEach(group => {
+      const technicalCorrectControl = group.get('technicalCorrect');
+      if (technicalCorrectControl) {
+        technicalCorrectControl.setValue(Number(newCamUserId) || null);
+      }
+    });
   }
 
   get inviteToBid(): FormArray {

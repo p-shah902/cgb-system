@@ -299,7 +299,8 @@ export class Template1Component {
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
       )
       .subscribe(() => {
-        if (!this.isInitialLoad) {
+        if (!this.isInitialLoad || !this.paperId) {
+          console.log("==nnnn")
           this.onSelectChangePSAJV();
         }
       });
