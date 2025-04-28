@@ -63,7 +63,7 @@ export class LoginComponent {
         }
         console.log("Login Successfully");
         this.toastService.show('Login Successfully','success');
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/inboxoutbox']);
       },
       error: (error) => {
         console.error('Login error:', error);
