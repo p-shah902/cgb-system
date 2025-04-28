@@ -42,6 +42,7 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
 import {format} from 'date-fns';
 import {ToggleService} from '../shared/services/toggle.service';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-template5',
@@ -98,6 +99,7 @@ export class Template5Component {
   approvalRemark: string = '';
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
+  isInitialLoad = true;
 
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
@@ -235,8 +237,19 @@ export class Template5Component {
       consultation: this.fb.array([]),
     });
 
-    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges.subscribe(() => {
-      this.onSelectChangePSAJV();
+    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
+      .pipe(
+        debounceTime(300), // wait for 300ms pause
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+      )
+      .subscribe(() => {
+        if (!this.isInitialLoad || !this.paperId) {
+          this.onSelectChangePSAJV();
+        }
+      });
+
+    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe((newCamUserId) => {
+      this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
     this.setupPSAListeners()
     this.setupPSACalculations()
@@ -380,6 +393,7 @@ export class Template5Component {
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.isInitialLoad = false;
         }, 500)
 
 
@@ -486,7 +500,9 @@ export class Template5Component {
         const isSelected = selectedOptions.includes(key);
         costAllocationControl.get(controlName)?.setValue(isSelected);
         if (isSelected) {
-          this.addConsultationRowOnChangePSAJV(key)
+          this.addConsultationRowOnChangePSAJV(key);
+        } else {
+          this.removeConsultationRowByPSAJV(key);
         }
       });
     }
@@ -517,6 +533,24 @@ export class Template5Component {
         id: [0]
       })
     );
+  }
+
+  removeConsultationRowByPSAJV(jvValue: string) {
+    const index = this.consultationRows.controls.findIndex(
+      group => group.get('psa')?.value === jvValue
+    );
+    if (index > -1) {
+      this.consultationRows.removeAt(index);
+    }
+  }
+
+  updateTechnicalCorrectInAllRows(newCamUserId: number | null) {
+    this.consultationRows.controls.forEach(group => {
+      const technicalCorrectControl = group.get('technicalCorrect');
+      if (technicalCorrectControl) {
+        technicalCorrectControl.setValue(Number(newCamUserId) || null);
+      }
+    });
   }
 
 
