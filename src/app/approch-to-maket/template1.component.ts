@@ -44,6 +44,7 @@ import { AuthService } from '../../service/auth.service';
 import { ThresholdService } from '../../service/threshold.service';
 import { ThresholdType } from '../../models/threshold';
 import { cleanObject } from '../../utils';
+import {ToggleService} from '../shared/services/toggle.service';
 
 @Component({
   selector: 'app-template1',
@@ -74,6 +75,7 @@ export class Template1Component {
   paperDetails: Paper | null = null
   isRegisterPaper: boolean = false
   isInitialLoad = true;
+  isExpanded: boolean = false; // Default expanded
 
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -104,11 +106,15 @@ export class Template1Component {
   approvalRemark: string = '';
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
-  constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+  constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
+    });
+
+    this.toggleService.commentExpanded$.subscribe((expanded) => {
+      this.isExpanded = expanded;
     });
   }
 
@@ -140,7 +146,6 @@ export class Template1Component {
             this.fetchPaperDetails(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
           } else {
-            this.isExpanded = false;
             if(!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
               setTimeout(() => {
                 this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue([this.loggedInUser?.id || null]);
@@ -1113,10 +1118,12 @@ export class Template1Component {
   private readonly _mdlSvc = inject(NgbModal);
 
 
-  isExpanded: boolean = true; // Default expanded
-
   toggleComments() {
-    this.isExpanded = !this.isExpanded;
+    if (!this.isExpanded) {
+      this.toggleService.expandComments();
+    } else {
+      this.toggleService.collapseAll();
+    }
   }
 
   get riskMitigation(): FormArray {

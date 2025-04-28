@@ -13,3 +13,16 @@
   max-height: 400px;
   overflow: auto;
 }
+
+.btn-toggle {
+  background: #582AA2;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn-toggle:hover {
+  background: #451c82;
+}

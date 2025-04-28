@@ -5,6 +5,7 @@ import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {filter} from 'rxjs/operators';
 import {AuthService} from '../../service/auth.service';
+import {ToggleService} from '../../app/shared/services/toggle.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,7 +22,7 @@ export class SidebarComponent {
   expandedMenus: { [key: string]: boolean } = {};
   protected menuItems: Menu[] = [];
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
+  constructor(private toggleService: ToggleService,private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -30,6 +31,11 @@ export class SidebarComponent {
 
     this.authService.userRoleAccess$.subscribe(value => {
       this.menuItems = this.filterMenuItemsByPermissions(menuItems, value);
+    });
+
+    this.toggleService.sidebarExpanded$.subscribe((expanded) => {
+      this.isExpanded = expanded;
+      this.toggleSidebar.emit(expanded);
     });
   }
 
@@ -122,10 +128,13 @@ export class SidebarComponent {
     return path;
   }
 
-  handleSidebarToggle = () => {
-    this.isExpanded = !this.isExpanded;
-    this.toggleSidebar.emit(this.isExpanded);
-  };
+  handleSidebarToggle() {
+    if (!this.isExpanded) {
+      this.toggleService.expandSidebar();
+    } else {
+      this.toggleService.collapseAll();
+    }
+  }
 
   toggleSubmenu(menu: string) {
     this.expandedMenus[menu] = !this.expandedMenus[menu];

@@ -41,6 +41,7 @@ import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
 import {format} from 'date-fns';
+import {ToggleService} from '../shared/services/toggle.service';
 
 @Component({
   selector: 'app-template5',
@@ -98,11 +99,14 @@ export class Template5Component {
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
 
-  constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+  constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
+    });
+    this.toggleService.commentExpanded$.subscribe((expanded) => {
+      this.isExpanded = expanded;
     });
   }
 
@@ -883,7 +887,11 @@ export class Template5Component {
   isExpanded: boolean = true; // Default expanded
 
   toggleComments() {
-    this.isExpanded = !this.isExpanded;
+    if (!this.isExpanded) {
+      this.toggleService.expandComments();
+    } else {
+      this.toggleService.collapseAll();
+    }
   }
 
 

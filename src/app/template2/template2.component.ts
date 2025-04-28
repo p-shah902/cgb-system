@@ -42,6 +42,7 @@ import {ThresholdService} from '../../service/threshold.service';
 import {ThresholdType} from '../../models/threshold';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
+import {ToggleService} from '../shared/services/toggle.service';
 
 @Component({
   selector: 'app-template2',
@@ -108,11 +109,15 @@ export class Template2Component {
     {value: 'BP Group', label: 'BP Group'}
   ];
 
-  constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+  constructor(private toggleService: ToggleService, private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
+    });
+
+    this.toggleService.commentExpanded$.subscribe((expanded) => {
+      this.isExpanded = expanded;
     });
   }
 
@@ -1515,7 +1520,11 @@ export class Template2Component {
 
 
   toggleComments() {
-    this.isExpanded = !this.isExpanded;
+    if (!this.isExpanded) {
+      this.toggleService.expandComments();
+    } else {
+      this.toggleService.collapseAll();
+    }
   }
 
   open(event: Event, content: TemplateRef<any>, paperId?: any) {

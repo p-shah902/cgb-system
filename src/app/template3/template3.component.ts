@@ -41,6 +41,7 @@ import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
 import {cleanObject} from '../../utils/index';
 import {ThresholdType} from '../../models/threshold';
 import {ThresholdService} from '../../service/threshold.service';
+import {ToggleService} from '../shared/services/toggle.service';
 
 @Component({
   selector: 'app-template3',
@@ -125,11 +126,14 @@ export class Template3Component {
     {value: 'BP Group', label: 'BP Group'}
   ];
 
-  constructor(private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+  constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
+    });
+    this.toggleService.commentExpanded$.subscribe((expanded) => {
+      this.isExpanded = expanded;
     });
   }
 
@@ -922,7 +926,11 @@ export class Template3Component {
   }
 
   toggleComments() {
-    this.isExpanded = !this.isExpanded;
+    if (!this.isExpanded) {
+      this.toggleService.expandComments();
+    } else {
+      this.toggleService.collapseAll();
+    }
   }
 
   setPaperStatus(status: string, callAPI: boolean = true): void {
