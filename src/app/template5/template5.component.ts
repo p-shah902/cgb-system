@@ -1091,15 +1091,22 @@ export class Template5Component {
       }
     }
 
-    if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
-      this.generatePaper(params)
-    } else if (this.currentPaperStatus === "Draft") {
-      const updatedParams = cleanObject(params);
-
-      this.generatePaper(updatedParams)
-    } else if (!this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
-      this.toastService.show("Please fill all mandatory fields", "danger")
+    if (this.currentPaperStatus === "Registered") {
+      if (!this.generalInfoForm.valid) {
+        this.toastService.show("Please fill all mandatory fields", "danger");
+        return; // Early stop!
+      }
+      this.generatePaper(params);
     }
+    else if (this.currentPaperStatus === "Draft") {
+      if (!params?.masterInfoNote?.transactionType) {
+        this.toastService.show('Please select a Transaction Type before saving as Draft.', 'danger');
+        return; // Early stop!
+      }
+      const updatedParams = cleanObject(params);
+      this.generatePaper(updatedParams);
+    }
+
   }
 
   generatePaper(params: any) {
