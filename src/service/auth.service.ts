@@ -37,6 +37,9 @@ export class AuthService {
 
           this.isAuthenticatedSubject.next(true);
           this.userRoleAccessSubject.next(response.data.userRoleAccesses)
+
+          // ✅ Emit user details here
+          this.userDetailsSubject.next(details);
         }
       }), catchError(error => {
         console.error('Login failed:', error);

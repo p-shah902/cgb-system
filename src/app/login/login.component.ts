@@ -44,37 +44,39 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    console.log(this.email);
-    console.log(this.password);
+    console.log(this.email, this.password);
 
     if (!this.isFormValid) {
-      this.toastService.show('Please Fill All Required Fields','danger');
+      this.toastService.show('Please Fill All Required Fields', 'danger');
       return;
     }
 
     if (this.isSubmitting) return;
-    this.isSubmitting=true;
-    this.authService.login(this.email, this.password).subscribe({
-      next: (response) => {
-        if (!response.status) {
+    this.isSubmitting = true;
 
-          this.toastService.show('Invalid Credentials','danger');
+    this.authService.login(this.email, this.password).subscribe({
+      next: ({ status }) => {
+        if (!status) {
+          this.toastService.show('Invalid Credentials', 'danger');
           return;
         }
-        console.log("Login Successfully");
-        this.toastService.show('Login Successfully','success');
+
+        this.toastService.show('Login Successfully', 'success');
         this.router.navigate(['/inboxoutbox']);
       },
-      error: (error) => {
-        console.error('Login error:', error);
-      },complete:()=>{
-        this.isSubmitting=false;
+      error: (err) => {
+        console.error('Login error:', err);
+      },
+      complete: () => {
+        this.isSubmitting = false;
+        this.clearCredentials();
       }
     });
+  }
 
-
-    this.email = "";
-    this.password = "";
+  private clearCredentials(): void {
+    this.email = '';
+    this.password = '';
   }
 
 }

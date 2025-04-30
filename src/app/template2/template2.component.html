@@ -13,14 +13,14 @@
 
 <div class="container-fluid">
   <div class="row">
-    <div [ngClass]="isExpanded ? 'col-md-8' : 'col-md-12'">
+    <div [ngClass]="isExpanded ? 'col-md-9' : 'col-md-12'">
       <div class="form-main-div">
         <div class="form-header mb-4">
           <div class="row align-items-center">
             <div class="col-md-6">
               <div class="d-flex gap-3 align-items-center">
                 <div class="form-group mb-3 mb-sm-3 mb-md-0">
-                  <select class="form-control" (change)="scrollToSection($event)">
+                  <select #sectionDropdown class="form-control" (change)="scrollToSection($event)">
                     <option value="section1">1. General Information</option>
                     <option value="section2">2. Procurement Details</option>
                     <option value="section3">3. CDD (Counterparty Due Diligence)</option>
@@ -71,7 +71,7 @@
         </div>
         <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
           <div class="form-body">
-            <div id="section1" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section1" data-section="section1" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">1. General Information</h4>
               <button
                 type="button"
@@ -596,7 +596,7 @@
               </div>
             </div>
 
-            <div id="section2" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section2" data-section="section2" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">2. Procurement Details</h4>
               <button
                 type="button"
@@ -791,7 +791,7 @@
               </div>
             </div>
 
-            <div id="section3" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section3" data-section="section3" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">3. CDD (Counterparty Due Diligence)</h4>
               <button
                 type="button"
@@ -865,7 +865,7 @@
               </div>
             </div>
 
-            <div id="section4" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section4" data-section="section4" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">4. Evaluation Summary</h4>
               <button
                 type="button"
@@ -1072,7 +1072,7 @@
               </div>
             </div>
 
-            <div id="section5" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section5" data-section="section5" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">5. Additional Award Details</h4>
               <button
                 type="button"
@@ -1188,7 +1188,7 @@
               </div>
             </div>
 
-            <div id="section6" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section6" data-section="section6" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">6. Value Delivery</h4>
               <button
                 type="button"
@@ -1301,7 +1301,7 @@
               </small>
             </div>
 
-            <div id="section7" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section7" data-section="section7" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">7. Cost Allocation and JV Approval</h4>
               <button
                 type="button"
@@ -1576,7 +1576,7 @@
               </div>
             </div>
 
-            <div id="section8" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section8" data-section="section8" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">8. Cost Sharing Methodology</h4>
               <button
                 type="button"
@@ -1908,7 +1908,7 @@
               </div>
             </div>
 
-            <div id="section9" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
+            <div id="section9" data-section="section9" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">9. Consultation</h4>
               <button
                 type="button"
@@ -2091,7 +2091,7 @@
         </form>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="form-main-div" *ngIf="isExpanded">
         <div class="form-header mb-4">
           <div class="row align-items-center">

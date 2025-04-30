@@ -1,4 +1,4 @@
-import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef } from '@angular/core';
+import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
 import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
@@ -53,7 +53,8 @@ import {ToggleService} from '../shared/services/toggle.service';
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
-export class Template1Component {
+export class Template1Component implements AfterViewInit  {
+  @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
@@ -92,7 +93,6 @@ export class Template1Component {
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
-  @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
@@ -324,6 +324,28 @@ export class Template1Component {
         this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue([this.loggedInUser?.id || null]);
       }, 1000)
     }
+  }
+
+  ngAfterViewInit() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.6, // 60% of section must be visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const currentSectionId = entry.target.getAttribute('data-section');
+          if (currentSectionId && this.sectionDropdown) {
+            this.sectionDropdown.nativeElement.value = currentSectionId;
+          }
+        }
+      });
+    }, options);
+
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
   }
 
   getPaperCommentLogs(paperId: number) {
@@ -1047,11 +1069,6 @@ export class Template1Component {
       });
     });
   }
-
-
-
-
-
 
   updateExchangeRate() {
     const originalCurrency = this.generalInfoForm.get('generalInfo.originalCurrency')?.value;

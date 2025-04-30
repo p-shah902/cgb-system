@@ -1,7 +1,7 @@
 <!-- Toasts Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
-  <ngb-toast 
-    *ngFor="let toast of toastService.toasts" 
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
     [class]="'bg-' + toast.type"
     [autohide]="true"
     [delay]="5000"
@@ -37,14 +37,14 @@
         </a>
       </div>
       <div class="lf-btn-div">
-          <button 
-              class="btn btn-primary" 
+          <button
+              class="btn btn-primary"
               (click)="onSubmit()"
               [disabled]="!isFormValid || isSubmitting"
               >
-                <span *ngIf="!isSubmitting">SIGNIN</span>
+                <span *ngIf="!isSubmitting">SIGN IN</span>
                 <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
-                <span *ngIf="isSubmitting">SIGNIN...</span>
+                <span *ngIf="isSubmitting">SIGN IN...</span>
           </button>
         <p class="text-center my-3">
           Or Continue With

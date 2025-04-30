@@ -79,15 +79,15 @@ export const menuItems: Menu[] = [
           },
           {
             path: '/variation-paper',
-            title: 'Variation Paper'
+            title: 'Variation'
           },
           {
             path: '/approval-of-sale-disposal-form',
-            title: 'Approval of Sale / Disposal Form'
+            title: 'Approval of Sale / Disposal'
           },
           {
             path: '/info-note',
-            title: 'Info note'
+            title: 'Info Note'
           }
         ],
       },

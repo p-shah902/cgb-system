@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
+import {Component,AfterViewInit, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
 import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
@@ -52,7 +52,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './template2.component.html',
   styleUrl: './template2.component.scss'
 })
-export class Template2Component {
+export class Template2Component implements AfterViewInit {
+  @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
   private readonly vendorService = inject(VendorService);
@@ -65,7 +66,6 @@ export class Template2Component {
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
-  @ViewChild('searchInput') searchInput!: ElementRef;
   generalInfoForm!: FormGroup;
   isExpanded: boolean = true; // Default expanded
   paperId: string | null = null;
@@ -197,6 +197,29 @@ export class Template2Component {
     });
 
   }
+
+  ngAfterViewInit() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.6, // 60% of section must be visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const currentSectionId = entry.target.getAttribute('data-section');
+          if (currentSectionId && this.sectionDropdown) {
+            this.sectionDropdown.nativeElement.value = currentSectionId;
+          }
+        }
+      });
+    }, options);
+
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
+  }
+
 
   loadForm() {
     this.generalInfoForm = this.fb.group({
