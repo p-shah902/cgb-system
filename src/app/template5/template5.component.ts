@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
+import {Component, inject, Renderer2, ViewChild, AfterViewInit, ElementRef, TemplateRef} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
@@ -51,7 +51,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './template5.component.html',
   styleUrl: './template5.component.scss'
 })
-export class Template5Component {
+export class Template5Component  implements AfterViewInit{
+  @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
+
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
@@ -85,7 +87,6 @@ export class Template5Component {
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
-  @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
@@ -257,6 +258,28 @@ export class Template5Component {
     this.onRTOhange()
     this.alignGovChange()
 
+  }
+
+  ngAfterViewInit() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.6, // 60% of section must be visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const currentSectionId = entry.target.getAttribute('data-section');
+          if (currentSectionId && this.sectionDropdown) {
+            this.sectionDropdown.nativeElement.value = currentSectionId;
+          }
+        }
+      });
+    }, options);
+
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
   }
 
   fetchPaperDetails(paperId: number) {

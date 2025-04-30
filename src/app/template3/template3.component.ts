@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
+import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit} from '@angular/core';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
 import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
@@ -50,7 +50,9 @@ import {ToggleService} from '../shared/services/toggle.service';
   templateUrl: './template3.component.html',
   styleUrl: './template3.component.scss'
 })
-export class Template3Component {
+export class Template3Component  implements AfterViewInit {
+  @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
+
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
   private readonly vendorService = inject(VendorService);
@@ -63,7 +65,6 @@ export class Template3Component {
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
-  @ViewChild('searchInput') searchInput!: ElementRef;
   generalInfoForm!: FormGroup;
   isExpanded: boolean = true; // Default expanded
   paperId: string | null = null;
@@ -184,6 +185,28 @@ export class Template3Component {
     this.onLTCCChange()
 
 
+  }
+
+  ngAfterViewInit() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.6, // 60% of section must be visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const currentSectionId = entry.target.getAttribute('data-section');
+          if (currentSectionId && this.sectionDropdown) {
+            this.sectionDropdown.nativeElement.value = currentSectionId;
+          }
+        }
+      });
+    }, options);
+
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<{ version: '44.3.0', premium: true }>) {

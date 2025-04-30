@@ -20,12 +20,12 @@
             <div class="col-md-6">
               <div class="d-flex gap-3 align-items-center">
                 <div class="form-group mb-3 mb-sm-3 mb-md-0">
-                  <select class="form-control" (change)="scrollToSection($event)">
+                  <select #sectionDropdown class="form-control" (change)="scrollToSection($event)">
                     <option value="section1">1. General Information</option>
                     <option value="section2">2. CGB Paper Details</option>
-                    <option value="section2">3. CDD (Counterparty Due Diligence)</option>
-                    <option value="section3">4. Cost Allocation and PSA Approval</option>
-                    <option value="section3">5. Consultation</option>
+                    <option value="section3">3. CDD (Counterparty Due Diligence)</option>
+                    <option value="section4">4. Cost Allocation and PSA Approval</option>
+                    <option value="section5">5. Consultation</option>
                   </select>
                 </div>
                 <div class="fh-search">
@@ -68,7 +68,7 @@
         <div class="form-body">
           <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
 
-            <div id="section1" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section1" data-section="section1" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">1. General Information</h4>
               <button
                 type="button"
@@ -174,7 +174,7 @@
             </div>
 
 
-            <div id="section2" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section2" data-section="section2" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">2. CGB Paper Details</h4>
               <button
                 type="button"
@@ -482,7 +482,7 @@
 
           </div>
 
-            <div id="section3" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section3" data-section="section3" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">3. CDD (Counterparty Due Diligence)</h4>
               <button
                 type="button"
@@ -556,8 +556,8 @@
               </div>
             </div>
 
-            <div id="section4" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
-              <h4 class="mb-0">1.  Cost Allocation & JV Approval</h4>
+            <div id="section4" data-section="section4" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">4. Cost Allocation & JV Approval</h4>
               <button
                 type="button"
                 class="btn btn-sm btn-light me-2"
@@ -864,8 +864,8 @@
             </div>
 
 
-            <div id="section5" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
-              <h4 class="mb-0">3. Consultation</h4>
+            <div id="section5" data-section="section5" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">5. Consultation</h4>
               <button
                 type="button"
                 class="btn btn-sm btn-light me-2"

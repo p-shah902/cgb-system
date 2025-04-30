@@ -1,4 +1,4 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef} from '@angular/core';
+import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
 import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
@@ -19,7 +19,6 @@ import {LoginUser, UserDetails} from '../../models/user';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
 import {Generalervice} from '../../service/general.service';
-import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
 import {ToastService} from '../../service/toast.service';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
@@ -51,7 +50,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './template4.component.html',
   styleUrl: './template4.component.scss'
 })
-export class Template4Component {
+export class Template4Component  implements AfterViewInit{
+  @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
@@ -85,7 +85,6 @@ export class Template4Component {
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
-  @ViewChild('searchInput') searchInput!: ElementRef; // Optional: If search input needs access
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
@@ -243,6 +242,28 @@ export class Template4Component {
     this.onLTCCChange()
     this.alignGovChange()
 
+  }
+
+  ngAfterViewInit() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.6, // 60% of section must be visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const currentSectionId = entry.target.getAttribute('data-section');
+          if (currentSectionId && this.sectionDropdown) {
+            this.sectionDropdown.nativeElement.value = currentSectionId;
+          }
+        }
+      });
+    }, options);
+
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
   }
 
   fetchPaperDetails(paperId: number) {
