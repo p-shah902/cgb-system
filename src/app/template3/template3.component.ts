@@ -177,6 +177,7 @@ export class Template3Component  implements AfterViewInit {
     this.loadThresholdData()
     this.loadVendoreDetails()
     this.loadForm()
+    this.onApprovalChange()
 
     this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
       this.addConsultationRow(false, true);
@@ -419,6 +420,22 @@ export class Template3Component  implements AfterViewInit {
     if (this.completedCount === this.totalCalls) {
       this.allApisDone$.next(true);
     }
+  }
+
+  onApprovalChange() {
+    this.generalInfoForm.get('contractInfo.isRetrospectiveApproval')?.valueChanges.subscribe((value) => {
+      const ltccNotesControl = this.generalInfoForm.get('contractInfo.retrospectiveApprovalReason');
+
+      if (value === true) {
+        ltccNotesControl?.setValidators([Validators.required]);
+        ltccNotesControl?.enable();
+      } else {
+        ltccNotesControl?.clearValidators();
+        ltccNotesControl?.disable(); // <- disables the field
+      }
+
+      ltccNotesControl?.updateValueAndValidity();
+    });
   }
 
   loadVendoreDetails() {

@@ -182,7 +182,7 @@
                 </div>
 
 
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Full Legal Name *</label>
                     <input id="fullLegalName" type="text" class="form-control allow-comments"
@@ -194,13 +194,13 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Number</label>
                     <input formControlName="contractNo" type="text" id="contractNo" class="form-control allow-comments"
                            placeholder="Enter Value"/></div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Vendor ID *</label>
                     <select class="form-control allow-comments" id="vendorId" formControlName="vendorId">
@@ -216,7 +216,36 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV *</label>
+                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
+                                multiple></ng-select2>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Type*</label>
+                    <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
                     <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
@@ -251,6 +280,18 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
+                    <label>Procurement SPA*</label>
+                    <ng-select2 class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
+                                [data]="procurementTagUsers"
+                                multiple></ng-select2>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
                     <label>VP-1*</label>
                     <select class="form-control allow-comments" formControlName="vP1UserId" id="vP1UserId">
                       <option [value]="null">Select Status</option>
@@ -266,18 +307,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
-                    <ng-select2 class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
-                                [data]="procurementTagUsers"
-                                multiple></ng-select2>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
+
 
 
                 <div class="col-sm-6 col-md-6">
@@ -297,7 +327,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
                     <select class="form-control allow-comments" id="operatingFunction"
@@ -315,7 +345,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
                     <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
@@ -332,7 +362,7 @@
                   </div>
                 </div>
 
-                <div class="col-sm-6 col-md-3">
+                <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
                     <select class="form-control allow-comments" formControlName="subSector" id="subSector">
@@ -348,30 +378,15 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                  <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
-                    <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
-                      <option [value]="''">Select Status</option>
-                      <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
+
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label><b>Contract Date *</b></label>
+                    <label><b>Contract Date</b></label>
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
+                          <label>Start Date *</label>
                           <input id="contractStartDate" formControlName="contractStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -382,6 +397,7 @@
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
+                          <label>End Date *</label>
                           <input id="contractEndDate" formControlName="contractEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -396,10 +412,11 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label><b>Variation Date *</b></label>
+                    <label><b>Variation Date</b></label>
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
+                          <label>Start Date *</label>
                           <input id="variationStartDate" formControlName="variationStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -410,6 +427,7 @@
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
+                          <label>End Date *</label>
                           <input id="variationEndDate" formControlName="variationEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -418,16 +436,6 @@
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-12">
-                  <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
-                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
-                                multiple></ng-select2>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -639,9 +647,11 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Prepayment Amount ($)</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
                     <input type="number" min="0" class="form-control allow-comments" placeholder="0.00"
                            id="prePayAmount"
-                           formControlName="prePayAmount"/>
+                           formControlName="prePayAmount"/></div>
                   </div>
                 </div>
 
