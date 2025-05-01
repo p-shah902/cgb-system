@@ -213,7 +213,17 @@
 
               </div>
               <div class="row">
-                <div class="col-sm-6-12 col-md-12">
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV *</label>
+                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
+                                multiple></ng-select2>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6-12 col-md-4">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
                     <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
@@ -229,7 +239,24 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Type*</label>
+                    <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
                     <select class="form-control allow-comments" id="operatingFunction"
@@ -247,7 +274,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
                     <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
@@ -264,7 +291,7 @@
                   </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
                     <select class="form-control allow-comments" formControlName="subSector" id="subSector">
@@ -280,23 +307,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
-                  <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
-                    <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
-                      <option [value]="''">Select Status</option>
-                      <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
+
 
                 <div class="col-md-6">
                   <div class="form-group mb-3">
@@ -884,23 +895,23 @@
             <div class="fb-form" formGroupName="evaluationSummary">
               <h6 class="mb-3"><b>Technical Evaluation</b></h6>
               <div class="row">
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3">
-                    <label>Number of Invited Bidders</label>
+                <div class="col-12 col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <label for="invitedBidders" class="me-2 mb-0" style="width: 50%;">Number of Invited Bidders</label>
                     <input type="number" min="0" id="invitedBidders" class="form-control allow-comments"
-                           formControlName="invitedBidders"
-                           placeholder="123"/>
+                           formControlName="invitedBidders" placeholder="123" style="width: 50%;" />
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3">
-                    <label>Number of Submitted bids</label>
+
+                <div class="col-12 col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <label for="submittedBids" class="me-2 mb-0" style="width: 50%;">Number of Submitted Bids</label>
                     <input type="number" min="0" id="submittedBids" class="form-control allow-comments"
-                           formControlName="submittedBids"
-                           placeholder="123"/>
+                           formControlName="submittedBids" placeholder="123" style="width: 50%;" />
                   </div>
                 </div>
               </div>
+
               <h6 class="mb-3"><b>Supplier Technical Scores</b></h6>
               <div class="row allow-comments" id="supplier_technical_scores">
                 <div class="col-sm-12 col-md-12">
@@ -931,7 +942,12 @@
                                      placeholder="Enter here" formControlName="thresholdPercent"/>
                             </td>
                             <td>
-                              <input type="checkbox" formControlName="isTechnical"/>
+                              <div class="form-group">
+                                <select id="isTechnical" class="form-control" formControlName="isTechnical">
+                                  <option [ngValue]="true">Yes</option>
+                                  <option [ngValue]="false">No</option>
+                                </select>
+                              </div>
                             </td>
                             <td>
                               <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
@@ -988,9 +1004,9 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Lessons learned from previous contract</label>
-                    <input formControlName="previousContractLearning" type="text" id="previousContractLearning"
-                           class="form-control allow-comments"
-                           placeholder="Enter Here"/>
+                    <textarea type="text" id="previousContractLearning" class="form-control allow-comments"
+                              placeholder="Write Here"
+                              formControlName="previousContractLearning"></textarea>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
@@ -1101,14 +1117,14 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3 allow-comments" id="contractCurrencyLinktoBaseCost">
                     <label>Contract Currency Linked to Base Cost</label>
-                    <div class="form-check-list d-flex gap-3 flex-wrap">
-                      <div class="form-check-box position-relative">
+                    <div class="form-radio d-flex gap-3 flex-wrap">
+                      <div class="radio-box position-relative">
                         <input type="radio" name="contractCurrencyLinktoBaseCost"
                                formControlName="contractCurrencyLinktoBaseCost"
                                [value]="true"> <label>Yes</label>
 
                       </div>
-                      <div class="form-check-box position-relative">
+                      <div class="radio-box position-relative">
                         <input type="radio" name="contractCurrencyLinktoBaseCost"
                                formControlName="contractCurrencyLinktoBaseCost"
                                [value]="false">
@@ -1123,6 +1139,9 @@
                     <textarea type="text" id="explanationsforBaseCost" class="form-control allow-comments"
                               placeholder="Write Description"
                               formControlName="explanationsforBaseCost"></textarea>
+                    <div class="text-danger" *ngIf="submitted && additionalDetailsInfo?.get('explanationsforBaseCost')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
               </div>

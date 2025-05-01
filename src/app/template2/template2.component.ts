@@ -160,7 +160,7 @@ export class Template2Component implements AfterViewInit {
     this.loadPaperStatusListData();
     this.loadVendoreDetails()
     this.onLTCCChange()
-    // this.alignGovChange()
+    this.currencyLinkedChange()
     this.conflictIntrestChanges()
     this.restrospectiveChanges()
     this.addRow()
@@ -564,6 +564,10 @@ export class Template2Component implements AfterViewInit {
 
   get procurementDetailsInfo() {
     return this.generalInfoForm.get('procurementDetails');
+  }
+
+  get additionalDetailsInfo() {
+    return this.generalInfoForm.get('additionalDetails');
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<{ version: '44.3.0', premium: true }>) {
@@ -1106,6 +1110,22 @@ export class Template2Component implements AfterViewInit {
       }
 
       ltccNotesControl?.updateValueAndValidity();
+    });
+  }
+
+  currencyLinkedChange() {
+    this.generalInfoForm.get('additionalDetails.contractCurrencyLinktoBaseCost')?.valueChanges.subscribe((value) => {
+      const explanationsControl = this.generalInfoForm.get('additionalDetails.explanationsforBaseCost');
+
+      if (value === true) {
+        explanationsControl?.setValidators([Validators.required]);
+        explanationsControl?.enable();
+      } else {
+        explanationsControl?.clearValidators();
+        explanationsControl?.disable(); // <- disables the field
+      }
+
+      explanationsControl?.updateValueAndValidity();
     });
   }
 
