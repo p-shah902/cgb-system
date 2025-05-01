@@ -27,3 +27,25 @@
   border: 2px solid yellow !important;
   background-color: yellow !important;
 }
+
+.key-risks-table {
+  overflow-x: auto;
+  width: 100%;
+
+  .table {
+    min-width: 1200px; // Adjust based on your content
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+
+    th, td {
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    th {
+      font-weight: 600;
+      background-color: #f8f9fa; // Optional: make headers stand out
+    }
+  }
+}
