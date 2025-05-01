@@ -101,7 +101,8 @@ export class Template2Component implements AfterViewInit {
   thresholdData: ThresholdType[] = []
   isShowBenchmarking = true
   isInitialLoad = true;
-
+  logs: any[] = [];
+  comment: string = '';
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
     {value: 'Shah Deniz', label: 'Shah Deniz'},
@@ -1700,5 +1701,29 @@ export class Template2Component implements AfterViewInit {
   scrollToTop(): void {
     window.scrollTo({top: 0, behavior: 'smooth'});
   }
+
+  getPaperCommentLogs(paperId: number) {
+    this.paperService.getPaperCommentLogs(paperId).subscribe(value => {
+      this.logs = value.data;
+    })
+  }
+
+
+  addPaperCommentLogs() {
+    if (this.paperId) {
+      this.paperService.addPaperCommentLogs({
+        paperId: Number(this.paperId),
+        logType: "Other",
+        remarks: this.comment,
+        description: this.comment,
+        columnName: "string",
+        isActive: true
+      }).subscribe(value => {
+        this.comment = '';
+        this.getPaperCommentLogs(Number(this.paperId));
+      })
+    }
+  }
+
 
 }
