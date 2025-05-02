@@ -161,6 +161,7 @@ export class Template2Component implements AfterViewInit {
     this.loadPaperStatusListData();
     this.loadVendoreDetails()
     this.onLTCCChange()
+    this.onPrepaymentChange()
     this.currencyLinkedChange()
     this.conflictIntrestChanges()
     this.restrospectiveChanges()
@@ -254,8 +255,8 @@ export class Template2Component implements AfterViewInit {
         contractValue: [0],
         remunerationType: ['', Validators.required],
         isPaymentRequired: [false],
-        prePayPercent: [0],
-        prePayAmount: [0],
+        prePayPercent: [null],
+        prePayAmount: [null],
         workspaceNo: [''],
         isSplitAward: [false],
         psajv: [[], Validators.required],
@@ -1113,6 +1114,24 @@ export class Template2Component implements AfterViewInit {
       }
 
       ltccNotesControl?.updateValueAndValidity();
+    });
+  }
+
+  onPrepaymentChange() {
+    this.generalInfoForm.get('generalInfo.isPaymentRequired')?.valueChanges.subscribe((value) => {
+      const prePayAmount = this.generalInfoForm.get('generalInfo.prePayAmount');
+      const prePayPercent = this.generalInfoForm.get('generalInfo.prePayPercent');
+
+      if (value === true) {
+        prePayAmount?.setValidators([Validators.required]);
+        prePayPercent?.setValidators([Validators.required]);
+      } else {
+        prePayAmount?.clearValidators();
+        prePayPercent?.clearValidators();
+      }
+
+      prePayAmount?.updateValueAndValidity();
+      prePayPercent?.updateValueAndValidity();
     });
   }
 
