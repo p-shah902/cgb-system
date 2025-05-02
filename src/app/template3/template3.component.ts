@@ -43,6 +43,7 @@ import {ThresholdType} from '../../models/threshold';
 import {ThresholdService} from '../../service/threshold.service';
 import {ToggleService} from '../shared/services/toggle.service';
 import {CURRENCY_LIST} from '../../utils/constant';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-template3',
@@ -101,6 +102,8 @@ export class Template3Component  implements AfterViewInit {
   thresholdData: ThresholdType[] = []
   logs: any[] = [];
   isShowBoxSection = false
+  comment: string = '';
+  isInitialLoad = true;
 
   psaItems = [
     {psaName: 'ACG', control: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
@@ -178,10 +181,21 @@ export class Template3Component  implements AfterViewInit {
     this.loadThresholdData()
     this.loadVendoreDetails()
     this.loadForm()
-    this.onApprovalChange()
 
-    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe(() => {
-      this.addConsultationRow(false, true);
+    this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
+      .pipe(
+        debounceTime(300), // wait for 300ms pause
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+      )
+      .subscribe(() => {
+        if (!this.isInitialLoad || !this.paperId) {
+          this.onSelectChangePSAJV();
+        }
+      });
+
+
+    this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe((newCamUserId) => {
+      this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
 
     this.generalInfoForm.get('contractValues.currencyCode')?.valueChanges.subscribe(() => {
@@ -195,7 +209,7 @@ export class Template3Component  implements AfterViewInit {
     this.onLTCCChange()
     this.onCurrencyLinktoBaseCostChange()
     this.onConflictofInterestChange()
-
+    this.onApprovalChange()
 
   }
 
@@ -467,6 +481,35 @@ export class Template3Component  implements AfterViewInit {
       ltccNotesControl?.updateValueAndValidity();
     });
   }
+
+  onSelectChangePSAJV() {
+    const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    const costAllocationControl = this.generalInfoForm.get('costAllocation');
+    if (costAllocationControl) {
+      const mapping: { [key: string]: string } = {
+        "ACG": "isACG",
+        "Shah Deniz": "isShah",
+        "SCP": "isSCP",
+        "BTC": "isBTC",
+        "Sh-Asiman": "isAsiman",
+        "BP Group": "isBPGroup"
+      };
+
+      Object.keys(mapping).forEach((key) => {
+        const controlName = mapping[key];
+        const isSelected = selectedOptions.includes(key);
+        costAllocationControl.get(controlName)?.setValue(isSelected);
+        if (isSelected) {
+          this.addConsultationRowOnChangePSAJV(key);
+        } else {
+          this.removeConsultationRowByPSAJV(key);
+        }
+      });
+    }
+
+  }
+
 
   loadVendoreDetails() {
 
@@ -1120,6 +1163,50 @@ export class Template3Component  implements AfterViewInit {
     return this.generalInfoForm.get('consultation') as FormArray;
   }
 
+  addConsultationRowOnChangePSAJV(jvValue: string) {
+    // Check if the JV value already exists in the rows
+    const alreadyExists = this.consultationRows.controls.some(group =>
+      group.get('psa')?.value === jvValue
+    );
+
+    if (alreadyExists) {
+      return; // Skip adding duplicate
+    }
+
+    const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
+
+    this.consultationRows.push(
+      this.fb.group({
+        psa: [jvValue, Validators.required],
+        technicalCorrect: [
+          { value: camUserId ? Number(camUserId) : null, disabled: false },
+          Validators.required
+        ],
+        budgetStatement: [null, Validators.required],
+        jvReview: [null, Validators.required],
+        id: [0]
+      })
+    );
+  }
+
+  removeConsultationRowByPSAJV(jvValue: string) {
+    const index = this.consultationRows.controls.findIndex(
+      group => group.get('psa')?.value === jvValue
+    );
+    if (index > -1) {
+      this.consultationRows.removeAt(index);
+    }
+  }
+
+  updateTechnicalCorrectInAllRows(newCamUserId: number | null) {
+    this.consultationRows.controls.forEach(group => {
+      const technicalCorrectControl = group.get('technicalCorrect');
+      if (technicalCorrectControl) {
+        technicalCorrectControl.setValue(Number(newCamUserId) || null);
+      }
+    });
+  }
+
   addConsultationRow(isFirst = false, isChangedCamUser = false) {
     if (isFirst && this.paperDetails) {
       const riskMitigationsData = this.paperDetails.consultationsDetails || []
@@ -1239,6 +1326,22 @@ export class Template3Component  implements AfterViewInit {
             console.log('error', error);
           },
         });
+    }
+  }
+
+  addPaperCommentLogs() {
+    if (this.paperId) {
+      this.paperService.addPaperCommentLogs({
+        paperId: Number(this.paperId),
+        logType: "Other",
+        remarks: this.comment,
+        description: this.comment,
+        columnName: "string",
+        isActive: true
+      }).subscribe(value => {
+        this.comment = '';
+        this.getPaperCommentLogs(Number(this.paperId));
+      })
     }
   }
 
