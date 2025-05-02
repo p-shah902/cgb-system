@@ -13,7 +13,7 @@ import {
   Validators,
   ReactiveFormsModule,
   AbstractControl,
-  ValidationErrors
+  ValidationErrors,ValidatorFn
 } from '@angular/forms';
 import { CURRENCY_LIST } from '../../utils/constant';
 import { UserService } from '../../service/user.service';
@@ -282,7 +282,7 @@ export class Template1Component implements AfterViewInit  {
     });
 
     // Initialize with one row to prevent errors
-    // this.addRow();
+    this.addRow();
     this.addBidRow();
     // Subscribe to changes in originalCurrency or contractValueUsd
     this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
@@ -1158,6 +1158,18 @@ export class Template1Component implements AfterViewInit  {
     return this.generalInfoForm.get('consultation') as FormArray;
   }
 
+  riskMitigationValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+    const risks = group.get('risks')?.value?.trim();
+    const mitigations = group.get('mitigations')?.value?.trim();
+
+    // If one is filled but the other is not, return error
+    if ((risks && !mitigations) || (!risks && mitigations)) {
+      return { bothRequired: true };
+    }
+
+    return null; // valid
+  };
+
   // Add a new risk row
   addRow(isFirst = false) {
     if (isFirst && this.paperDetails) {
@@ -1173,7 +1185,7 @@ export class Template1Component implements AfterViewInit  {
               risks: [item.risks || '', Validators.required],
               mitigations: [item.mitigations || '', Validators.required],
               id: [item.id]
-            })
+            }, { validators: this.riskMitigationValidator })
           );
         });
       }
@@ -1181,10 +1193,10 @@ export class Template1Component implements AfterViewInit  {
       this.riskMitigation.push(
         this.fb.group({
           srNo: this.generateId(this.riskMitigation.length),
-          risks: ['', Validators.required],
-          mitigations: ['', Validators.required],
+          risks: [''],
+          mitigations: [''],
           id: [0]
-        })
+        }, { validators: this.riskMitigationValidator })
       );
     }
   }
