@@ -287,6 +287,7 @@ export class Template2Component implements AfterViewInit {
         submittedBids: [0],
         previousContractLearning: [''],
         performanceImprovements: [''],
+        previousSupplierSpendInfo: [''],
         benchMarking: [''],
         commericalEvaluation: this.fb.array([]),
         supplierTechnical: this.fb.array([]),
@@ -505,6 +506,7 @@ export class Template2Component implements AfterViewInit {
             previousContractLearning: contractAwardDetails?.previousContractLearning || '',
             performanceImprovements: contractAwardDetails?.performanceImprovements || '',
             benchMarking: contractAwardDetails?.benchMarking || '',
+            previousSupplierSpendInfo: contractAwardDetails?.previousSupplierSpendInfo || '',
             // commericalEvaluation: this.fb.array([]),
             // supplierTechnical: this.fb.array([]),
           }, additionalDetails: {
@@ -993,7 +995,7 @@ export class Template2Component implements AfterViewInit {
 
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
-          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
+          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue.toFixed(2), {emitEvent: false});
           this.calculateTotal()
         }
       });
@@ -1024,8 +1026,8 @@ export class Template2Component implements AfterViewInit {
     });
 
     // Update total fields
-    costAllocation.get('totalPercentage')?.setValue(totalPercentage, {emitEvent: false});
-    costAllocation.get('totalValue')?.setValue(totalValue, {emitEvent: false});
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage.toFixed(2), {emitEvent: false});
+    costAllocation.get('totalValue')?.setValue(totalValue.toFixed(2), {emitEvent: false});
   }
 
   setupMethodologyListeners() {
@@ -1256,6 +1258,7 @@ export class Template2Component implements AfterViewInit {
         previousContractLearning: evaluationSummaryValue?.previousContractLearning || "",
         performanceImprovements: evaluationSummaryValue?.performanceImprovements || "",
         benchMarking: evaluationSummaryValue?.benchMarking || "",
+        previousSupplierSpendInfo: evaluationSummaryValue?.previousSupplierSpendInfo || "",
         contractualControls: additionalDetailsValue?.contractualControls || "",
         contractCurrencyLinktoBaseCost: additionalDetailsValue?.contractCurrencyLinktoBaseCost || false,
         explanationsforBaseCost: additionalDetailsValue?.explanationsforBaseCost || "",

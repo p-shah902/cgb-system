@@ -508,16 +508,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-12">
-                  <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
-                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
-                                multiple></ng-select2>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3 allow-comments" id="isLTCC">
@@ -1078,6 +1068,15 @@
                   </div>
                 </div>
               </div>
+
+              <div class="col-sm-12 col-md-12">
+                <div class="form-group mb-3">
+                  <label>Previous supplier(s) and spend</label>
+                  <textarea type="text" id="previousSupplierSpendInfo" class="form-control allow-comments"
+                            placeholder="Write Description"
+                            formControlName="previousSupplierSpendInfo"></textarea>
+                </div>
+              </div>
               <div class="col-sm-12 col-md-12"  *ngIf="isShowBenchmarking">
                 <div class="form-group mb-3">
                   <label>Benchmarking for Single/Sole Awards</label>
@@ -1349,6 +1348,7 @@
               </button>
             </div>
             <div class="fb-form allow-comments" formGroupName="costAllocation" id="costAllocation">
+              <div class="overflow-auto">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
                   <thead>
@@ -1412,65 +1412,80 @@
                   <tbody>
                   <tr>
                     <td><b>As%</b></td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" min="0"
-                             max="100" type="number" placeholder="%" formControlName="percentage_isACG">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
+                             max="100" type="number" placeholder="%" formControlName="percentage_isACG"></div>
                     </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah"></div>
                     </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP"></div>
                     </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC"></div>
                     </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman"></div>
                     </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
+                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup"></div>
                     </td>
-                    <td>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
-                             placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">%</span>
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
+                             placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage"></div>
                     </td>
                   </tr>
 
                   <tr>
                     <td><b>By value $</b></td>
                     <td>
-                      <input readonly formControlName="value_isACG" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="%">
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input readonly formControlName="value_isACG" min="0" type="number"
+                               class="form-control p-1" placeholder="0.00"></div>
                     </td>
-                    <td>
-                      <input formControlName="value_isShah" min="0" type="number" class="form-control p-1 w-auto"
-                             placeholder="%">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input readonly formControlName="value_isShah" min="0" type="number"
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
-                    <td>
-                      <input formControlName="value_isSCP" min="0" type="number" class="form-control p-1 w-auto"
-                             placeholder="%">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input readonly formControlName="value_isSCP" min="0" type="number"
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
-                    <td>
-                      <input formControlName="value_isBTC" min="0" type="number" class="form-control p-1 w-auto"
-                             placeholder="%">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input readonly formControlName="value_isBTC" min="0" type="number"
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
-                    <td>
-                      <input formControlName="value_isAsiman" min="0" type="number" class="form-control p-1 w-auto"
-                             placeholder="%">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input readonly formControlName="value_isAsiman" min="0" type="number"
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
-                    <td>
-                      <input formControlName="value_isBPGroup" min="0" type="number" class="form-control p-1 w-auto"
-                             placeholder="%">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input readonly formControlName="value_isBPGroup" min="0" type="number"
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
-                    <td>
-                      <input formControlName="totalValue" min="0" type="number" class="form-control p-1 w-auto"
-                             placeholder="%">
+                    <td>  <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input readonly formControlName="totalValue" min="0" type="number"
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
 
                   </tr>
@@ -1604,6 +1619,7 @@
                   </tr>
                   </tbody>
                 </table>
+              </div>
               </div>
             </div>
 

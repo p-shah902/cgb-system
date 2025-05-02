@@ -913,6 +913,7 @@
               </button>
             </div>
             <div class="fb-form allow-comments" formGroupName="costAllocation" id="cost_allocation_an_jv">
+              <div class="overflow-auto">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
                   <thead>
@@ -979,43 +980,43 @@
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto" min="0"
+                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
                                max="100" type="number" placeholder="%" formControlName="percentage_isACG">
                       </div>
                     </td>
                     <td> <div class="input-group">
                       <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
                              placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah"></div>
                     </td>
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
                              placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP"></div>
                     </td>
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
                              placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC"></div>
                     </td>
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
                              placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman"></div>
                     </td>
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
                              placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup"></div>
                     </td>
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 w-auto"
+                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
                              placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage"></div>
                     </td>
                   </tr>
@@ -1026,37 +1027,37 @@
                       <div class="input-group">
                         <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isACG" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
                     <td>  <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isShah" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
                     <td>  <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isSCP" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
                     <td>  <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isBTC" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
                     <td>  <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isAsiman" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
                     <td>  <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input readonly formControlName="value_isBPGroup" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
                     <td>  <div class="input-group">
                       <span class="input-group-text">$</span>
                       <input readonly formControlName="totalValue" min="0" type="number"
-                             class="form-control p-1 w-auto" placeholder="0.00"></div>
+                             class="form-control p-1" placeholder="0.00"></div>
                     </td>
 
                   </tr>
@@ -1082,11 +1083,11 @@
                         </div>
                         <div class="form-check-box position-relative">
                           <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">
-                          <label>SCP Co CC</label>
+                          <label>SCP Co CC info note</label>
                         </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
+<!--                        <div class="info-label position-relative">-->
+<!--                          <label>info note</label>-->
+<!--                        </div>-->
                       </div>
                     </td>
                     <td>
@@ -1097,11 +1098,11 @@
                         </div>
                         <div class="form-check-box position-relative">
                           <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">
-                          <label>BTC CC </label>
+                          <label>BTC CC info note</label>
                         </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
+<!--                        <div class="info-label position-relative">-->
+<!--                          <label>info note</label>-->
+<!--                        </div>-->
                       </div>
                     </td>
                     <td>
@@ -1190,6 +1191,7 @@
                   </tr>
                   </tbody>
                 </table>
+              </div>
               </div>
             </div>
 
