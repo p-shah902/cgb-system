@@ -151,7 +151,19 @@
                   </div>
                 </div>
 
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV *</label>
+                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
+                                multiple></ng-select2>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Technical Approver *</label>
                     <select id="technicalApprover" class="form-control allow-comments"
@@ -169,7 +181,19 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Procurement SPA*</label>
+                    <ng-select2 id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
+                                [data]="procurementTagUsers" multiple></ng-select2>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>VP-1* </label>
                     <select id="vP1UserId" class="form-control allow-comments" formControlName="vP1UserId">
@@ -185,7 +209,26 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>PDM*</label>
+                    <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
+                      <option [value]="null">Select Status</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
                     <select id="operatingFunction" class="form-control allow-comments"
@@ -231,34 +274,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
-                    <ng-select2 id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
-                                [data]="procurementTagUsers" multiple></ng-select2>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3">
-                    <label>PDM*</label>
-                    <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
-                      <option [value]="null">Select Status</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
@@ -267,16 +282,6 @@
                            formControlName="saleDisposeValue" min="0" step="0.01"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('saleDisposeValue')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
-                    <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
-                                multiple></ng-select2>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>

@@ -230,6 +230,24 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
+                    <label>Global CGB*</label>
+                    <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
+                  </div>
+                </div>
+
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
                     <label>Sourcing Type*</label>
                     <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
                       <option [value]="''">Select Status</option>
@@ -242,22 +260,6 @@
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Global CGB*</label>
-                    <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
-                      <option [value]="''">Select Status</option>
-                      <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
                 </div>
