@@ -42,6 +42,7 @@ import {cleanObject} from '../../utils/index';
 import {ThresholdType} from '../../models/threshold';
 import {ThresholdService} from '../../service/threshold.service';
 import {ToggleService} from '../shared/services/toggle.service';
+import {CURRENCY_LIST} from '../../utils/constant';
 
 @Component({
   selector: 'app-template3',
@@ -183,7 +184,17 @@ export class Template3Component  implements AfterViewInit {
       this.addConsultationRow(false, true);
     });
 
+    this.generalInfoForm.get('contractValues.currencyCode')?.valueChanges.subscribe(() => {
+      this.updateExchangeRate();
+    });
+
+    this.generalInfoForm.get('contractValues.revisedContractValue')?.valueChanges.subscribe(() => {
+      this.updateContractValueOriginalCurrency();
+    });
+
     this.onLTCCChange()
+    this.onCurrencyLinktoBaseCostChange()
+    this.onConflictofInterestChange()
 
 
   }
@@ -314,13 +325,14 @@ export class Template3Component  implements AfterViewInit {
         previousVariationTotal: [0],
         thisVariationNote: ['', Validators.required],
         exchangeRate: [0],
+        currencyCode: [''],
         contractValue: [0],
         revisedContractValue: [0],
         spendOnContract: [0],
         isCurrencyLinktoBaseCost: [null],
+        noCurrencyLinkNotes: [''],
         isConflictOfInterest: [null],
         conflictOfInterestComment: [''],
-        // explain: [''], //TODO missing
       }),
       ccd: this.fb.group({
         isHighRiskContract: [null],
@@ -385,6 +397,24 @@ export class Template3Component  implements AfterViewInit {
 
   getGroupForm(key: string): FormGroup {
     return this.generalInfoForm.get(key) as FormGroup;
+  }
+
+  updateExchangeRate() {
+    const currencyCode = this.generalInfoForm.get('contractValues.currencyCode')?.value;
+    const currencyItem = this.currenciesData.find((item) => item.id === Number(currencyCode)) || null
+    const currency = CURRENCY_LIST.find(c => c.code === currencyItem?.itemValue);
+    const exchangeRate = currency ? currency.rate : 0;
+
+    this.generalInfoForm.get('contractValues.exchangeRate')?.setValue(exchangeRate);
+    this.updateContractValueOriginalCurrency();
+  }
+
+  updateContractValueOriginalCurrency() {
+    const contractValueUsd = Number(this.generalInfoForm.get('contractValues.revisedContractValue')?.value) || 0;
+    const exchangeRate = Number(this.generalInfoForm.get('contractValues.exchangeRate')?.value) || 0;
+
+    const convertedValue = contractValueUsd * exchangeRate;
+    this.generalInfoForm.get('contractValues.contractValue')?.setValue(convertedValue);
   }
 
   getAllSelectedPsa(): PSAEntry[] {
@@ -591,6 +621,38 @@ export class Template3Component  implements AfterViewInit {
     });
   }
 
+  onCurrencyLinktoBaseCostChange() {
+    this.generalInfoForm.get('contractValues.isCurrencyLinktoBaseCost')?.valueChanges.subscribe((value) => {
+      const ltccNotesControl = this.generalInfoForm.get('contractValues.noCurrencyLinkNotes');
+
+      if (value === false) {
+        ltccNotesControl?.setValidators([Validators.required]);
+        ltccNotesControl?.enable();
+      } else {
+        ltccNotesControl?.clearValidators();
+        ltccNotesControl?.disable(); // <- disables the field
+      }
+
+      ltccNotesControl?.updateValueAndValidity();
+    });
+  }
+
+  onConflictofInterestChange() {
+    this.generalInfoForm.get('contractValues.isConflictOfInterest')?.valueChanges.subscribe((value) => {
+      const ltccNotesControl = this.generalInfoForm.get('contractValues.conflictOfInterestComment');
+
+      if (value === true) {
+        ltccNotesControl?.setValidators([Validators.required]);
+        ltccNotesControl?.enable();
+      } else {
+        ltccNotesControl?.clearValidators();
+        ltccNotesControl?.disable(); // <- disables the field
+      }
+
+      ltccNotesControl?.updateValueAndValidity();
+    });
+  }
+
 
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId).subscribe((value) => {
@@ -690,13 +752,14 @@ export class Template3Component  implements AfterViewInit {
             previousVariationTotal: generatlInfoData?.previousVariationTotal || 0,
             thisVariationNote: generatlInfoData?.thisVariationNote || '',
             exchangeRate: generatlInfoData?.exchangeRate || 0,
+            currencyCode: generatlInfoData?.currencyCode || '',
             contractValue: generatlInfoData?.contractValue || 0,
             revisedContractValue: generatlInfoData?.revisedContractValue || 0,
             spendOnContract: generatlInfoData?.spendOnContract || 0,
             isCurrencyLinktoBaseCost: generatlInfoData?.isCurrencyLinktoBaseCost || false,
+            noCurrencyLinkNotes: generatlInfoData?.noCurrencyLinkNotes || '',
             isConflictOfInterest: generatlInfoData?.isConflictOfInterest || false,
             conflictOfInterestComment: generatlInfoData?.conflictOfInterestComment || '',
-            // explain: [''], //TODO missing
           },
           ccd: {
             isHighRiskContract: generatlInfoData?.isHighRiskContract || false,
@@ -874,11 +937,13 @@ export class Template3Component  implements AfterViewInit {
         originalContractValue: contractValues?.originalContractValue || 0,
         previousVariationTotal: contractValues?.previousVariationTotal || 0,
         exchangeRate: contractValues?.exchangeRate || 0,
+        currencyCode: contractValues?.currencyCode || null,
         contractValue: contractValues?.contractValue || 0,
         revisedContractValue: contractValues?.revisedContractValue || 0,
         spendOnContract: contractValues?.spendOnContract || 0,
         thisVariationNote: contractValues?.thisVariationNote || '',
         isCurrencyLinktoBaseCost: contractValues?.isCurrencyLinktoBaseCost || false,
+        noCurrencyLinkNotes: contractValues?.noCurrencyLinkNotes || '',
         isConflictOfInterest: contractValues?.isConflictOfInterest || false,
         conflictOfInterestComment: contractValues?.conflictOfInterestComment || '',
         //ccd

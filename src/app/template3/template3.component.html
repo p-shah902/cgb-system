@@ -721,7 +721,7 @@
                            min="0"/>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-4">
+                <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3">
                     <label>This Variation (Info Note) *</label>
                     <input type="text" class="form-control allow-comments" formControlName="thisVariationNote"
@@ -733,25 +733,8 @@
                   </div>
 
                 </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Exchange Rate</label>
-                    <input min="0" type="number" formControlName="exchangeRate" class="form-control"
-                           placeholder="0.00"/>
-                  </div>
 
-                </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Value in Original Currency (AZN)</label>
-                    <input type="number" class="form-control allow-comments" id="contractValue"
-                           formControlName="contractValue" placeholder="0.00"
-                           min="0"/>
-                  </div>
-
-                </div>
-
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Total Revised Contract Value</label>
                     <input type="number" class="form-control allow-comments" id="revisedContractValue"
@@ -760,7 +743,44 @@
                   </div>
 
                 </div>
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Original Currency</label>
+                    <select id="currencyCode" class="form-control allow-comments"
+                            formControlName="currencyCode">
+                      <option [value]="''">Select Status</option>
+                      <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Exchange Rate</label>
+                    <input min="0" type="number" formControlName="exchangeRate" class="form-control"
+                           placeholder="0.00" readonly/>
+                  </div>
+
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Value in Original Currency</label>
+                    <input type="number" class="form-control allow-comments" id="contractValue"
+                           formControlName="contractValue" placeholder="0.00"
+                           min="0" readonly/>
+                  </div>
+
+                </div>
+
+
+
+              <div class="row">
+
+                <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Spend on the Contract up to date</label>
                     <input type="number" class="form-control allow-comments" id="spendOnContract"
@@ -768,7 +788,7 @@
                            min="0"/>
                   </div>
 
-                </div>
+                </div></div>
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
@@ -788,7 +808,13 @@
                   </div>
                   <div class="form-group mb-3">
                     <label>Explanation if “No”</label>
-                    <textarea type="text" class="form-control" placeholder="Write Description"></textarea>
+                    <textarea type="text" id="noCurrencyLinkNotes" class="form-control allow-comments"
+                              placeholder="Write Description"
+                              formControlName="noCurrencyLinkNotes"></textarea>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfoForm.get('contractValues.noCurrencyLinkNotes')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
 
                 </div>
