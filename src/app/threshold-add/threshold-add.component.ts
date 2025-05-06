@@ -3,6 +3,7 @@ import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../../service/toast.service';
 import {CommonModule} from '@angular/common';
 import {Router, ActivatedRoute} from '@angular/router';
+import { BehaviorSubject } from 'rxjs';
 import {
   Validators,
   ReactiveFormsModule,
@@ -11,6 +12,7 @@ import {
 import {DictionaryService} from '../../service/dictionary.service';
 import {ThresholdService} from '../../service/threshold.service';
 import {DictionaryDetail} from '../../models/dictionary';
+import {ThresholdType} from '../../models/threshold';
 
 @Component({
   selector: 'app-threshold-add',
@@ -28,7 +30,10 @@ export class ThresholdAddComponent {
   psaList: DictionaryDetail[] = []
   thresholdId: null | number = null
   sourcingTypeData: DictionaryDetail[] = [];
-
+  selectedThreshold: ThresholdType | null = null;
+  private allApisDone$ = new BehaviorSubject<boolean>(false);
+  private completedCount = 0;
+  private totalCalls = 2;
   constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService) {
   }
 
@@ -63,31 +68,40 @@ export class ThresholdAddComponent {
       paperType: [null, Validators.required],
       sourcingType: [null],
       isActive: [true],
-      psaAgreement: [null, Validators.required],
+      psaAgreement: [null],
       contractValueLimit: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      variationPercent: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      variationPercent: [null],
     });
 
-    this.route.paramMap.subscribe(params => {
-      this.type = params.get('type') || "";
-      this.thresholdId = params.get('id') ? Number(params.get('id')) : null;     // optional
-      console.log('Type:', this.type, this.thresholdId);
+    this.allApisDone$.subscribe((done) => {
+      if (done) {
+        this.route.paramMap.subscribe(params => {
+          this.type = params.get('type') || "";
+          this.thresholdId = params.get('id') ? Number(params.get('id')) : null;     // optional
+          console.log('Type:', this.type, this.thresholdId);
 
-      if (this.type === 'internal') {
-        this.thresholdForm.get('sourcingType')?.setValidators(Validators.required);
-      } else {
-        this.thresholdForm.get('sourcingType')?.clearValidators();
+          if (this.type === 'internal') {
+            this.thresholdForm.get('sourcingType')?.setValidators(Validators.required);
+          } else {
+            this.thresholdForm.get('sourcingType')?.clearValidators();
+          }
+
+          // Dynamic validation for psaAgreement (if type === 'partner')
+          if (this.type === 'partner') {
+            this.thresholdForm.get('psaAgreement')?.setValidators(Validators.required);
+          } else {
+            this.thresholdForm.get('psaAgreement')?.clearValidators();
+          }
+
+          this.thresholdForm.get('sourcingType')?.updateValueAndValidity();
+          this.thresholdForm.get('psaAgreement')?.updateValueAndValidity();
+
+
+          if(this.thresholdId) {
+            this.fetchThresholdDetails(this.thresholdId)
+          }
+        });
       }
-
-      // Dynamic validation for psaAgreement (if type === 'partner')
-      if (this.type === 'partner') {
-        this.thresholdForm.get('psaAgreement')?.setValidators(Validators.required);
-      } else {
-        this.thresholdForm.get('psaAgreement')?.clearValidators();
-      }
-
-      this.thresholdForm.get('sourcingType')?.updateValueAndValidity();
-      this.thresholdForm.get('psaAgreement')?.updateValueAndValidity();
     });
 
     this.loadPSADictionaryDetails()
@@ -106,22 +120,54 @@ export class ThresholdAddComponent {
     const formValues = this.thresholdForm.value;
     const payload = {
       ...formValues,
-      thresholdType: this.type ? "Internal" : "Partner",
+      thresholdType: this.type === "internal" ? "Internal" : "Partner",
+      sourcingType: formValues.sourcingType ? Number(formValues.sourcingType) : 0,
+      psaAgreement: formValues.psaAgreement ? Number(formValues.psaAgreement) : 0,
       extension: "",
       notificationSendTo: "",
-      psaAgreement:0
     };
 
+    if(this.selectedThreshold && this.selectedThreshold.id) {
+      const params = {
+        ...payload,
+        id: this.selectedThreshold.id
+      }
+      this.updateThreshold(params)
+    } else {
+      this.createThreshold(payload)
+    }
+
+    console.log("==payload", payload)
+  }
+
+
+  createThreshold(payload: any) {
     this.thresholdService.createThreshold(payload).subscribe({
       next: ({status, data, message}) => {
         if (status && data) {
           this.thresholdForm.reset();
           this.submitted = false;
           this.toastService.show(message || "Added Successfully", 'success');
+          this.router.navigate(['/threshold']);
+        } else {
+          this.toastService.show(message || "Something went wrong.", 'danger');
+        }
+      },
+      error: (error) => {
+        console.error('Threshold creation error:', error);
+        this.toastService.show("Something went wrong.", 'danger');
+      }
+    });
+  }
 
-          setTimeout(() => {
-            this.router.navigate(['/threshold']);
-          }, 2000);
+  updateThreshold(payload: any) {
+    this.thresholdService.updateThreshold(payload).subscribe({
+      next: ({status, data, message}) => {
+        if (status && data) {
+          this.thresholdForm.reset();
+          this.submitted = false;
+          this.toastService.show(message || "Threshold updated successfully", 'success');
+          this.router.navigate(['/threshold']);
         } else {
           this.toastService.show(message || "Something went wrong.", 'danger');
         }
@@ -137,7 +183,7 @@ export class ThresholdAddComponent {
     this.dictionaryService.getDictionaryListByItem('psa').subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          console.log('Dictionary Detail:', response.data);
+          this.incrementAndCheck();
           this.psaList = response.data || [];
         }
       },
@@ -151,6 +197,7 @@ export class ThresholdAddComponent {
     this.dictionaryService.getDictionaryListByItem('Sourcing Type').subscribe({
       next: (response) => {
         if (response.status && response.data) {
+          this.incrementAndCheck();
           this.sourcingTypeData = response.data || [];
         }
       },
@@ -158,6 +205,42 @@ export class ThresholdAddComponent {
         console.log('Error:', error);
       }
     });
+  }
+
+  fetchThresholdDetails(id: number) {
+    this.thresholdService.getThresholdDetailsById(id).subscribe({
+      next: (response) => {
+        if (response.status && response.data && response.data.length > 0) {
+          this.selectedThreshold = response.data[0] || null;
+          console.log("== this.selectedThreshold",  this.selectedThreshold)
+
+          // Patch the form values
+          this.thresholdForm.patchValue({
+            thresholdName: this.selectedThreshold.thresholdName,
+            description: this.selectedThreshold.description,
+            paperType: this.selectedThreshold.paperType,
+            sourcingType: this.selectedThreshold.sourcingType ? this.selectedThreshold.sourcingType.toString() : '',
+            isActive: this.selectedThreshold.isActive,
+            psaAgreement: this.selectedThreshold.psaAgreement ? this.selectedThreshold.psaAgreement.toString() : '',
+            contractValueLimit: this.selectedThreshold.contractValueLimit,
+            // variationPercent: this.selectedThreshold.variationPercent || '', // fallback in case field is missing
+          });
+        }
+      },
+      error: (error) => {
+        console.log('Error:', error);
+      }
+    });
+  }
+
+  private incrementAndCheck(increaseCount: number | null = null) {
+    this.completedCount++;
+    if (increaseCount) {
+      this.totalCalls = this.totalCalls + increaseCount;
+    }
+    if (this.completedCount === this.totalCalls) {
+      this.allApisDone$.next(true);
+    }
   }
 
   discard(): void {

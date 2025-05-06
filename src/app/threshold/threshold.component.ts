@@ -46,4 +46,19 @@ export class ThresholdComponent implements OnInit {
     const type = this.active === 1 ? 'internal' : 'partner';
     this.router.navigate(['/threshold-add', type]);
   }
+
+  deleteThreshold(id: number) {
+    this.thresholdService.deleteThresholdDetailsById(id).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show("Threshold deleted successfully", 'success');
+          this.loadThresholds()
+        }
+      },
+      error: (error) => {
+        console.log('Error:', error);
+        this.toastService.show("Something went wrong.", 'danger');
+      }
+    });
+  }
 }

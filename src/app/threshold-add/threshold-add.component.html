@@ -68,7 +68,7 @@
                         formControlName="psaAgreement">
                   <option [value]="null">Select Status</option>
                   <ng-container *ngFor="let item of psaList?.length ? psaList : []">
-                    <option [value]="item.id">
+                    <option [value]="item.id.toString()">
                       {{ item.itemValue }}
                     </option>
                   </ng-container>
@@ -85,7 +85,7 @@
                         formControlName="sourcingType">
                   <option [value]="null">Select Status</option>
                   <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
-                    <option [value]="item.id">
+                    <option [value]="item.id.toString()">
                       {{ item.itemValue }}
                     </option>
                   </ng-container>
@@ -107,7 +107,7 @@
               </div>
 
               <div class="form-group mb-3">
-                <label>Contract Variation (%) *</label>
+                <label>Contract Variation (%)</label>
                 <input min="0" oninput="if (this.value > 100) this.value = 100"
                        max="100" type="number" class="form-control" formControlName="variationPercent"
                        placeholder="Ie. >= 20%"/>

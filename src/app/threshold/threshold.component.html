@@ -48,7 +48,7 @@
                                       </button>
                                       <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
                                         <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
-                                        <a class="links" ngbDropdownItem>Delete</a>
+                                        <a class="links cursor-pointer" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>Delete</a>
                                       </div>
                                     </div>
                                   </td>
@@ -94,7 +94,7 @@
                                       </button>
                                       <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic2">
                                         <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
-                                        <a class="links" ngbDropdownItem>Delete</a>
+                                        <a class="links" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>Delete</a>
                                       </div>
                                     </div>
                                   </td>
