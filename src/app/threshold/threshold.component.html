@@ -47,7 +47,7 @@
                                         </svg>
                                       </button>
                                       <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                                        <a class="links" href="/internal-add" ngbDropdownItem>View</a>
+                                        <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
                                         <a class="links" ngbDropdownItem>Delete</a>
                                       </div>
                                     </div>
@@ -93,7 +93,7 @@
                                         </svg>
                                       </button>
                                       <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                                        <a class="links" href="/threshold-add" ngbDropdownItem>View</a>
+                                        <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
                                         <a class="links" ngbDropdownItem>Delete</a>
                                       </div>
                                     </div>

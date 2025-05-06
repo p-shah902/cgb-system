@@ -4,14 +4,13 @@ import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbNa
 import { ToastService } from '../../service/toast.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { GetThresholdList } from '../../utils/api/api';
+import { RouterModule } from '@angular/router';
 import { ThresholdService } from '../../service/threshold.service';
 
 @Component({
   selector: 'app-threshold',
   standalone: true,
-  imports: [NgbNavModule, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbToastModule, CommonModule],
+  imports: [NgbNavModule, NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbToastModule, CommonModule, RouterModule],
   templateUrl: './threshold.component.html',
   styleUrl: './threshold.component.scss'
 })
@@ -32,12 +31,9 @@ export class ThresholdComponent implements OnInit {
     this.thresholdService.getThresholdList().subscribe(
       (response: any) => {
         if (response && response.data) {
-          this.internalThresholds = response.data.filter((threshold: {
-            thresholdType: string; type: string;
-          }) => threshold.thresholdType === 'Internal');
-          this.partnerThresholds = response.data.filter((threshold: {
-            thresholdType: string; type: string;
-          }) => threshold.thresholdType === 'Partner');
+          this.internalThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Internal');
+          this.partnerThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Partner');
+
         } else {
           console.error('No data found in the response');
         }
@@ -46,10 +42,8 @@ export class ThresholdComponent implements OnInit {
     );
   }
 
-
-
   navigateToThreshold(): void {
     const type = this.active === 1 ? 'internal' : 'partner';
-    this.router.navigate(['/threshold-add'], { queryParams: { type } });
+    this.router.navigate(['/threshold-add', type]);
   }
 }

@@ -26,6 +26,7 @@ export class ThresholdAddComponent {
   type: string = ""
   thresholdForm!: FormGroup;
   psaList: DictionaryDetail[] = []
+  thresholdId: null | number = null
   sourcingTypeData: DictionaryDetail[] = [];
 
   constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService) {
@@ -67,9 +68,10 @@ export class ThresholdAddComponent {
       variationPercent: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
     });
 
-    this.route.queryParamMap.subscribe(queryParams => {
-      this.type = queryParams.get('type') || "";
-      console.log('Type:', this.type);
+    this.route.paramMap.subscribe(params => {
+      this.type = params.get('type') || "";
+      this.thresholdId = params.get('id') ? Number(params.get('id')) : null;     // optional
+      console.log('Type:', this.type, this.thresholdId);
 
       if (this.type === 'internal') {
         this.thresholdForm.get('sourcingType')?.setValidators(Validators.required);
@@ -160,6 +162,8 @@ export class ThresholdAddComponent {
 
   discard(): void {
     this.thresholdForm.reset();
+    this.router.navigate(['/threshold']);
+
   }
 
 }

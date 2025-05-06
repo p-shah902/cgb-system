@@ -174,12 +174,14 @@ export const routes: Routes = [
     loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent)
   },
   {
-    path: 'internal-add',
-    loadComponent: () => import('./internal-add/internal-add.component').then(m => m.InternalAddComponent)
+    path: 'threshold-add/:type', // e.g., internal or external
+    loadComponent: () =>
+      import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
   },
   {
-    path: 'threshold-add',
-    loadComponent: () => import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
+    path: 'threshold-add/:type/:id', // for editing
+    loadComponent: () =>
+      import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
   },
   {
     path: 'temp',
