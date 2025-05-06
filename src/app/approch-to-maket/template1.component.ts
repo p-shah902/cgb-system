@@ -88,7 +88,7 @@ export class Template1Component implements AfterViewInit  {
   sourcingRigorData: DictionaryDetail[] = [];
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
-  isShowJustification = true
+  isShowJustification = false
   isShowBoxSection = false
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
@@ -250,7 +250,7 @@ export class Template1Component implements AfterViewInit  {
         isAsiman: [{ value: false, disabled: true }],
         isBPGroup: [{ value: false, disabled: true }],
         // Percentage fields with validation (0-100)
-        percentage_isACG: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
+        percentage_isACG: [null],
         percentage_isShah: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
         percentage_isSCP: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],
         percentage_isBTC: [{ value: '', disabled: true }, [Validators.min(0), Validators.max(100)]],

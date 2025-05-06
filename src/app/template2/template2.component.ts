@@ -229,7 +229,7 @@ export class Template2Component implements AfterViewInit {
         paperProvision: ['', Validators.required],
         cgbAtmRefNo: [{ value: '', disabled: true }],
         cgbApprovalDate: [{value: null, disabled: true}],
-        isChangeinApproachMarket: [false],
+        isChangeinApproachMarket: [null],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: null, disabled: true}],
         contractNo: [''],
@@ -245,7 +245,7 @@ export class Template2Component implements AfterViewInit {
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
-        isPHCA: [false],
+        isPHCA: [null],
         currencyCode: [''],
         totalAwardValueUSD: [
           null,
@@ -254,29 +254,29 @@ export class Template2Component implements AfterViewInit {
         exchangeRate: [0], // Number input
         contractValue: [0],
         remunerationType: ['', Validators.required],
-        isPaymentRequired: [false],
+        isPaymentRequired: [null],
         prePayPercent: [null],
         prePayAmount: [null],
         workspaceNo: [''],
-        isSplitAward: [false],
+        isSplitAward: [null],
         psajv: [[], Validators.required],
-        isLTCC: [false],
+        isLTCC: [null],
         ltccNotes: [{ value: '', disabled: true }],
-        isGovtReprAligned: [false],
+        isGovtReprAligned: [null],
         govtReprAlignedComment: [''],
         contractSpendCommitment: [''],
       }),
       procurementDetails: this.fb.group({
         supplierAwardRecommendations: ['', Validators.required],
         legalEntitiesAwarded: this.fb.array([]),
-        isConflictOfInterest: [false],
+        isConflictOfInterest: [null],
         conflictOfInterestComment: [''],
-        isRetrospectiveApproval: [false],
+        isRetrospectiveApproval: [null],
         retrospectiveApprovalReason: [''],
         nationalContent: [''],
       }),
       ccd: this.fb.group({
-        isHighRiskContract: [false],
+        isHighRiskContract: [null],
         cddCompleted: [null],
         highRiskExplanation: [''],
         flagRaisedCDD: [''],
@@ -295,7 +295,7 @@ export class Template2Component implements AfterViewInit {
       }),
       additionalDetails: this.fb.group({
         contractualControls: [''],
-        contractCurrencyLinktoBaseCost: [false],
+        contractCurrencyLinktoBaseCost: [null],
         explanationsforBaseCost: [''],
         riskMitigation: this.fb.array([]),
       }),
@@ -1139,7 +1139,7 @@ export class Template2Component implements AfterViewInit {
     this.generalInfoForm.get('additionalDetails.contractCurrencyLinktoBaseCost')?.valueChanges.subscribe((value) => {
       const explanationsControl = this.generalInfoForm.get('additionalDetails.explanationsforBaseCost');
 
-      if (value === true) {
+      if (value === false) {
         explanationsControl?.setValidators([Validators.required]);
         explanationsControl?.enable();
       } else {

@@ -44,11 +44,12 @@ import {ThresholdService} from '../../service/threshold.service';
 import {ToggleService} from '../shared/services/toggle.service';
 import {CURRENCY_LIST} from '../../utils/constant';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-template3',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip],
   templateUrl: './template3.component.html',
   styleUrl: './template3.component.scss'
 })

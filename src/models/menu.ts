@@ -83,7 +83,7 @@ export const menuItems: Menu[] = [
           },
           {
             path: '/approval-of-sale-disposal-form',
-            title: 'Approval of Sale / Disposal'
+            title: 'Sale / Disposal'
           },
           {
             path: '/info-note',
