@@ -232,9 +232,10 @@ a {
 
     .cost-table-div {
       td {
-        width: auto;
+        min-width: 200px;
         input {
-          max-width: 150px;
+          //max-width: 150px;
+          min-width: 100px;
         }
       }
     }
