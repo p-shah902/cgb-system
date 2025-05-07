@@ -270,7 +270,7 @@ export class Template2Component implements AfterViewInit {
         supplierAwardRecommendations: ['', Validators.required],
         legalEntitiesAwarded: this.fb.array([]),
         isConflictOfInterest: [null],
-        conflictOfInterestComment: [''],
+        conflictOfInterestComment: [{ value: '', disabled: true }],
         isRetrospectiveApproval: [null],
         retrospectiveApprovalReason: [''],
         nationalContent: [''],
@@ -1152,13 +1152,18 @@ export class Template2Component implements AfterViewInit {
   }
 
   conflictIntrestChanges() {
-    this.generalInfoForm.get('generalInfo.isConflictOfInterest')?.valueChanges.subscribe((value) => {
+    this.generalInfoForm.get('procurementDetails.isConflictOfInterest')?.valueChanges.subscribe((value) => {
+      const conflictOfInterestCommentControl = this.generalInfoForm.get('procurementDetails.conflictOfInterestComment');
+
       if (value === true) {
-        this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.setValidators([Validators.required]);
+        conflictOfInterestCommentControl?.setValidators([Validators.required]);
+        conflictOfInterestCommentControl?.enable();
       } else {
-        this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.clearValidators();
+        conflictOfInterestCommentControl?.clearValidators();
+        conflictOfInterestCommentControl?.disable();
       }
-      this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.updateValueAndValidity(); // Refresh validation
+
+      conflictOfInterestCommentControl?.updateValueAndValidity();
     });
   }
 

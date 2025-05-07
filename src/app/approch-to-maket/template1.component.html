@@ -140,7 +140,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
+                    <label>PSA/JV*</label>
                     <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
                                 multiple></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
@@ -455,7 +455,7 @@
                 <div class="col-sm-6 col-md-6 mt-3">
                   <div class="form-group mb-3">
                     <label class="mb-3">Conflict of Interest
-                      <svg width="17" height="16" viewBox="0 0 17 16" fill="none" class="pointer"
+                      <svg width="17" height="16" viewBox="0 0 17 16" fill="none" class="cursor-pointer"
                            [ngbTooltip]="'Conflict of Interest with SOCAR, SOCAR Affiliated entities (JVs, Alliances) or other'" placement="top" container="body"
                            xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -598,11 +598,11 @@
                           <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
                             <td class="align-middle text-start">{{ generateId(i) }}</td>
                             <td>
-                              <input type="text" class="form-control"
-                                     placeholder="Enter here" formControlName="risks"/>
+                              <textarea rows="3" type="text" class="form-control"
+                                        placeholder="Enter here" formControlName="risks"></textarea>
                             <td>
-                              <input type="text" class="form-control"
-                                     placeholder="Enter here" formControlName="mitigations"/>
+                              <textarea rows="3" type="text" class="form-control"
+                                     placeholder="Enter here" formControlName="mitigations"></textarea>
                             </td>
                             <td>
                               <div class="krt-action">

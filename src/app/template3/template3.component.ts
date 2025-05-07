@@ -345,9 +345,9 @@ export class Template3Component  implements AfterViewInit {
         revisedContractValue: [0],
         spendOnContract: [0],
         isCurrencyLinktoBaseCost: [null],
-        noCurrencyLinkNotes: [''],
+        noCurrencyLinkNotes: [{ value: '', disabled: true }],
         isConflictOfInterest: [null],
-        conflictOfInterestComment: [''],
+        conflictOfInterestComment: [{ value: '', disabled: true }],
       }),
       ccd: this.fb.group({
         isHighRiskContract: [null],

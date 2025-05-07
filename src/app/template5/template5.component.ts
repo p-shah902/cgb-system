@@ -167,7 +167,7 @@ export class Template5Component  implements AfterViewInit{
         purposeRequired: ['', Validators.required],
         transactionType: ['', Validators.required],
         isRetrospectiveApproval: [null],
-        retrospectiveApprovalReason: [''],
+        retrospectiveApprovalReason: [{ value: '', disabled: true }],
         reasontoChangeRequired: [''],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: '', disabled: true}],
@@ -189,7 +189,7 @@ export class Template5Component  implements AfterViewInit{
         variationEndDate: [null, Validators.required],
         psajv: [[], Validators.required],
         isLTCC: [null],
-        ltccNotes: [''],
+        ltccNotes: [{ value: '', disabled: true }],
       }),
       ccd: this.fb.group({
         isHighRiskContract: [null],

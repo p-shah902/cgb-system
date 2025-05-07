@@ -180,7 +180,7 @@ export class Template4Component  implements AfterViewInit{
         isGIAAPCheck: [null],
         isGovtReprAligned: [null],
         govtReprAlignedComment: [''],
-        retrospectiveApprovalReason: [''],
+        retrospectiveApprovalReason: [{ value: '', disabled: true }],
         isRetrospectiveApproval: [null],
       }),
       costAllocation: this.fb.group({

@@ -204,7 +204,7 @@ export class Template1Component implements AfterViewInit  {
         isGovtReprAligned: [null],
         govtReprAlignedComment: [''],
         isConflictOfInterest: [null],
-        conflictOfInterestComment: [''],
+        conflictOfInterestComment: [{ value: '', disabled: true }],
         strategyDescription: ['']
       }),
       procurementDetails: this.fb.group({
@@ -679,12 +679,17 @@ export class Template1Component implements AfterViewInit  {
 
   conflictIntrestChanges() {
     this.generalInfoForm.get('generalInfo.isConflictOfInterest')?.valueChanges.subscribe((value) => {
+      const conflictOfInterestCommentControl = this.generalInfoForm.get('generalInfo.conflictOfInterestComment');
+
       if (value === true) {
-        this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.setValidators([Validators.required]);
+        conflictOfInterestCommentControl?.setValidators([Validators.required]);
+        conflictOfInterestCommentControl?.enable();
       } else {
-        this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.clearValidators();
+        conflictOfInterestCommentControl?.clearValidators();
+        conflictOfInterestCommentControl?.disable();
       }
-      this.generalInfoForm.get('generalInfo.conflictOfInterestComment')?.updateValueAndValidity(); // Refresh validation
+
+      conflictOfInterestCommentControl?.updateValueAndValidity();
     });
   }
 

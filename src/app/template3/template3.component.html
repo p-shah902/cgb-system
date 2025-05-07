@@ -219,7 +219,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PSA/JV *</label>
+                    <label>PSA/JV*</label>
                     <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
                                 multiple></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
