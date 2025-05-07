@@ -296,7 +296,7 @@ export class Template2Component implements AfterViewInit {
       additionalDetails: this.fb.group({
         contractualControls: [''],
         contractCurrencyLinktoBaseCost: [null],
-        explanationsforBaseCost: [''],
+        explanationsforBaseCost: [{ value: '', disabled: true }],
         riskMitigation: this.fb.array([]),
       }),
       valueDelivery: this.fb.group({

@@ -1183,12 +1183,12 @@
                         <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
                           <td>{{ generateId(i) }}</td>
                           <td>
-                            <input type="text" class="form-control border-0 p-0 shadow-none"
-                                   placeholder="Enter here" formControlName="risks"/>
+                            <textarea rows="3" type="text" class="form-control border-0 p-0 shadow-none"
+                                      placeholder="Enter here" formControlName="risks"></textarea>
                           </td>
                           <td>
-                            <input type="text" class="form-control border-0 p-0 shadow-none"
-                                   placeholder="Enter here" formControlName="mitigations"/>
+                            <textarea rows="3" type="text" class="form-control border-0 p-0 shadow-none"
+                                   placeholder="Enter here" formControlName="mitigations"></textarea>
                           </td>
                           <td>
                             <div class="krt-action">
