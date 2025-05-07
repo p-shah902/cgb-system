@@ -272,7 +272,7 @@ export class Template2Component implements AfterViewInit {
         isConflictOfInterest: [null],
         conflictOfInterestComment: [{ value: '', disabled: true }],
         isRetrospectiveApproval: [null],
-        retrospectiveApprovalReason: [''],
+        retrospectiveApprovalReason: [{ value: '', disabled: true }],
         nationalContent: [''],
       }),
       ccd: this.fb.group({
@@ -1168,13 +1168,18 @@ export class Template2Component implements AfterViewInit {
   }
 
   restrospectiveChanges() {
-    this.generalInfoForm.get('generalInfo.isRetrospectiveApproval')?.valueChanges.subscribe((value) => {
+    this.generalInfoForm.get('procurementDetails.isRetrospectiveApproval')?.valueChanges.subscribe((value) => {
+      const conflictOfInterestCommentControl = this.generalInfoForm.get('procurementDetails.retrospectiveApprovalReason');
+
       if (value === true) {
-        this.generalInfoForm.get('generalInfo.retrospectiveApprovalReason')?.setValidators([Validators.required]);
+        conflictOfInterestCommentControl?.setValidators([Validators.required]);
+        conflictOfInterestCommentControl?.enable();
       } else {
-        this.generalInfoForm.get('generalInfo.retrospectiveApprovalReason')?.clearValidators();
+        conflictOfInterestCommentControl?.clearValidators();
+        conflictOfInterestCommentControl?.disable();
       }
-      this.generalInfoForm.get('generalInfo.retrospectiveApprovalReason')?.updateValueAndValidity(); // Refresh validation
+
+      conflictOfInterestCommentControl?.updateValueAndValidity();
     });
   }
 
