@@ -5,13 +5,13 @@
       {{ toast.message }}
     </ngb-toast>
   </div>
-  
-  
-  
+
+
+
   <div class="container-fluid" *ngIf="paperDetails">
-  
+
     <div class="timeline-main-div mb-5">
-  
+
       <div *ngFor="let activity of paperTimelineDetails; let i = index" [class]="getStatusClass(i)">
         <div class="tb-head d-flex gap-2">
           <div>
@@ -26,7 +26,7 @@
         </div>
       </div>
     </div>
-  
+
     <div class="row">
       <div class="col-md-8">
         <div class="form-main-div">
@@ -42,46 +42,46 @@
               <div class="fb-title-div mb-3">
                 <h4>1. General Information</h4>
               </div>
-  
+
               <div class="fb-form" formGroupName="generalInfo">
                 <div class="row">
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>For the provision of </label>
                       <p [safeHtml]="contractAwardDetails?.paperProvision"></p>
-                      
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>CGB AtM Ref No </label>
                       <h6>{{contractAwardDetails?.cgbAtmRefNo}}</h6>
-                      
-                      
+
+
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>CGB AtM Approval Date</label>
                       <h6>{{contractAwardDetails?.cgbApprovalDate | date: 'dd-MMMM-yyyy'}}</h6>
-    
+
                     </div>
                   </div>
                   <div class="col-md-12">
                     <div class="form-group mb-3">
                       <label>Contract No </label>
                       <h6>{{contractAwardDetails?.contractNo}}</h6>
-                      
+
                     </div>
                   </div>
-  
-                 
+
+
                   <div class="col-md-12">
                     <div class="form-group mb-3 allow-comments" id="isChangeinApproachMarket" >
                       <label>Have there been changes to the Scope since CGB Approach to Market?</label>
                       <h6>{{contractAwardDetails?.isChangeinApproachMarket ? 'Yes':'No'}}</h6>
                       <div class="form-radio d-flex gap-3">
-                        
+
                       </div>
                     </div>
                   </div>
@@ -89,11 +89,11 @@
                     <div class="form-group mb-3">
                       <label>Changes since AtM / Why is this work required? </label>
                       <p [safeHtml]="contractAwardDetails?.purposeRequired"></p>
-                     
+
                     </div>
                   </div>
-  
-  
+
+
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>CGB Item Ref </label>
@@ -105,65 +105,65 @@
                       <label>CGB Circulation Date</label>
                       <div class="date-input position-relative">
                         <h6>{{contractAwardDetails?.cgbCirculationDate | date: 'dd-MMMM-yyyy'}}</h6>
-                        
+
                       </div>
-  
+
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>Contract No </label>
                       <h6>{{contractAwardDetails?.contractNo}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group mb-3">
                       <label>Vendor ID </label>
                       <h6>{{contractAwardDetails?.vendorId}}</h6>
-                      
+
                     </div>
                   </div>
-  
+
                 </div>
                 <div class="row">
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>Global CGB</label>
                       <h6>{{contractAwardDetails?.globalCGB}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>Operating Function </label>
                       <h6>{{contractAwardDetails?.operatingFunction}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>BLT Member </label>
                       <h6>{{contractAwardDetails?.bltMemberName}}</h6>
-                      
+
                     </div>
                   </div>
-  
+
                   <div class="col-md-6">
                     <div class="form-group mb-3">
                       <label>Subsector</label>
                       <h6>{{contractAwardDetails?.subSector}}</h6>
-                     
+
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group mb-3">
                       <label>Sourcing Type</label>
                       <h6>{{contractAwardDetails?.sourcingType}}</h6>
-                      
+
                     </div>
                   </div>
-  
+
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>Contract Accountable Manager</label>
@@ -174,14 +174,14 @@
                     <div class="form-group mb-3">
                       <label>VP-1 </label>
                       <h6>{{contractAwardDetails?.vP1UserName}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-md-4">
                     <div class="form-group mb-3">
                       <label>Procurement SPA</label>
                       <h6>{{contractAwardDetails?.procurementSPAUsers}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
@@ -190,33 +190,33 @@
                       <h6>{{contractAwardDetails?.pdManagerName}}</h6>
                     </div>
                   </div>
-  
+
                   <div class="col-sm-6 col-md-6">
                     <div class="form-group mb-3 allow-comments" id="isPHCA">
                       <label>PHCA </label>
                       <h6>{{contractAwardDetails?.isPHCA ? 'Yes':'No'}}</h6>
-                      
+
                     </div>
                   </div>
-  
+
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>Total Award Value (USD) </label>
                       <h6>{{contractAwardDetails?.totalAwardValueUSD}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-2">
                     <label>Original Currency</label>
                     <h6>{{contractAwardDetails?.currencyCode}}</h6>
 
-                    
+
                   </div>
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Exchange Rate</label>
                       <h6>{{contractAwardDetails?.exchangeRate}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
@@ -225,22 +225,22 @@
                       <h6>{{contractAwardDetails?.contractValue}}</h6>
                     </div>
                   </div>
-  
+
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>Remuneration Type</label>
                       <h6>{{contractAwardDetails?.remunerationType}}</h6>
-                      
-                     
+
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-  
+
                       <div class="form-group mb-3 allow-comments" id="isPaymentRequired">
                         <label>Prepayment Required </label>
                         <h6>{{contractAwardDetails?.isPaymentRequired ? 'Yes':'No'}}</h6>
-                        
+
                       </div>
                     </div>
                   </div>
@@ -248,31 +248,31 @@
                     <div class="form-group mb-3">
                       <label> Prepayment %</label>
                       <h6>{{contractAwardDetails?.prePayPercent}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-2">
                     <div class="form-group mb-3">
                       <label>Prepayment $</label>
                       <h6>{{contractAwardDetails?.prePayAmount}}</h6>
-                      
+
                     </div>
                   </div>
-  
+
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>Workspace</label>
                       <h6>{{contractAwardDetails?.workspaceNo}}</h6>
-                      
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-  
+
                       <div class="form-group mb-3 allow-comments" id="isSplitAward">
                         <label>Split Award </label>
                         <h6>{{contractAwardDetails?.isSplitAward ? 'Yes':'No'}}</h6>
-                        
+
                       </div>
                     </div>
                   </div>
@@ -280,57 +280,57 @@
                     <div class="form-group mb-3">
                       <label>PSA/JV </label>
                       <h6>{{contractAwardDetails?.psajv}}</h6>
-                      
+
                     </div>
                   </div>
-  
+
                   <div class="col-sm-6 col-md-12">
                     <div class="form-group mb-3 allow-comments" id="isLTCC">
                       <label>Long Term Commercial Commitment </label>
                       <h6>{{contractAwardDetails?.isLTCC ? 'Yes':'No'}}</h6>
-                      
-  
+
+
                     </div>
                     <div class="form-group mb-3">
                       <label>LTCC Note</label>
                       <p [safeHtml]="contractAwardDetails?.ltccNotes"></p>
-                     
+
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-12">
                     <div class="form-group mb-3 allow-comments"  id="isGovtReprAligned">
                       <label>Aligned with Government Representative </label>
                       <h6>{{contractAwardDetails?.isGovtReprAligned ? 'Yes':'No'}}</h6>
-                      
+
                     </div>
-  
+
                     <div class="form-group mb-3">
                       <label>Government Representative Comment</label>
                       <p [safeHtml]="contractAwardDetails?.govtReprAlignedComment"></p>
-                      
+
                     </div>
                   </div>
-  
-                 
-  
+
+
+
                   <div class="form-group mb-3 allow-comments" id="contractSpendCommitment">
                     <label class="mb-3">Framework or Commitment</label>
                     <div class="form-radio d-flex flex-column ps-3">
                       <div class="radio-box position-relative mb-2">
                         <h6>{{contractAwardDetails?.contractSpendCommitment}}</h6>
                       </div>
-                      
+
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-  
+
             <div class="fb-form">
               <div class="fb-title-div mb-3">
                 <h4>2. Procurement Strategy</h4>
               </div>
-  
+
               <div class="fb-form">
                 <div class="row">
                   <div class="col-md-12">
@@ -355,7 +355,7 @@
                               <th>Start Date</th>
                               <th>End Date</th>
                               <th>Extension Options</th>
-                             
+
                             </tr>
                             </thead>
                             <tbody >
@@ -365,35 +365,35 @@
                               </td>
                               <td class="text-center align-middle">
                                 <h6>{{entity.isLocalOrJV ? 'Yes':'No'}}</h6>
-                                
+
                               </td>
                               <td>
                                 <h6>{{entity.totalAwardValueUSD }}</h6>
-                               
+
                               </td>
                               <td>
                                 <h6>{{entity.currencyCode }}</h6>
-                                
+
                               </td>
                               <td>
                                 <h6>{{entity.exchangeRate }}</h6>
-                               
+
                               </td>
                               <td>
                                 <h6>{{entity.contractValue }}</h6>
-                               
+
                               </td>
                               <td>
                                 <h6>{{entity.contractStartDate | date: 'dd-MMMM-yyyy' }}</h6>
-                                
+
                               </td>
                               <td>
                                 <h6>{{entity.contractEndDate | date: 'dd-MMMM-yyyy' }}</h6>
-                                
+
                               </td>
                               <td>
                                 <h6>{{entity.extensionOption }}</h6>
-                                
+
                             </tr>
                             </tbody>
                           </table>
@@ -408,7 +408,7 @@
                       <label class="mb-3">Conflict of Interest</label>
                       <div class="form-radio d-flex gap-3">
                         <h6>{{contractAwardDetails?.isConflictOfInterest ? 'Yes':'No'}}</h6>
-                        
+
                       </div>
                     </div>
                     <div class="form-group mb-3">
@@ -429,7 +429,7 @@
                     </div>
                   </div>
                   <div class="col-sm-12">
-  
+
                     <div class="form-group mb-3">
                       <label>National Content</label>
                       <p [safeHtml]="contractAwardDetails?.nationalContent"></p>
@@ -451,7 +451,7 @@
                           <div class="radio-box position-relative">
                             <h6>{{contractAwardDetails?.isHighRiskContract ? 'Yes':'No'}}</h6>
                           </div>
-                          
+
                         </div>
                       </div>
                     </div>
@@ -464,26 +464,26 @@
                       </div>
                     </div>
                     <div class="col-sm-12">
-    
+
                       <div class="form-group mb-3">
                         <label>Explanation for High Risk</label>
                         <p [safeHtml]="contractAwardDetails?.highRiskExplanation"></p>
                       </div>
                     </div>
                     <div class="col-sm-6">
-    
+
                       <div class="form-group mb-3">
                         <label>Flags raised during initial CDD / CDD refresh</label>
                         <p [safeHtml]="contractAwardDetails?.flagRaisedCDD"></p>
-                        
+
                       </div>
                     </div>
                     <div class="col-sm-6">
-    
+
                       <div class="form-group mb-3">
                         <label>Additional CDD Controls for High Risk Contracts</label>
                         <p [safeHtml]="contractAwardDetails?.additionalCDD"></p>
-                        
+
                       </div>
                     </div>
                 </div>
@@ -525,7 +525,7 @@
                                   <th>Technical Score (%)</th>
                                   <th>Results of HSSE</th>
                                   <th>Commentary</th>
-                                  
+
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -559,11 +559,11 @@
                         <div class="form-group mb-3">
                           <label>Benchmarking for Sole Awards</label>
                           <p [safeHtml]="contractAwardDetails?.benchMarking"></p>
-                          
+
                         </div>
                       </div>
                     </div>
-      
+
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
@@ -579,7 +579,7 @@
                       </div>
                     </div>
                     <h6 class="mb-3"><b>Commercial Evaluation</b></h6>
-      
+
                     <div class="col-sm-12 col-md-12 allow-comments" id="commercial_evaluation">
                       <div class="form-group mb-3">
                         <div class="overflow-auto">
@@ -648,7 +648,7 @@
                                 <th>ID</th>
                                 <th>Risks</th>
                                 <th>Mitigations</th>
-                               
+
                               </tr>
                               </thead>
                               <tbody >
@@ -660,7 +660,7 @@
                                 <td>
                                   <h6>{{risk.mitigations}}</h6>
                                 </td>
-                               
+
                               </tr>
                               </tbody>
                             </table>
@@ -761,13 +761,13 @@
                 </div>
               </div>
             </div>
-  
-  
+
+
             <div class="fb-form">
               <div class="fb-title-div mb-3">
                 <h4>7. Cost Allocation And JV Approval</h4>
               </div>
-  
+
               <div class="fb-form">
                 <div class="cost-table-div custom-table table-responsive">
                   <table class="table table-bordered">
@@ -798,7 +798,7 @@
                           <label>{{ totalPercentage > 0 ? (totalPercentage | number:'1.2-2') + '%' : '' }}</label>
                         </td>
                       </tr>
-  
+
                       <tr>
                         <td><b>By value $</b></td>
                         <td *ngFor="let column of psaColumns">
@@ -808,7 +808,7 @@
                           <label>{{ totalValue > 0 ? (totalValue | number:'1.2-2') : '' }}</label>
                         </td>
                       </tr>
-  
+
                       <tr>
                         <td><b>Contract Committee</b></td>
                         <td> <!-- ACG cell - empty --> </td>
@@ -853,7 +853,7 @@
                           <label>CGB</label>
                         </td>
                       </tr>
-  
+
                       <tr>
                         <td><b>Co-Venturers</b></td>
                         <td> <!-- ACG cell -->
@@ -894,7 +894,7 @@
                           <label></label>
                         </td>
                       </tr>
-  
+
                       <tr>
                         <td><b>Steering Committee</b></td>
                         <td> <!-- ACG cell -->
@@ -918,10 +918,10 @@
                   </table>
                 </div>
               </div>
-  
-  
+
+
             </div>
-  
+
             <div class="fb-form">
               <div class="fb-title-div mb-3">
                 <h4>8. Cost Sharing Methodology</h4>
@@ -948,7 +948,7 @@
                   </div>
                 </div>
               </div>
-  
+
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-view-group">
@@ -971,7 +971,7 @@
                   </div>
                 </div>
               </div>
-  
+
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-view-group">
@@ -994,7 +994,7 @@
                   </div>
                 </div>
               </div>
-  
+
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-view-group">
@@ -1018,7 +1018,7 @@
                 </div>
               </div>
             </div>
-  
+
             <div class="fb-form">
               <div class="fb-title-div mb-3">
                 <h4>9. Consultations</h4>
@@ -1032,28 +1032,28 @@
                         <h6>{{consultation.psa}}</h6>
                       </div>
                     </div>
-  
+
                     <!-- <div class="col-sm-6 col-md-2">
                       <label>No existing budget Correct</label>
                       <div class="text-center align-middle">
                         <h6>{{consultation.isNoExistingBudget ? 'Yes':'No'}}</h6>
                       </div>
                     </div> -->
-  
+
                     <div class="col-sm-6 col-md-2">
                       <div class="form-group mb-3">
                         <label>Technically Correct</label>
                         <h6>{{consultation.technicalCorrectName}}</h6>
                       </div>
                     </div>
-  
+
                     <div class="col-sm-6 col-md-2">
                       <div class="form-group mb-3">
                         <label>Budget Statement</label>
                         <h6>{{consultation.budgetStatementName}}</h6>
                       </div>
                     </div>
-  
+
                     <div class="col-sm-6 col-md-2">
                       <div class="form-group mb-3">
                         <label>JV Review</label>
@@ -1062,11 +1062,11 @@
                     </div>
                   </div>
                 </div>
-  
+
               </div>
             </div>
-  
-  
+
+
           </div>
         </div>
       </div>
@@ -1094,7 +1094,7 @@
                   {{ log.description }}
                 </p>
                 <small>{{ log.logCreateDate | timeAgo }}</small>
-  
+
               </div>
             </div>
             <div class="chat-input-group position-relative">
@@ -1107,11 +1107,11 @@
                   <path d="M3.2002 8H16.0002" stroke="#E6EFFC" stroke-width="0.646308" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
-  
+
               </button>
             </div>
           </div>
-  
+
         </div>
       </div>
     </div>

@@ -25,11 +25,11 @@
                     <option value="section2">2. Procurement Details</option>
                     <option value="section3">3. CDD (Counterparty Due Diligence)</option>
                     <option value="section4">4. Evaluation Summary</option>
-                    <option value="section5">5. Additional Award Details</option>
-                    <option value="section6">6. Value Delivery</option>
-                    <option value="section7">7. Cost Allocation and JV Approval</option>
-                    <option value="section8">8. Cost Sharing Methodology</option>
-                    <option value="section9">9. Consultation</option>
+<!--                    <option value="section5">5. Additional Award Details</option>-->
+                    <option value="section6">5. Value Delivery</option>
+                    <option value="section7">6. Cost Allocation and JV Approval</option>
+                    <option value="section8">7. Cost Sharing Methodology</option>
+                    <option value="section9">8. Consultation</option>
                   </select>
                 </div>
                 <div class="fh-search">
@@ -908,7 +908,7 @@
               <div class="row">
                 <div class="col-12 col-md-6">
                   <div class="d-flex align-items-center mb-3">
-                    <label for="invitedBidders" class="me-2 mb-0" style="width: 50%;">Number of Invited Bidders</label>
+                    <label for="invitedBidders" class="me-2 mb-0" style="width: 50%;">Number of Invited Bidders:</label>
                     <input type="number" min="0" id="invitedBidders" class="form-control allow-comments"
                            formControlName="invitedBidders" placeholder="123" style="width: 50%;" />
                   </div>
@@ -916,7 +916,7 @@
 
                 <div class="col-12 col-md-6">
                   <div class="d-flex align-items-center mb-3">
-                    <label for="submittedBids" class="me-2 mb-0" style="width: 50%;">Number of Submitted Bids</label>
+                    <label for="submittedBids" class="me-2 mb-0" style="width: 50%;">Number of Submitted Bids:</label>
                     <input type="number" min="0" id="submittedBids" class="form-control allow-comments"
                            formControlName="submittedBids" placeholder="123" style="width: 50%;" />
                   </div>
@@ -1108,23 +1108,23 @@
               </div>
             </div>
 
-            <div id="section5" data-section="section5" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
-              <h4  class="mb-0">5. Additional Award Details</h4>
-              <button
-                type="button"
-                class="btn btn-sm btn-light me-2"
-                style="margin-top: 8px; margin-bottom: 8px;"
-                (click)="scrollToTop()"
-                title="Back to Top"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-up" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
-                </svg>
-              </button>
-            </div>
-            <div class="fb-form" formGroupName="additionalDetails">
+<!--            <div class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">-->
+<!--              <h4  class="mb-0">5. Additional Award Details</h4>-->
+<!--              <button-->
+<!--                type="button"-->
+<!--                class="btn btn-sm btn-light me-2"-->
+<!--                style="margin-top: 8px; margin-bottom: 8px;"-->
+<!--                (click)="scrollToTop()"-->
+<!--                title="Back to Top"-->
+<!--              >-->
+<!--                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"-->
+<!--                     class="bi bi-arrow-up" viewBox="0 0 16 16">-->
+<!--                  <path fill-rule="evenodd"-->
+<!--                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>-->
+<!--                </svg>-->
+<!--              </button>-->
+<!--            </div>-->
+            <div class="fb-form py-0" formGroupName="additionalDetails">
               <div class="row">
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
@@ -1181,16 +1181,16 @@
                         </thead>
                         <tbody formArrayName="riskMitigation">
                         <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
-                          <td>{{ generateId(i) }}</td>
+                          <td class="align-middle text-start">{{ generateId(i) }}</td>
                           <td>
-                            <textarea rows="3" type="text" class="form-control border-0 p-0 shadow-none"
+                            <textarea rows="3" type="text" class="form-control"
                                       placeholder="Enter here" formControlName="risks"></textarea>
                           </td>
                           <td>
-                            <textarea rows="3" type="text" class="form-control border-0 p-0 shadow-none"
+                            <textarea rows="3" type="text" class="form-control"
                                    placeholder="Enter here" formControlName="mitigations"></textarea>
                           </td>
-                          <td>
+                          <td class="align-middle text-start">
                             <div class="krt-action">
                               <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)"
                                       [disabled]="riskMitigation.length <= 1">
@@ -1228,7 +1228,7 @@
             </div>
 
             <div id="section6" data-section="section6" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
-              <h4  class="mb-0">6. Value Delivery</h4>
+              <h4  class="mb-0">5. Value Delivery</h4>
               <button
                 type="button"
                 class="btn btn-sm btn-light me-2"
@@ -1353,7 +1353,7 @@
             </div>
 
             <div id="section7" data-section="section7" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
-              <h4  class="mb-0">7. Cost Allocation and JV Approval</h4>
+              <h4  class="mb-0">6. Cost Allocation and JV Approval</h4>
               <button
                 type="button"
                 class="btn btn-sm btn-light me-2"
@@ -1977,7 +1977,7 @@
             </div>
 
             <div id="section9" data-section="section9" class="fb-title-div ft-bg2 d-flex justify-content-between align-items-center px-3">
-              <h4  class="mb-0">9. Consultation</h4>
+              <h4  class="mb-0">8. Consultation</h4>
               <button
                 type="button"
                 class="btn btn-sm btn-light me-2"

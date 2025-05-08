@@ -333,7 +333,7 @@ export class Template3Component  implements AfterViewInit {
         isPaymentRequired: [null],
         prePayAmount: [0],
         isRetrospectiveApproval: [null],
-        retrospectiveApprovalReason: [''],
+        retrospectiveApprovalReason: [{ value: '', disabled: true }],
       }),
       contractValues: this.fb.group({
         originalContractValue: [0],

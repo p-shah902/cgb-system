@@ -84,8 +84,8 @@
                 </svg>
               </button>
             </div>
-            <div class="fb-form" formGroupName="generalInfo">
-            <div class="row">
+            <div formGroupName="generalInfo">
+            <div class="row fb-form">
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
                   <label>Provision for* </label>
@@ -190,7 +190,7 @@
                 </svg>
               </button>
             </div>
-              <div class="row">
+              <div class="row fb-form">
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB Item Reference</label>
@@ -398,7 +398,7 @@
 
 
               <div class="col-sm-6 col-md-6">
-                <div class="form-group mb-3">
+                <div class="form-group">
                   <label><b>Contract Date *</b></label>
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
@@ -453,36 +453,33 @@
                 </div>
               </div>
 
-              </div>
-            <div class="row">
-              <div class="col-sm-6 col-md-6">
-                <div class="form-group mb-3 allow-comments" id="isLTCC">
-                  <label>Long Term Commercial Commitment</label>
-                  <div class="form-radio d-flex gap-3">
-                    <div class="radio-box position-relative">
-                      <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
-                      <label>Yes</label>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3 allow-comments" id="isLTCC">
+                    <label>Long Term Commercial Commitment</label>
+                    <div class="form-radio d-flex gap-3">
+                      <div class="radio-box position-relative">
+                        <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
+                        <label>Yes</label>
+                      </div>
+                      <div class="radio-box position-relative">
+                        <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
+                        <label>No</label>
+                      </div>
                     </div>
-                    <div class="radio-box position-relative">
-                      <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
-                      <label>No</label>
+
+                  </div>
+                  <div class="form-group mb-3">
+                    <label>LTCC Note</label>
+                    <textarea type="text" id="ltccNotes" class="form-control allow-comments"
+                              placeholder="Write Description"
+                              formControlName="ltccNotes"></textarea>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
+                </div>
 
-                </div>
-                <div class="form-group mb-3">
-                  <label>LTCC Note</label>
-                  <textarea type="text" id="ltccNotes" class="form-control allow-comments"
-                            placeholder="Write Description"
-                            formControlName="ltccNotes"></textarea>
-                  <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
-                    <small class="text-danger">This field is required.</small>
-                  </div>
-                </div>
               </div>
-
-
-            </div>
 
           </div>
 
