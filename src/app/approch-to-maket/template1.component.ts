@@ -2,6 +2,7 @@ import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, After
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
 import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -49,11 +50,14 @@ import {ToggleService} from '../shared/services/toggle.service';
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
+  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
 export class Template1Component implements AfterViewInit  {
+  isCollapsed = false;
+  isCollapsed2 = true;
+
   @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
