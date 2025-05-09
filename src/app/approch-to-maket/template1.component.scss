@@ -147,7 +147,7 @@
   color: #333;
 }
 
-svg {
+.image-slider svg {
   cursor: pointer;
   transition: transform 0.3s;
   width: 16px;
@@ -155,6 +155,6 @@ svg {
   fill: #DC3545; /* Ensure the icon color is red for delete icon */
 }
 
-svg:hover {
+.image-slider svg:hover {
   transform: scale(1.1);
 }
