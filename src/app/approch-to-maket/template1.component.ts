@@ -46,6 +46,7 @@ import { ThresholdService } from '../../service/threshold.service';
 import { ThresholdType } from '../../models/threshold';
 import { cleanObject } from '../../utils';
 import {ToggleService} from '../shared/services/toggle.service';
+import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 
 @Component({
   selector: 'app-template1',
@@ -110,6 +111,7 @@ export class Template1Component implements AfterViewInit  {
   approvalRemark: string = '';
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
+  deletedFiles: number[] = []
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
@@ -148,6 +150,7 @@ export class Template1Component implements AfterViewInit  {
           this.paperId = params.get('id');
           if (this.paperId) {
             this.fetchPaperDetails(Number(this.paperId))
+            this.getUploadedDocs(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
           } else {
             if(!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
@@ -357,6 +360,29 @@ export class Template1Component implements AfterViewInit  {
       this.logs = value.data;
     })
   }
+
+  getUploadedDocs(paperId: number): void {
+    this.uploadService.getDocItemsListByPaperId(paperId).subscribe(value => {
+      const response = value?.data;
+
+      if (response && Array.isArray(response) && response.length > 0) {
+        this.selectedFiles = response.map((doc: any) => {
+          const mimeType = getMimeTypeFromFileName(doc.docName);
+          return {
+            name: doc.docName,
+            preview: `data:${mimeType};base64,${doc.fileData}`,
+            file: null,
+            isImage: mimeType.startsWith('image'),
+            id: doc.id
+          };
+        });
+      } else {
+        this.selectedFiles = []; // Clear or handle empty state
+      }
+    });
+  }
+
+
 
   addPaperCommentLogs() {
     if (this.paperId) {
@@ -1538,6 +1564,7 @@ export class Template1Component implements AfterViewInit  {
         if (response.status && response.data) {
           const docId = response.data || null
           this.uploadFiles(docId)
+          this.deleteMultipleDocuments(docId)
           this.generalInfoForm.reset();
           this.submitted = false;
           this.toastService.show(response.message || "Added Successfully", 'success');
@@ -1570,7 +1597,8 @@ export class Template1Component implements AfterViewInit  {
       Array.from(inputElement.files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.selectedFiles.push({ file, preview: e.target?.result as string });
+          const fileType = getMimeTypeFromFileName(file.name);
+          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'),id: null });
         };
         reader.readAsDataURL(file);
       });
@@ -1595,7 +1623,9 @@ export class Template1Component implements AfterViewInit  {
       Array.from(event.dataTransfer.files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.selectedFiles.push({ file, preview: e.target?.result as string });
+          const fileType = getMimeTypeFromFileName(file.name);
+
+          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
         };
         reader.readAsDataURL(file);
       });
@@ -1603,27 +1633,68 @@ export class Template1Component implements AfterViewInit  {
   }
 
   // Remove a selected file
-  removeFile(index: number) {
+  removeFile(index: number, file: any = null) {
     this.selectedFiles.splice(index, 1);
+    if(file.id && !this.isCopy) {
+      this.deletedFiles.push(Number(file.id))
+    }
   }
 
-  uploadFiles(docId: number | null) {
-    if (this.selectedFiles.length === 0 || !docId) return;
+  deleteMultipleDocuments(paperId: number | null) {
+    if (!paperId || this.deletedFiles.length === 0) return;
 
-    const filesToUpload = this.selectedFiles.map((item) => item.file);
-
-    this.uploadService.uploadDocuments(docId, filesToUpload).subscribe({
-      next: (response) => {
-        if (response.status && response.data) {
-          console.log('Files uploaded successfully!');
-          this.selectedFiles = [];
+    this.deletedFiles.forEach(docId => {
+      this.uploadService.deleteDocuments(paperId, docId).subscribe({
+        next: (res) => {
+          if (res.success) {
+            console.log(`Deleted docId: ${docId}`);
+          }
+        },
+        error: (err) => {
+          console.error(`Failed to delete docId ${docId}:`, err);
         }
-      },
-      error: (error) => {
-        console.log('Error', error);
-      },
+      });
     });
   }
+
+
+
+  uploadFiles(docId: number | null) {
+    if (!docId || this.selectedFiles.length === 0) return;
+
+    const formData = new FormData();
+
+    this.selectedFiles.forEach(item => {
+      let file: File | null = null;
+
+      if (item.file) {
+        file = item.file;
+      } else if (item.preview && item.id && this.isCopy) {
+        const base64 = item.preview.split(',')[1];
+        const mimeType = getMimeTypeFromFileName(item.name);
+        file = base64ToFile(base64, item.name, mimeType);
+      }
+
+      if (file) {
+        formData.append('Files', file);
+      }
+    });
+
+    if (formData.has('Files')) {
+      this.uploadService.uploadDocuments(docId, formData).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            console.log('Files uploaded successfully!');
+            this.selectedFiles = [];
+          }
+        },
+        error: (error) => {
+          console.error('Upload error:', error);
+        },
+      });
+    }
+  }
+
 
   open(event: Event, content: TemplateRef<any>, paperId?: any) {
     event.preventDefault();

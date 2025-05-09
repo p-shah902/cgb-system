@@ -1723,11 +1723,21 @@
                     <div class="image-slider">
                       <div class="slider-container">
                         <div class="attach-thumb bg-white slider-item" *ngFor="let file of selectedFiles; let i = index">
-                          <img *ngIf="file.preview" [src]="file.preview" alt="Document Image" class="uploaded-image"/>
-                          <p class="m-0 d-flex gap-2 mt-3 justify-content-between align-items-center">
-                            {{ file.name }}
+
+                          <!-- Show Image Preview for image files -->
+                          <img *ngIf="file.preview && file.isImage" [src]="file.preview" alt="Document Image" class="uploaded-image"/>
+
+                          <!-- Default icon for non-image files -->
+                          <img *ngIf="file.preview && !file.isImage" [src]="'/img/bill.png'" alt="Document Image" class="uploaded-image"/>
+
+                          <div class="file-info d-flex justify-content-between align-items-center">
+                            <p class="m-0 file-name">
+                              {{ file.name }}
+                            </p>
+
+                            <!-- Delete Icon -->
                             <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                 (click)="removeFile(i)" style="cursor: pointer;">
+                                 (click)="removeFile(i, file)" style="cursor: pointer;">
                               <g clip-path="url(#clip0_202_3810)">
                                 <path
                                   d="M4.07187 0.483984C4.21953 0.185938 4.52305 0 4.85391 0H8.14609C8.47695 0 8.78047 0.185938 8.92812 0.483984L9.125 0.875H11.75C12.234 0.875 12.625 1.26602 12.625 1.75C12.625 2.23398 12.234 2.625 11.75 2.625H1.25C0.766016 2.625 0.375 2.23398 0.375 1.75C0.375 1.26602 0.766016 0.875 1.25 0.875H3.875L4.07187 0.483984ZM1.25 3.5H11.75V12.25C11.75 13.2152 10 14 10 14H3C2.03477 14 1.25 13.2152 1.25 12.25V3.5ZM3.875 5.25C3.63438 5.25 3.4375 5.44688 3.4375 5.6875V11.8125C3.4375 12.0531 3.63438 12.25 3.875 12.25C4.11562 12.25 4.3125 12.0531 4.3125 11.8125V5.6875C4.3125 5.44688 4.11562 5.25 3.875 5.25ZM6.5 5.25C6.25938 5.25 6.0625 5.44688 6.0625 5.6875V11.8125C6.0625 12.0531 6.25938 12.25 6.5 12.25C6.74062 12.25 6.9375 12.0531 6.9375 11.8125V5.6875C6.9375 5.44688 6.74062 5.25 6.5 5.25ZM9.125 5.25C8.88437 5.25 8.6875 5.44688 8.6875 5.6875V11.8125C8.6875 12.0531 8.88437 12.25 9.125 12.25C9.36563 12.25 9.5625 12.0531 9.5625 11.8125V5.6875C9.5625 5.44688 9.36563 5.25 9.125 5.25Z"
@@ -1739,10 +1749,12 @@
                                 </clipPath>
                               </defs>
                             </svg>
-                          </p>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+
 
 
                     <!-- Drag & Drop Area -->
