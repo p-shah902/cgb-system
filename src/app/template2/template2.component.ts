@@ -103,6 +103,16 @@ export class Template2Component implements AfterViewInit {
   isInitialLoad = true;
   logs: any[] = [];
   comment: string = '';
+  sectionVisibility: { [key: string]: boolean } = {
+    section1: true,
+    section2: false,
+    section3: false,
+    section4: false,
+    section5: false,
+    section6: false,
+    section7: false,
+    section8: false,
+  };
   public psaJvOptions = [
     {value: 'ACG', label: 'ACG'},
     {value: 'Shah Deniz', label: 'Shah Deniz'},
@@ -1757,5 +1767,8 @@ export class Template2Component implements AfterViewInit {
     }
   }
 
+  toggleSection(section: string): void {
+    this.sectionVisibility[section] = !this.sectionVisibility[section];
+  }
 
 }
