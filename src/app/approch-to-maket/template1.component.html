@@ -149,7 +149,7 @@
                     <div class="col-sm-6 col-md-4">
                       <div class="form-group mb-3">
                         <label>PSA/JV*</label>
-                        <ng-select2 id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
+                        <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
                                     multiple></ng-select2>
                         <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
                           <small class="text-danger">This field is required.</small>
@@ -261,7 +261,7 @@
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <label>Procurement SPA*</label>
-                        <ng-select2 id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
+                        <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
                                     [data]="procurementTagUsers" multiple></ng-select2>
                         <div class="text-danger"
                              *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
