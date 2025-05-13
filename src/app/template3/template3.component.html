@@ -210,7 +210,7 @@
                   <div class="form-group mb-3">
                     <label>Vendor ID *</label>
                     <select class="form-control allow-comments" id="vendorId" formControlName="vendorId">
-                      <option [value]="null">Select Status</option>
+                      <option [value]="null">Select</option>
                       <ng-container *ngFor="let item of vendorList?.length ? vendorList : []">
                         <option [value]="item.id.toString()">
                           {{ item.vendorName }}
@@ -238,7 +238,7 @@
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
                     <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
-                      <option [value]="''">Select Status</option>
+                      <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
                         <option [value]="item.id.toString()">
                           {{ item.itemValue }}
@@ -256,7 +256,7 @@
                   <div class="form-group mb-3">
                     <label>Sourcing Type*</label>
                     <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
-                      <option [value]="''">Select Status</option>
+                      <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
                         <option [value]="item.id.toString()">
                           {{ item.itemValue }}
@@ -275,7 +275,7 @@
                     <label>Operating Function* </label>
                     <select class="form-control allow-comments" id="operatingFunction"
                             formControlName="operatingFunction">
-                      <option [value]="''">Select Status</option>
+                      <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
                         <option [value]="item.id.toString()">
                           {{ item.itemValue }}
@@ -292,7 +292,7 @@
                   <div class="form-group mb-3">
                     <label>BLT Member* </label>
                     <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
-                      <option [value]="null">Select Status</option>
+                      <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
                           {{ user.displayName }}
@@ -309,7 +309,7 @@
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
                     <select class="form-control allow-comments" formControlName="subSector" id="subSector">
-                      <option [value]="''">Select Status</option>
+                      <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
                         <option [value]="item.id.toString()">
                           {{ item.itemValue }}
@@ -326,7 +326,7 @@
                   <div class="form-group mb-3">
                     <label>Contract Account Manager (CAM)*</label>
                     <select class="form-control allow-comments" formControlName="camUserId" id="camUserId">
-                      <option [value]="null">Select Status</option>
+                      <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
                           {{ user.displayName }}
@@ -354,7 +354,7 @@
                   <div class="form-group mb-3">
                     <label>VP-1*</label>
                     <select class="form-control allow-comments" formControlName="vP1UserId" id="vP1UserId">
-                      <option [value]="null">Select Status</option>
+                      <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'VP-1'"
                                 [value]="user.id">
@@ -374,7 +374,7 @@
                   <div class="form-group mb-3">
                     <label>PDM (Project Delivery Manager)</label>
                     <select class="form-control allow-comments" formControlName="pdManagerName" id="pdManagerName">
-                      <option [value]="null">Select Status</option>
+                      <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
                           {{ user.displayName }}
@@ -589,7 +589,7 @@
                     <label>Remuneration Type*</label>
                     <select id="remunerationType" class="form-control allow-comments"
                             formControlName="remunerationType">
-                      <option [value]="''">Select Status</option>
+                      <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of remunerationTypeData?.length ? remunerationTypeData : []">
                         <option [value]="item.id.toString()">
                           {{ item.itemValue }}
@@ -734,7 +734,7 @@
                     <label>Original Currency</label>
                     <select id="currencyCode" class="form-control allow-comments"
                             formControlName="currencyCode">
-                      <option [value]="''">Select Status</option>
+                      <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
                         <option [value]="item.id.toString()">
                           {{ item.itemValue }}
@@ -1259,7 +1259,7 @@
                     <tbody formArrayName="consultation">
                     <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
                       <td><select class="form-control" formControlName="psa">
-                        <option [value]="''">Select Value</option>
+                        <option [value]="''">Select</option>
                         <option value="ACG">ACG</option>
                         <option value="Shah Deniz">Shah Deniz</option>
                         <option value="SCP">SCP</option>
@@ -1270,7 +1270,7 @@
                       <td>
                         <select aria-readonly="true" [disabled]="true" class="form-control"
                                 formControlName="technicalCorrect">
-                          <option [value]="null">Select Status</option>
+                          <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'CAM'" [ngValue]="user.id">
                               {{ user.displayName }}
@@ -1280,7 +1280,7 @@
                       </td>
                       <td>
                         <select class="form-control" formControlName="budgetStatement">
-                          <option [ngValue]="null">Select Value</option>
+                          <option [ngValue]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'Financial Tag'" [ngValue]="user.id">
                               {{ user.displayName }}
@@ -1290,7 +1290,7 @@
                       </td>
                       <td>
                         <select class="form-control" formControlName="jvReview">
-                          <option [value]="null">Select Value</option>
+                          <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
                               {{ user.displayName }}
