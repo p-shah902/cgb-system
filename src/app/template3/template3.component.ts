@@ -105,6 +105,17 @@ export class Template3Component  implements AfterViewInit {
   isShowBoxSection = false
   comment: string = '';
   isInitialLoad = true;
+  sectionVisibility: { [key: string]: boolean } = {
+    section1: true,
+    section2: false,
+    section3: false,
+    section4: false,
+    section5: false,
+    section6: false,
+    section7: false,
+    section8: false,
+    section9: false,
+  };
 
   psaItems = [
     {psaName: 'ACG', control: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
@@ -1344,6 +1355,10 @@ export class Template3Component  implements AfterViewInit {
         this.getPaperCommentLogs(Number(this.paperId));
       })
     }
+  }
+
+  toggleSection(section: string): void {
+    this.sectionVisibility[section] = !this.sectionVisibility[section];
   }
 
 }

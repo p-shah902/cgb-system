@@ -56,9 +56,6 @@ import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
   styleUrls: ['./template1.component.scss'],
 })
 export class Template1Component implements AfterViewInit  {
-  isCollapsed = false;
-  isCollapsed2 = true;
-
   @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
@@ -112,6 +109,16 @@ export class Template1Component implements AfterViewInit  {
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
   deletedFiles: number[] = []
+  sectionVisibility: { [key: string]: boolean } = {
+    section1: true,
+    section2: false,
+    section3: false,
+    section4: false,
+    section5: false,
+    section6: false,
+    section7: false,
+  };
+
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
@@ -1768,6 +1775,10 @@ export class Template1Component implements AfterViewInit  {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  toggleSection(section: string): void {
+    this.sectionVisibility[section] = !this.sectionVisibility[section];
   }
 
 
