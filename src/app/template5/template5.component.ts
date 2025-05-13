@@ -101,7 +101,13 @@ export class Template5Component  implements AfterViewInit{
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
   isInitialLoad = true;
-
+  sectionVisibility: { [key: string]: boolean } = {
+    section1: true,
+    section2: false,
+    section3: false,
+    section4: false,
+    section5: false,
+  };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
   ) {
@@ -1263,6 +1269,9 @@ export class Template5Component  implements AfterViewInit{
     }
   }
 
+  toggleSection(section: string): void {
+    this.sectionVisibility[section] = !this.sectionVisibility[section];
+  }
 
 }
 

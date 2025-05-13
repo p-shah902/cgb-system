@@ -61,6 +61,19 @@
                 <button class="btn btn-toggle" (click)="toggleComments()">
                   {{ isExpanded ? 'Hide Comments' : 'Show Comments' }}
                 </button>
+                <button
+                  type="button"
+                  class="btn btn-warning"
+
+                  (click)="scrollToTop()"
+                  title="Back to Top"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                       class="bi bi-arrow-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                          d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -68,24 +81,16 @@
         <div class="form-body">
           <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
 
-            <div id="section1" data-section="section1" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section1" data-section="section1" (click)="toggleSection('section1')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">1. General Information</h4>
-              <button
-                type="button"
-                class="btn btn-sm btn-light me-2"
-                style="margin-top: 8px; margin-bottom: 8px;"
-                (click)="scrollToTop()"
-                title="Back to Top"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-up" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z" />
-                </svg>
-              </button>
+              <span class="btn collapse-btn">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section1'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              </svg>
+            </span>
             </div>
             <div formGroupName="generalInfo">
-            <div class="row fb-form">
+            <div *ngIf="sectionVisibility['section1']" class="row fb-form">
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
                   <label>Provision for* </label>
@@ -174,23 +179,15 @@
             </div>
 
 
-            <div id="section2" data-section="section2" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section2" data-section="section2" (click)="toggleSection('section2')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">2. CGB Paper Details</h4>
-              <button
-                type="button"
-                class="btn btn-sm btn-light me-2"
-                style="margin-top: 8px; margin-bottom: 8px;"
-                (click)="scrollToTop()"
-                title="Back to Top"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-up" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z" />
-                </svg>
-              </button>
+              <span class="btn collapse-btn">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section2'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              </svg>
+            </span>
             </div>
-              <div class="row fb-form">
+              <div *ngIf="sectionVisibility['section2']" class="row fb-form">
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB Item Reference</label>
@@ -483,23 +480,15 @@
 
           </div>
 
-            <div id="section3" data-section="section3" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section3" data-section="section3" (click)="toggleSection('section3')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
               <h4  class="mb-0">3. CDD (Counterparty Due Diligence)</h4>
-              <button
-                type="button"
-                class="btn btn-sm btn-light me-2"
-                style="margin-top: 8px; margin-bottom: 8px;"
-                (click)="scrollToTop()"
-                title="Back to Top"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-up" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
-                </svg>
-              </button>
+              <span class="btn collapse-btn">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section3'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              </svg>
+            </span>
             </div>
-            <div class="fb-form" formGroupName="ccd">
+            <div *ngIf="sectionVisibility['section3']" class="fb-form" formGroupName="ccd">
               <div class="row">
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
@@ -557,23 +546,15 @@
               </div>
             </div>
 
-            <div id="section4" data-section="section4" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section4" data-section="section4" (click)="toggleSection('section4')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">4. Cost Allocation & JV Approval</h4>
-              <button
-                type="button"
-                class="btn btn-sm btn-light me-2"
-                style="margin-top: 8px; margin-bottom: 8px;"
-                (click)="scrollToTop()"
-                title="Back to Top"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-up" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z" />
-                </svg>
-              </button>
+              <span class="btn collapse-btn">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section4'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              </svg>
+            </span>
             </div>
-            <div class="fb-form allow-comments" formGroupName="costAllocation" id="cost_allocation_an_jv">
+            <div *ngIf="sectionVisibility['section4']" class="fb-form allow-comments" formGroupName="costAllocation" id="cost_allocation_an_jv">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
                   <thead>
@@ -865,23 +846,15 @@
             </div>
 
 
-            <div id="section5" data-section="section5" class="fb-title-div bg-header d-flex justify-content-between align-items-center px-3">
+            <div id="section5" (click)="toggleSection('section5')" data-section="section5" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">5. Consultation</h4>
-              <button
-                type="button"
-                class="btn btn-sm btn-light me-2"
-                style="margin-top: 8px; margin-bottom: 8px;"
-                (click)="scrollToTop()"
-                title="Back to Top"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                     class="bi bi-arrow-up" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd"
-                        d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z" />
-                </svg>
-              </button>
+              <span class="btn collapse-btn">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section5'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              </svg>
+            </span>
             </div>
-            <div class="form-group mb-3 allow-comments fb-form" id="consultation">
+            <div *ngIf="sectionVisibility['section5']" class="form-group mb-3 allow-comments fb-form" id="consultation">
               <div class="overflow-auto">
                 <div class="key-risks-table custom-table">
                   <!--                  <div class="form-group mb-3">-->
@@ -980,7 +953,7 @@
             <!--            form end===========================================================================-->
 
 
-            <div class="fb-form pt-0">
+            <div class="fb-form pt-3">
               <div class="ff-btn-list d-flex gap-3 justify-content-end">
                 <ng-container *ngIf="!paperId || (paperId && isCopy)">
                   <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)">

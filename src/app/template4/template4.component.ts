@@ -99,7 +99,11 @@ export class Template4Component  implements AfterViewInit{
   reviewBy: string = '';
   thresholdData: ThresholdType[] = []
   isInitialLoad = true;
-
+  sectionVisibility: { [key: string]: boolean } = {
+    section1: true,
+    section2: false,
+    section3: false,
+  };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
   ) {
@@ -1173,6 +1177,10 @@ export class Template4Component  implements AfterViewInit{
     if (paperId) {
       this.selectedPaper = paperId;
     }
+  }
+
+  toggleSection(section: string): void {
+    this.sectionVisibility[section] = !this.sectionVisibility[section];
   }
 
 
