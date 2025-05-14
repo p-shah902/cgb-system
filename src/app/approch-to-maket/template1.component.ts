@@ -47,11 +47,12 @@ import { ThresholdType } from '../../models/threshold';
 import { cleanObject } from '../../utils';
 import {ToggleService} from '../shared/services/toggle.service';
 import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
+import {NumberInputComponent} from '../../components/number-input/number-input.component';
 
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule],
+  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })

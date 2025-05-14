@@ -308,8 +308,10 @@
                     <div class="col-sm-6 col-md-4">
                       <div class="form-group mb-3">
                         <label>Contract Value (USD)*</label>
-                        <input id="contractValueUsd" type="number" class="form-control allow-comments" placeholder="0000.0"
-                               formControlName="contractValueUsd" min="0" step="0.01"/>
+<!--                        <input id="contractValueUsd" type="number" class="form-control allow-comments" placeholder="0000.0"-->
+<!--                               formControlName="contractValueUsd" min="0" step="0.01"/>-->
+                        <app-number-input id="contractValueUsd" formControlName="contractValueUsd" placeholder="0000.0"></app-number-input>
+
                         <div class="text-danger"
                              *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
                           <small class="text-danger">This field is required.</small>
