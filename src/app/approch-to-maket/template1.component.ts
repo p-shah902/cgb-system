@@ -617,7 +617,7 @@ export class Template1Component implements AfterViewInit  {
           },
           costAllocation: patchValues.costAllocation,
           isNoExistingBudget: paperDetailData?.isNoExistingBudget || false
-        },{ emitEvent: false })
+        },{ emitEvent: true })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });

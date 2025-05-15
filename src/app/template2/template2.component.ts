@@ -550,10 +550,10 @@ export class Template2Component implements AfterViewInit {
             inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
           },
           costAllocation: patchValues.costAllocation,
-        })
+        },{ emitEvent: true })
         setTimeout(() => {
-          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
           this.isInitialLoad = false;
         }, 500)
 
