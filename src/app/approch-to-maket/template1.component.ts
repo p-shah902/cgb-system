@@ -279,8 +279,8 @@ export class Template1Component implements AfterViewInit  {
         value_isAsiman: [null],
         value_isBPGroup: [null],
 
-        totalPercentage: [{ value: 0, disabled: true }, [Validators.min(0), Validators.max(100)]],
-        totalValue: [{ value: 0, disabled: true }]
+        totalPercentage: [0, [Validators.min(0), Validators.max(100)]],
+        totalValue: [0]
       }),
       costSharing: this.fb.group({
         isCapex: [false],
@@ -1025,8 +1025,14 @@ export class Template1Component implements AfterViewInit  {
     let totalPercentage = 0;
     let totalValue = 0;
 
-    const percentageFields = ['percentage_isACG', 'percentage_isShah', 'percentage_isSCP', 'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'];
-    const valueFields = ['value_isACG', 'value_isShah', 'value_isSCP', 'value_isBTC', 'value_isAsiman', 'value_isBPGroup'];
+    const percentageFields = [
+      'percentage_isACG', 'percentage_isShah', 'percentage_isSCP',
+      'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'
+    ];
+    const valueFields = [
+      'value_isACG', 'value_isShah', 'value_isSCP',
+      'value_isBTC', 'value_isAsiman', 'value_isBPGroup'
+    ];
 
     percentageFields.forEach((field) => {
       const value = costAllocation.get(field)?.value;
@@ -1045,6 +1051,13 @@ export class Template1Component implements AfterViewInit  {
     // Update total fields
     costAllocation.get('totalPercentage')?.setValue(totalPercentage.toFixed(2), { emitEvent: false });
     costAllocation.get('totalValue')?.setValue(totalValue.toFixed(2), { emitEvent: false });
+
+    // Add validation if totalPercentage > 100
+    if (totalPercentage > 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ maxTotalExceeded: true });
+    } else {
+      costAllocation.get('totalPercentage')?.setErrors(null);
+    }
   }
 
 
