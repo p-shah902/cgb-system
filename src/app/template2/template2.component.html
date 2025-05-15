@@ -424,9 +424,9 @@
                 <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
-                <!--    <input type="number" id="exchangeRate" formControlName="exchangeRate"
-                           class="form-control allow-comments" placeholder="0.00" readonly/>-->
-                    <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>
+                   <input type="number" id="exchangeRate" formControlName="exchangeRate"
+                           class="form-control allow-comments" placeholder="0.00" readonly/>
+<!--                    <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>-->
 
                   </div>
                 </div>
@@ -668,8 +668,10 @@
                               <input type="checkbox" formControlName="isLocalOrJV"/>
                             </td>
                             <td>
-                              <input min="0" type="number" formControlName="totalAwardValueUSD" class="form-control"
-                                     placeholder="0.00"/>
+<!--                              <input min="0" type="number" formControlName="totalAwardValueUSD" class="form-control"-->
+<!--                                     placeholder="0.00"/>-->
+                              <app-number-input id="totalAwardValueUSD_legalEntitiesAwarded" formControlName="totalAwardValueUSD" placeholder="Value"></app-number-input>
+
                             </td>
                             <td>
                               <select class="form-control" formControlName="currencyCode">
@@ -686,8 +688,10 @@
                                      placeholder="0.00"/>
                             </td>
                             <td>
-                              <input min="0" type="number" formControlName="contractValue" class="form-control"
-                                     placeholder="0.00"/>
+<!--                              <input min="0" type="number" formControlName="contractValue" class="form-control"-->
+<!--                                     placeholder="0.00"/>-->
+                              <app-number-input id="contractValue_legalEntitiesAwarded" inputClass="allow-comments" formControlName="contractValue" placeholder="Value"></app-number-input>
+
                             </td>
                             <td>
                               <input type="date" formControlName="contractStartDate" class="form-control"
@@ -1210,11 +1214,10 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                      <input id="costReductionValue" type="number" min="0" class="form-control allow-comments"
-                             placeholder="Value"
-                             formControlName="costReductionValue"/></div>
+
+
+                      <app-number-input id="costReductionValue" inputClass="allow-comments" formControlName="costReductionValue" placeholder="Value"></app-number-input>
+
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
@@ -1241,11 +1244,10 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                      <input id="operatingEfficiencyValue" type="number" min="0" class="form-control allow-comments"
-                             placeholder="Value"
-                             formControlName="operatingEfficiencyValue"/></div>
+
+
+                      <app-number-input id="operatingEfficiencyValue" inputClass="allow-comments" formControlName="operatingEfficiencyValue" placeholder="Value"></app-number-input>
+
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
@@ -1272,11 +1274,9 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                      <input id="costAvoidanceValue" type="number" min="0" class="form-control allow-comments"
-                             placeholder="Value"
-                             formControlName="costAvoidanceValue"/></div>
+
+                      <app-number-input id="costAvoidanceValue" inputClass="allow-comments" formControlName="costAvoidanceValue" placeholder="Value"></app-number-input>
+
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
