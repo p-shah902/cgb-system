@@ -3,6 +3,7 @@
   [id]="id"
   [placeholder]="placeholder"
   [disabled]="disabled"
-  class="form-control allow-comments"
+  [ngClass]="['form-control', inputClass]"
   (input)="onInput($event)"
+  [readonly]="readonly"
 />

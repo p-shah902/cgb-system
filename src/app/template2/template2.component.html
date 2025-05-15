@@ -398,9 +398,11 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value (USD) *</label>
-                    <input type="number" class="form-control allow-comments" id="totalAwardValueUSD"
+                 <!--   <input type="number" class="form-control allow-comments" id="totalAwardValueUSD"
                            formControlName="totalAwardValueUSD" placeholder="0.0000"
-                           min="0"/>
+                           min="0"/>-->
+                    <app-number-input id="totalAwardValueUSD" inputClass="allow-comments" formControlName="totalAwardValueUSD" placeholder="0.00"></app-number-input>
+
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('totalAwardValueUSD')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
                     </div>
@@ -422,15 +424,19 @@
                 <div class="col-sm-6 col-md-2">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
-                    <input type="number" id="exchangeRate" formControlName="exchangeRate"
-                           class="form-control allow-comments" placeholder="0.00" readonly/>
+                <!--    <input type="number" id="exchangeRate" formControlName="exchangeRate"
+                           class="form-control allow-comments" placeholder="0.00" readonly/>-->
+                    <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>
+
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value (Original Currency)*</label>
-                    <input type="number" formControlName="contractValue" id="contractValue"
-                           class="form-control allow-comments" placeholder="0000.0" readonly/>
+                    <!--<input type="number" formControlName="contractValue" id="contractValue"
+                           class="form-control allow-comments" placeholder="0000.0" readonly/>-->
+                    <app-number-input id="contractValue" [readonly]="true" inputClass="allow-comments" formControlName="contractValue" placeholder="0.00"></app-number-input>
+
                   </div>
                 </div>
 

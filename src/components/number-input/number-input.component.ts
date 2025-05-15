@@ -3,11 +3,13 @@ import {
   OnInit, HostListener, ElementRef
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-number-input',
   templateUrl: './number-input.component.html',
   standalone: true,
+  imports: [CommonModule],
   providers: [{
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => NumberInputComponent),
@@ -18,7 +20,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 export class NumberInputComponent implements ControlValueAccessor, OnInit {
   @Input() placeholder: string = '';
   @Input() id: string = '';
+  @Input() inputClass: string = '';
   @Input() disabled = false;
+  @Input() readonly: boolean = false;
 
   rawValue: number | null = null;
 

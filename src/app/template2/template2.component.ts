@@ -44,11 +44,12 @@ import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {NumberInputComponent} from '../../components/number-input/number-input.component';
 
 @Component({
   selector: 'app-template2',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink, NgbTooltip],
+  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink, NgbTooltip],
   templateUrl: './template2.component.html',
   styleUrl: './template2.component.scss'
 })
@@ -191,6 +192,7 @@ export class Template2Component implements AfterViewInit {
 
     this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
+      this.setupPSACalculationsManually()
     });
 
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
@@ -989,6 +991,29 @@ export class Template2Component implements AfterViewInit {
       });
     });
   }
+
+  setupPSACalculationsManually() {
+    const psaControls = [
+      { percentage: 'percentage_isACG', value: 'value_isACG' },
+      { percentage: 'percentage_isShah', value: 'value_isShah' },
+      { percentage: 'percentage_isSCP', value: 'value_isSCP' },
+      { percentage: 'percentage_isBTC', value: 'value_isBTC' },
+      { percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
+      { percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+    ];
+
+    psaControls.forEach(({ percentage, value }) => {
+      const percentageValue = this.generalInfoForm.get(`costAllocation.${percentage}`)?.value
+      const contractValue = this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value || 0;
+
+      if (percentageValue >= 0 && percentageValue <= 100) {
+        const calculatedValue = (percentageValue / 100) * contractValue;
+        this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue.toFixed(2), { emitEvent: false });
+        this.calculateTotal()
+      }
+    });
+  }
+
 
   setupPSACalculations() {
     const psaControls = [
