@@ -1595,8 +1595,8 @@
                   </tr>
                   </tbody>
                 </table>
-                <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('maxTotalExceeded')">
-                  <small class="text-danger">Total percentage cannot exceed 100%.</small>
+                <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
+                  <small class="text-danger">Total percentage must be exactly 100%.</small>
                 </div>
               </div>
               </div>

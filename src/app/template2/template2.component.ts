@@ -355,7 +355,7 @@ export class Template2Component implements AfterViewInit {
         value_isAsiman: [null],
         value_isBPGroup: [null],
 
-        totalPercentage: [0, [Validators.min(0), Validators.max(100)]],
+        totalPercentage: [0],
         totalValue: [0]
       }),
       costSharing: this.fb.group({
@@ -1071,9 +1071,9 @@ export class Template2Component implements AfterViewInit {
     costAllocation.get('totalPercentage')?.setValue(totalPercentage.toFixed(2), { emitEvent: false });
     costAllocation.get('totalValue')?.setValue(totalValue.toFixed(2), { emitEvent: false });
 
-    // Add validation if totalPercentage > 100
-    if (totalPercentage > 100) {
-      costAllocation.get('totalPercentage')?.setErrors({ maxTotalExceeded: true });
+    // Add validation: totalPercentage must be exactly 100
+    if (totalPercentage !== 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ notExactly100: true });
     } else {
       costAllocation.get('totalPercentage')?.setErrors(null);
     }

@@ -1193,8 +1193,8 @@
                       </tr>
                       </tbody>
                     </table>
-                    <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('maxTotalExceeded')">
-                      <small class="text-danger">Total percentage cannot exceed 100%.</small>
+                    <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
+                      <small class="text-danger">Total percentage must be exactly 100%.</small>
                     </div>
 
                   </div>
@@ -1744,7 +1744,7 @@
                       Send For PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
                     </button>
                     <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                            *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
+                           >
                       Update
                     </button>
 
