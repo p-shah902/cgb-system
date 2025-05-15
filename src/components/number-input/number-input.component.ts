@@ -77,4 +77,20 @@ export class NumberInputComponent implements ControlValueAccessor, OnInit {
       maximumFractionDigits: 2
     });
   }
+
+  validateKeyPress(event: KeyboardEvent) {
+    const allowedKeys = ['0','1','2','3','4','5','6','7','8','9','.'];
+    const inputChar = event.key;
+
+    // Block multiple decimals
+    if (inputChar === '.' && this.inputText.includes('.')) {
+      event.preventDefault();
+      return;
+    }
+
+    if (!allowedKeys.includes(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
 }
