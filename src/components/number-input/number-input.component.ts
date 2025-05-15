@@ -25,6 +25,7 @@ export class NumberInputComponent implements ControlValueAccessor, OnInit {
   @Input() readonly: boolean = false;
 
   rawValue: number | null = null;
+  inputText: string = ''; // What the user types
 
   onChange = (_: any) => {};
   onTouched = () => {};
@@ -35,8 +36,9 @@ export class NumberInputComponent implements ControlValueAccessor, OnInit {
 
   writeValue(value: number): void {
     this.rawValue = value;
-    this.updateView();
+    this.inputText = value != null ? this.formatNumber(value) : '';
   }
+
 
   registerOnChange(fn: any): void {
     this.onChange = fn;
@@ -51,27 +53,28 @@ export class NumberInputComponent implements ControlValueAccessor, OnInit {
   }
 
   onInput(event: any): void {
-    const input = event.target.value.replace(/,/g, '');
-    const num = parseFloat(input);
+    const raw = event.target.value.replace(/,/g, '');
+    this.inputText = raw;
 
-    this.rawValue = isNaN(num) ? null : num;
+    const parsed = parseFloat(raw);
+    this.rawValue = isNaN(parsed) ? null : parsed;
     this.onChange(this.rawValue);
-    this.updateView();
-  }
-
-  private updateView(): void {
-    const el = this.elRef.nativeElement.querySelector('input');
-    if (el) {
-      el.value = this.rawValue != null ? this.formatNumber(this.rawValue) : '';
-    }
-  }
-
-  private formatNumber(value: number): string {
-    return value.toLocaleString('en-US'); // "10,20,300" Indian style
   }
 
   @HostListener('blur')
-  onBlur() {
+  onBlur(): void {
+    if (this.rawValue != null) {
+      this.inputText = this.formatNumber(this.rawValue);
+    } else {
+      this.inputText = '';
+    }
     this.onTouched();
+  }
+
+  private formatNumber(value: number): string {
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 }

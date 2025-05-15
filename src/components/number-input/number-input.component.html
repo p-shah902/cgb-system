@@ -1,9 +1,15 @@
-<input
-  type="text"
-  [id]="id"
-  [placeholder]="placeholder"
-  [disabled]="disabled"
-  [ngClass]="['form-control', inputClass]"
-  (input)="onInput($event)"
-  [readonly]="readonly"
-/>
+<div class="input-group">
+  <span class="input-group-text">$</span>
+  <input
+    type="text"
+    [placeholder]="placeholder"
+    [id]="id"
+    [ngClass]="['form-control', inputClass]"
+    [disabled]="disabled"
+    [readonly]="readonly"
+    [value]="inputText"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  />
+
+</div>

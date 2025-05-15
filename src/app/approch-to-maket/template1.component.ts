@@ -990,7 +990,7 @@ export class Template1Component implements AfterViewInit  {
 
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
-          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue.toFixed(2), { emitEvent: false });
+          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, { emitEvent: false });
           this.calculateTotal()
         }
     });
@@ -1012,7 +1012,7 @@ export class Template1Component implements AfterViewInit  {
 
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
-          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue.toFixed(2), { emitEvent: false });
+          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, { emitEvent: false });
           this.calculateTotal()
         }
       });
@@ -1049,8 +1049,8 @@ export class Template1Component implements AfterViewInit  {
     });
 
     // Update total fields
-    costAllocation.get('totalPercentage')?.setValue(totalPercentage.toFixed(2), { emitEvent: false });
-    costAllocation.get('totalValue')?.setValue(totalValue.toFixed(2), { emitEvent: false });
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
 
     // Add validation: totalPercentage must be exactly 100
     if (totalPercentage !== 100) {
