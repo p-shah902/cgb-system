@@ -641,11 +641,9 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Prepayment Amount ($)</label>
-                    <div class="input-group">
-                      <span class="input-group-text">$</span>
-                    <input type="number" min="0" class="form-control allow-comments" placeholder="0.00"
-                           id="prePayAmount"
-                           formControlName="prePayAmount"/></div>
+
+                    <app-number-input id="prePayAmount" inputClass="allow-comments" formControlName="prePayAmount" placeholder="0.00"></app-number-input>
+
                   </div>
                 </div>
 
@@ -723,9 +721,9 @@
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Total Revised Contract Value</label>
-                    <input type="number" class="form-control allow-comments" id="revisedContractValue"
-                           formControlName="revisedContractValue" placeholder="0.00"
-                           min="0"/>
+
+                    <app-number-input id="revisedContractValue" inputClass="allow-comments" formControlName="revisedContractValue" placeholder="0.00"></app-number-input>
+
                   </div>
 
                 </div>
@@ -755,9 +753,9 @@
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Value in Original Currency</label>
-                    <input type="number" class="form-control allow-comments" id="contractValue"
-                           formControlName="contractValue" placeholder="0.00"
-                           min="0" readonly/>
+
+                    <app-number-input [readonly]="true" id="contractValue" inputClass="allow-comments" formControlName="contractValue" placeholder="0.00"></app-number-input>
+
                   </div>
 
                 </div>
@@ -769,9 +767,9 @@
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Spend on the Contract up to date</label>
-                    <input type="number" class="form-control allow-comments" id="spendOnContract"
-                           formControlName="spendOnContract" placeholder="0.00"
-                           min="0"/>
+
+                    <app-number-input id="spendOnContract" inputClass="allow-comments" formControlName="spendOnContract" placeholder="0.00"></app-number-input>
+
                   </div>
 
                 </div></div>
@@ -927,17 +925,8 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input
-                          id="costReductionValue"
-                          type="number"
-                          min="0"
-                          class="form-control allow-comments"
-                          placeholder="Value"
-                          formControlName="costReductionValue"
-                        />
-                      </div>
+                      <app-number-input id="costReductionValue" inputClass="allow-comments" formControlName="costReductionValue" placeholder="Value"></app-number-input>
+
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
@@ -970,10 +959,9 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input id="operatingEfficiencyValue" type="number" min="0" class="form-control allow-comments"
-                               placeholder="Value" formControlName="operatingEfficiencyValue"/></div>
+
+                      <app-number-input id="operatingEfficiencyValue" inputClass="allow-comments" formControlName="operatingEfficiencyValue" placeholder="Value"></app-number-input>
+
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
@@ -999,10 +987,9 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input id="costAvoidanceValue" type="number" min="0" class="form-control allow-comments"
-                               placeholder="Value" formControlName="costAvoidanceValue"/></div>
+
+                      <app-number-input id="costAvoidanceValue" inputClass="allow-comments" formControlName="costAvoidanceValue" placeholder="Value"></app-number-input>
+
                     </div>
                   </div>
                   <div class="col-sm-3 col-md-2">
@@ -1203,36 +1190,43 @@
                     <td *ngFor="let psa of psaItems">
                       <div class="input-group">
                         <span class="input-group-text">%</span>
-                        <input type="number" class="form-control p-1"
+                        <input type="number" class="form-control p-1"  oninput="if (this.value > 100) this.value = 100"
                                [formControlName]="psa.percentage" min="0" max="100">
                       </div>
                     </td>
                     <td>
                       <div class="input-group">
                         <span class="input-group-text">%</span>
+<!--                        <input type="number"-->
+<!--                               class="form-control p-1"-->
+<!--                               [formControlName]="'totalPercentage'"-->
+<!--                               [ngClass]="{-->
+<!--             'is-invalid': getGroupForm(group.key).get('totalPercentage')?.invalid-->
+<!--           }">-->
                         <input type="number" class="form-control p-1" formControlName="totalPercentage">
                       </div>
                     </td>
                   </tr>
                   <tr>
-                    <td><b>By value $%</b></td>
+                    <td><b>By value $</b></td>
                     <td *ngFor="let psa of psaItems">
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input type="number" class="form-control p-1"
-                               [formControlName]="psa.value">
-                      </div>
+
+                      <app-number-input inputClass="p-1" [formControlName]="psa.value" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input type="number" class="form-control p-1" formControlName="totalValue">
-                      </div>
+
+                      <app-number-input inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
+
                     </td>
                   </tr>
                   </tbody>
                 </table>
               </div>
+<!--              <div class="text-danger small"-->
+<!--                   *ngIf="getGroupForm(group.key).get('totalPercentage')?.errors?.['notHundred']">-->
+<!--                Total must be exactly 100%-->
+<!--              </div>-->
             </div></ng-container>
 
             <div id="section9" data-section="section9" (click)="toggleSection('section9')" class="fb-title-div cursor-pointer ft-bg3 d-flex justify-content-between align-items-center px-3">

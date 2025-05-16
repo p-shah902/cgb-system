@@ -1035,12 +1035,13 @@
                         <tbody formArrayName="commericalEvaluation">
                         <tr *ngFor="let risk of commericalEvaluation.controls; let i = index" [formGroupName]="i">
                           <td>
-                            <input type="text" class="form-control border-0 p-0 shadow-none"
+                            <input type="text" class="form-control  shadow-none"
                                    placeholder="Enter here" formControlName="legalName"/>
                           </td>
                           <td>
-                            <input type="number" min="0" class="form-control border-0 p-0 shadow-none"
-                                   placeholder="Enter here" formControlName="totalValue"/>
+
+                            <app-number-input  inputClass="allow-comments" formControlName="totalValue" placeholder="Value"></app-number-input>
+
                           </td>
                           <td>
                             <div class="krt-action">
@@ -1214,7 +1215,6 @@
                 <div class="row">
                   <div class="col-sm-9 col-md-5">
                     <div class="form-group mb-3">
-
 
                       <app-number-input id="costReductionValue" inputClass="allow-comments" formControlName="costReductionValue" placeholder="Value"></app-number-input>
 

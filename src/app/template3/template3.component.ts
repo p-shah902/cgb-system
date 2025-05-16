@@ -45,11 +45,12 @@ import {ToggleService} from '../shared/services/toggle.service';
 import {CURRENCY_LIST} from '../../utils/constant';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {NumberInputComponent} from '../../components/number-input/number-input.component';
 
 @Component({
   selector: 'app-template3',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip],
+  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip],
   templateUrl: './template3.component.html',
   styleUrl: './template3.component.scss'
 })
@@ -342,7 +343,7 @@ export class Template3Component  implements AfterViewInit {
         remunerationType: ['', Validators.required],
         previousCGBRefNo: [''],
         isPaymentRequired: [null],
-        prePayAmount: [0],
+        prePayAmount: [null],
         isRetrospectiveApproval: [null],
         retrospectiveApprovalReason: [{ value: '', disabled: true }],
       }),
@@ -416,12 +417,23 @@ export class Template3Component  implements AfterViewInit {
     });
 
     group.totalPercentage = [0];
+    // group.totalPercentage = [0, this.exactHundredValidator];
     group.totalValue = [0];
 
     return this.fb.group(group)
   }
 
-  getGroupForm(key: string): FormGroup {
+
+  exactHundredValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (value !== 100) {
+      return { notHundred: true };
+    }
+    return null;
+  }
+
+
+getGroupForm(key: string): FormGroup {
     return this.generalInfoForm.get(key) as FormGroup;
   }
 
