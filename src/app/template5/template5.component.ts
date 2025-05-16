@@ -170,7 +170,7 @@ export class Template5Component  implements AfterViewInit{
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
-        purposeRequired: ['', Validators.required],
+        purposeRequired: ['qw', Validators.required],
         transactionType: ['', Validators.required],
         isRetrospectiveApproval: [null],
         retrospectiveApprovalReason: [{ value: '', disabled: true }],
@@ -237,8 +237,8 @@ export class Template5Component  implements AfterViewInit{
         value_isAsiman: [null],
         value_isBPGroup: [null],
 
-        totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
-        totalValue: [{value: 0, disabled: true}]
+        totalPercentage: [0],
+        totalValue: [0]
       }),
 
       consultation: this.fb.array([]),
@@ -585,15 +585,15 @@ export class Template5Component  implements AfterViewInit{
 
   setupPSAListeners() {
     const psaControls = [
-      { checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG' },
-      { checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah' },
-      { checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP' },
-      { checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC' },
-      { checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
-      { checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+      {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
+      {checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
+      {checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
+      {checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
+      {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
+      {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
     ];
-    const costAllocationJVApprovalData = (this.paperDetails?.costAllocationJVApproval || []) as CostAllocationJVApproval[]
-    const patchValues: any = { costAllocation: {} };
+    const costAllocationJVApprovalData = this.paperDetails?.costAllocationJVApproval || []
+    const patchValues: any = {costAllocation: {}};
 
     const psaNameToCheckbox: Record<string, string> = {
       "ACG": "isACG",
@@ -605,7 +605,7 @@ export class Template5Component  implements AfterViewInit{
     };
 
     // Assign PSA/JV values dynamically
-    costAllocationJVApprovalData.forEach(psa => {
+    costAllocationJVApprovalData.forEach((psa: any) => {
       const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
       if (checkboxKey) {
         patchValues.costAllocation[checkboxKey] = psa.psaValue;
@@ -614,7 +614,7 @@ export class Template5Component  implements AfterViewInit{
       }
     });
 
-    // Assign default values for all PSA/JV fields if not in API data
+// Assign default values for all PSA/JV fields if not in API data
     Object.keys(psaNameToCheckbox).forEach(key => {
       const checkboxKey = psaNameToCheckbox[key];
       if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
@@ -624,8 +624,7 @@ export class Template5Component  implements AfterViewInit{
       }
     });
 
-
-    psaControls.forEach(({ checkbox, percentage, value }) => {
+    psaControls.forEach(({checkbox, percentage, value}) => {
       this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
         const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
@@ -649,35 +648,35 @@ export class Template5Component  implements AfterViewInit{
 
         if (isChecked) {
           percentageControl?.enable();
-          percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, { emitEvent: false });
-          valueControl?.setValue(patchValues.costAllocation[value] || 0, { emitEvent: false });
+          percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, {emitEvent: false});
+          valueControl?.setValue(patchValues.costAllocation[value] || 0, {emitEvent: false});
 
           if (checkbox === "isACG") {
             ACG1?.enable();
             ACG2?.enable();
-            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, { emitEvent: false });
-            this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, {emitEvent: false});
 
           } else if (checkbox === "isShah") {
             SD1?.enable();
             SD2?.enable();
-            this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)?.setValue(jvApprovalsData?.contractCommittee_SDCC || false, { emitEvent: false });
-            this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)?.setValue(jvApprovalsData?.coVenturers_SDMC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)?.setValue(jvApprovalsData?.contractCommittee_SDCC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)?.setValue(jvApprovalsData?.coVenturers_SDMC || false, {emitEvent: false});
           } else if (checkbox === "isSCP") {
             SCP1?.enable();
             SCP2?.enable();
             SCP3?.enable();
-            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, { emitEvent: false });
-            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, { emitEvent: false });
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)?.setValue(jvApprovalsData?.coVenturers_SCP || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)?.setValue(jvApprovalsData?.coVenturers_SCP || false, {emitEvent: false});
           } else if (checkbox === "isBTC") {
             BTC1?.enable();
             BTC2?.enable();
             BTC3?.enable();
 
-            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, { emitEvent: false });
-            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, { emitEvent: false });
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, {emitEvent: false});
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
           }
 
         } else {
@@ -690,7 +689,7 @@ export class Template5Component  implements AfterViewInit{
             ACG1?.reset();
             ACG2?.disable();
             ACG2?.reset();
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
           } else if (checkbox === "isShah") {
             SD1?.disable();
             SD1?.reset();
@@ -733,6 +732,7 @@ export class Template5Component  implements AfterViewInit{
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
           this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
+          this.calculateTotal()
         }
       });
     });
@@ -744,8 +744,14 @@ export class Template5Component  implements AfterViewInit{
     let totalPercentage = 0;
     let totalValue = 0;
 
-    const percentageFields = ['percentage_isACG', 'percentage_isShah', 'percentage_isSCP', 'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'];
-    const valueFields = ['value_isACG', 'value_isShah', 'value_isSCP', 'value_isBTC', 'value_isAsiman', 'value_isBPGroup'];
+    const percentageFields = [
+      'percentage_isACG', 'percentage_isShah', 'percentage_isSCP',
+      'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'
+    ];
+    const valueFields = [
+      'value_isACG', 'value_isShah', 'value_isSCP',
+      'value_isBTC', 'value_isAsiman', 'value_isBPGroup'
+    ];
 
     percentageFields.forEach((field) => {
       const value = costAllocation.get(field)?.value;
@@ -762,8 +768,16 @@ export class Template5Component  implements AfterViewInit{
     });
 
     // Update total fields
-    costAllocation.get('totalPercentage')?.setValue(totalPercentage, {emitEvent: false});
-    costAllocation.get('totalValue')?.setValue(totalValue, {emitEvent: false});
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+
+    // Add validation: totalPercentage must be exactly 100
+    if (totalPercentage !== 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ notExactly100: true });
+    } else {
+      costAllocation.get('totalPercentage')?.setErrors(null);
+    }
+
   }
 
   onLTCCChange() {

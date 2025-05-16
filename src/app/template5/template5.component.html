@@ -659,10 +659,22 @@
                       </div>
                     </td>
                     <td>
-                      <div class="input-group">
+                      <div class="input-group"
+                           [ngClass]="{
+       'is-invalid': generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')
+     }">
                         <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage"></div>
+                        <input
+                          oninput="if (this.value > 100) this.value = 100"
+                          class="form-control p-1"
+                          [class.is-invalid]="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')"
+                          readonly
+                          placeholder="%"
+                          min="0"
+                          max="100"
+                          type="number"
+                          formControlName="totalPercentage">
+                      </div>
                     </td>
                   </tr>
 
@@ -842,6 +854,9 @@
                   </tr>
                   </tbody>
                 </table>
+                <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
+                  <small class="text-danger">Total percentage must be exactly 100%.</small>
+                </div>
               </div>
             </div>
 

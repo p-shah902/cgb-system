@@ -168,7 +168,7 @@ export class Template4Component  implements AfterViewInit{
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
         transactionType: [null],
-        purposeRequired: ['qw', Validators.required],
+        purposeRequired: ['', Validators.required],
         cgbItemRef: [{value: '', disabled: true}],
         referenceNo: ['', Validators.required],
         cgbCirculationDate: [{value: '', disabled: true}],
