@@ -17,7 +17,7 @@ export class PaperConfigService {
   constructor(private http: HttpClient) {
   }
 
-  getPaperConfigList(filterPayload: PaperFilter): Observable<ApiResponse<PaperConfig[]>> {
+  getPaperConfigList(filterPayload: Partial<PaperFilter>): Observable<ApiResponse<PaperConfig[]>> {
     return this.http.post<ApiResponse<PaperConfig[]>>(getPaperConfigurationsList, filterPayload).pipe(
       tap(response => {
         if (response.status && response.data) {

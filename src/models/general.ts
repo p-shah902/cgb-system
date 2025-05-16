@@ -8,9 +8,13 @@ export interface CountryDetail{
       modifiedDate: string
 }
 
-export interface PaperFilter{
-      statusIds: number[],
-      orderType: string
+export interface PaperFilter {
+  statusIds?: number[],
+  orderType: string,
+  fromDate?: string,
+  toDate?: string,
+  priceMin?: number | null,
+  priceMax?: number | null,
 }
 
 export interface Documents{

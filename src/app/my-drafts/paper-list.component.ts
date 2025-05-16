@@ -20,7 +20,7 @@ import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperService } from '../../service/paper.service';
 import { Router, RouterLink } from '@angular/router';
 import { PaperFilter } from '../../models/general';
-import { PaperConfig } from '../../models/paper';
+import {PaperConfig, PaperStatusType} from '../../models/paper';
 import { LoginUser } from '../../models/user';
 import { AuthService } from '../../service/auth.service';
 import { Select2 } from 'ng-select2-component';
@@ -67,6 +67,8 @@ export class PaperListComponent implements OnInit {
   isLoading: boolean = false;
   isCardView: boolean = false;
   isArchived: boolean = false;
+  paperStatusList: PaperStatusType[] = [];
+  isFilterApplied = false;
 
   constructor(
     private authService: AuthService,
@@ -75,6 +77,8 @@ export class PaperListComponent implements OnInit {
     this.filter = {
       statusIds: [],
       orderType: 'ASC',
+      fromDate: '',
+      toDate: ''
     };
     this.authService.userDetails$.subscribe((d) => {
       this.user = d;
@@ -87,11 +91,31 @@ export class PaperListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPaperConfigList();
+    this.loadPaperStatusListData()
   }
+
+  private getCleanFilter(filter: PaperFilter): Partial<PaperFilter> {
+    const cleaned: Partial<PaperFilter> = {};
+
+    Object.entries(filter as Record<string, any>).forEach(([key, value]) => {
+      if (
+        value !== null &&
+        value !== undefined &&
+        value !== ''
+      ) {
+        cleaned[key as keyof PaperFilter] = value;
+      }
+    });
+
+    return cleaned;
+  }
+
 
   loadPaperConfigList() {
     this.isLoading = true;
-    this.paperConfigService.getPaperConfigList(this.filter).subscribe({
+    const cleanedFilter = this.getCleanFilter(this.filter);
+
+    this.paperConfigService.getPaperConfigList(cleanedFilter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter((paper: any) =>
@@ -132,6 +156,19 @@ export class PaperListComponent implements OnInit {
 
   isDisabled(status: string): boolean {
     return status.toLowerCase().includes('approved');
+  }
+
+  loadPaperStatusListData() {
+    this.paperService.getPaperStatusList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+          this.paperStatusList = reponse.data || [];
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
   }
 
   togalOrder() {
@@ -319,7 +356,67 @@ export class PaperListComponent implements OnInit {
   }
 
 
+  onSwitchChange(event: Event, statusType: string): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
 
+    const status = this.paperStatusList.find(item => item.paperStatus === statusType);
+    if (!status) return;
+
+    const statusId = status.id;
+
+    if (isChecked) {
+      // Add the ID if it's not already in the list
+      if (!this.filter.statusIds?.includes(statusId)) {
+        this.filter.statusIds?.push(statusId);
+      }
+    } else {
+      // Remove the ID from the list
+      this.filter.statusIds = (this.filter.statusIds || []).filter(id => id !== statusId);
+    }
+
+    console.log('Updated filter:', this.filter);
+  }
+
+
+  clearDates(): void {
+    this.filter.fromDate = '';
+    this.filter.toDate = '';
+    console.log('Dates cleared:', this.filter);
+  }
+
+  clearAllFilters(): void {
+    this.filter = {
+      statusIds: [],
+      orderType: 'ASC',
+      fromDate: '',
+      toDate: '',
+      priceMin: null,
+      priceMax: null
+    };
+    this.isFilterApplied = false;  // No filters applied now
+    const checkboxes = document.querySelectorAll('.form-check-input') as NodeListOf<HTMLInputElement>;
+    checkboxes.forEach(cb => cb.checked = false);
+    console.log('All filters cleared:', this.filter);
+  }
+
+  clearAllFiltersClick(dropdown: NgbDropdown): void {
+    this.clearAllFilters()
+    dropdown.close();
+    this.loadPaperConfigList()
+  }
+
+
+  applyFilters(dropdown: NgbDropdown): void {
+    this.isFilterApplied = true;   // Mark filters as applied
+    dropdown.close();  // Manually close the dropdown
+    console.log('Applied filters:', this.filter);
+    this.loadPaperConfigList()
+  }
+
+
+  onDropdownClose(): void {
+    console.log("==innnnnnnn")
+  }
 
 
 
