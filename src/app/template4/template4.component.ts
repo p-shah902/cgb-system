@@ -42,11 +42,12 @@ import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
 import {cleanObject} from '../../utils/index';
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {NumberInputComponent} from '../../components/number-input/number-input.component';
 
 @Component({
   selector: 'app-template4',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
+  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
   templateUrl: './template4.component.html',
   styleUrl: './template4.component.scss'
 })
@@ -167,7 +168,7 @@ export class Template4Component  implements AfterViewInit{
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
         transactionType: [null],
-        purposeRequired: ['', Validators.required],
+        purposeRequired: ['qw', Validators.required],
         cgbItemRef: [{value: '', disabled: true}],
         referenceNo: ['', Validators.required],
         cgbCirculationDate: [{value: '', disabled: true}],
@@ -178,7 +179,7 @@ export class Template4Component  implements AfterViewInit{
         purchaserName: ['', Validators.required],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
-        saleDisposeValue: [0, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        saleDisposeValue: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         psajv: [[], Validators.required],
         isIFRS16: [null],
         isGIAAPCheck: [null],
@@ -220,8 +221,8 @@ export class Template4Component  implements AfterViewInit{
         value_isAsiman: [null],
         value_isBPGroup: [null],
 
-        totalPercentage: [{value: 0, disabled: true}, [Validators.min(0), Validators.max(100)]],
-        totalValue: [{value: 0, disabled: true}]
+        totalPercentage: [0],
+        totalValue: [0]
       }),
 
       consultation: this.fb.array([]),
@@ -244,7 +245,7 @@ export class Template4Component  implements AfterViewInit{
     this.setupPSAListeners()
     this.setupPSACalculations()
     this.onLTCCChange()
-    this.alignGovChange()
+    // this.alignGovChange()
 
   }
 
@@ -373,10 +374,10 @@ export class Template4Component  implements AfterViewInit{
             retrospectiveApprovalReason: paperDetailData?.retrospectiveApprovalReason || '',
           },
           costAllocation: patchValues.costAllocation,
-        })
+        },{ emitEvent: true })
         setTimeout(() => {
-          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
           this.isInitialLoad = false;
         }, 500)
 
@@ -670,6 +671,28 @@ export class Template4Component  implements AfterViewInit{
     });
   }
 
+  setupPSACalculationsManually() {
+    const psaControls = [
+      { percentage: 'percentage_isACG', value: 'value_isACG' },
+      { percentage: 'percentage_isShah', value: 'value_isShah' },
+      { percentage: 'percentage_isSCP', value: 'value_isSCP' },
+      { percentage: 'percentage_isBTC', value: 'value_isBTC' },
+      { percentage: 'percentage_isAsiman', value: 'value_isAsiman' },
+      { percentage: 'percentage_isBPGroup', value: 'value_isBPGroup' }
+    ];
+
+    psaControls.forEach(({ percentage, value }) => {
+      const percentageValue = this.generalInfoForm.get(`costAllocation.${percentage}`)?.value
+      const contractValue = this.generalInfoForm.get('generalInfo.saleDisposeValue')?.value || 0;
+
+      if (percentageValue >= 0 && percentageValue <= 100) {
+        const calculatedValue = (percentageValue / 100) * contractValue;
+        this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, { emitEvent: false });
+        this.calculateTotal()
+      }
+    });
+  }
+
   setupPSACalculations() {
     const psaControls = [
       {percentage: 'percentage_isACG', value: 'value_isACG'},
@@ -687,6 +710,7 @@ export class Template4Component  implements AfterViewInit{
         if (percentageValue >= 0 && percentageValue <= 100) {
           const calculatedValue = (percentageValue / 100) * contractValue;
           this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
+          this.calculateTotal()
         }
       });
     });
@@ -698,8 +722,14 @@ export class Template4Component  implements AfterViewInit{
     let totalPercentage = 0;
     let totalValue = 0;
 
-    const percentageFields = ['percentage_isACG', 'percentage_isShah', 'percentage_isSCP', 'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'];
-    const valueFields = ['value_isACG', 'value_isShah', 'value_isSCP', 'value_isBTC', 'value_isAsiman', 'value_isBPGroup'];
+    const percentageFields = [
+      'percentage_isACG', 'percentage_isShah', 'percentage_isSCP',
+      'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'
+    ];
+    const valueFields = [
+      'value_isACG', 'value_isShah', 'value_isSCP',
+      'value_isBTC', 'value_isAsiman', 'value_isBPGroup'
+    ];
 
     percentageFields.forEach((field) => {
       const value = costAllocation.get(field)?.value;
@@ -716,8 +746,16 @@ export class Template4Component  implements AfterViewInit{
     });
 
     // Update total fields
-    costAllocation.get('totalPercentage')?.setValue(totalPercentage, {emitEvent: false});
-    costAllocation.get('totalValue')?.setValue(totalValue, {emitEvent: false});
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+
+    // Add validation: totalPercentage must be exactly 100
+    if (totalPercentage !== 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ notExactly100: true });
+    } else {
+      costAllocation.get('totalPercentage')?.setErrors(null);
+    }
+
   }
 
   onLTCCChange() {

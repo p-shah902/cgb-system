@@ -283,8 +283,11 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Sale/Disposal Value ($)*</label>
-                    <input id="saleDisposeValue" type="number" class="form-control allow-comments" placeholder="0000.0"
-                           formControlName="saleDisposeValue" min="0" step="0.01"/>
+<!--                    <input id="saleDisposeValue" type="number" class="form-control allow-comments" placeholder="0000.0"-->
+<!--                           formControlName="saleDisposeValue" min="0" step="0.01"/>-->
+
+                    <app-number-input  id="saleDisposeValue" inputClass="allow-comments" formControlName="saleDisposeValue" placeholder="0.00"></app-number-input>
+
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('saleDisposeValue')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -481,59 +484,63 @@
                       </div>
                     </td>
                     <td>
-                      <div class="input-group">
+                      <div class="input-group"
+                           [ngClass]="{
+       'is-invalid': generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')
+     }">
                         <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="totalPercentage"></div>
-                    </td>
+                        <input
+                          oninput="if (this.value > 100) this.value = 100"
+                          class="form-control p-1"
+                          [class.is-invalid]="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')"
+                          readonly
+                          placeholder="%"
+                          min="0"
+                          max="100"
+                          type="number"
+                          formControlName="totalPercentage">
+                      </div>
                   </tr>
 
                   <tr>
                     <td><b>By value $</b></td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="value_isACG" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+                      <app-number-input [readonly]="true" id="value_isACG" inputClass="p-1" formControlName="value_isACG" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="value_isShah" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+
+                      <app-number-input [readonly]="true" id="value_isShah" inputClass="p-1" formControlName="value_isShah" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="value_isSCP" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+
+
+                      <app-number-input [readonly]="true" id="value_isSCP" inputClass="p-1" formControlName="value_isSCP" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="value_isBTC" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+
+                      <app-number-input [readonly]="true" id="value_isBTC" inputClass="p-1" formControlName="value_isBTC" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="value_isAsiman" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+
+                      <app-number-input [readonly]="true" id="value_isAsiman" inputClass="p-1" formControlName="value_isAsiman" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="value_isBPGroup" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+                      <app-number-input [readonly]="true" id="value_isBPGroup" inputClass="p-1" formControlName="value_isBPGroup" placeholder="0.00"></app-number-input>
+
                     </td>
                     <td>
-                      <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input readonly formControlName="totalValue" min="0" type="number"
-                               class="form-control p-1 " placeholder="0.00"></div>
+
+                      <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
+
                     </td>
 
                   </tr>
+
 
                   <tr>
                     <td><b>Contract Committee</b></td>
@@ -664,6 +671,9 @@
                   </tr>
                   </tbody>
                 </table>
+                <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
+                  <small class="text-danger">Total percentage must be exactly 100%.</small>
+                </div>
               </div>
             </div>
 
