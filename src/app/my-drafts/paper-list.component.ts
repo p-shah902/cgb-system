@@ -1,10 +1,8 @@
 import {
-  ChangeDetectorRef,
   Component,
   inject,
-  NgZone,
   OnInit,
-  TemplateRef,
+  TemplateRef,ViewChild
 } from '@angular/core';
 import { CommonModule, DatePipe, NgForOf } from '@angular/common';
 import {
@@ -53,13 +51,20 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
   styleUrl: './paper-list.component.scss',
 })
 export class PaperListComponent implements OnInit {
+  @ViewChild('dropdownRef') dropdownRef!: NgbDropdown;
   private paperConfigService = inject(PaperConfigService);
   private paperService = inject(PaperService);
   public router = inject(Router);
-  filter: PaperFilter;
-  paperList: PaperConfig[] = [];
+  filter: PaperFilter = {
+    statusIds: [],
+    orderType: 'DESC',
+    fromDate: '',
+    toDate: '',
+    priceMin: null,
+    priceMax: null
+  };  paperList: PaperConfig[] = [];
   isDesc = false;
-  aToZ: string = 'A Z';
+  aToZ: string = 'Z A';
   user: LoginUser | null = null;
   approvalRemark: string = '';
   reviewBy: string = '';
@@ -69,17 +74,18 @@ export class PaperListComponent implements OnInit {
   isArchived: boolean = false;
   paperStatusList: PaperStatusType[] = [];
   isFilterApplied = false;
+  tempFilter: PaperFilter = { ...this.filter };
+  readonly allowedStatusNames = [
+    'Approved by PDM',
+    'On Pre-CGB',
+    'Approved by Pre-CGB',
+    'On CGB'
+  ];
 
   constructor(
     private authService: AuthService,
     public toastService: ToastService
   ) {
-    this.filter = {
-      statusIds: [],
-      orderType: 'ASC',
-      fromDate: '',
-      toDate: ''
-    };
     this.authService.userDetails$.subscribe((d) => {
       this.user = d;
     });
@@ -121,8 +127,6 @@ export class PaperListComponent implements OnInit {
           this.paperList = response.data.filter((paper: any) =>
             paper.statusName?.toLowerCase().includes('draft')
           );
-          this.sortByDate();
-          console.log('paper List', this.paperList);
         }
       },
       error: (error) => {
@@ -160,9 +164,11 @@ export class PaperListComponent implements OnInit {
 
   loadPaperStatusListData() {
     this.paperService.getPaperStatusList().subscribe({
-      next: (reponse) => {
-        if (reponse.status && reponse.data) {
-          this.paperStatusList = reponse.data || [];
+      next: (response) => {
+        if (response.status && response.data) {
+          this.paperStatusList = response.data.filter((status: any) =>
+            this.allowedStatusNames.includes(status.paperStatus)
+          );
         }
       },
       error: (error) => {
@@ -294,7 +300,6 @@ export class PaperListComponent implements OnInit {
         if (response.status && response.data) {
           this.paperList = response.data;
           this.sortByDate();
-          console.log('Archived Paper', this.paperList);
         }
       },
       error: (error) => {
@@ -316,7 +321,6 @@ export class PaperListComponent implements OnInit {
       return 0;
     });
 
-    console.log('archived', this.paperList);
   }
 
   sortByDate() {
@@ -355,69 +359,76 @@ export class PaperListComponent implements OnInit {
     this.router.navigate([`/preview/${routePath}`, paper.paperID]);
   }
 
-
-  onSwitchChange(event: Event, statusType: string): void {
-    const isChecked = (event.target as HTMLInputElement).checked;
-
-    const status = this.paperStatusList.find(item => item.paperStatus === statusType);
-    if (!status) return;
-
-    const statusId = status.id;
-
-    if (isChecked) {
-      // Add the ID if it's not already in the list
-      if (!this.filter.statusIds?.includes(statusId)) {
-        this.filter.statusIds?.push(statusId);
-      }
-    } else {
-      // Remove the ID from the list
-      this.filter.statusIds = (this.filter.statusIds || []).filter(id => id !== statusId);
-    }
-
-    console.log('Updated filter:', this.filter);
+  openDropdown() {
+    this.tempFilter = JSON.parse(JSON.stringify(this.filter));
+    setTimeout(() => this.syncSwitchesWithTemp(), 0);
   }
 
-
   clearDates(): void {
-    this.filter.fromDate = '';
-    this.filter.toDate = '';
-    console.log('Dates cleared:', this.filter);
+    this.tempFilter.fromDate = '';
+    this.tempFilter.toDate = '';
   }
 
   clearAllFilters(): void {
-    this.filter = {
+    this.tempFilter = {
       statusIds: [],
-      orderType: 'ASC',
+      orderType: 'DESC',
       fromDate: '',
       toDate: '',
       priceMin: null,
       priceMax: null
     };
-    this.isFilterApplied = false;  // No filters applied now
-    const checkboxes = document.querySelectorAll('.form-check-input') as NodeListOf<HTMLInputElement>;
-    checkboxes.forEach(cb => cb.checked = false);
-    console.log('All filters cleared:', this.filter);
+    this.syncSwitchesWithTemp();
+    this.isFilterApplied = false;
+    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
+    this.dropdownRef.close();
+    this.loadPaperConfigList();
   }
 
-  clearAllFiltersClick(dropdown: NgbDropdown): void {
-    this.clearAllFilters()
-    dropdown.close();
-    this.loadPaperConfigList()
+  applyFilters(): void {
+    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
+    this.isFilterApplied = true;
+    this.dropdownRef.close();
+    this.loadPaperConfigList();
   }
 
-
-  applyFilters(dropdown: NgbDropdown): void {
-    this.isFilterApplied = true;   // Mark filters as applied
-    dropdown.close();  // Manually close the dropdown
-    console.log('Applied filters:', this.filter);
-    this.loadPaperConfigList()
+  cancelFilters(): void {
+    this.dropdownRef.close(); // Do NOT modify `filter`
   }
 
+  onSwitchChange(event: Event, statusType: string): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    const status = this.paperStatusList.find(item => item.paperStatus === statusType);
+    if (!status) return;
 
-  onDropdownClose(): void {
-    console.log("==innnnnnnn")
+    const statusId = status.id;
+    if (isChecked) {
+      if (!this.tempFilter.statusIds?.includes(statusId)) {
+        this.tempFilter.statusIds?.push(statusId);
+      }
+    } else {
+      this.tempFilter.statusIds = (this.tempFilter.statusIds || []).filter(id => id !== statusId);
+    }
   }
 
-
-
+  syncSwitchesWithTemp(): void {
+    const switches = document.querySelectorAll('.form-check-input') as NodeListOf<HTMLInputElement>;
+    switches.forEach(switchEl => {
+      const statusType = switchEl.id.replace('flt-sw', '');
+      const label = this.getStatusLabelById(statusType);
+      const status = this.paperStatusList.find(s => s.paperStatus === label);
+      if (status) {
+        switchEl.checked = this.tempFilter.statusIds?.includes(status.id) || false;
+      }
+    });
+  }
+  getStatusLabelById(suffix: string): string {
+    const map: { [key: string]: string } = {
+      '1': 'Approved by PDM',
+      '2': 'On Pre-CGB',
+      '3': 'Approved by Pre-CGB',
+      '4': 'On CGB'
+    };
+    return map[suffix] || '';
+  }
 }
