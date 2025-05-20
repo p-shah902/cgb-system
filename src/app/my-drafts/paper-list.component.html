@@ -32,42 +32,88 @@
             </button>
 
             <div class="filter-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+              <!-- Header -->
               <div class="flt-head d-flex justify-content-between align-items-center p-2 border-bottom">
                 <h5 class="mb-0">Filter</h5>
                 <button type="button" class="btn-close" aria-label="Close" (click)="cancelFilters()"></button>
               </div>
 
               <div class="flt-body">
-                <div class="row">
-                  <div class="col-6"><label class="text-secondary">Select Date</label></div>
-                  <div class="col-6 text-end"><button class="btn p-0 h-auto" (click)="clearDates()">Clear</button></div>
+                <!-- Date Filter -->
+                <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
+                  <label class="text-secondary mb-0">Select Date</label>
+                  <a href="#" class="text-primary small" (click)="clearDates(); $event.preventDefault()">Clear</a>
+                </div>
 
+                <div class="row g-2 mb-3">
                   <div class="col-6">
                     <input type="date" class="form-control" [(ngModel)]="tempFilter.fromDate" />
                   </div>
-                  <div class="col-6 text-end">
+                  <div class="col-6">
                     <input type="date" class="form-control" [(ngModel)]="tempFilter.toDate" />
                   </div>
                 </div>
 
-                <hr />
+                <!-- Status Filter -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="text-secondary mb-0">Status</label>
+                  <a href="#" class="text-primary small" (click)="clearStatusFilters(); $event.preventDefault()">Clear</a>
+                </div>
 
-                <!-- Switches -->
-                <div *ngFor="let status of paperStatusList; let i = index" class="row mt-2">
-                  <div class="col-8"><p>{{ status.paperStatus }}</p></div>
-                  <div class="col-4">
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" role="switch"
-                             [id]="'flt-sw' + (i + 1)"
-                             [checked]="tempFilter.statusIds?.includes(status.id)"
-                             (change)="onSwitchChange($event, status.paperStatus)">
-                      <label class="form-check-label" [for]="'flt-sw' + (i + 1)"></label>
-                    </div>
+                <div *ngFor="let status of paperStatusList; let i = index" class="d-flex justify-content-between align-items-center mb-2">
+                  <span>{{ status.paperStatus }}</span>
+                  <div class="form-check form-switch m-0">
+                    <input type="checkbox"
+                           class="form-check-input"
+                           [checked]="tempFilter.statusIds?.includes(status.id)"
+                           (change)="onSwitchChange($event, status.paperStatus)"
+                           [id]="'flt-sw' + (i + 1)" />
                   </div>
                 </div>
 
+                <!-- Price Filter -->
                 <hr />
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="text-secondary mb-0">Price</label>
+                  <a href="#" class="text-primary small" (click)="clearPriceFilters(); $event.preventDefault()">Clear</a>
+                </div>
 
+
+
+                <!-- Price Low to High -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>Price Low to High</span>
+                  <div class="form-check form-switch m-0">
+                    <input type="checkbox"
+                           class="form-check-input"
+                           id="sortLowToHigh"
+                           [checked]="tempFilter.sortLowToHigh"
+                           (change)="onSortChange('low')"></div>
+                </div>
+
+                <!-- Price High to Low -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span>Price High to Low</span>
+                  <div class="form-check form-switch m-0">
+
+                    <input type="checkbox"
+                           class="form-check-input"
+                           id="sortHighToLow"
+                           [checked]="tempFilter.sortHighToLow"
+                           (change)="onSortChange('high')"></div>
+                </div>
+
+
+                <!-- Slider -->
+                <label class="text-secondary mb-1">Price Range</label>
+                <ngx-slider
+                  [(value)]="tempPrice[0]"
+                  [(highValue)]="tempPrice[1]"
+                  [options]="priceSliderOptions"
+                ></ngx-slider>
+                <p class="text-muted text-center mt-2 mb-3">${{ tempPrice[0] }} - ${{ tempPrice[1] }}</p>
+
+                <!-- Footer Buttons -->
                 <div class="row mt-3">
                   <div class="col-6">
                     <button class="btn btn-sm w-100" (click)="clearAllFilters()">Clear All</button>

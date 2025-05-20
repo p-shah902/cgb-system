@@ -6,6 +6,8 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { CommonModule, DatePipe, NgForOf } from '@angular/common';
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
+
 import {
   NgbDropdown,
   NgbDropdownItem,
@@ -45,7 +47,7 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
     RouterLink,
     PaperconfigurationComponent,
     SafeHtmlPipe,
-    SafeHtmlDirective,
+    SafeHtmlDirective,NgxSliderModule
 
   ],
   templateUrl: './paper-list.component.html',
@@ -62,7 +64,9 @@ export class PaperListComponent implements OnInit {
     fromDate: '',
     toDate: '',
     priceMin: null,
-    priceMax: null
+    priceMax: null,
+    sortLowToHigh: false,
+    sortHighToLow: false,
   };
   paperList: PaperConfig[] = [];
   isDesc = false;
@@ -77,12 +81,19 @@ export class PaperListComponent implements OnInit {
   isFilterApplied = false;
   paperStatusList: PaperStatusType[] = [];
   tempFilter: PaperFilter = { ...this.filter };
+  priceSliderOptions: Options = {
+    floor: 0,
+    ceil: 500,
+    step: 10,
+    translate: (value: number): string => `$${value}`
+  };
   readonly allowedStatusNames = [
     'Approved by PDM',
     'On Pre-CGB',
     'Approved by Pre-CGB',
     'On CGB'
   ];
+  tempPrice: number[] = [0, 0];  // Temporary values for slider
 
   constructor(
     private authService: AuthService,
@@ -116,6 +127,18 @@ export class PaperListComponent implements OnInit {
         value !== undefined &&
         value !== ''
       ) {
+        // Skip priceMin and priceMax if both are 0
+        if ((key === 'priceMin' || key === 'priceMax') &&
+          filter.priceMin === 0 &&
+          filter.priceMax === 0) {
+          return;
+        }
+
+        // Skip sortLowToHigh and sortHighToLow if false
+        if ((key === 'sortLowToHigh' || key === 'sortHighToLow') && value === false) {
+          return;
+        }
+
         cleaned[key as keyof PaperFilter] = value;
       }
     });
@@ -370,15 +393,26 @@ export class PaperListComponent implements OnInit {
     this.tempFilter.toDate = '';
   }
 
-  clearAllFilters(): void {
+  clearStatusFilters(): void {
+    this.tempFilter.statusIds = [];
+  }
+
+  clearPriceFilters(): void {
+    this.tempFilter.sortLowToHigh = false;
+    this.tempFilter.sortHighToLow = false;
+    this.tempPrice = [0, 0];
     this.tempFilter = {
-      statusIds: [],
-      orderType: 'DESC',
-      fromDate: '',
-      toDate: '',
-      priceMin: null,
-      priceMax: null
+      ...this.tempFilter,
+      priceMin: 0,
+      priceMax: 0
     };
+  }
+
+
+  clearAllFilters(): void {
+    this.clearDates();
+    this.clearStatusFilters();
+    this.clearPriceFilters();
     this.syncSwitchesWithTemp();
     this.isFilterApplied = false;
     this.filter = JSON.parse(JSON.stringify(this.tempFilter));
@@ -386,7 +420,24 @@ export class PaperListComponent implements OnInit {
     this.loadPaperConfigList();
   }
 
+
+  onSortChange(type: 'low' | 'high') {
+    if (type === 'low') {
+      this.tempFilter.sortLowToHigh = true;
+      this.tempFilter.sortHighToLow = false;
+    } else {
+      this.tempFilter.sortLowToHigh = false;
+      this.tempFilter.sortHighToLow = true;
+    }
+  }
+
+
   applyFilters(): void {
+    this.tempFilter = {
+      ...this.tempFilter,
+      priceMin: this.tempPrice[0],
+      priceMax: this.tempPrice[1]
+    };
     this.filter = JSON.parse(JSON.stringify(this.tempFilter));
     this.isFilterApplied = true;
     this.dropdownRef.close();

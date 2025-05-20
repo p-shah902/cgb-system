@@ -15,6 +15,8 @@ export interface PaperFilter {
   toDate?: string,
   priceMin?: number | null,
   priceMax?: number | null,
+  sortHighToLow?: boolean
+  sortLowToHigh?: boolean
 }
 
 export interface Documents{
