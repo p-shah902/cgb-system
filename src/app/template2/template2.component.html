@@ -123,15 +123,27 @@
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
+<!--                  <div class="form-group mb-3">-->
+<!--                    <label>CGB ATM Ref No </label>-->
+<!--                    <input id="cgbAtmRefNo" formControlName="cgbAtmRefNo" type="text"-->
+<!--                           class="form-control allow-comments" placeholder="Enter value"/>-->
+<!--                  </div>-->
+
                   <div class="form-group mb-3">
-                    <label>CGB AtM Ref No </label>
-                    <input id="cgbAtmRefNo" formControlName="cgbAtmRefNo" type="text"
-                           class="form-control allow-comments" placeholder="Enter value"/>
+                    <label>CGB ATM Ref No</label>
+                    <select class="form-control allow-comments" id="cgbAtmRefNo" formControlName="cgbAtmRefNo">
+                      <option [value]="null">Select</option>
+                      <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
+                        <option [value]="item.paperID">
+                          {{ item.paperSubject }}
+                        </option>
+                      </ng-container>
+                    </select>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>CGB AtM Approval Date</label>
+                    <label>CGB ATM Approval Date</label>
                     <div class="date-input position-relative">
                       <input id="cgbApprovalDate" formControlName="cgbApprovalDate" type="date"
                              class="form-control allow-comments" placeholder=""/>
@@ -139,26 +151,7 @@
 
                   </div>
                 </div>
-<!--                <div class="col-md-12">-->
-<!--                  <div class="form-group mb-3">-->
-<!--                    <label>Contract Number </label>-->
-<!--                    <input formControlName="contractNo" id="contractNo" type="text" class="form-control allow-comments"-->
-<!--                           placeholder="Enter contract number"/>-->
-<!--&lt;!&ndash;                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('contactNo')?.hasError('required')">&ndash;&gt;-->
-<!--&lt;!&ndash;                      <small class="text-danger">Please enter value.</small>&ndash;&gt;-->
-<!--&lt;!&ndash;                    </div>&ndash;&gt;-->
-<!--                  </div>-->
-<!--                </div>-->
 
-                <!-- <div class="col-md-12">
-                  <div class="form-group mb-3">
-                    <label>Contract Number</label>
-                    <div class="date-input position-relative">
-                      <input type="text" class="form-control" placeholder="Entre Number" />
-                    </div>
-
-                  </div>
-                </div> -->
                 <div class="col-md-12">
                   <div class="form-group mb-3 allow-comments" id="isChangeinApproachMarket">
                     <label>Have there been changes to the Scope since CGB Approach to Market?</label>
@@ -198,23 +191,6 @@
                            placeholder="Enter Value"/>
                   </div>
                 </div>
-<!--                <div class="col-md-6">-->
-<!--                  <div class="form-group mb-3">-->
-<!--                    <label>Vendor ID *</label>-->
-<!--                    <select class="form-control allow-comments" id="vendorId" formControlName="vendorId">-->
-<!--                      <option [value]="null">Select</option>-->
-<!--                      <ng-container *ngFor="let item of vendorList?.length ? vendorList : []">-->
-<!--                        <option [value]="item.id.toString()">-->
-<!--                          {{ item.vendorName }}-->
-<!--                        </option>-->
-<!--                      </ng-container>-->
-<!--                    </select>-->
-<!--                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('vendorId')?.hasError('required')">-->
-<!--                      <small class="text-danger">Please select value.</small>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-
               </div>
               <div class="row">
                 <div class="col-sm-6 col-md-4">

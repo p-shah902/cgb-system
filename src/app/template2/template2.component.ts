@@ -24,7 +24,7 @@ import {LoginUser, UserDetails} from '../../models/user';
 import {UserService} from '../../service/user.service';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
-import {PaperStatusType} from '../../models/paper';
+import {PaperMappingType, PaperStatusType} from '../../models/paper';
 import {VendorService} from '../../service/vendor.service';
 import {VendorDetail} from '../../models/vendor';
 import {CURRENCY_LIST} from '../../utils/constant';
@@ -79,11 +79,12 @@ export class Template2Component implements AfterViewInit {
   vendorList: VendorDetail[] = []
   userDetails: UserDetails[] = [];
   procurementTagUsers: any[] = [];
+  paperMappingData: PaperMappingType[] = [];
   countryDetails: CountryDetail[] = [];
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
   private completedCount = 0;
-  private totalCalls = 6;
+  private totalCalls = 7;
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
   globalCGBData: DictionaryDetail[] = [];
@@ -167,6 +168,7 @@ export class Template2Component implements AfterViewInit {
     this.loadForm()
     this.loadDictionaryItems()
     this.loadUserDetails()
+    this.fetchApprovedPapersForMapping()
     this.loadThresholdData()
     this.loadCountry();
     this.loadPaperStatusListData();
@@ -210,6 +212,10 @@ export class Template2Component implements AfterViewInit {
       this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
 
+    this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.valueChanges.subscribe((cgbAtmRefNo) => {
+      this.updateCgbApprovalDate(Number(cgbAtmRefNo));
+    });
+
   }
 
   ngAfterViewInit() {
@@ -239,15 +245,15 @@ export class Template2Component implements AfterViewInit {
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
-        cgbAtmRefNo: [{ value: '', disabled: true }],
-        cgbApprovalDate: [{value: null, disabled: true}],
+        cgbAtmRefNo: [null],
+        cgbApprovalDate: [null],
         isChangeinApproachMarket: [null],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: null, disabled: true}],
         contractNo: [''],
         contactNo: [''],
         vendorId: [null],
-        purposeRequired: ['', Validators.required],
+        purposeRequired: ['were', Validators.required],
         globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
@@ -279,7 +285,7 @@ export class Template2Component implements AfterViewInit {
         contractSpendCommitment: [''],
       }),
       procurementDetails: this.fb.group({
-        supplierAwardRecommendations: ['', Validators.required],
+        supplierAwardRecommendations: ['123', Validators.required],
         legalEntitiesAwarded: this.fb.array([]),
         isConflictOfInterest: [null],
         conflictOfInterestComment: [{ value: '', disabled: true }],
@@ -459,9 +465,11 @@ export class Template2Component implements AfterViewInit {
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: contractAwardDetails?.paperProvision || "",
-            cgbAtmRefNo: contractAwardDetails?.cgbAtmRefNo || "",
-            cgbApprovalDate: contractAwardDetails?.cgbApprovalDate || null,
-            isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket || "",
+            cgbAtmRefNo: contractAwardDetails?.cgbAtmRefNo ? Number(contractAwardDetails?.cgbAtmRefNo) : null,
+            cgbApprovalDate:  contractAwardDetails?.cgbApprovalDate
+              ? format(new Date(contractAwardDetails.cgbApprovalDate), 'yyyy-MM-dd')
+              : null,
+            isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket || null,
             cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
             cgbCirculationDate: contractAwardDetails?.cgbCirculationDate
               ? format(new Date(contractAwardDetails.cgbCirculationDate), 'yyyy-MM-dd')
@@ -691,7 +699,6 @@ export class Template2Component implements AfterViewInit {
     this.dictionaryService.getDictionaryListByItem(itemName).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          console.log('Dictionary Detail:', response.data);
           this.incrementAndCheck();
           switch (itemName) {
             case 'Currencies':
@@ -752,6 +759,19 @@ export class Template2Component implements AfterViewInit {
             label: t.displayName,
             value: t.id
           }));
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+  fetchApprovedPapersForMapping() {
+    this.paperService.getApprovedPapersForMapping().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.paperMappingData = response.data || []
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1640,6 +1660,16 @@ export class Template2Component implements AfterViewInit {
         technicalCorrectControl.setValue(Number(newCamUserId) || null);
       }
     });
+  }
+
+  updateCgbApprovalDate(id: number | null) {
+    const cgbATM = this.paperMappingData.find((item) => item.paperID == id)
+    if(!cgbATM) {
+      return
+    }
+    const convertedValue =  cgbATM.entryDate ? format(new Date(cgbATM.entryDate), 'yyyy-MM-dd') : null
+    this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
+
   }
 
   get inviteToBid(): FormArray {

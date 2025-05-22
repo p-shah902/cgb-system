@@ -34,6 +34,7 @@ export const upsertInfoNoteUri = baseUri + '/api/PaperConfiguration/UpsertInfoNo
 export const getVendorDetailsByIdUri = baseUri + '/api/VendorMaster/GetVendorDetailsById';
 export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsById';
 export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
+export const getApprovedPapersForMappingUri = baseUri + '/api/paper/GetApprovedPapersforMapping';
 export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausList';
 export const approveRejectPaper = baseUri + '/api/PaperConfiguration/ChangePaperApprovalStatus';
 export const addPaperVisitorLogs = baseUri + '/api/GeneralMethod/VisitorLogs';

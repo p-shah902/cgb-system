@@ -318,3 +318,11 @@ export interface PSAEntry {
   percentage: number;
   value: number;
 }
+
+export interface PaperMappingType {
+  paperID: number;
+  paperSubject: string;
+  paperStatusName: string;
+  paperType: string;
+  entryDate: string; // ISO date string
+}

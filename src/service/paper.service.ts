@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {
-  addPaperVisitorLogs,
+  addPaperVisitorLogs, getApprovedPapersForMappingUri,
   getPaperDetails,
   getPaperPreviewById,
   getPaperStatus,
@@ -10,7 +10,7 @@ import {
   UpsertApproachToMarkets, UpsertApprovalOfSales, upsertContractAward, upsertInfoNoteUri, upsertVariationPaper
 } from '../utils/api/api';
 import {ApiResponse} from '../models/role';
-import {Paper, PaperData, PaperStatusType} from '../models/paper';
+import {Paper, PaperData, PaperMappingType, PaperStatusType} from '../models/paper';
 
 @Injectable({
   providedIn: 'root'
@@ -126,6 +126,10 @@ export class PaperService {
 
   getPaperDetails(paperId: number): Observable<ApiResponse<Paper>> {
     return this.http.get<ApiResponse<Paper>>(getPaperDetails + '/' + paperId);
+  }
+
+  getApprovedPapersForMapping(): Observable<ApiResponse<PaperMappingType[]>> {
+    return this.http.get<ApiResponse<PaperMappingType[]>>(getApprovedPapersForMappingUri);
   }
 
   getPaperStatusList(): Observable<ApiResponse<PaperStatusType[]>> {
