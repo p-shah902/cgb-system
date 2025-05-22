@@ -24,7 +24,7 @@ import {LoginUser, UserDetails} from '../../models/user';
 import {UserService} from '../../service/user.service';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
-import {PaperStatusType, PSAEntry} from '../../models/paper';
+import {PaperMappingType, PaperStatusType, PSAEntry} from '../../models/paper';
 import {VendorService} from '../../service/vendor.service';
 import {VendorDetail} from '../../models/vendor';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
@@ -84,7 +84,7 @@ export class Template3Component  implements AfterViewInit {
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
   private completedCount = 0;
-  private totalCalls = 5;
+  private totalCalls = 6;
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
   globalCGBData: DictionaryDetail[] = [];
@@ -117,6 +117,7 @@ export class Template3Component  implements AfterViewInit {
     section8: false,
     section9: false,
   };
+  paperMappingData: PaperMappingType[] = [];
 
   psaItems = [
     {psaName: 'ACG', control: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
@@ -194,7 +195,7 @@ export class Template3Component  implements AfterViewInit {
     this.loadThresholdData()
     this.loadVendoreDetails()
     this.loadForm()
-
+    this.fetchApprovedPapersForMapping()
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
       .pipe(
         debounceTime(300), // wait for 300ms pause
@@ -217,6 +218,10 @@ export class Template3Component  implements AfterViewInit {
 
     this.generalInfoForm.get('contractValues.revisedContractValue')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
+    });
+
+    this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.valueChanges.subscribe((cgbAwardRefNo) => {
+      this.updateCgbApprovalDate(Number(cgbAwardRefNo));
     });
 
     this.onLTCCChange()
@@ -307,7 +312,7 @@ export class Template3Component  implements AfterViewInit {
         isChangeInRates: [false],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: '', disabled: true}],
-        cgbAwardRefNo: ['', Validators.required],
+        cgbAwardRefNo: [null, Validators.required],
         cgbApprovalDate: [null],
         fullLegalName: ['', Validators.required],
         contractNo: [''],
@@ -455,6 +460,16 @@ getGroupForm(key: string): FormGroup {
     this.generalInfoForm.get('contractValues.contractValue')?.setValue(convertedValue);
   }
 
+  updateCgbApprovalDate(id: number | null) {
+    const cgbAward = this.paperMappingData.find((item) => item.paperID == id)
+    if(!cgbAward) {
+      return
+    }
+    const convertedValue =  cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
+    this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
+
+  }
+
   getAllSelectedPsa(): PSAEntry[] {
     const result: PSAEntry[] = [];
 
@@ -575,6 +590,21 @@ getGroupForm(key: string): FormGroup {
             label: t.displayName,
             value: t.id
           }));
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+  fetchApprovedPapersForMapping() {
+    this.paperService.getApprovedPapersForMapping().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          if(response.data && response.data.length > 0) {
+            this.paperMappingData = response.data.filter((item) => item.paperType == "Contract Award")
+          }
           this.incrementAndCheck();
         }
       }, error: (error) => {

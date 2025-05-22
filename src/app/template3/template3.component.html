@@ -156,10 +156,26 @@
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
+<!--                  <div class="form-group mb-3">-->
+<!--                    <label>CGB Award Ref No*</label>-->
+<!--                    <input id="cgbAwardRefNo" type="text" class="form-control" placeholder="CGB Award Ref No"-->
+<!--                           formControlName="cgbAwardRefNo"/>-->
+<!--                    <div class="text-danger"-->
+<!--                         *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">-->
+<!--                      <small class="text-danger">Please select value.</small>-->
+<!--                    </div>-->
+<!--                  </div>-->
+
                   <div class="form-group mb-3">
                     <label>CGB Award Ref No*</label>
-                    <input id="cgbAwardRefNo" type="text" class="form-control" placeholder="CGB Award Ref No"
-                           formControlName="cgbAwardRefNo"/>
+                    <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo">
+                      <option [value]="null">Select</option>
+                      <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
+                        <option [value]="item.paperID">
+                          {{ item.paperSubject }}
+                        </option>
+                      </ng-container>
+                    </select>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
@@ -170,7 +186,7 @@
                   <div class="form-group mb-3">
                     <label>CGB Award Approval Date</label>
                     <input id="cgbApprovalDate" type="date" class="form-control"
-                           formControlName="cgbApprovalDate" placeholder=""/>
+                           formControlName="cgbApprovalDate" placeholder="" readonly/>
                   </div>
                 </div>
                 <div class="col-md-12">

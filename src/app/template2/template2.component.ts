@@ -253,7 +253,7 @@ export class Template2Component implements AfterViewInit {
         contractNo: [''],
         contactNo: [''],
         vendorId: [null],
-        purposeRequired: ['were', Validators.required],
+        purposeRequired: ['', Validators.required],
         globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
@@ -285,7 +285,7 @@ export class Template2Component implements AfterViewInit {
         contractSpendCommitment: [''],
       }),
       procurementDetails: this.fb.group({
-        supplierAwardRecommendations: ['123', Validators.required],
+        supplierAwardRecommendations: ['', Validators.required],
         legalEntitiesAwarded: this.fb.array([]),
         isConflictOfInterest: [null],
         conflictOfInterestComment: [{ value: '', disabled: true }],
@@ -771,7 +771,9 @@ export class Template2Component implements AfterViewInit {
     this.paperService.getApprovedPapersForMapping().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.paperMappingData = response.data || []
+          if(response.data && response.data.length > 0) {
+            this.paperMappingData = response.data.filter((item) => item.paperType == "Approach to Market")
+          }
           this.incrementAndCheck();
         }
       }, error: (error) => {
