@@ -462,13 +462,19 @@ getGroupForm(key: string): FormGroup {
 
   updateCgbApprovalDate(id: number | null) {
     const cgbAward = this.paperMappingData.find((item) => item.paperID == id)
-    if(!cgbAward) {
+    if(!cgbAward || !id) {
       return
     }
     const convertedValue =  cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
-
+    this.fetchCAPaperDetails(id)
   }
+
+  fetchCAPaperDetails(paperId: number) {
+    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+      const atmPaperDetails = value.data as any;
+      this.generalInfoForm.get('contractValues.originalContractValue')?.setValue(atmPaperDetails?.contractAwardDetails?.totalAwardValueUSD || 0,{ emitEvent: true });
+    })}
 
   getAllSelectedPsa(): PSAEntry[] {
     const result: PSAEntry[] = [];

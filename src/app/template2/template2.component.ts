@@ -105,6 +105,7 @@ export class Template2Component implements AfterViewInit {
   isInitialLoad = true;
   logs: any[] = [];
   comment: string = '';
+  atmPaperContactValueUSD: number = 0
   sectionVisibility: { [key: string]: boolean } = {
     section1: true,
     section2: false,
@@ -1666,17 +1667,30 @@ export class Template2Component implements AfterViewInit {
 
   updateCgbApprovalDate(id: number | null) {
     const cgbATM = this.paperMappingData.find((item) => item.paperID == id)
-    if(!cgbATM) {
+    if(!cgbATM || !id) {
       return
     }
     const convertedValue =  cgbATM.entryDate ? format(new Date(cgbATM.entryDate), 'yyyy-MM-dd') : null
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
-
+    this.fetchATMPaperDetails(id)
   }
+
+  fetchATMPaperDetails(paperId: number) {
+    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+      const atmPaperDetails = value.data as any;
+      this.atmPaperContactValueUSD = atmPaperDetails?.paperDetails?.totalAwardValueUSD || 0
+      this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.setValue(atmPaperDetails?.paperDetails?.totalAwardValueUSD || 0,{ emitEvent: true });
+    })}
 
   get inviteToBid(): FormArray {
     return this.generalInfoForm.get('procurementDetails.legalEntitiesAwarded') as FormArray;
   }
+
+  get isContactDiffFromATM() {
+    const currentValue = +this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value || 0;
+    return this.atmPaperContactValueUSD === currentValue;
+  }
+
 
   addBidRow(isFirst = false) {
     if (isFirst && this.paperDetails) {
