@@ -45,7 +45,7 @@ export class VendorDetailComponent implements OnInit {
       isActive: [true],
       contactPerson: ['', Validators.required],
       contactEmail: ['', [Validators.required, Validators.email]],
-      contactPhone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      contactPhone: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
       avatarPath: [''],
       isCGBRegistered: [true],
       approvalStatus: ['Pending', Validators.required]
@@ -57,10 +57,10 @@ export class VendorDetailComponent implements OnInit {
 
     this.activateRoute.params.subscribe(params => {
       const idParam=params['id'];
-      
+
       if (idParam) {
         const id = Number(idParam);
-        
+
         if (isNaN(id)) {
           this.toastService.show('Invalid Vendor ID', 'danger');
           this.router.navigate(['/vendors']);
@@ -70,7 +70,7 @@ export class VendorDetailComponent implements OnInit {
         this.editMode=true;
         this.loadVendorById(id);
       }
-      
+
     });
 
   }
@@ -159,25 +159,13 @@ export class VendorDetailComponent implements OnInit {
   }
 
   submitVendor(): void {
-
-    if (this.vendorForm.invalid || this.fileError) {
-
-      console.log('Form is invalid');
-      Object.keys(this.vendorForm.controls).forEach((key) => {
-        const control = this.vendorForm.get(key);
-        if (control && control.invalid) {
-          console.log(`Invalid field: ${key}`, control.errors);
-        }
-      });
-
+    if (this.vendorForm.invalid || this.fileError || !this.selectedFile) {
       this.toastService.show('Please Fill All Required Fields', 'danger');
       return;
     }
     if (this.isSubmitting) return;
 
     const vendorData = this.mapFormValues();
-    console.log('vendor Details', vendorData);
-    console.log('file', this.selectedFile);
     this.isSubmitting = true;
     this.vendorService.upsertVendorDetail(vendorData, this.selectedFile).subscribe({
       next: (response) => {
@@ -190,7 +178,7 @@ export class VendorDetailComponent implements OnInit {
               this.toastService.show('Vendor Addded Successfully','success');
             }
             this.router.navigate(['/vendors']);
-           
+
           }
           else{
             this.toastService.show('Something Went Wrong','warning');
@@ -239,8 +227,8 @@ export class VendorDetailComponent implements OnInit {
              const extension = document[0].docName.split('.').pop()?.toLowerCase();
              const fileType=this.getFileTypeFromExtension(extension);
              const file=this.setFile(document[0].fileData,document[0].docName,fileType);
-             this.previewFile = document[0].fileData.startsWith('data:') 
-             ? document[0].fileData 
+             this.previewFile = document[0].fileData.startsWith('data:')
+             ? document[0].fileData
              : `data:${fileType};base64,${document[0].fileData}`;
 
              let reader = new FileReader();
@@ -260,18 +248,18 @@ export class VendorDetailComponent implements OnInit {
             this.vendorForm.patchValue({...this.vendorDetail});
           }else{
             this.toastService.show("Please Select Valid Vendor",'danger');
-            this.router.navigate(['/vendors']); 
+            this.router.navigate(['/vendors']);
           }
 
         }else{
           this.toastService.show("Please Select Valid Vendore",'danger');
-          this.router.navigate(['/vendors']); 
+          this.router.navigate(['/vendors']);
         }
 
       },error:(error)=>{
         console.log('error',error);
         this.toastService.show("Something Went Wrong",'danger');
-        this.router.navigate(['/vendors']); 
+        this.router.navigate(['/vendors']);
 
       }
     })
@@ -279,7 +267,7 @@ export class VendorDetailComponent implements OnInit {
 
   private getFileTypeFromExtension(extension: string | undefined): string {
     if (!extension) return 'application/octet-stream';
-    
+
     const mimeTypes: {[key: string]: string} = {
       'jpg': 'image/jpeg',
       'jpeg': 'image/jpeg',
@@ -293,7 +281,7 @@ export class VendorDetailComponent implements OnInit {
       'txt': 'text/plain',
       // Add more types as needed
     };
-    
+
     return mimeTypes[extension] || 'application/octet-stream';
   }
 

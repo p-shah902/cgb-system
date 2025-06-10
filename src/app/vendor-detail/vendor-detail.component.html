@@ -25,48 +25,75 @@
 
 
               <div class="form-group mb-3">
-                <label>Vendor Name</label>
+                <label>Vendor Name *</label>
                 <input type="text" class="form-control" placeholder="Enter Full Name" formControlName="vendorName"/>
+                <div class="text-danger" *ngIf="vendorForm.get('vendorName')?.touched && vendorForm.get('vendorName')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>Tax ID</label>
+                    <label>Tax ID *</label>
                     <input type="text" class="form-control" placeholder="Enter Tax ID" formControlName="taxId"/>
+                    <div class="text-danger" *ngIf="vendorForm.get('taxId')?.touched && vendorForm.get('taxId')?.hasError('required')">
+                      <small>This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>SAP ID</label>
+                    <label>SAP ID *</label>
                     <input type="text" class="form-control" placeholder="Entre Sap ID" formControlName="sapId"/>
+                    <div class="text-danger" *ngIf="vendorForm.get('sapId')?.touched && vendorForm.get('sapId')?.hasError('required')">
+                      <small>This field is required.</small>
+                    </div>
                   </div>
                 </div>
 
                 <div class="form-group mb-3">
-                  <label>Contact Person</label>
+                  <label>Contact Person *</label>
                   <input type="text" class="form-control" placeholder="Enter Full Name"
                          formControlName="contactPerson"/>
+                  <div class="text-danger" *ngIf="vendorForm.get('contactPerson')?.touched && vendorForm.get('contactPerson')?.hasError('required')">
+                    <small>This field is required.</small>
+                  </div>
                 </div>
 
+                <!-- Contact Email Field -->
                 <div class="form-group mb-3">
-                  <label>Contact Email</label>
-                  <input type="text" class="form-control" placeholder="Enter Email Address"
-                         formControlName="contactEmail"/>
+                  <label>Contact Email *</label>
+                  <input type="email" class="form-control" placeholder="Enter Email Address" formControlName="contactEmail" />
+                  <div class="text-danger" *ngIf="vendorForm.get('contactEmail')?.touched && vendorForm.get('contactEmail')?.errors">
+                    <small *ngIf="vendorForm.get('contactEmail')?.hasError('required')">This field is required.</small>
+                    <small *ngIf="vendorForm.get('contactEmail')?.hasError('email')">Invalid email format.</small>
+                  </div>
                 </div>
 
+                <!-- Contact Phone Field -->
                 <div class="form-group mb-3">
-                  <label>Contact Phone</label>
-                  <input type="text" class="form-control" placeholder="Phone number" formControlName="contactPhone"/>
+                  <label>Contact Phone *</label>
+                  <input type="text" class="form-control" placeholder="Phone number" formControlName="contactPhone" />
+                  <div class="text-danger" *ngIf="vendorForm.get('contactPhone')?.touched && vendorForm.get('contactPhone')?.errors">
+                    <small *ngIf="vendorForm.get('contactPhone')?.hasError('required')">This field is required.</small>
+                    <small *ngIf="vendorForm.get('contactPhone')?.hasError('minlength') || vendorForm.get('contactPhone')?.hasError('maxlength')">
+                      Phone number must be exactly 10 digits.
+                    </small>
+                  </div>
                 </div>
+
 
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>Country</label>
+                    <label>Country *</label>
                     <select class="form-control" formControlName="countryId">
                       <option [value]="0">Select Country</option>
                       <option *ngFor="let country of countryDetails" [value]="country.id">{{ country.countryName }}
                       </option>
                     </select>
+                    <div class="text-danger" *ngIf="vendorForm.get('countryId')?.hasError('required')">
+                      <small>This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -109,17 +136,20 @@
                 </div>
                 <div class="col-md-8">
                   <div class="form-group mb-3">
-                    <label>Vendor Approval Status</label>
+                    <label>Vendor Approval Status *</label>
                     <select class="form-control" formControlName="approvalStatus">
                       <option value="Approved">Approved</option>
                       <option value="Pending">Pending</option>
                     </select>
+                    <div class="text-danger" *ngIf="vendorForm.get('approvalStatus')?.hasError('required')">
+                      <small>This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <div class="mb-2">
-                      <label>Supporting Documents: (Allowed File Types: PDF, DOCX, XLSX.)</label>
+                      <label>Supporting Documents * (Allowed File Types: PDF, DOCX, XLSX.)</label>
                     </div>
                     <div class="document-attachment">
                       <div class="attach-thumb bg-white" *ngIf="selectedFile">
@@ -180,8 +210,7 @@
                 class="btn btn-primary"
                 type="button"
                 (click)="submitVendor()"
-                [disabled]="isSubmitting"
-              >
+                [disabled]="isSubmitting">
                 <span *ngIf="!isSubmitting">Save Changes</span>
                 <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
                 <span *ngIf="isSubmitting">Saving...</span>

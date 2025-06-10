@@ -1,82 +1,66 @@
-import {Component, inject, Inject} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {AuthService} from '../../service/auth.service';
-import {Router} from '@angular/router';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../service/auth.service';
 import { ToastService } from '../../service/toast.service';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule,CommonModule,NgbToastModule],
+  imports: [CommonModule, ReactiveFormsModule, NgbToastModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-
-  // constructor(
-  //   private authService: AuthService,
-  //   private router: Router
-  // ) {}
-
+  private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
   public toastService = inject(ToastService);
 
-  email: string = '';
-  password: string = '';
-  isFormValid: boolean = false;
-  isSubmitting:boolean=false;
+  isSubmitting = false;
 
-  onEmailChange(): void {
-    this.validateForm();
+  loginForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
+  });
+
+  get email() {
+    return this.loginForm.get('email');
   }
 
-  onPasswordChange(): void {
-    this.validateForm();
-  }
-
-
-  validateForm(): void {
-    const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-    this.isFormValid = emailRegex.test(this.email) && this.password.length > 4;
+  get password() {
+    return this.loginForm.get('password');
   }
 
   onSubmit() {
-    console.log(this.email, this.password);
-
-    if (!this.isFormValid) {
+    if (this.loginForm.invalid || this.isSubmitting) {
       this.toastService.show('Please Fill All Required Fields', 'danger');
       return;
     }
 
-    if (this.isSubmitting) return;
     this.isSubmitting = true;
 
-    this.authService.login(this.email, this.password).subscribe({
+    const { email, password } = this.loginForm.value;
+
+    this.authService.login(email, password).subscribe({
       next: ({ status }) => {
         if (!status) {
           this.toastService.show('Invalid Credentials', 'danger');
           return;
         }
-
         this.toastService.show('Login Successfully', 'success');
         this.router.navigate(['/inboxoutbox']);
       },
-      error: (err) => {
+      error: err => {
         console.error('Login error:', err);
+        this.toastService.show('Something went wrong. Try again.', 'danger');
       },
       complete: () => {
         this.isSubmitting = false;
-        this.clearCredentials();
+        this.loginForm.reset();
       }
     });
   }
-
-  private clearCredentials(): void {
-    this.email = '';
-    this.password = '';
-  }
-
 }
