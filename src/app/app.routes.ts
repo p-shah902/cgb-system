@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../guards/auth.guard';
+import {NoAuthGuard} from '../guards/no-auth.guard';
 
 export const routes: Routes = [
   {
@@ -134,58 +135,72 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
+    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'login',
-    loadComponent: () => import('./login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./login/login.component').then(m => m.LoginComponent),
+    canActivate: [NoAuthGuard]
   },
   {
     path: 'forgot-password',
-    loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+    loadComponent: () => import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    canActivate: [NoAuthGuard]
   },
 
   {
     path: 'vendors',
-    loadComponent: () => import('./vendors/vendors.component').then(m => m.VendorsComponent)
+    loadComponent: () => import('./vendors/vendors.component').then(m => m.VendorsComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'vendor-detail',
-    loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
+    loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent),
+    canActivate: [AuthGuard]
+
   },
   {
     path: 'vendor-detail/:id',
-    loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent)
+    loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'dictionaries-list',
-    loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent)
+    loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'dictionaries-edit/:itemName',
-    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
+    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'dictionaries-edit/:itemName/:id',
-    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent)
+    loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'threshold',
-    loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent)
+    loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'threshold-add/:type', // e.g., internal or external
     loadComponent: () =>
-      import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
+      import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'threshold-add/:type/:id', // for editing
     loadComponent: () =>
-      import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent)
+      import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'temp',
-    loadComponent: () => import('./add-new-role/add-new-role.component').then(m => m.AddNewRoleComponent)
+    loadComponent: () => import('./add-new-role/add-new-role.component').then(m => m.AddNewRoleComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'temp1',

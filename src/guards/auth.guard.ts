@@ -22,8 +22,4 @@ export class AuthGuard {
     this.router.navigate(['/login']);
     return false;
   }
-
-  getUserRoles(): UserRoleAccess[] {
-    return this.userRoles;
-  }
 }
