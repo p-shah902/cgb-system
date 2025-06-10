@@ -135,7 +135,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () => import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
+    loadComponent: () => import('./inboxoutbox/inboxoutbox.component').then(m => m.InboxoutboxComponent),
     canActivate: [AuthGuard]
   },
   {
