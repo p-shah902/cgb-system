@@ -122,7 +122,7 @@ export class VendorDetailComponent implements OnInit {
   }
 
   onFileSelected(event: any): void {
-    const file = event.target.files[0];
+    const file: File = event.target.files[0];
 
     if (!file) {
       this.selectedFile = null;
@@ -130,22 +130,38 @@ export class VendorDetailComponent implements OnInit {
       return;
     }
 
+    const allowedTypes = [
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'        // XLSX
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      this.selectedFile = null;
+      this.fileError = 'Invalid file type. Only PDF, DOCX, and XLSX are allowed.';
+      if(this.fileError) {
+        this.toastService.show(this.fileError , 'danger');
+      }
+      return;
+    }
+
     if (file.size > 10 * 1024 * 1024) {
       this.selectedFile = null;
       this.fileError = 'File size must not exceed 10MB.';
+      if(this.fileError) {
+        this.toastService.show(this.fileError , 'danger');
+      }
       return;
     }
 
     this.selectedFile = file;
     this.fileError = null;
 
-    let reader = new FileReader();
-
+    const reader = new FileReader();
     reader.onload = (e: any) => {
       this.previewFile = e.target.result;
     };
     reader.readAsDataURL(file);
-
   }
 
   private mapFormValues(): VendorDetail {
@@ -170,20 +186,17 @@ export class VendorDetailComponent implements OnInit {
     this.vendorService.upsertVendorDetail(vendorData, this.selectedFile).subscribe({
       next: (response) => {
         if (response && response.status) {
-          if(this.editMode&&this.vendorDetail)
-            {
-              this.toastService.show('Vendor Updated Successfully','success');
-            }
-            else{
-              this.toastService.show('Vendor Addded Successfully','success');
-            }
-            this.router.navigate(['/vendors']);
-
+          if (this.editMode && this.vendorDetail) {
+            this.toastService.show('Vendor Updated Successfully', 'success');
+          } else {
+            this.toastService.show('Vendor Addded Successfully', 'success');
           }
-          else{
-            this.toastService.show('Something Went Wrong','warning');
-          }
-        },
+          this.router.navigate(['/vendors']);
+          this.resetToDefault();
+        } else {
+          this.toastService.show(response?.message || 'Something Went Wrong', 'warning');
+        }
+      },
       error: (error) => {
         this.isSubmitting = false;
         console.log('Error', error);
@@ -192,8 +205,6 @@ export class VendorDetailComponent implements OnInit {
         this.isSubmitting = false;
       }
     });
-
-    this.resetToDefault();
   }
 
   loadCountry() {
