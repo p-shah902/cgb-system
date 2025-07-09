@@ -144,7 +144,7 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
       FormatPainter,
       MergeFields,
       MultiLevelList,
-      Pagination,
+      // Pagination,
       PasteFromOfficeEnhanced,
       SlashCommand,
       TableOfContents,
@@ -216,7 +216,7 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
         MergeFields,
         MultiLevelList,
         PageBreak,
-        Pagination,
+        // Pagination,
         Paragraph,
         PasteFromOffice,
         PasteFromOfficeEnhanced,
@@ -337,16 +337,16 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
       mergeFields: {
         /* Read more: https://ckeditor.com/docs/ckeditor5/latest/features/merge-fields.html#configuration */
       },
-      pagination: {
-        pageWidth: '21cm',
-        pageHeight: '29.7cm',
-        pageMargins: {
-          top: '20mm',
-          bottom: '20mm',
-          right: '12mm',
-          left: '12mm'
-        }
-      },
+      // pagination: {
+      //   pageWidth: '21cm',
+      //   pageHeight: '29.7cm',
+      //   pageMargins: {
+      //     top: '20mm',
+      //     bottom: '20mm',
+      //     right: '12mm',
+      //     left: '12mm'
+      //   }
+      // },
       placeholder: 'Type or paste your content here!',
       table: {
         contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']

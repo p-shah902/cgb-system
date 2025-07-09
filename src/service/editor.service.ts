@@ -18,7 +18,7 @@ export class EditorService {
     return this.http.get(getCkEditorToken).pipe(
       tap((response: any) => {
         if (response.status && response.data) {
-          this.isTokenSubject.next(response.data);
+          this.isTokenSubject.next(response.data.result);
         }
       }),
       catchError(error => {
