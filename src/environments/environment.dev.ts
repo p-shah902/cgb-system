@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://cgbpaper-001-site1.ntempurl.com',
+  apiUrl: 'https://www.mamotech.dev',
   ckEditorLicenceKey: "eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODI4NjM5OTksImp0aSI6ImI5MmM3Y2U4LTk0MTMtNDgyYS04NDdhLWI1NjI2Nzg3OTIwYiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiXSwid2hpdGVMYWJlbCI6dHJ1ZSwiZmVhdHVyZXMiOlsiRFJVUCIsIkRPIiwiRlAiLCJTQyIsIlRPQyIsIlRQTCIsIlBPRSIsIkNDIiwiTUYiLCJFMlAiLCJFMlciLCJNTEwiLCJTRUUiLCJFQ0giLCJFSVMiLCJDTVQiLCJUQyIsIlJIIiwiUkUiLCJSQ01UIiwiUlRDIiwiUlJIIiwiSVciXSwidmMiOiJhZDQyODVjZiJ9.iXbbC2b94ldvaoodjUZ_QJ6fINFaTCFMVzEJ7vQT7kHpY8UECwRfSJthdOnbpdiyNCl86UpS5oXa7QDbc0oFlA",
   ckeditorTokenUrl: 'https://mht07l4mn0rt.cke-cs.com/token/dev/b7af7a4f1e6a05ee7fa1ca8e93ae9f036789618c6d01f87ee091dfdaa6ec?limit=10',
   ckeditorSocketUrl: 'wss://uiyqcs0dt_0p.cke-cs.com/ws'
