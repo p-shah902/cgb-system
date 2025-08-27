@@ -4,7 +4,7 @@ import {PaperConfig} from '../../models/paper';
 import {HttpClient} from '@angular/common/http';
 import {ApiResponse} from '../../models/role';
 import {PaperFilter} from '../../models/general';
-import {approveRejectPaper, getArchievedPaperListUri, getPaperConfigurationsList, multipleStatuUpdate} from '../../utils/api/api';
+import {approveRejectPaper, getArchivedPaperListUri, getPaperConfigurationsList, multipleStatuUpdate} from '../../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class PaperConfigService {
   }
 
   getArchivePaperList(): Observable<ApiResponse<PaperConfig[]>> {
-    return this.http.get<ApiResponse<PaperConfig[]>>(getArchievedPaperListUri).pipe(
+    return this.http.get<ApiResponse<PaperConfig[]>>(getArchivedPaperListUri).pipe(
       tap(response => {
         if (response.status && response.data) {
           this.paperConfigListSubject.next(response.data);

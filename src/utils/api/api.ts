@@ -1,49 +1,101 @@
 import {environment} from '../../environments/environment';
 
 export const baseUri = environment.apiUrl;
-export const loginUri = baseUri + '/api/Account';
-export const getUserRolesUri = baseUri + '/api/RoleManagement/GetUserRolesList';
-export const getUserParticularsListUri = baseUri + '/api/RoleManagement/GetUserParticularsList';
-export const getAllRoleAccessListUri = baseUri + '/api/RoleManagement/GetAllRoleAccessList';
-// export const UpsertUserRolesUri = baseUri + '/api/RoleManagement/ChangeUserRolewithAccess';
-export const UpsertUserRolesUri = baseUri + '/api/RoleManagement/UpdateRoleAccess';
-export const CreateUserRolesUri = baseUri + '/api/RoleManagement/CreateRoleswithAccess';
-export const CreateThresholdUri = baseUri + '/api/Threshold/AddThreshold';
-export const updateThresholdUri = baseUri + '/api/Threshold/UpdateThreshold';
-export const getThresholdByIdUri = baseUri + '/api/Threshold/GetThresholdByID';
-export const deleteThresholdByIdUri = baseUri + '/api/Threshold/DeleteThreshold';
-export const GetThresholdList = baseUri + '/api/Threshold/GetThresholdList';
-export const getUserListUri = baseUri + '/api/UserMaster/GetUsersList';
-export const getVendorListUri = baseUri + '/api/VendorMaster/GetVendorsList';
-export const upsertVendorsUri = baseUri + '/api/VendorMaster/UpsertVendors';
-export const upsertUserUri = baseUri + '/api/UserMaster/UpsertUser';
-export const getDepartmentListUri = baseUri + '/api/GeneralMethod/GetDepartmentList';
-export const getDictionaryItemsListUri = baseUri + '/api/GeneralMethod/GetDictionaryItemsList';
-export const getDictionaryListByItemNameUri = baseUri + '/api/GeneralMethod/GetDictionaryListByItemName';
-export const upsertDictionariesUri = baseUri + '/api/GeneralMethod/UpsertDictionaries';
-export const getCountryListUri = baseUri + '/api/GeneralMethod/GetCountryList';
-export const getPaperConfigurationsList = baseUri + '/api/PaperConfiguration/GetPaperConfigurationsList';
-export const uploadDoc = baseUri + '/api/PaperConfiguration/UploadDoc';
-export const deleteDocUri = baseUri + '/api/PaperConfiguration/DeleteDoc';
-export const getDocItemsListByPaperIdUri = baseUri + '/api/PaperConfiguration/GetDocItemsListByPaperId';
-export const UpsertApproachToMarkets = baseUri + '/api/PaperConfiguration/UpsertApproachToMarkets';
-export const upsertContractAward = baseUri + '/api/PaperConfiguration/UpsertContractAward';
-export const upsertVariationPaper = baseUri + '/api/PaperConfiguration/UpsertVariationPaper';
-export const UpsertApprovalOfSales = baseUri + '/api/PaperConfiguration/UpsertApprovalOfSales';
-export const upsertInfoNoteUri = baseUri + '/api/PaperConfiguration/UpsertInfoNote';
-export const getVendorDetailsByIdUri = baseUri + '/api/VendorMaster/GetVendorDetailsById';
-export const getUserDetailsByIdUri = baseUri + '/api/UserMaster/GetUserDetailsById';
-export const getPaperDetails = baseUri + '/api/PaperConfiguration/GetPaperDetailsById';
-export const getApprovedPapersForMappingUri = baseUri + '/api/paper/GetApprovedPapersforMapping';
-export const getPaperStatus = baseUri + '/api/PaperConfiguration/GetPaperStausList';
-export const approveRejectPaper = baseUri + '/api/PaperConfiguration/ChangePaperApprovalStatus';
-export const addPaperVisitorLogs = baseUri + '/api/GeneralMethod/VisitorLogs';
-export const getPaperVisitorLogs = baseUri + '/api/GeneralMethod/GetVisitorLogsById';
-export const multipleStatuUpdate = baseUri + '/api/Approval/ChangeMultiplePaperStatuses';
-export const getPaperPreviewById = baseUri + '/api/PaperConfiguration/GetPaperPreviewById';
-export const initiateCgbCycle = baseUri + '/api/Voting/InitiateCGBVotingCycle';
-export const getCkEditorToken = baseUri + '/api/UserMaster/GetCKEditorToken';
-export const getCurrentCgbCycle = baseUri + '/api/Voting/GetCGBVotingCycleData';
-export const updatePaperVote = baseUri + '/api/Voting/UpdateVote';
-export const getPaperInboxOutBox = baseUri + '/api/Paper/GetPaperInOutbox';
-export const getArchievedPaperListUri=baseUri+'/api/Paper/GetArchievedPaperList';
+// ACCOUNTS API
+export const loginUri = baseUri + '/Account/Login';
+export const verifyTotp = baseUri + '/Account/verify-TOTP';
+export const changePassword = baseUri + '/Account/ChangePassword';
+
+// APPROVAL API
+export const multipleStatuUpdate = baseUri + '/Approval/ChangeMultiplePaperStatuses';
+
+// Country API
+export const getCountryListUri = baseUri + '/Country/GetCountryList';
+export const addCountryListUri = baseUri + '/Country/UpsertCountry';
+
+// Department API
+export const getDepartmentListUri = baseUri + '/Department/GetDepartmentList';
+export const addDepartmentUri = baseUri + '/Department/UpsertDepartment';
+
+// Dictionaries API
+export const getDictionaryItemsListUri = baseUri + '/Dictionaries/GetDictionaryItemsList';
+export const getDictionaryListByItemNameUri = baseUri + '/Dictionaries/GetDictionaryListByItemName';
+export const upsertDictionariesUri = baseUri + '/Dictionaries/UpsertDictionaries';
+
+// DOC PDF
+export const generatePdf = baseUri + '/DocPDF/GeneratePdf';
+
+// Paper API
+export const getApprovedPapersForMappingUri = baseUri + '/paper/GetApprovedPapersForMapping';
+export const getPaperInboxOutBox = baseUri + '/Paper/GetPaperInOutbox';
+export const getArchivedPaperListUri=baseUri+'/Paper/GetArchivedPaperList';
+
+// PaperConfiguration API
+export const UpsertApproachToMarkets = baseUri + '/PaperConfiguration/UpsertApproachToMarkets';
+export const uploadDoc = baseUri + '/PaperConfiguration/UploadDoc';
+export const deleteDocUri = baseUri + '/PaperConfiguration/DeleteDoc';
+export const getDocItemsListByPaperIdUri = baseUri + '/PaperConfiguration/GetDocItemsListByPaperId';
+export const getPapersList = baseUri + '/PaperConfiguration/GetPapersList';
+export const upsertContractAward = baseUri + '/PaperConfiguration/UpsertContractAward';
+export const upsertVariationPaper = baseUri + '/PaperConfiguration/UpsertVariationPaper';
+export const UpsertApprovalOfSales = baseUri + '/PaperConfiguration/UpsertApprovalOfSales';
+export const upsertInfoNoteUri = baseUri + '/PaperConfiguration/UpsertInfoNote';
+export const paperFilterList = baseUri + '/PaperConfiguration/PaperFilterList';
+export const getPSAJVlist = baseUri + '/PaperConfiguration/GetPSAJVlist';
+export const getPaperApprovalList = baseUri + '/PaperConfiguration/GetPaperApprovalList';
+export const getPaperStatus = baseUri + '/PaperConfiguration/GetPaperStausList';
+export const addPaperApprovalList = baseUri + '/PaperConfiguration/UpsertPaperApproval';
+export const approveRejectPaper = baseUri + '/PaperConfiguration/ChangePaperApprovalStatus';
+export const getPaperConfigurationsList = baseUri + '/PaperConfiguration/GetPaperConfigurationsList';
+export const getPaperDetails = baseUri + '/PaperConfiguration/GetPaperDetailsById';
+export const getPaperPreviewById = baseUri + '/PaperConfiguration/GetPaperPreviewById';
+export const getPaperApproachToMarketByPaperId = baseUri + '/PaperConfiguration/GetPaperApproachToMarketByPaperId';
+export const getPaperContractAwardByPaperId = baseUri + '/PaperConfiguration/GetPaperContractAwardByPaperId';
+export const getPaperVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperVariationByPaperId';
+export const getPaperApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperApprovalOfSalesByPaperId';
+export const getPaperInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperInfoNoteByPaperId';
+export const getPaperPreviewByApproachToMarketId = baseUri + '/PaperConfiguration/GetPaperPreviewByApproachToMarketId';
+export const getPaperPreviewContractAwardByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewContractAwardByPaperId';
+export const getPaperPreviewVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewVariationByPaperId';
+export const getPaperPreviewApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewApprovalOfSalesByPaperId';
+export const getPaperPreviewInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewInfoNoteByPaperId';
+
+// Role Management
+export const getUserRolesUri = baseUri + '/RoleManagement/GetUserRolesList';
+export const getUserParticularsListUri = baseUri + '/RoleManagement/GetUserParticularsList';
+export const getUserRoleAccessById = baseUri + '/RoleManagement/GetRoleAccessByUserId';
+export const getAllRoleAccessListUri = baseUri + '/RoleManagement/GetAllRoleAccessList';
+export const addUserRoles = baseUri + '/RoleManagement/UpsertUserRoles';
+export const CreateUserRolesUri = baseUri + '/RoleManagement/CreateRolesWithAccess';
+export const UpsertUserRolesUri = baseUri + '/RoleManagement/UpdateRoleAccess';
+
+// Threshold
+export const GetThresholdList = baseUri + '/Threshold/GetThresholdList';
+export const getThresholdByIdUri = baseUri + '/Threshold/GetThresholdById';
+export const CreateThresholdUri = baseUri + '/Threshold/AddThreshold';
+export const updateThresholdUri = baseUri + '/Threshold/UpdateThreshold';
+export const deleteThresholdByIdUri = baseUri + '/Threshold/DeleteThreshold';
+
+// UserMaster
+export const getUserListUri = baseUri + '/UserMaster/GetUsersList';
+export const getUserDetailsByIdUri = baseUri + '/UserMaster/GetUserDetailsById';
+export const getUserListByRoleId = baseUri + '/UserMaster/GetUserListByRoleId';
+export const upsertUserUri = baseUri + '/UserMaster/UpsertUser';
+export const getCkEditorToken = baseUri + '/UserMaster/GetCKEditorToken';
+export const getAllUserPassChange = baseUri + '/UserMaster/AllUserPassChange';
+
+//Vendor Master
+export const getVendorListUri = baseUri + '/VendorMaster/GetVendorsList';
+export const getVendorDetailsByIdUri = baseUri + '/VendorMaster/GetVendorDetailsById';
+export const upsertVendorsUri = baseUri + '/VendorMaster/UpsertVendors';
+
+// Visitor Log
+export const addPaperVisitorLogs = baseUri + '/VisitorLogs/VisitorLogs';
+export const getPaperVisitorLogs = baseUri + '/VisitorLogs/GetVisitorLogById';
+
+// Voting
+export const getCGBVotingCountByPaper = baseUri + '/Voting/GetCGBVotingCountByPaper';
+export const getCGBVotingDataByPaper = baseUri + '/Voting/GetCGBVotingDataByPaper';
+export const getCurrentCgbCycle = baseUri + '/Voting/GetCGBVotingCycleData';
+export const updatePaperVote = baseUri + '/Voting/UpdateVote';
+export const initiateCgbCycle = baseUri + '/Voting/InitiateCGBVotingCycle';

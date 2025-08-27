@@ -53,8 +53,8 @@ export class InboxoutboxComponent implements OnInit {
     this.inboxOutboxService.getPaperInboxOutbox().subscribe({
       next: response => {
         if (response.status && response.data) {
-          this.inboxData = response.data.inBox;
-          this.outboxData = response.data.outBox;
+          this.inboxData = response.data.inbox;
+          this.outboxData = response.data.outbox;
         }
       },
       error: err => {
