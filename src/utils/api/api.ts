@@ -91,7 +91,7 @@ export const upsertVendorsUri = baseUri + '/VendorMaster/UpsertVendors';
 
 // Visitor Log
 export const addPaperVisitorLogs = baseUri + '/VisitorLog/VisitorLogs';
-export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisitorLogById';
+export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisiterLogById';
 
 // Voting
 export const getCGBVotingCountByPaper = baseUri + '/Voting/GetCGBVotingCountByPaper';
