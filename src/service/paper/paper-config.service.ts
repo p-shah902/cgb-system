@@ -28,7 +28,9 @@ export class PaperConfigService {
   }
 
   getArchivePaperList(): Observable<ApiResponse<PaperConfig[]>> {
-    return this.http.get<ApiResponse<PaperConfig[]>>(getArchivedPaperListUri).pipe(
+    return this.http.post<ApiResponse<PaperConfig[]>>(getArchivedPaperListUri, {
+      orderType: "DESC",
+    }).pipe(
       tap(response => {
         if (response.status && response.data) {
           this.paperConfigListSubject.next(response.data);
