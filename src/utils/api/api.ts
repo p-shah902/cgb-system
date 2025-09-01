@@ -90,8 +90,8 @@ export const getVendorDetailsByIdUri = baseUri + '/VendorMaster/GetVendorDetails
 export const upsertVendorsUri = baseUri + '/VendorMaster/UpsertVendors';
 
 // Visitor Log
-export const addPaperVisitorLogs = baseUri + '/VisitorLogs/VisitorLogs';
-export const getPaperVisitorLogs = baseUri + '/VisitorLogs/GetVisitorLogById';
+export const addPaperVisitorLogs = baseUri + '/VisitorLog/VisitorLogs';
+export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisitorLogById';
 
 // Voting
 export const getCGBVotingCountByPaper = baseUri + '/Voting/GetCGBVotingCountByPaper';
