@@ -289,7 +289,7 @@ export class Template5Component  implements AfterViewInit{
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'info').subscribe((value) => {
       this.paperDetails = value.data as any;
       const paperDetailData = value.data?.paperDetails || null
       const generatlInfoData = this.paperDetails?.paperDetails || null

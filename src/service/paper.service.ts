@@ -2,10 +2,14 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {
-  addPaperVisitorLogs, getApprovedPapersForMappingUri,
-  getPaperDetails,
-  getPaperPreviewById,
-  getPaperStatus,
+  addPaperVisitorLogs, getApprovedPapersForMappingUri, getPaperApproachToMarketByPaperId,
+  getPaperApprovalOfSalesByPaperId,
+  getPaperContractAwardByPaperId,
+  getPaperDetails, getPaperInfoNoteByPaperId,
+  getPaperPreviewApprovalOfSalesByPaperId, getPaperPreviewByApproachToMarketId,
+  getPaperPreviewById, getPaperPreviewContractAwardByPaperId,
+  getPaperPreviewInfoNoteByPaperId, getPaperPreviewVariationByPaperId,
+  getPaperStatus, getPaperVariationByPaperId,
   getPaperVisitorLogs,
   UpsertApproachToMarkets, UpsertApprovalOfSales, upsertContractAward, upsertInfoNoteUri, upsertVariationPaper
 } from '../utils/api/api';
@@ -120,12 +124,44 @@ export class PaperService {
   }
 
 
-  getPaperDetailsWithPreview(paperId: number): Observable<ApiResponse<PaperData>> {
-    return this.http.get<ApiResponse<PaperData>>(getPaperPreviewById + '/' + paperId);
+  getPaperDetailsWithPreview(paperId: number, type: string): Observable<ApiResponse<PaperData>> {
+    let url = getPaperPreviewById;
+    if (type === 'approch') {
+      url = getPaperPreviewByApproachToMarketId;
+    }
+    else if (type === 'contract') {
+      url = getPaperPreviewContractAwardByPaperId;
+    }
+    else if (type === 'variation') {
+      url = getPaperPreviewVariationByPaperId
+    }
+    else if (type === 'sale') {
+      url = getPaperPreviewApprovalOfSalesByPaperId
+    }
+    else if (type === 'info') {
+      url = getPaperPreviewInfoNoteByPaperId
+    }
+    return this.http.get<ApiResponse<PaperData>>(url + '/' + paperId);
   }
 
-  getPaperDetails(paperId: number): Observable<ApiResponse<Paper>> {
-    return this.http.get<ApiResponse<Paper>>(getPaperDetails + '/' + paperId);
+  getPaperDetails(paperId: number, type: string): Observable<ApiResponse<Paper>> {
+    let url = getPaperDetails;
+    if (type === 'approch') {
+      url = getPaperApproachToMarketByPaperId;
+    }
+    else if (type === 'contract') {
+      url = getPaperContractAwardByPaperId;
+    }
+    else if (type === 'variation') {
+      url = getPaperVariationByPaperId;
+    }
+    else if (type === 'sale') {
+      url = getPaperApprovalOfSalesByPaperId;
+    }
+    else if (type === 'info') {
+      url = getPaperInfoNoteByPaperId;
+    }
+    return this.http.get<ApiResponse<Paper>>(url + '/' + paperId);
   }
 
   getApprovedPapersForMapping(): Observable<ApiResponse<PaperMappingType[]>> {

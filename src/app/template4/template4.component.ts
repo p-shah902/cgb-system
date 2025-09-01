@@ -272,7 +272,7 @@ export class Template4Component  implements AfterViewInit{
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'sale').subscribe((value) => {
       this.paperDetails = value.data;
       const paperDetailData = value.data?.paperDetails || null
       const jvApprovalsData = value.data?.jvApprovals[0] || null

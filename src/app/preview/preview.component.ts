@@ -159,7 +159,7 @@ export class PreviewComponent implements OnInit {
 
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetailsWithPreview(paperId).subscribe(value => {
+    this.paperService.getPaperDetailsWithPreview(paperId, 'approch').subscribe(value => {
       this.paperDetails = value.data;
       console.log('Paper Detail', this.paperDetails);
 

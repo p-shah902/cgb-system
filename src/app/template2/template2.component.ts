@@ -382,7 +382,7 @@ export class Template2Component implements AfterViewInit {
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
       this.paperDetails = value.data as any;
       const contractAwardDetails = this.paperDetails?.contractAwardDetails || null
       const bidInvitesData = value.data?.bidInvites || []
@@ -1676,7 +1676,7 @@ export class Template2Component implements AfterViewInit {
   }
 
   fetchATMPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
       const atmPaperDetails = value.data as any;
       this.atmPaperContactValueUSD = atmPaperDetails?.paperDetails?.totalAwardValueUSD || 0
       this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.setValue(atmPaperDetails?.paperDetails?.totalAwardValueUSD || 0,{ emitEvent: true });

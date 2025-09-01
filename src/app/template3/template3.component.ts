@@ -471,7 +471,7 @@ getGroupForm(key: string): FormGroup {
   }
 
   fetchCAPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'variation').subscribe((value) => {
       const atmPaperDetails = value.data as any;
       this.generalInfoForm.get('contractValues.originalContractValue')?.setValue(atmPaperDetails?.contractAwardDetails?.totalAwardValueUSD || 0,{ emitEvent: true });
     })}
@@ -758,7 +758,7 @@ getGroupForm(key: string): FormGroup {
 
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId).subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'variation').subscribe((value) => {
       this.paperDetails = value.data as any;
       console.log("==this.paperDetails", this.paperDetails)
       const generatlInfoData = this.paperDetails?.paperDetails || null
