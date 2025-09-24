@@ -1,0 +1,193 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type + ' text-white'" [autohide]="true"
+             [delay]="5000" (hidden)="toastService.remove(toast)">
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-card-div">
+        <div class="filter-head d-flex gap-3 mb-4">
+          <div class="fh-search">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                    fill="#84818A"/>
+            </svg>
+            <input class="form-control" placeholder="Search Field"/>
+          </div>
+
+          <div class="filter-btn-div">
+            <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="togalOrder()">
+              <svg width="9" height="24" viewBox="0 0 9 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M0.450271 8.45H8.5505C8.63251 8.4497 8.7129 8.42386 8.78301 8.37524C8.85312 8.32662 8.91031 8.25707 8.9484 8.17408C8.9865 8.09108 9.00406 7.99779 8.99921 7.90423C8.99436 7.81068 8.96727 7.72041 8.92086 7.64314L4.87075 0.957886C4.70289 0.680705 4.29878 0.680705 4.13048 0.957886L0.0803605 7.64314C0.0334803 7.72025 0.00598872 7.81056 0.000872541 7.90427C-0.00424364 7.99798 0.0132113 8.0915 0.0513409 8.17467C0.0894705 8.25784 0.146816 8.32748 0.217148 8.37602C0.28748 8.42456 0.368108 8.45015 0.450271 8.45Z"
+                  fill="#898989"/>
+                <path
+                  d="M0.450271 14.45H8.5505C8.63251 14.4503 8.7129 14.4799 8.78301 14.5354C8.85312 14.591 8.91031 14.6705 8.9484 14.7653C8.9865 14.8602 9.00406 14.9668 8.99921 15.0737C8.99436 15.1807 8.96727 15.2838 8.92086 15.3721L4.87075 23.0124C4.70289 23.3292 4.29878 23.3292 4.13048 23.0124L0.0803605 15.3721C0.0334803 15.284 0.00598872 15.1808 0.000872541 15.0737C-0.00424364 14.9666 0.0132113 14.8597 0.0513409 14.7647C0.0894705 14.6696 0.146816 14.59 0.217148 14.5345C0.28748 14.4791 0.368108 14.4498 0.450271 14.45Z"
+                  fill="#898989"/>
+              </svg>
+              {{ aToZ }}
+            </button>
+          </div>
+
+          <div class="filter-btn-div ms-auto d-flex gap-2">
+            <button class="btn create-btn" (click)="open($event, content)">
+              Create Paper
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading; else contentPart" class="table-loader">
+          <div class="spinner"></div>
+          <p>Loading data, please wait...</p>
+        </div>
+        <ng-template #contentPart>
+          <div class="page-card-body">
+            <div class="table-responsive">
+              <div class="approach-table custom-table tbl-div pb-5">
+                <table class="table table-wrapper">
+                  <thead>
+                  <tr class="sticky">
+                    <th width="5%">
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input type="checkbox"/>
+                          <label><span class="opacity-0">-</span></label>
+                        </div>
+                      </div>
+                    </th>
+                    <th>Title</th>
+                    <th>Paper Type</th>
+                    <th>Contract Value</th>
+                    <th>Status</th>
+                    <th>Last Modify</th>
+                    <th>Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let paper of paperList; let i = index">
+                    <td>
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input type="checkbox"/>
+                          <label><span class="opacity-0">-</span></label>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="paper-name">
+                        <div class="paper-detail">
+                          <p class="cursor-pointer" (click)="goToPreview(paper)">
+                            {{ paper.description }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="paper-name">
+                        <div class="paper-detail">
+                          <p>
+                            {{ paper.paperType }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="paper-name">
+                        <div class="paper-detail">
+                          <p>
+                            {{ paper.totalContractValue > 0 ? paper.totalContractValue : '-' }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="paper-status">
+                        <label [ngClass]="getStatusClass(paper.statusName)">
+                          {{ paper.statusName }}
+                        </label>
+                      </div>
+                    </td>
+                    <td class="text-nowrap">
+                      {{ paper.lastModifyDate | date : "dd-MMMM-yyyy" }}
+                    </td>
+                    <td>
+                      <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
+                        <button type="button" class="btn" id="dropdownBasic1" ngbDropdownToggle>
+                          <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
+                               xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                  d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z"
+                                  fill="#898989"/>
+                          </svg>
+                        </button>
+                        <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                          <a class="links" ngbDropdownItem (click)="goToApproachToMarket(paper)">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M10.9174 1.5127L9.59395 2.83613L13.1486 6.39082L14.4721 5.06738C15.1557 4.38379 15.1557 3.27637 14.4721 2.59277L13.3947 1.5127C12.7111 0.829102 11.6037 0.829102 10.9201 1.5127H10.9174ZM8.97598 3.4541L2.60215 9.83066C2.31778 10.115 2.10997 10.4678 1.99512 10.8533L1.02715 14.1428C0.958795 14.3752 1.02169 14.624 1.19122 14.7936C1.36075 14.9631 1.60958 15.026 1.83926 14.9604L5.12872 13.9924C5.51426 13.8775 5.867 13.6697 6.15137 13.3854L12.5307 7.00879L8.97598 3.4541Z"
+                                stroke="#626262" stroke-width="1.2"/>
+                            </svg>
+
+                            Edit
+                          </a>
+                          <a class="links" ngbDropdownItem (click)="goToPreview(paper)">
+                            <svg width="16" height="14" viewBox="0 0 16 14" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                              <g clip-path="url(#clip0_202_1532)">
+                                <path
+                                  d="M7.87505 0.875C5.66567 0.875 3.89653 1.88125 2.60864 3.07891C1.32896 4.26562 0.473096 5.6875 0.0684082 6.66367C-0.0218262 6.87969 -0.0218262 7.12031 0.0684082 7.33633C0.473096 8.3125 1.32896 9.73438 2.60864 10.9211C3.89653 12.1187 5.66567 13.125 7.87505 13.125C10.0844 13.125 11.8536 12.1187 13.1415 10.9211C14.4211 9.73164 15.277 8.3125 15.6844 7.33633C15.7747 7.12031 15.7747 6.87969 15.6844 6.66367C15.277 5.6875 14.4211 4.26562 13.1415 3.07891C11.8536 1.88125 10.0844 0.875 7.87505 0.875ZM3.93755 7C3.93755 5.95571 4.35239 4.95419 5.09082 4.21577C5.82924 3.47734 6.83076 3.0625 7.87505 3.0625C8.91934 3.0625 9.92086 3.47734 10.6593 4.21577C11.3977 4.95419 11.8125 5.95571 11.8125 7C11.8125 8.04429 11.3977 9.04581 10.6593 9.78423C9.92086 10.5227 8.91934 10.9375 7.87505 10.9375C6.83076 10.9375 5.82924 10.5227 5.09082 9.78423C4.35239 9.04581 3.93755 8.04429 3.93755 7ZM7.87505 5.25C7.87505 6.21523 7.09028 7 6.12505 7C5.93091 7 5.74497 6.96719 5.56997 6.90977C5.41958 6.86055 5.24458 6.95352 5.25005 7.11211C5.25825 7.30078 5.2856 7.48945 5.33755 7.67812C5.71216 9.07812 7.15317 9.90938 8.55317 9.53477C9.95317 9.16016 10.7844 7.71914 10.4098 6.31914C10.1063 5.18438 9.10278 4.42148 7.98716 4.375C7.82856 4.36953 7.7356 4.5418 7.78481 4.69492C7.84224 4.86992 7.87505 5.05586 7.87505 5.25Z"
+                                  fill="#787878"/>
+                              </g>
+                              <defs>
+                                <clipPath id="clip0_202_1532">
+                                  <rect width="15.75" height="14" fill="white"/>
+                                </clipPath>
+                              </defs>
+                            </svg>
+
+                            View
+                          </a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Create Batch Paper</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Name</label>
+      <input class="form-control" type="text" placeholder="Write here" [(ngModel)]="form.name" />
+    </div>
+    <div class="mb-3">
+      <ng-select2 [data]="creatPaperList" [multiple]="true" [value]="form.papers" (update)="update($event, 'papers')" placeholder="Select Papers"/>
+    </div>
+    <div class="mb-3">
+      <ng-select2 [data]="userDetails" [value]="form.pdm" (update)="update($event, 'pdm')" placeholder="Select PDM"/>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="addBatchPaper(modal)">
+      Save
+    </button>
+  </div>
+</ng-template>

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../guards/auth.guard';
 import {NoAuthGuard} from '../guards/no-auth.guard';
+import {BatchPaperListComponent} from './batch-paper-list/batch-paper-list.component';
 
 export const routes: Routes = [
   {
@@ -106,6 +107,11 @@ export const routes: Routes = [
   {
     path: 'all-papers',
     loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'batch-papers',
+    loadComponent: () => import('./batch-paper-list/batch-paper-list.component').then(m => m.BatchPaperListComponent),
     canActivate: [AuthGuard]
   },
   {

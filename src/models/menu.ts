@@ -88,6 +88,10 @@ export const menuItems: Menu[] = [
           {
             path: '/info-note',
             title: 'Info Note'
+          },
+          {
+            path: '/batch-papers',
+            title: 'Batch Paper'
           }
         ],
       },
