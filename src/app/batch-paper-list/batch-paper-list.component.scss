@@ -149,6 +149,16 @@
   }
 }
 
+.create-btn-paper {
+  .spinner {
+    width: 25px;
+    height: 25px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1B202B;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
 
 .table-loader {
   display: flex;

@@ -48,6 +48,7 @@ import { cleanObject } from '../../utils';
 import {ToggleService} from '../shared/services/toggle.service';
 import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
+import {BatchService} from '../../service/batch.service';
 
 @Component({
   selector: 'app-template1',
@@ -119,9 +120,11 @@ export class Template1Component implements AfterViewInit  {
     section6: false,
     section7: false,
   };
+  batchPaperList: any[] = [];
 
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+              private batchPaperService: BatchService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -181,6 +184,7 @@ export class Template1Component implements AfterViewInit  {
     this.loadDictionaryItems();
     this.loadPaperStatusListData();
     this.loadThresholdData()
+    this.loadBatchPapersList();
 
     let camId = null
 
@@ -301,7 +305,11 @@ export class Template1Component implements AfterViewInit  {
     this.addBidRow();
     // Subscribe to changes in originalCurrency or contractValueUsd
     this.generalInfoForm.get('generalInfo.originalCurrency')?.valueChanges.subscribe(() => {
-      this.updateExchangeRate();
+      // this.updateExchangeRate();
+    });
+    // Subscribe to changes in originalCurrency or contractValueUsd
+    this.generalInfoForm.get('generalInfo.exchangeRate')?.valueChanges.subscribe(() => {
+      this.updateContractValueOriginalCurrency();
     });
 
     this.generalInfoForm.get('generalInfo.contractValueUsd')?.valueChanges.subscribe(() => {
@@ -340,6 +348,21 @@ export class Template1Component implements AfterViewInit  {
         this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue([this.loggedInUser?.id || null]);
       }, 1000)
     }
+  }
+
+  loadBatchPapersList() {
+    this.batchPaperService.getBatchPapersList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.batchPaperList = response.data;
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+      complete: () => {
+      },
+    });
   }
 
   ngAfterViewInit() {
@@ -907,13 +930,24 @@ export class Template1Component implements AfterViewInit  {
 
         if (isChecked) {
           percentageControl?.enable();
-          percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, { emitEvent: false });
-          valueControl?.setValue(patchValues.costAllocation[value] || 0, { emitEvent: false });
+          // percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, { emitEvent: false });
+          // valueControl?.setValue(patchValues.costAllocation[value] || 0, { emitEvent: false });
+          console.log('FF', checkbox);
 
           if (checkbox === "isACG") {
+            let checkedCMCBox = jvApprovalsData?.coVenturers_CMC || false;
+            console.log('FF', checkbox, checkedCMCBox);
+            let sourcingType = this.generalInfoForm.get('generalInfo.sourcingType')?.value;
+            console.log('FF', checkbox, checkedCMCBox, sourcingType);
+            let selectedThreashold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType === f.sourcingType);
+            console.log('FF', checkbox, checkedCMCBox, sourcingType, selectedThreashold);
+            if (selectedThreashold && valueControl?.value > selectedThreashold.contractValueLimit) {
+              checkedCMCBox = true;
+            }
+            console.log('FF', checkedCMCBox);
             ACG1?.enable();
             ACG2?.enable();
-            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, { emitEvent: false });
+            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(checkedCMCBox, { emitEvent: false });
             this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, { emitEvent: false });
 
           } else if (checkbox === "isShah") {
@@ -939,16 +973,16 @@ export class Template1Component implements AfterViewInit  {
           }
 
         } else {
-          percentageControl?.reset();
-          percentageControl?.disable();
-          valueControl?.reset();
+          // percentageControl?.reset();
+          // percentageControl?.disable();
+          // valueControl?.reset();
 
           if (checkbox === "isACG") {
-            ACG1?.disable();
-            ACG1?.reset();
-            ACG2?.disable();
-            ACG2?.reset();
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, { emitEvent: false });
+            // ACG1?.disable();
+            // ACG1?.reset();
+            // ACG2?.disable();
+            // ACG2?.reset();
+            // this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, { emitEvent: false });
           } else if (checkbox === "isShah") {
             SD1?.disable();
             SD1?.reset();

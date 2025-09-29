@@ -9,6 +9,11 @@ export const changePassword = baseUri + '/Account/ChangePassword';
 // APPROVAL API
 export const multipleStatuUpdate = baseUri + '/Approval/ChangeMultiplePaperStatuses';
 
+// BATCH API
+export const createBatchPaper = baseUri + '/BatchPapers/CreateBatchPaper';
+export const updateBatchPaper = baseUri + '/BatchPapers/UpdateBatchPaper';
+export const getBatchPaperList = baseUri + '/BatchPapers/GetBatchPaperList';
+
 // Country API
 export const getCountryListUri = baseUri + '/Country/GetCountryList';
 export const addCountryListUri = baseUri + '/Country/UpsertCountry';
@@ -27,7 +32,7 @@ export const generatePdf = baseUri + '/DocPDF/GeneratePdf';
 
 // Paper API
 export const getApprovedPapersForMappingUri = baseUri + '/paper/GetApprovedPapersForMapping';
-export const getPaperInboxOutBox = baseUri + '/Paper/GetPaperInOutbox';
+export const getPaperInboxOutBox = baseUri + '/Paper/GetPaperInboxOutbox';
 export const getArchivedPaperListUri=baseUri+'/Paper/GetArchivedPaperList';
 
 // PaperConfiguration API

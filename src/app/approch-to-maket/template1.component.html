@@ -191,22 +191,6 @@
                     </div>
                     <div class="col-sm-6 col-md-4">
                       <div class="form-group mb-3">
-                        <label>BLT Member* </label>
-                        <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
-                          <option [value]="null">Select</option>
-                          <ng-container *ngFor="let user of userDetails">
-                            <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
-                              {{ user.displayName }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
-                          <small class="text-danger">Please select value.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
                         <label>Operating Function* </label>
                         <select id="operatingFunction" class="form-control allow-comments"
                                 formControlName="operatingFunction">
@@ -239,8 +223,7 @@
                         </div>
                       </div>
                     </div>
-
-                    <div class="col-sm-6 col-md-6">
+                    <div class="col-sm-6 col-md-4">
                       <div class="form-group mb-3">
                         <label>Contract Accountable Manager*</label>
 
@@ -258,6 +241,7 @@
                         </div>
                       </div>
                     </div>
+
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <label>Procurement SPA*</label>
@@ -269,7 +253,23 @@
                         </div>
                       </div>
                     </div>
-
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>PDM*</label>
+                        <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
+                          <option [value]="null">Select</option>
+                          <ng-container *ngFor="let user of userDetails">
+                            <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                              {{ user.displayName }}
+                            </option>
+                          </ng-container>
+                        </select>
+                        <div class="text-danger"
+                             *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
+                      </div>
+                    </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
                         <label>VP-1* </label>
@@ -286,21 +286,19 @@
                         </div>
                       </div>
                     </div>
-
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
-                        <label>PDM*</label>
-                        <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
+                        <label>BLT Member* </label>
+                        <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
                           <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
-                            <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                            <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
                               {{ user.displayName }}
                             </option>
                           </ng-container>
                         </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
+                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
+                          <small class="text-danger">Please select value.</small>
                         </div>
                       </div>
                     </div>
@@ -336,7 +334,7 @@
                       <div class="form-group mb-3">
                         <label>Exchange Rate</label>
                         <input id="exchangeRate" type="text" class="form-control allow-comments" placeholder="0.00"
-                               formControlName="exchangeRate" readonly/>
+                               formControlName="exchangeRate"/>
 <!--                        <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>-->
 
                       </div>
@@ -1065,9 +1063,14 @@
                       </tr>
 
                       <tr>
-                        <td><b>Contract Committee</b></td>
+                        <td><b>1st Committee</b></td>
                         <td>
-
+                          <div class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input formControlName="coVenturers_CMC" type="checkbox">
+                              <label>CMC</label>
+                            </div>
+                          </div>
                         </td>
                         <td>
                           <div class="form-check-list d-flex gap-3 flex-wrap">
@@ -1083,10 +1086,10 @@
                               <input formControlName="contractCommittee_SCP_Co_CC" type="checkbox">
                               <label>SCP Co CC</label>
                             </div>
-                            <div class="form-check-box position-relative">
-                              <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">
-                              <label>SCP Co CC info note</label>
-                            </div>
+<!--                            <div class="form-check-box position-relative">-->
+<!--                              <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">-->
+<!--                              <label>SCP Co CC</label>-->
+<!--                            </div>-->
                             <!--                        <div class="info-label position-relative">-->
                             <!--                          <label>info note</label>-->
                             <!--                        </div>-->
@@ -1098,10 +1101,10 @@
                               <input formControlName="contractCommittee_BTC_CC" type="checkbox">
                               <label>BTC CC</label>
                             </div>
-                            <div class="form-check-box position-relative">
-                              <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">
-                              <label>BTC CC info note</label>
-                            </div>
+<!--                            <div class="form-check-box position-relative">-->
+<!--                              <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">-->
+<!--                              <label>BTC CC</label>-->
+<!--                            </div>-->
                             <!--                        <div class="info-label position-relative">-->
                             <!--                          <label>info note</label>-->
                             <!--                        </div>-->
@@ -1116,13 +1119,12 @@
                       </tr>
 
                       <tr>
-                        <td><b>Co-
-                          Venturers</b></td>
+                        <td><b>2nd Committee</b></td>
                         <td>
                           <div class="form-check-list d-flex gap-3 flex-wrap">
                             <div class="form-check-box position-relative">
-                              <input formControlName="coVenturers_CMC" type="checkbox">
-                              <label>CMC</label>
+                              <input formControlName="steeringCommittee_SC" type="checkbox">
+                              <label>SC</label>
                             </div>
                           </div>
                         </td>
@@ -1165,12 +1167,7 @@
                         <td><b>Steering
                           Committee</b></td>
                         <td>
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input formControlName="steeringCommittee_SC" type="checkbox">
-                              <label>SCP Board</label>
-                            </div>
-                          </div>
+
                         </td>
                         <td>
 
@@ -1561,7 +1558,7 @@
               <div  *ngIf="sectionVisibility['section6']" class="form-group mb-3 allow-comments fb-form" id="consultation">
                 <div class="overflow-auto">
                   <div class="key-risks-table custom-table">
-                    <div class="form-group mb-3 text-end">
+                    <div class="form-group mb-3 text-end d-none">
                       <div class="d-inline-flex align-items-center form-check-box position-relative">
                         <input id="isNoExistingBudget" class="allow-comments mb-0 me-2" type="checkbox" name="isNoExistingBudget"
                                formControlName="isNoExistingBudget">
@@ -1578,7 +1575,7 @@
                         <th>Technically Correct</th>
                         <th>Budget Statement</th>
                         <th>JV Review</th>
-                        <th>Action</th>
+                        <th>JV Aligned</th>
                       </tr>
                       </thead>
                       <tbody formArrayName="consultation">
@@ -1625,7 +1622,7 @@
                         </td>
                         <td>
                           <div class="krt-action">
-                            <button class="btn p-0" type="button" (click)="removeConsultationRow(i)">
+                            <button class="btn p-0 d-none" type="button" (click)="removeConsultationRow(i)">
                               <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
                                    xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -1633,6 +1630,8 @@
                                   fill="#EC4747"/>
                               </svg>
                             </button>
+<!--                            <input id="jv-{{i}}" class="allow-comments mb-0 me-2" type="checkbox" name="isNoExistingBudget"-->
+<!--                                   formControlName="isNoExistingBudget">-->
                           </div>
                         </td>
                       </tr>
@@ -1642,7 +1641,7 @@
                   </div>
 
                 </div>
-                <div class="add-row-btn-div">
+                <div class="add-row-btn-div d-none">
                   <button class="btn p-0" type="button" (click)="addConsultationRow()">
                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"

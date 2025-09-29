@@ -137,7 +137,7 @@ export class PaperStatusComponent implements OnInit {
     this.paperService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.paperList = response.data.filter(d => d.statusName !== 'Draft');
+          this.paperList = response.data.filter(d => d.statusName !== 'Draft' && d.paperType !== 'Batch Paper');
           Object.keys(this.groupedPaper).forEach(key => {
             this.groupedPaper[key] = this.paperList.filter(f => f.statusName === key);
           })

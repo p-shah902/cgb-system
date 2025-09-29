@@ -30,6 +30,7 @@ import { PaperconfigurationComponent } from '../paperconfiguration/paperconfigur
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { SafeHtmlDirective } from '../../directives/safe-html.directive';
 import {UserService} from '../../service/user.service';
+import {BatchService} from '../../service/batch.service';
 
 @Component({
   selector: 'app-batch-paper-list',
@@ -59,11 +60,13 @@ export class BatchPaperListComponent implements OnInit {
     orderType: 'DESC',
   };
   paperList: PaperConfig[] = [];
+  batchPaperList: any[] = [];
   userDetails: any[] = [];
   creatPaperList: any[] = [];
   aToZ: string = 'Z A';
   user: LoginUser | null = null;
   isLoading: boolean = false;
+  isCreating: boolean = false;
   form: any = {
     papers: [],
     pdm: null,
@@ -74,6 +77,7 @@ export class BatchPaperListComponent implements OnInit {
     private authService: AuthService,
     public toastService: ToastService,
     private userService: UserService,
+    private batchPaperService: BatchService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.user = d;
@@ -83,6 +87,7 @@ export class BatchPaperListComponent implements OnInit {
   ngOnInit(): void {
     this.loadPaperConfigList();
     this.loadUserDetails();
+    this.loadBatchPapersList();
   }
 
   loadUserDetails() {
@@ -99,7 +104,6 @@ export class BatchPaperListComponent implements OnInit {
   }
 
   loadPaperConfigList() {
-    this.isLoading = true;
     this.paperConfigService.getPaperConfigList({
       orderType: 'DESC',
       statusIds: []
@@ -107,9 +111,23 @@ export class BatchPaperListComponent implements OnInit {
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter((paper: any) =>
-            !paper.statusName?.toLowerCase().includes('draft')
+            !paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
           );
           this.creatPaperList = this.paperList.map(paper => ({value: paper.paperID, label: paper.description}))
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      }
+    });
+  }
+
+  loadBatchPapersList() {
+    this.isLoading = true;
+    this.batchPaperService.getBatchPapersList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.batchPaperList = response.data;
         }
       },
       error: (error) => {
@@ -190,18 +208,43 @@ export class BatchPaperListComponent implements OnInit {
   }
 
   addBatchPaper(modal: any) {
-    console.log('D', this.form);
-    modal.close('Save click');
+    if (!this.form.name) {
+      this.toastService.show("Please enter batch paper name", "warning");
+      return;
+    }
+    if (!this.form.pdm) {
+      this.toastService.show("Please select batch paper PDM", "warning");
+      return;
+    }
+    if (this.form.papers.length <= 0) {
+      this.toastService.show("Please select papers to create batch paper", "warning");
+      return;
+    }
+    this.isCreating = true;
+    this.batchPaperService.createBatchPaper({
+      "paperId": this.form.papers,
+      "paperProvision": this.form.name,
+      "pdManagerName": this.form.pdm,
+      "purposeRequired": 'batch'
+    }).subscribe({
+      next: (response) => {
+        this.loadBatchPapersList();
+        modal.close('Save click');
+      },
+      error: (error) => {
+        let errors = error.error.errors;
+        let firstError = Object.keys(errors)[0];
+        this.toastService.show(errors[firstError][0] || "Error creating batch paper.", "danger");
+        this.isCreating = false;
+      },
+      complete: () => {
+        this.isCreating = false;
+      }
+    })
   }
 
   update(event: any, key: any) {
     this.form[key] = event.value;
-  }
-
-  goToPreview(paper: any): void {
-    const routePath = this.slugify(paper.paperType);
-
-    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
   }
 
 }

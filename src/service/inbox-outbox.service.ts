@@ -13,7 +13,9 @@ export class InboxOutboxService {
   }
 
   getPaperInboxOutbox(): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(getPaperInboxOutBox);
+    return this.http.post<ApiResponse<any>>(getPaperInboxOutBox, {
+      orderType: 'DESC'
+    });
   }
 
 }

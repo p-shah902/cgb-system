@@ -71,7 +71,7 @@ export class PaperconfigurationComponent implements OnInit {
     this.paperConfigService.getPaperConfigList(this.filter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.paperList = response.data;
+          this.paperList = response.data.filter(paper => paper.paperType !== 'Batch Paper');
           // this.sortByModifiedDate();
           console.log('paper List', this.paperList);
         }
