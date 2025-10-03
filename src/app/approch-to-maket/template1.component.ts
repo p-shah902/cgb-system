@@ -987,21 +987,43 @@ export class Template1Component implements AfterViewInit  {
         if (firstCommitteeControlName && firstCommitteeControl) {
           firstCommitteeControl.enable();
 
-          // Set value based on PSA name and jvApprovalsData
+          // Set value based on PSA name, sourcingType, and threshold conditions
+          const sourcingType = this.generalInfoForm.get('generalInfo.sourcingType')?.value;
+          const sourcingTypeData = this.sourcingTypeData.find(item => item.id === Number(sourcingType));
+          const sourcingTypeValue = sourcingTypeData?.itemValue || '';
+          const selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
+          const exceedsThreshold = selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit;
+
           if (psaName.toLowerCase() === 'acg') {
             let checkedCMCBox = jvApprovalsData?.coVenturers_CMC || false;
-            let sourcingType = this.generalInfoForm.get('generalInfo.sourcingType')?.value;
-            let selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
-            if (selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit) {
+            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check CMC
+            if (sourcingTypeValue === 'Competitive Bid' && exceedsThreshold) {
               checkedCMCBox = true;
             }
             firstCommitteeControl.setValue(checkedCMCBox, { emitEvent: false });
           } else if (psaName.toLowerCase() === 'shah deniz') {
-            firstCommitteeControl.setValue(jvApprovalsData?.contractCommittee_SDCC || false, { emitEvent: false });
+            let checkedSDCC = jvApprovalsData?.contractCommittee_SDCC || false;
+            // Condition 2: When sourcingType is any and value > threshold, check SDCC
+            if (exceedsThreshold) {
+              checkedSDCC = true;
+            }
+            firstCommitteeControl.setValue(checkedSDCC, { emitEvent: false });
           } else if (psaName.toLowerCase() === 'scp') {
-            firstCommitteeControl.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, { emitEvent: false });
+            let checkedSCPCC = jvApprovalsData?.contractCommittee_SCP_Co_CC || false;
+            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check SCP CC
+            // Condition 3: When sourcingType = 'Single Source' and value > threshold, check SCP CC
+            if ((sourcingTypeValue === 'Competitive Bid' || sourcingTypeValue === 'Single Source') && exceedsThreshold) {
+              checkedSCPCC = true;
+            }
+            firstCommitteeControl.setValue(checkedSCPCC, { emitEvent: false });
           } else if (psaName.toLowerCase() === 'btc') {
-            firstCommitteeControl.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, { emitEvent: false });
+            let checkedBTCCC = jvApprovalsData?.contractCommittee_BTC_CC || false;
+            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check BTC CC
+            // Condition 3: When sourcingType = 'Single Source' and value > threshold, check BTC CC
+            if ((sourcingTypeValue === 'Competitive Bid' || sourcingTypeValue === 'Single Source') && exceedsThreshold) {
+              checkedBTCCC = true;
+            }
+            firstCommitteeControl.setValue(checkedBTCCC, { emitEvent: false });
           }
         }
       }
@@ -1013,13 +1035,35 @@ export class Template1Component implements AfterViewInit  {
         if (secondCommitteeControlName && secondCommitteeControl) {
           secondCommitteeControl.enable();
 
-          // Set value based on PSA name and jvApprovalsData
+          // Set value based on PSA name, sourcingType, and threshold conditions
+          const sourcingType = this.generalInfoForm.get('generalInfo.sourcingType')?.value;
+          const sourcingTypeData = this.sourcingTypeData.find(item => item.id === Number(sourcingType));
+          const sourcingTypeValue = sourcingTypeData?.itemValue || '';
+          const selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
+          const exceedsThreshold = selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit;
+
           if (psaName.toLowerCase() === 'acg') {
-            secondCommitteeControl.setValue(jvApprovalsData?.steeringCommittee_SC || false, { emitEvent: false });
+            let checkedSC = jvApprovalsData?.steeringCommittee_SC || false;
+            // Condition 2: When sourcingType is any and value > threshold, check SC
+            if (exceedsThreshold) {
+              checkedSC = true;
+            }
+            secondCommitteeControl.setValue(checkedSC, { emitEvent: false });
           } else if (psaName.toLowerCase() === 'shah deniz') {
-            secondCommitteeControl.setValue(jvApprovalsData?.coVenturers_SDMC || false, { emitEvent: false });
+            let checkedSDMC = jvApprovalsData?.coVenturers_SDMC || false;
+            // Condition 2: When sourcingType is any and value > threshold, check SDMC
+            if (exceedsThreshold) {
+              checkedSDMC = true;
+            }
+            secondCommitteeControl.setValue(checkedSDMC, { emitEvent: false });
           } else if (psaName.toLowerCase() === 'scp') {
-            secondCommitteeControl.setValue(jvApprovalsData?.coVenturers_SCP || false, { emitEvent: false });
+            let checkedSCPBoard = jvApprovalsData?.coVenturers_SCP || false;
+            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check SCP Board
+            // Condition 3: When sourcingType = 'Single Source' and value > threshold, check SCP Board
+            if ((sourcingTypeValue === 'Competitive Bid' || sourcingTypeValue === 'Single Source') && exceedsThreshold) {
+              checkedSCPBoard = true;
+            }
+            secondCommitteeControl.setValue(checkedSCPBoard, { emitEvent: false });
           }
         }
       }
@@ -1059,6 +1103,21 @@ export class Template1Component implements AfterViewInit  {
     }
 
     this.applyCommitteeLogicForPSA(psaName, isChecked);
+    
+    // Uncheck JV Aligned checkbox for the corresponding PSA in consultation rows
+    this.uncheckJVAlignedForPSA(psaName);
+  }
+
+  // Method to uncheck JV Aligned checkbox for a specific PSA
+  uncheckJVAlignedForPSA(psaName: string): void {
+    this.consultationRows.controls.forEach((row, index) => {
+      const psaControl = row.get('psa');
+      const jvAlignedControl = row.get('jvAligned');
+      
+      if (psaControl?.value === psaName && jvAlignedControl) {
+        jvAlignedControl.setValue(false);
+      }
+    });
   }
 
   calculateTotal() {
@@ -1395,6 +1454,7 @@ export class Template1Component implements AfterViewInit  {
         ],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
+        jvAligned: [{ value: false, disabled: true }], // JV Aligned checkbox - disabled by default
         id: [0]
       })
     );
@@ -1418,6 +1478,30 @@ export class Template1Component implements AfterViewInit  {
     });
   }
 
+  // Method to check if current user can edit JV Aligned checkbox
+  canEditJVAligned(jvReviewUserId: number | null): boolean {
+    if (!this.loggedInUser || !jvReviewUserId) {
+      return false;
+    }
+    // JV Aligned is only editable by the user selected in JV Review column
+    return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  // Method to handle JV Review user change and enable/disable JV Aligned
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+    const row = this.consultationRows.at(rowIndex);
+    const jvAlignedControl = row.get('jvAligned');
+    
+    if (jvAlignedControl) {
+      if (this.canEditJVAligned(jvReviewUserId)) {
+        jvAlignedControl.enable();
+      } else {
+        jvAlignedControl.disable();
+        jvAlignedControl.setValue(false); // Uncheck if not editable
+      }
+    }
+  }
+
 
 
   addConsultationRow(isFirst = false, isChangedCamUser = false) {
@@ -1433,6 +1517,7 @@ export class Template1Component implements AfterViewInit  {
             technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
+            jvAligned: [{ value: (item as any).jvAligned || false, disabled: true }], // JV Aligned checkbox - disabled by default
             id: [item.id]
           })
         );
@@ -1448,6 +1533,7 @@ export class Template1Component implements AfterViewInit  {
           technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
+          jvAligned: [{ value: false, disabled: true }], // JV Aligned checkbox - disabled by default
           id: [0]
         })
       );

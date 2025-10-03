@@ -91,6 +91,7 @@ export interface ConsultationsDetails {
   budgetStatementName: string
   jvReviewId: number
   jvReviewName: string
+  jvAligned?: boolean
 }
 
 export interface BidInvites {

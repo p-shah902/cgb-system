@@ -23,6 +23,7 @@ export class NumberInputComponent implements ControlValueAccessor, OnInit {
   @Input() inputClass: string = '';
   @Input() disabled = false;
   @Input() readonly: boolean = false;
+  @Input() showDollarSign: boolean = true;
 
   rawValue: number | null = null;
   inputText: string = ''; // What the user types
