@@ -990,13 +990,13 @@
                         </td>
                       </tr>
 
-                      <tr>
-                        <td><b>Steering Committee</b></td>
-                        <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                        </td>
-                        <td>
-                        </td>
-                      </tr>
+<!--                      <tr>-->
+<!--                        <td><b>Steering Committee</b></td>-->
+<!--                        <td *ngFor="let psa of getSelectedPSAJVColumns()">-->
+<!--                        </td>-->
+<!--                        <td>-->
+<!--                        </td>-->
+<!--                      </tr>-->
                       </tbody>
                     </table>
                     <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
@@ -1431,9 +1431,9 @@
                         </td>
                         <td>
                           <div class="form-check">
-                            <input 
-                              class="form-check-input" 
-                              type="checkbox" 
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
                               formControlName="jvAligned"
                               [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
                               (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
