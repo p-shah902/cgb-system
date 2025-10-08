@@ -122,6 +122,7 @@ export class Template1Component implements AfterViewInit  {
     section7: false,
   };
   batchPaperList: any[] = [];
+  selectedBatchPaper: any = null;
 
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
@@ -138,14 +139,7 @@ export class Template1Component implements AfterViewInit  {
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
-  public psaJvOptions = [
-    { value: 'ACG', label: 'ACG' },
-    { value: 'Shah Deniz', label: 'Shah Deniz' },
-    { value: 'SCP', label: 'SCP' },
-    { value: 'BTC', label: 'BTC' },
-    { value: 'Sh-Asiman', label: 'Sh-Asiman' },
-    { value: 'BP Group', label: 'BP Group' }
-  ];
+  public psaJvOptions: { value: string; label: string }[] = [];
 
 
   public ngOnInit(): void {
@@ -194,6 +188,7 @@ export class Template1Component implements AfterViewInit  {
     }
 
     this.generalInfoForm = this.fb.group({
+      batchPaper: [null], // Add batch paper field
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
         cgbItemRefNo: [{ value: '', disabled: true }],
@@ -366,6 +361,69 @@ export class Template1Component implements AfterViewInit  {
     });
   }
 
+  onBatchPaperSelectionChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedBatchId = target.value;
+
+    if (selectedBatchId && selectedBatchId !== 'null') {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+      this.onBatchPaperChange(selectedBatch);
+    } else {
+      this.onBatchPaperChange(null);
+    }
+  }
+
+  onBatchPaperChange(selectedBatch: any) {
+    if (selectedBatch && this.paperId) {
+      // Add paper to batch
+      this.addPaperToBatch(selectedBatch.id, Number(this.paperId));
+    } else if (this.selectedBatchPaper && this.paperId) {
+      // Remove paper from batch
+      this.removePaperFromBatch(this.selectedBatchPaper.id, Number(this.paperId));
+    }
+    this.selectedBatchPaper = selectedBatch;
+  }
+
+  addPaperToBatch(batchId: number, paperId: number) {
+    const payload = {
+      batchId: batchId,
+      paperId: [paperId],
+      action: "Add"
+    };
+
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show('Paper added to batch successfully', 'success');
+        }
+      },
+      error: (error) => {
+        console.log('Error adding paper to batch:', error);
+        this.toastService.show('Failed to add paper to batch', 'danger');
+      }
+    });
+  }
+
+  removePaperFromBatch(batchId: number, paperId: number) {
+    const payload = {
+      batchId: batchId,
+      paperId: [paperId],
+      action: "Remove"
+    };
+
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show('Paper removed from batch successfully', 'success');
+        }
+      },
+      error: (error) => {
+        console.log('Error removing paper from batch:', error);
+        this.toastService.show('Failed to remove paper from batch', 'danger');
+      }
+    });
+  }
+
   ngAfterViewInit() {
     const options = {
       root: null,
@@ -433,6 +491,10 @@ export class Template1Component implements AfterViewInit  {
     }
   }
 
+  get batchPaper() {
+    return this.generalInfoForm.get('batchPaper');
+  }
+
   get generalInfo() {
     return this.generalInfoForm.get('generalInfo');
   }
@@ -492,8 +554,8 @@ export class Template1Component implements AfterViewInit  {
       this.paperDetails = value.data;
       const paperDetailData = value.data?.paperDetails || null
       const bidInvitesData = value.data?.bidInvites || []
-      const valueData = value.data?.valueDeliveriesCostsharing[0] || null
-      const jvApprovalsData = value.data?.jvApprovals[0] || null
+      const valueData = value.data?.valueDeliveriesCostsharing && (value.data?.valueDeliveriesCostsharing[0] || null)
+      const jvApprovalsData = value.data?.jvApprovals && (value.data?.jvApprovals[0] || null)
       const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
 
       const patchValues: any = { costAllocation: {} };
@@ -520,15 +582,12 @@ export class Template1Component implements AfterViewInit  {
         steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
       });
 
-      // PSA/JV mappings - using lowercase for comparison
-      const psaNameToCheckbox: Record<string, string> = {
-        "acg": "isACG",
-        "shah deniz": "isShah",
-        "scp": "isSCP",
-        "btc": "isBTC",
-        "sh-asiman": "isAsiman",
-        "bp group": "isBPGroup"
-      };
+      // PSA/JV mappings - dynamically create mapping from PSA data
+      const psaNameToCheckbox: Record<string, string> = {};
+      this.psaData.forEach(psa => {
+        const checkboxName = this.getPSACheckboxControlName(psa.itemValue);
+        psaNameToCheckbox[psa.itemValue.toLowerCase()] = checkboxName;
+      });
 
       // Assign PSA/JV values dynamically
       costAllocationJVApprovalData.forEach(psa => {
@@ -564,7 +623,9 @@ export class Template1Component implements AfterViewInit  {
         .filter(value => value) : [];
 
       if (value.data) {
+        console.log('v', this.paperDetails);
         this.generalInfoForm.patchValue({
+          batchPaper: paperDetailData?.batchPaperId || null,
           generalInfo: {
             paperProvision: paperDetailData?.paperProvision || '',
             cgbItemRefNo: paperDetailData?.cgbItemRefNo || '',
@@ -680,6 +741,11 @@ export class Template1Component implements AfterViewInit  {
 
             case 'PSA':
               this.psaData = (response.data || []).filter(item => item.isActive);
+              // Populate psaJvOptions dynamically from PSA data
+              this.psaJvOptions = this.psaData.filter(item => item.isActive).map(item => ({
+                value: item.itemValue,
+                label: item.itemValue
+              }));
               break;
 
             case 'Remuneration Type':
@@ -875,7 +941,6 @@ export class Template1Component implements AfterViewInit  {
   setupPSAListeners() {
     // Get selected PSAJV columns dynamically
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-    const jvApprovalsData = this.paperDetails?.jvApprovals[0] || null;
 
     // Only setup listeners if there are selected PSAJV columns
     if (selectedPSAJV.length === 0) {
@@ -994,21 +1059,22 @@ export class Template1Component implements AfterViewInit  {
           const selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
           const exceedsThreshold = selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit;
 
-          if (psaName.toLowerCase() === 'acg') {
+          const psaLower = psaName.toLowerCase();
+          if (psaLower === 'acg') {
             let checkedCMCBox = jvApprovalsData?.coVenturers_CMC || false;
             // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check CMC
             if (sourcingTypeValue === 'Competitive Bid' && exceedsThreshold) {
               checkedCMCBox = true;
             }
             firstCommitteeControl.setValue(checkedCMCBox, { emitEvent: false });
-          } else if (psaName.toLowerCase() === 'shah deniz') {
+          } else if (psaLower === 'shah deniz') {
             let checkedSDCC = jvApprovalsData?.contractCommittee_SDCC || false;
             // Condition 2: When sourcingType is any and value > threshold, check SDCC
             if (exceedsThreshold) {
               checkedSDCC = true;
             }
             firstCommitteeControl.setValue(checkedSDCC, { emitEvent: false });
-          } else if (psaName.toLowerCase() === 'scp') {
+          } else if (psaLower === 'scp') {
             let checkedSCPCC = jvApprovalsData?.contractCommittee_SCP_Co_CC || false;
             // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check SCP CC
             // Condition 3: When sourcingType = 'Single Source' and value > threshold, check SCP CC
@@ -1016,7 +1082,7 @@ export class Template1Component implements AfterViewInit  {
               checkedSCPCC = true;
             }
             firstCommitteeControl.setValue(checkedSCPCC, { emitEvent: false });
-          } else if (psaName.toLowerCase() === 'btc') {
+          } else if (psaLower === 'btc') {
             let checkedBTCCC = jvApprovalsData?.contractCommittee_BTC_CC || false;
             // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check BTC CC
             // Condition 3: When sourcingType = 'Single Source' and value > threshold, check BTC CC
@@ -1042,21 +1108,22 @@ export class Template1Component implements AfterViewInit  {
           const selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
           const exceedsThreshold = selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit;
 
-          if (psaName.toLowerCase() === 'acg') {
+          const psaLower = psaName.toLowerCase();
+          if (psaLower === 'acg') {
             let checkedSC = jvApprovalsData?.steeringCommittee_SC || false;
             // Condition 2: When sourcingType is any and value > threshold, check SC
             if (exceedsThreshold) {
               checkedSC = true;
             }
             secondCommitteeControl.setValue(checkedSC, { emitEvent: false });
-          } else if (psaName.toLowerCase() === 'shah deniz') {
+          } else if (psaLower === 'shah deniz') {
             let checkedSDMC = jvApprovalsData?.coVenturers_SDMC || false;
             // Condition 2: When sourcingType is any and value > threshold, check SDMC
             if (exceedsThreshold) {
               checkedSDMC = true;
             }
             secondCommitteeControl.setValue(checkedSDMC, { emitEvent: false });
-          } else if (psaName.toLowerCase() === 'scp') {
+          } else if (psaLower === 'scp') {
             let checkedSCPBoard = jvApprovalsData?.coVenturers_SCP || false;
             // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check SCP Board
             // Condition 3: When sourcingType = 'Single Source' and value > threshold, check SCP Board
@@ -1103,7 +1170,7 @@ export class Template1Component implements AfterViewInit  {
     }
 
     this.applyCommitteeLogicForPSA(psaName, isChecked);
-    
+
     // Uncheck JV Aligned checkbox for the corresponding PSA in consultation rows
     this.uncheckJVAlignedForPSA(psaName);
   }
@@ -1113,7 +1180,7 @@ export class Template1Component implements AfterViewInit  {
     this.consultationRows.controls.forEach((row, index) => {
       const psaControl = row.get('psa');
       const jvAlignedControl = row.get('jvAligned');
-      
+
       if (psaControl?.value === psaName && jvAlignedControl) {
         jvAlignedControl.setValue(false);
       }
@@ -1491,7 +1558,7 @@ export class Template1Component implements AfterViewInit  {
   onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
     const row = this.consultationRows.at(rowIndex);
     const jvAlignedControl = row.get('jvAligned');
-    
+
     if (jvAlignedControl) {
       if (this.canEditJVAligned(jvReviewUserId)) {
         jvAlignedControl.enable();
@@ -1592,18 +1659,15 @@ export class Template1Component implements AfterViewInit  {
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.value?.costAllocation
 
-    // Mapping PSAs from the costAllocation object
-    const psaMappings = [
-      { key: "isACG", name: "ACG" },
-      { key: "isShah", name: "Shah Deniz" },
-      { key: "isSCP", name: "SCP" },
-      { key: "isBTC", name: "BTC" },
-      { key: "isAsiman", name: "Sh-Asiman" },
-      { key: "isBPGroup", name: "BP Group" }
-    ];
+    // Mapping PSAs from the costAllocation object dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const psaMappings = selectedPSAJV.map((psaName: string) => ({
+      key: this.getPSACheckboxControlName(psaName),
+      name: psaName
+    }));
 
     const costAllocationJVApproval = psaMappings
-      .map((psa, index) => {
+      .map((psa: any, index: number) => {
         const percentageKey = `percentage_${psa.key}`;
         const valueKey = `value_${psa.key}`;
 
@@ -1618,7 +1682,7 @@ export class Template1Component implements AfterViewInit  {
         }
         return null;
       })
-      .filter(item => item !== null);
+      .filter((item: any) => item !== null);
 
 
     const filteredRisks = this.riskMitigation.controls
@@ -1738,6 +1802,13 @@ export class Template1Component implements AfterViewInit  {
           const docId = response.data || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
+
+          // Handle batch paper if selected
+          const selectedBatch = this.generalInfoForm.get('batchPaper')?.value;
+          if (selectedBatch && docId) {
+            this.addPaperToBatch(selectedBatch.id, docId);
+          }
+
           this.generalInfoForm.reset();
           this.submitted = false;
           this.toastService.show(response.message || "Added Successfully", 'success');
@@ -1989,63 +2060,42 @@ export class Template1Component implements AfterViewInit  {
 
   getPSACheckboxControlName(psa: string): string {
     if (!psa) return '';
-    const mapping: { [key: string]: string } = {
-      "acg": "isACG",
-      "shah deniz": "isShah",
-      "scp": "isSCP",
-      "btc": "isBTC",
-      "sh-asiman": "isAsiman",
-      "bp group": "isBPGroup"
-    };
-    return mapping[psa.toLowerCase()] || `is${psa.replace(/\s+/g, '')}`;
+    // Convert PSA name to control name format (remove spaces, special chars, and add 'is' prefix)
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `is${cleanName}`;
   }
 
   getPSAPercentageControlName(psa: string): string {
     if (!psa) return '';
-    const mapping: { [key: string]: string } = {
-      "acg": "percentage_isACG",
-      "shah deniz": "percentage_isShah",
-      "scp": "percentage_isSCP",
-      "btc": "percentage_isBTC",
-      "sh-asiman": "percentage_isAsiman",
-      "bp group": "percentage_isBPGroup"
-    };
-    return mapping[psa.toLowerCase()] || `percentage_is${psa.replace(/\s+/g, '')}`;
+    // Convert PSA name to percentage control name format
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `percentage_is${cleanName}`;
   }
 
   getPSAValueControlName(psa: string): string {
     if (!psa) return '';
-    const mapping: { [key: string]: string } = {
-      "acg": "value_isACG",
-      "shah deniz": "value_isShah",
-      "scp": "value_isSCP",
-      "btc": "value_isBTC",
-      "sh-asiman": "value_isAsiman",
-      "bp group": "value_isBPGroup"
-    };
-    return mapping[psa.toLowerCase()] || `value_is${psa.replace(/\s+/g, '')}`;
+    // Convert PSA name to value control name format
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `value_is${cleanName}`;
   }
 
   getPSAControlSuffix(psa: string): string {
-    const mapping: { [key: string]: string } = {
-      "acg": "isACG",
-      "shah deniz": "isShah",
-      "scp": "isSCP",
-      "btc": "isBTC",
-      "sh-asiman": "isAsiman",
-      "bp group": "isBPGroup"
-    };
-    return mapping[psa.toLowerCase()] || `is${psa.replace(/\s+/g, '')}`;
+    // Convert PSA name to control suffix format
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `is${cleanName}`;
   }
 
   hasFirstCommitteeCheckbox(psa: string): boolean {
-    // Only ACG, Shah Deniz, SCP, and BTC have 1st Committee checkboxes
-    return ['acg', 'shah deniz', 'scp', 'btc'].includes(psa.toLowerCase());
+    // Check if PSA has first committee checkbox based on PSA data
+    // This can be extended to include a property in the PSA data if needed
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp', 'btc'].includes(psaLower);
   }
 
   hasSecondCommitteeCheckbox(psa: string): boolean {
-    // Only ACG, Shah Deniz, and SCP have 2nd Committee checkboxes (BTC should not have one)
-    return ['acg', 'shah deniz', 'scp'].includes(psa.toLowerCase());
+    // Check if PSA has second committee checkbox based on PSA data
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp'].includes(psaLower);
   }
 
   getFirstCommitteeControlName(psa: string): string {

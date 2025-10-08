@@ -68,7 +68,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                        class="bi bi-arrow-up" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
-                          d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z" />
+                          d="M8 12a.5.5 0 0 0 .5-.5V4.707l3.147 3.147a.5.5 0 0 0 .707-.708l-4-4-.007-.007a.5.5 0 0 0-.693.014l-4 4a.5.5 0 1 0 .707.708L7.5 4.707V11.5A.5.5 0 0 0 8 12z"/>
                   </svg>
                 </button>
               </div>
@@ -79,712 +79,749 @@
         <div class="form-body">
 
 
-          <div id="section1" data-section="section1" (click)="toggleSection('section1')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3"
+          <div id="section1" data-section="section1" (click)="toggleSection('section1')"
+               class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3"
           >
             <h4 class="mb-0">1. General Information</h4>
             <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section1'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section1'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
           </div>
 
 
-            <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
-                <div *ngIf="sectionVisibility['section1']" class="fb-form" formGroupName="generalInfo">
-                  <div class="row">
+          <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
+            <!-- Batch Paper Selection -->
+            <div class="fb-form">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Batch Paper</label>
+                    <select class="form-control" formControlName="batchPaper"
+                            (change)="onBatchPaperSelectionChange($event)">
+                      <option [value]="null">Select Batch Paper</option>
+                      <option *ngFor="let batch of batchPaperList" [value]="batch.id">
+                        {{ batch.paperProvision }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="sectionVisibility['section1']" formGroupName="generalInfo">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>For the provision of* </label>
+                      <input type="text" class="form-control allow-comments" placeholder="Enter Title"
+                             formControlName="paperProvision" id="paperProvision"/>
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
+                        <small class="text-danger">Paper Provision is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3">
+                      <label>CGB Item Ref </label>
+                      <input id="cgbItemRefNo" type="text" class="form-control" placeholder="CGB Item Ref"
+                             formControlName="cgbItemRefNo"/>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3">
+                      <label>CGB Circulation Date</label>
+                      <div class="date-input position-relative">
+                        <input id="cgbCirculationDate" type="date" class="form-control"
+                               formControlName="cgbCirculationDate" placeholder=""/>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>Why is this work required?* </label>
+                      <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
+                      <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
+                                  formControlName="purposeRequired"/>
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+
+                    </div>
                     <div class="col-md-12">
                       <div class="form-group mb-3">
-                        <label>For the provision of* </label>
-                        <input type="text" class="form-control allow-comments" placeholder="Enter Title"
-                               formControlName="paperProvision" id="paperProvision"/>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
-                          <small class="text-danger">Paper Provision is required.</small>
+                        <label>Scope of Work </label>
+                        <app-editor-normal *ngIf="!isRegisterPaper" formControlName="scopeOfWork"/>
+                        <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'scopeOfWork') : ''"
+                                    formControlName="scopeOfWork"/>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>PSA/JV*</label>
+                      <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments"
+                                  formControlName="psajv" [data]="psaJvOptions"
+                                  multiple></ng-select2>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Global CGB*</label>
+                      <select id="globalCGB" class="form-control allow-comments" formControlName="globalCGB">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
+                        <small class="text-danger">Please select value.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Sourcing Type*</label>
+                      <select id="sourcingType" class="form-control allow-comments" formControlName="sourcingType">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Operating Function* </label>
+                      <select id="operatingFunction" class="form-control allow-comments"
+                              formControlName="operatingFunction">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
+                        <small class="text-danger">Please select value.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Subsector*</label>
+                      <select id="subSector" class="form-control allow-comments" formControlName="subSector">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Contract Accountable Manager*</label>
+
+
+                      <select id="camUserId" class="form-control allow-comments" formControlName="camUserId">
+                        <option [value]="null">Select</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3">
+                      <label>Procurement SPA*</label>
+                      <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="procurementSPAUsers"
+                                  class="allow-comments" formControlName="procurementSPAUsers"
+                                  [data]="procurementTagUsers" multiple></ng-select2>
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3">
+                      <label>PDM*</label>
+                      <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
+                        <option [value]="null">Select</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3">
+                      <label>VP-1* </label>
+                      <select id="vP1UserId" class="form-control allow-comments" formControlName="vP1UserId">
+                        <option [value]="null">Select</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'VP-1'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('vP1UserId')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3">
+                      <label>BLT Member* </label>
+                      <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
+                        <option [value]="null">Select</option>
+                        <ng-container *ngFor="let user of userDetails">
+                          <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
+                            {{ user.displayName }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
+                        <small class="text-danger">Please select value.</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Contract Value (USD)*</label>
+                      <!--                        <input id="contractValueUsd" type="number" class="form-control allow-comments" placeholder="0000.0"-->
+                      <!--                               formControlName="contractValueUsd" min="0" step="0.01"/>-->
+                      <app-number-input id="contractValueUsd" inputClass="allow-comments"
+                                        formControlName="contractValueUsd" placeholder="0.00"></app-number-input>
+
+                      <div class="text-danger"
+                           *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>Original Currency</label>
+                      <select id="originalCurrency" class="form-control allow-comments"
+                              formControlName="originalCurrency">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>Exchange Rate</label>
+                      <input id="exchangeRate" type="text" class="form-control allow-comments" placeholder="0.00"
+                             formControlName="exchangeRate"/>
+                      <!--                        <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>-->
+
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Contract Value (Original Currency)*</label>
+                      <!--                        <input id="contractValueOriginalCurrency" type="text" class="form-control allow-comments"-->
+                      <!--                               placeholder="0000.0" formControlName="contractValueOriginalCurrency" readonly/>-->
+
+                      <app-number-input [showDollarSign]="false" id="contractValueOriginalCurrency" [readonly]="true"
+                                        inputClass="allow-comments" formControlName="contractValueOriginalCurrency"
+                                        placeholder="0.00"></app-number-input>
+
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-6">
+                    <div class="row">
+                      <div class="col-sm-6 col-md-6">
+                        <div class="form-group mb-3">
+                          <label class="mb-2">Contract Duration Start Date *</label>
+                          <input id="contractStartDate" type="date" class="form-control allow-comments"
+                                 placeholder="Start Date" formControlName="contractStartDate"
+                                 (change)="onStartDateChange()"/>
+                          <div class="text-danger"
+                               *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
+                            <small class="text-danger">This field is required.</small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-sm-6 col-md-6">
+                        <div class="form-group mb-3">
+                          <label class="mb-2">Contract Duration End Date *</label>
+                          <input id="contractEndDate" type="date" class="form-control allow-comments"
+                                 placeholder="End Date" formControlName="contractEndDate" [readOnly]="isEndDateDisabled"
+                                 [min]="minEndDate"/>
+                          <div class="text-danger"
+                               *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
+                            <small class="text-danger">This field is required.</small>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  <div class="col-sm-6 col-md-6">
+                    <div class="form-group mb-3 allow-comments" id="isPHCA">
+                      <label>PHCA </label>
+                      <div class="form-radio d-flex gap-3">
+                        <div class="radio-box position-relative">
+                          <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="true">
+                          <label>Yes</label>
+                        </div>
+                        <div class="radio-box position-relative">
+                          <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="false">
+                          <label>No</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3">
-                        <label>CGB Item Ref </label>
-                        <input id="cgbItemRefNo" type="text" class="form-control" placeholder="CGB Item Ref"
-                               formControlName="cgbItemRefNo"/>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3">
-                        <label>CGB Circulation Date</label>
-                        <div class="date-input position-relative">
-                          <input id="cgbCirculationDate" type="date" class="form-control"
-                                 formControlName="cgbCirculationDate" placeholder=""/>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-md-12">
-                      <div class="form-group mb-3">
-                        <label>Why is this work required?* </label>
-                        <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
-                        <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
-                                    formControlName="purposeRequired"/>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-
-                      </div>
-                      <div class="col-md-12">
-                        <div class="form-group mb-3">
-                          <label>Scope of Work </label>
-                          <app-editor-normal *ngIf="!isRegisterPaper" formControlName="scopeOfWork"/>
-                          <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'scopeOfWork') : ''"
-                                      formControlName="scopeOfWork"/>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>PSA/JV*</label>
-                        <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
-                                    multiple></ng-select2>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Global CGB*</label>
-                        <select id="globalCGB" class="form-control allow-comments" formControlName="globalCGB">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
-                          <small class="text-danger">Please select value.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Sourcing Type*</label>
-                        <select id="sourcingType" class="form-control allow-comments" formControlName="sourcingType">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Operating Function* </label>
-                        <select id="operatingFunction" class="form-control allow-comments"
-                                formControlName="operatingFunction">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
-                          <small class="text-danger">Please select value.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Subsector*</label>
-                        <select id="subSector" class="form-control allow-comments" formControlName="subSector">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Contract Accountable Manager*</label>
-
-
-                        <select id="camUserId" class="form-control allow-comments" formControlName="camUserId">
-                          <option [value]="null">Select</option>
-                          <ng-container *ngFor="let user of userDetails">
-                            <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
-                              {{ user.displayName }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3">
-                        <label>Procurement SPA*</label>
-                        <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
-                                    [data]="procurementTagUsers" multiple></ng-select2>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3">
-                        <label>PDM*</label>
-                        <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
-                          <option [value]="null">Select</option>
-                          <ng-container *ngFor="let user of userDetails">
-                            <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
-                              {{ user.displayName }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3">
-                        <label>VP-1* </label>
-                        <select id="vP1UserId" class="form-control allow-comments" formControlName="vP1UserId">
-                          <option [value]="null">Select</option>
-                          <ng-container *ngFor="let user of userDetails">
-                            <option *ngIf="user.roleName === 'VP-1'" [value]="user.id">
-                              {{ user.displayName }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('vP1UserId')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3">
-                        <label>BLT Member* </label>
-                        <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
-                          <option [value]="null">Select</option>
-                          <ng-container *ngFor="let user of userDetails">
-                            <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
-                              {{ user.displayName }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
-                          <small class="text-danger">Please select value.</small>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Contract Value (USD)*</label>
-<!--                        <input id="contractValueUsd" type="number" class="form-control allow-comments" placeholder="0000.0"-->
-<!--                               formControlName="contractValueUsd" min="0" step="0.01"/>-->
-                        <app-number-input id="contractValueUsd" inputClass="allow-comments" formControlName="contractValueUsd" placeholder="0.00"></app-number-input>
-
-                        <div class="text-danger"
-                             *ngIf="submitted && generalInfo?.get('contractValueUsd')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                      <div class="form-group mb-3">
-                        <label>Original Currency</label>
-                        <select id="originalCurrency" class="form-control allow-comments"
-                                formControlName="originalCurrency">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of currenciesData?.length ? currenciesData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                      <div class="form-group mb-3">
-                        <label>Exchange Rate</label>
-                        <input id="exchangeRate" type="text" class="form-control allow-comments" placeholder="0.00"
-                               formControlName="exchangeRate"/>
-<!--                        <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>-->
-
-                      </div>
-                    </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Contract Value (Original Currency)*</label>
-<!--                        <input id="contractValueOriginalCurrency" type="text" class="form-control allow-comments"-->
-<!--                               placeholder="0000.0" formControlName="contractValueOriginalCurrency" readonly/>-->
-
-                        <app-number-input [showDollarSign]="false" id="contractValueOriginalCurrency" [readonly]="true" inputClass="allow-comments" formControlName="contractValueOriginalCurrency" placeholder="0.00"></app-number-input>
-
-                      </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6">
-                      <div class="row">
-                        <div class="col-sm-6 col-md-6">
-                          <div class="form-group mb-3">
-                            <label class="mb-2">Contract Duration Start Date *</label>
-                            <input id="contractStartDate" type="date" class="form-control allow-comments"
-                                   placeholder="Start Date" formControlName="contractStartDate"
-                                   (change)="onStartDateChange()"/>
-                            <div class="text-danger"
-                                 *ngIf="submitted && generalInfo?.get('contractStartDate')?.hasError('required')">
-                              <small class="text-danger">This field is required.</small>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6">
-                          <div class="form-group mb-3">
-                            <label class="mb-2">Contract Duration End Date *</label>
-                            <input id="contractEndDate" type="date" class="form-control allow-comments"
-                                   placeholder="End Date" formControlName="contractEndDate" [readOnly]="isEndDateDisabled"
-                                   [min]="minEndDate"/>
-                            <div class="text-danger"
-                                 *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
-                              <small class="text-danger">This field is required.</small>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-6">
-                      <div class="form-group mb-3 allow-comments" id="isPHCA">
-                        <label>PHCA </label>
+                      <div class="form-group mb-3 allow-comments" id="isLTCC">
+                        <label>Long Term Commercial Commitment</label>
                         <div class="form-radio d-flex gap-3">
                           <div class="radio-box position-relative">
-                            <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="true">
+                            <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
                             <label>Yes</label>
                           </div>
                           <div class="radio-box position-relative">
-                            <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="false">
+                            <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
+                            <label>No</label>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="form-group mb-3">
+                        <label>LTCC Note</label>
+                        <textarea type="text" id="ltccNotes" class="form-control allow-comments"
+                                  placeholder="Write Description"
+                                  formControlName="ltccNotes"></textarea>
+                        <div class="text-danger"
+                             *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Aligned with Government Representative</label>
+                        <div class="form-radio d-flex gap-3">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="isGovtReprAligned" [value]="true"
+                                   formControlName="isGovtReprAligned"/>
+                            <label>Yes</label>
+                          </div>
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="isGovtReprAligned" [value]="false"
+                                   formControlName="isGovtReprAligned"/>
+                            <label>No</label>
+                          </div>
+                        </div>
+
+                      </div>
+                      <div class="form-group mb-3">
+                        <label>Government Representative Comment</label>
+                        <textarea type="text" id="govtReprAlignedComment" class="form-control allow-comments"
+                                  placeholder="Write Description"
+                                  formControlName="govtReprAlignedComment"></textarea>
+                      </div>
+                    </div>
+                    <div class="col-sm-12" *ngIf="isShowBoxSection">
+                      <div class="form-group mb-3">
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input id="isIFRS16" class="allow-comments" type="checkbox" name="isIFRS16"
+                                   formControlName="isIFRS16">
+                            <label>IFRS16 Impact Compliance</label>
+                          </div>
+                          <div class="form-check-box position-relative">
+                            <input id="isGIAAPCheck" class="allow-comments" type="checkbox" name="isGIAAPCheck"
+                                   formControlName="isGIAAPCheck">
+                            <label> GIAAP Compliance Check</label>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+
+                    <div class="col-sm-6 col-md-6 mt-3">
+                      <div class="form-group mb-3">
+                        <label class="mb-3">Conflict of Interest
+                          <svg width="17" height="16" viewBox="0 0 17 16" fill="none" class="cursor-pointer"
+                               [ngbTooltip]="'Conflict of Interest with SOCAR, SOCAR Affiliated entities (JVs, Alliances) or other'"
+                               placement="top" container="body"
+                               xmlns="http://www.w3.org/2000/svg">
+                            <path
+                              d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
+                              fill="#252525"/>
+
+                          </svg>
+                        </label>
+                        <div class="form-radio d-flex gap-3 allow-comments" id="isConflictOfInterest">
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="isConflictOfInterest" checked
+                                   formControlName="isConflictOfInterest"
+                                   [value]="true">
+                            <label>Yes</label>
+                          </div>
+                          <div class="radio-box position-relative">
+                            <input type="radio" name="isConflictOfInterest" formControlName="isConflictOfInterest"
+                                   [value]="false">
                             <label>No</label>
                           </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-sm-6 col-md-6">
-                        <div class="form-group mb-3 allow-comments" id="isLTCC">
-                          <label>Long Term Commercial Commitment</label>
-                          <div class="form-radio d-flex gap-3">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
-                              <label>Yes</label>
-                            </div>
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
-                              <label>No</label>
-                            </div>
-                          </div>
-
-                        </div>
-                        <div class="form-group mb-3">
-                          <label>LTCC Note</label>
-                          <textarea type="text" id="ltccNotes" class="form-control allow-comments"
-                                    placeholder="Write Description"
-                                    formControlName="ltccNotes"></textarea>
-                          <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
-                            <small class="text-danger">This field is required.</small>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-sm-6 col-md-6">
-                        <div class="form-group mb-3">
-                          <label>Aligned with Government Representative</label>
-                          <div class="form-radio d-flex gap-3">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="isGovtReprAligned" [value]="true"
-                                     formControlName="isGovtReprAligned"/>
-                              <label>Yes</label>
-                            </div>
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="isGovtReprAligned" [value]="false"
-                                     formControlName="isGovtReprAligned"/>
-                              <label>No</label>
-                            </div>
-                          </div>
-
-                        </div>
-                        <div class="form-group mb-3">
-                          <label>Government Representative Comment</label>
-                          <textarea type="text" id="govtReprAlignedComment" class="form-control allow-comments"
-                                    placeholder="Write Description"
-                                    formControlName="govtReprAlignedComment"></textarea>
-                        </div>
-                      </div>
-                      <div class="col-sm-12" *ngIf="isShowBoxSection">
-                        <div class="form-group mb-3">
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input id="isIFRS16" class="allow-comments" type="checkbox" name="isIFRS16"
-                                     formControlName="isIFRS16">
-                              <label>IFRS16 Impact Compliance</label>
-                            </div>
-                            <div class="form-check-box position-relative">
-                              <input id="isGIAAPCheck" class="allow-comments" type="checkbox" name="isGIAAPCheck"
-                                     formControlName="isGIAAPCheck">
-                              <label> GIAAP Compliance Check</label>
-                            </div>
-
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="row">
-
-                      <div class="col-sm-6 col-md-6 mt-3">
-                        <div class="form-group mb-3">
-                          <label class="mb-3">Conflict of Interest
-                            <svg width="17" height="16" viewBox="0 0 17 16" fill="none" class="cursor-pointer"
-                                 [ngbTooltip]="'Conflict of Interest with SOCAR, SOCAR Affiliated entities (JVs, Alliances) or other'" placement="top" container="body"
-                                 xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M8.69999 11.332C8.88888 11.332 9.04733 11.268 9.17533 11.14C9.30333 11.012 9.3671 10.8538 9.36666 10.6654V7.9987C9.36666 7.80981 9.30266 7.65159 9.17466 7.52403C9.04666 7.39648 8.88844 7.33248 8.69999 7.33203C8.51155 7.33159 8.35333 7.39559 8.22533 7.52403C8.09733 7.65248 8.03333 7.8107 8.03333 7.9987V10.6654C8.03333 10.8543 8.09733 11.0127 8.22533 11.1407C8.35333 11.2687 8.51155 11.3325 8.69999 11.332ZM8.69999 5.9987C8.88888 5.9987 9.04733 5.9347 9.17533 5.8067C9.30333 5.6787 9.3671 5.52048 9.36666 5.33203C9.36621 5.14359 9.30222 4.98536 9.17466 4.85736C9.0471 4.72936 8.88888 4.66536 8.69999 4.66536C8.5111 4.66536 8.35288 4.72936 8.22533 4.85736C8.09777 4.98536 8.03377 5.14359 8.03333 5.33203C8.03288 5.52048 8.09688 5.67892 8.22533 5.80736C8.35377 5.93581 8.51199 5.99959 8.69999 5.9987ZM8.69999 14.6654C7.77777 14.6654 6.9111 14.4903 6.09999 14.14C5.28888 13.7898 4.58333 13.3149 3.98333 12.7154C3.38333 12.1158 2.90844 11.4103 2.55866 10.5987C2.20888 9.78714 2.03377 8.92048 2.03333 7.9987C2.03288 7.07692 2.20799 6.21025 2.55866 5.3987C2.90933 4.58714 3.38421 3.88159 3.98333 3.28203C4.58244 2.68248 5.28799 2.20759 6.09999 1.85736C6.91199 1.50714 7.77866 1.33203 8.69999 1.33203C9.62133 1.33203 10.488 1.50714 11.3 1.85736C12.112 2.20759 12.8175 2.68248 13.4167 3.28203C14.0158 3.88159 14.4909 4.58714 14.842 5.3987C15.1931 6.21025 15.368 7.07692 15.3667 7.9987C15.3653 8.92048 15.1902 9.78714 14.8413 10.5987C14.4924 11.4103 14.0175 12.1158 13.4167 12.7154C12.8158 13.3149 12.1102 13.79 11.3 14.1407C10.4898 14.4914 9.6231 14.6663 8.69999 14.6654Z"
-                                fill="#252525"/>
-
-                            </svg>
-                          </label>
-                          <div class="form-radio d-flex gap-3 allow-comments" id="isConflictOfInterest">
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="isConflictOfInterest" checked formControlName="isConflictOfInterest"
-                                     [value]="true">
-                              <label>Yes</label>
-                            </div>
-                            <div class="radio-box position-relative">
-                              <input type="radio" name="isConflictOfInterest" formControlName="isConflictOfInterest"
-                                     [value]="false">
-                              <label>No</label>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="form-group mb-3">
-                          <label>If "Yes" Add comments</label>
-                          <textarea type="text" class="form-control allow-comments" placeholder="Write Description"
-                                    formControlName="conflictOfInterestComment"></textarea>
-                          <div class="text-danger"
-                               *ngIf="submitted && generalInfo?.get('conflictOfInterestComment')?.hasError('required')">
-                            <small class="text-danger">This field is required.</small>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <div class="col-md-12">
                       <div class="form-group mb-3">
-                        <label>National Content</label>
-                        <app-editor-normal *ngIf="!isRegisterPaper" formControlName="strategyDescription"/>
-                        <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'strategyDescription') : ''"
-                                    formControlName="strategyDescription"/>
+                        <label>If "Yes" Add comments</label>
+                        <textarea type="text" class="form-control allow-comments" placeholder="Write Description"
+                                  formControlName="conflictOfInterestComment"></textarea>
+                        <div class="text-danger"
+                             *ngIf="submitted && generalInfo?.get('conflictOfInterestComment')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
                       </div>
+                    </div>
+
+                  </div>
+
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>National Content</label>
+                      <app-editor-normal *ngIf="!isRegisterPaper" formControlName="strategyDescription"/>
+                      <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'strategyDescription') : ''"
+                                  formControlName="strategyDescription"/>
                     </div>
                   </div>
                 </div>
+              </div>
 
 
-              <div id="section2" data-section="section2" (click)="toggleSection('section2')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <div id="section2" data-section="section2" (click)="toggleSection('section2')"
+                   class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
                 <h4 class="mb-0">2. Procurement Details</h4>
                 <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section2'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section2'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
               </div>
 
-                <div *ngIf="sectionVisibility['section2']" class="fb-form" formGroupName="procurementDetails">
-                  <div class="row">
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Remuneration Type*</label>
-                        <select id="remunerationType" class="form-control allow-comments"
-                                formControlName="remunerationType">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of remunerationTypeData?.length ? remunerationTypeData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
+              <div *ngIf="sectionVisibility['section2']" class="fb-form" formGroupName="procurementDetails">
+                <div class="row">
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Remuneration Type*</label>
+                      <select id="remunerationType" class="form-control allow-comments"
+                              formControlName="remunerationType">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of remunerationTypeData?.length ? remunerationTypeData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger"
+                           *ngIf="submitted && procurementDetailsInfo?.get('remunerationType')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
                       </div>
                     </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Proposed Contract Management Level*</label>
-                        <select id="contractMgmtLevel" class="form-control allow-comments"
-                                formControlName="contractMgmtLevel">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of proposedCMLData?.length ? proposedCMLData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && procurementDetailsInfo?.get('contractMgmtLevel')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Proposed Contract Management Level*</label>
+                      <select id="contractMgmtLevel" class="form-control allow-comments"
+                              formControlName="contractMgmtLevel">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of proposedCMLData?.length ? proposedCMLData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger"
+                           *ngIf="submitted && procurementDetailsInfo?.get('contractMgmtLevel')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
                       </div>
                     </div>
-                    <div class="col-sm-6 col-md-4">
-                      <div class="form-group mb-3">
-                        <label>Sourcing Rigor*</label>
-                        <select id="sourcingRigor" class="form-control allow-comments" formControlName="sourcingRigor">
-                          <option [value]="''">Select</option>
-                          <ng-container *ngFor="let item of sourcingRigorData?.length ? sourcingRigorData : []">
-                            <option [value]="item.id.toString()">
-                              {{ item.itemValue }}
-                            </option>
-                          </ng-container>
-                        </select>
-                        <div class="text-danger"
-                             *ngIf="submitted && procurementDetailsInfo?.get('sourcingRigor')?.hasError('required')">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
+                  </div>
+                  <div class="col-sm-6 col-md-4">
+                    <div class="form-group mb-3">
+                      <label>Sourcing Rigor*</label>
+                      <select id="sourcingRigor" class="form-control allow-comments" formControlName="sourcingRigor">
+                        <option [value]="''">Select</option>
+                        <ng-container *ngFor="let item of sourcingRigorData?.length ? sourcingRigorData : []">
+                          <option [value]="item.id.toString()">
+                            {{ item.itemValue }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <div class="text-danger"
+                           *ngIf="submitted && procurementDetailsInfo?.get('sourcingRigor')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
                       </div>
                     </div>
-                    <div class="col-sm-6 col-md-12">
-                      <div class="form-group mb-3">
-                        <label>Sourcing Strategy</label>
-                        <app-editor-normal *ngIf="!isRegisterPaper" formControlName="sourcingStrategy"/>
-                        <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'sourcingStrategy') : ''"
-                                    formControlName="sourcingStrategy"/>
-                      </div>
+                  </div>
+                  <div class="col-sm-6 col-md-12">
+                    <div class="form-group mb-3">
+                      <label>Sourcing Strategy</label>
+                      <app-editor-normal *ngIf="!isRegisterPaper" formControlName="sourcingStrategy"/>
+                      <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'sourcingStrategy') : ''"
+                                  formControlName="sourcingStrategy"/>
                     </div>
-                    <div class="col-sm-12 col-md-12">
-                      <div class="form-group mb-3 allow-comments" id="key_and_mitigation">
-                        <label>Key Risks and Mitigations</label>
-                        <div class="overflow-auto">
-                          <div class="key-risks-table table-set-width custom-table">
-                            <table class="table">
-                              <thead>
-                              <tr>
-                                <th>ID</th>
-                                <th>Risks</th>
-                                <th>Mitigations</th>
-                                <th>Action</th>
-                              </tr>
-                              </thead>
-                              <tbody formArrayName="riskMitigation">
-                              <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
-                                <td class="align-middle text-start">{{ generateId(i) }}</td>
-                                <td>
+                  </div>
+                  <div class="col-sm-12 col-md-12">
+                    <div class="form-group mb-3 allow-comments" id="key_and_mitigation">
+                      <label>Key Risks and Mitigations</label>
+                      <div class="overflow-auto">
+                        <div class="key-risks-table table-set-width custom-table">
+                          <table class="table">
+                            <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Risks</th>
+                              <th>Mitigations</th>
+                              <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody formArrayName="riskMitigation">
+                            <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
+                              <td class="align-middle text-start">{{ generateId(i) }}</td>
+                              <td>
                               <textarea rows="3" type="text" class="form-control"
                                         placeholder="Enter here" formControlName="risks"></textarea>
-                                <td>
+                              <td>
                               <textarea rows="3" type="text" class="form-control"
                                         placeholder="Enter here" formControlName="mitigations"></textarea>
-                                </td>
-                                <td class="align-middle text-start">
-                                  <div class="krt-action">
-                                    <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)">
-                                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                           xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                          d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                                          fill="#EC4747"/>
-                                      </svg>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                              </tbody>
-                            </table>
-
-                          </div>
+                              </td>
+                              <td class="align-middle text-start">
+                                <div class="krt-action">
+                                  <button type="button" class="btn btn-outline-danger mx-auto" (click)="removeRow(i)">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                      <path
+                                        d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
+                                        fill="#EC4747"/>
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
 
                         </div>
-                        <div class="add-row-btn-div">
-                          <button class="btn p-0" type="button" (click)="addRow()">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"/>
-                            </svg>
-                            Add New Row
-                          </button>
-                        </div>
 
-                        <div class="text-danger" *ngIf="submitted && riskMitigation.invalid">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
+                      </div>
+                      <div class="add-row-btn-div">
+                        <button class="btn p-0" type="button" (click)="addRow()">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                               xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                          </svg>
+                          Add New Row
+                        </button>
+                      </div>
+
+                      <div class="text-danger" *ngIf="submitted && riskMitigation.invalid">
+                        <small class="text-danger">This field is required.</small>
                       </div>
                     </div>
-
-                    <div class="col-sm-6 col-md-12" *ngIf="isShowJustification">
-                      <div class="form-group mb-3">
-                        <label>Single Source Justification</label>
-                        <app-editor-normal *ngIf="!isRegisterPaper" formControlName="singleSourceJustification"/>
-                        <app-editor *ngIf="isRegisterPaper"
-                                    [paperId]="paperId ? (paperId + 'singleSourceJustification') : ''"
-                                    formControlName="singleSourceJustification"/>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-12 col-md-12">
-                      <div class="form-group mb-3 allow-comments" id="invited_to_bid">
-                        <label>Who is invited to bid?</label>
-                        <div class="overflow-auto">
-                          <div class="key-risks-table custom-table">
-                            <table class="table">
-                              <thead>
-                              <tr>
-                                <th>Full Name of Legal Entity *</th>
-                                <th>Local/JV</th>
-                                <th>Country of Incorporation *</th>
-                                <!-- <th>Parent Company name</th> -->
-                                <th>Remarks (If any)</th>
-                                <th>Action</th>
-                              </tr>
-                              </thead>
-                              <tbody formArrayName="inviteToBid">
-                              <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
-                                <td>
-                                  <input type="text" class="form-control" formControlName="legalName"
-                                         placeholder="Enter full name"/>
-                                </td>
-                                <td class="text-center align-middle">
-                                  <input type="checkbox" formControlName="isLocalOrJV"/>
-                                </td>
-                                <td>
-                                  <div class="form-group mb-3">
-                                    <select class="form-control" formControlName="countryId">
-                                      <option [ngValue]="''">Select country</option>
-                                      <option *ngFor="let con of countryDetails" [ngValue]="con.id">
-                                        {{ con.countryName }}
-                                      </option>
-                                    </select>
-                                  </div>
-                                </td>
-                                <!-- <td>
-                                  <input type="text" class="form-control" formControlName="parentCompanyName"
-                                         placeholder="Enter parent company"/>
-                                </td> -->
-                                <td>
-                                  <input type="text" class="form-control" formControlName="remarks"
-                                         placeholder="Enter remark"/>
-                                </td>
-                                <td>
-                                  <div class="krt-action">
-
-                                    <button class="btn p-0" type="button" (click)="removeBidRow(i)"
-                                            [disabled]="inviteToBid.length <= 1">
-                                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                           xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                          d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                                          fill="#EC4747"/>
-                                      </svg>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-
-                        <div class="add-row-btn-div">
-                          <button class="btn p-0" type="button" (click)="addBidRow()">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round"/>
-                            </svg>
-                            Add New Row
-                          </button>
-                        </div>
-
-                        <div class="text-danger" *ngIf="submitted && inviteToBid.invalid">
-                          <small class="text-danger">This field is required.</small>
-                        </div>
-
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div class="form-group mb-3">
-                        <label>SOCAR notification sent on *</label>
-                        <div class="date-input position-relative">
-                          <input id="socaRsentOn" type="date" class="form-control allow-comments"
-                                 formControlName="socaRsentOn"/>
-                          <div class="text-danger"
-                               *ngIf="submitted && procurementDetailsInfo?.get('socaRsentOn')?.hasError('required')">
-                            <small class="text-danger">This field is required.</small>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="form-group mb-3">
-                        <label>SOCAR Response Received Date *</label>
-                        <div class="date-input position-relative">
-                          <input id="socaRreceivedOn" type="date" class="form-control allow-comments"
-                                 formControlName="socaRreceivedOn"/>
-                          <div class="text-danger"
-                               *ngIf="submitted && procurementDetailsInfo?.get('socaRreceivedOn')?.hasError('required')">
-                            <small class="text-danger">This field is required.</small>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group mb-3">
-                        <label>SOCAR’s response</label>
-                        <textarea type="text" class="form-control allow-comments" rows="5"
-                                  placeholder="Write Description" formControlName="socarDescription"></textarea>
-                      </div>
-                    </div>
-                    <div class="col-md-12">
-                      <div class="form-group mb-3">
-                        <label>Results of Pre-qualification Exercise</label>
-                        <textarea type="text" class="form-control allow-comments" placeholder="Write Description"
-                                  formControlName="preQualificationResult"></textarea>
-                      </div>
-                    </div>
-
                   </div>
+
+                  <div class="col-sm-6 col-md-12" *ngIf="isShowJustification">
+                    <div class="form-group mb-3">
+                      <label>Single Source Justification</label>
+                      <app-editor-normal *ngIf="!isRegisterPaper" formControlName="singleSourceJustification"/>
+                      <app-editor *ngIf="isRegisterPaper"
+                                  [paperId]="paperId ? (paperId + 'singleSourceJustification') : ''"
+                                  formControlName="singleSourceJustification"/>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-12 col-md-12">
+                    <div class="form-group mb-3 allow-comments" id="invited_to_bid">
+                      <label>Who is invited to bid?</label>
+                      <div class="overflow-auto">
+                        <div class="key-risks-table custom-table">
+                          <table class="table">
+                            <thead>
+                            <tr>
+                              <th>Full Name of Legal Entity *</th>
+                              <th>Local/JV</th>
+                              <th>Country of Incorporation *</th>
+                              <!-- <th>Parent Company name</th> -->
+                              <th>Remarks (If any)</th>
+                              <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody formArrayName="inviteToBid">
+                            <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
+                              <td>
+                                <input type="text" class="form-control" formControlName="legalName"
+                                       placeholder="Enter full name"/>
+                              </td>
+                              <td class="text-center align-middle">
+                                <input type="checkbox" formControlName="isLocalOrJV"/>
+                              </td>
+                              <td>
+                                <div class="form-group mb-3">
+                                  <select class="form-control" formControlName="countryId">
+                                    <option [ngValue]="''">Select country</option>
+                                    <option *ngFor="let con of countryDetails" [ngValue]="con.id">
+                                      {{ con.countryName }}
+                                    </option>
+                                  </select>
+                                </div>
+                              </td>
+                              <!-- <td>
+                                <input type="text" class="form-control" formControlName="parentCompanyName"
+                                       placeholder="Enter parent company"/>
+                              </td> -->
+                              <td>
+                                <input type="text" class="form-control" formControlName="remarks"
+                                       placeholder="Enter remark"/>
+                              </td>
+                              <td>
+                                <div class="krt-action">
+
+                                  <button class="btn p-0" type="button" (click)="removeBidRow(i)"
+                                          [disabled]="inviteToBid.length <= 1">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                      <path
+                                        d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
+                                        fill="#EC4747"/>
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div class="add-row-btn-div">
+                        <button class="btn p-0" type="button" (click)="addBidRow()">
+                          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
+                               xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                          </svg>
+                          Add New Row
+                        </button>
+                      </div>
+
+                      <div class="text-danger" *ngIf="submitted && inviteToBid.invalid">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group mb-3">
+                      <label>SOCAR notification sent on *</label>
+                      <div class="date-input position-relative">
+                        <input id="socaRsentOn" type="date" class="form-control allow-comments"
+                               formControlName="socaRsentOn"/>
+                        <div class="text-danger"
+                             *ngIf="submitted && procurementDetailsInfo?.get('socaRsentOn')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                      <label>SOCAR Response Received Date *</label>
+                      <div class="date-input position-relative">
+                        <input id="socaRreceivedOn" type="date" class="form-control allow-comments"
+                               formControlName="socaRreceivedOn"/>
+                        <div class="text-danger"
+                             *ngIf="submitted && procurementDetailsInfo?.get('socaRreceivedOn')?.hasError('required')">
+                          <small class="text-danger">This field is required.</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group mb-3">
+                      <label>SOCAR’s response</label>
+                      <textarea type="text" class="form-control allow-comments" rows="5"
+                                placeholder="Write Description" formControlName="socarDescription"></textarea>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>Results of Pre-qualification Exercise</label>
+                      <textarea type="text" class="form-control allow-comments" placeholder="Write Description"
+                                formControlName="preQualificationResult"></textarea>
+                    </div>
+                  </div>
+
                 </div>
+              </div>
 
 
-              <div id="section3" data-section="section3" (click)="toggleSection('section3')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <div id="section3" data-section="section3" (click)="toggleSection('section3')"
+                   class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
                 <h4 class="mb-0">3. Value Delivery</h4>
                 <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section3'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section3'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
               </div>
@@ -795,7 +832,8 @@
                     <div class="col-sm-9 col-md-5">
                       <div class="form-group mb-3">
 
-                          <app-number-input id="costReductionValue" inputClass="allow-comments" formControlName="costReductionValue" placeholder="Value"></app-number-input>
+                        <app-number-input id="costReductionValue" inputClass="allow-comments"
+                                          formControlName="costReductionValue" placeholder="Value"></app-number-input>
 
                       </div>
                     </div>
@@ -830,7 +868,9 @@
                     <div class="col-sm-9 col-md-5">
                       <div class="form-group mb-3">
 
-                        <app-number-input id="operatingEfficiencyValue" inputClass="allow-comments" formControlName="operatingEfficiencyValue" placeholder="Value"></app-number-input>
+                        <app-number-input id="operatingEfficiencyValue" inputClass="allow-comments"
+                                          formControlName="operatingEfficiencyValue"
+                                          placeholder="Value"></app-number-input>
 
                       </div>
                     </div>
@@ -858,7 +898,8 @@
                     <div class="col-sm-9 col-md-5">
                       <div class="form-group mb-3">
 
-                        <app-number-input id="costAvoidanceValue" inputClass="allow-comments" formControlName="costAvoidanceValue" placeholder="Value"></app-number-input>
+                        <app-number-input id="costAvoidanceValue" inputClass="allow-comments"
+                                          formControlName="costAvoidanceValue" placeholder="Value"></app-number-input>
 
                       </div>
                     </div>
@@ -866,7 +907,8 @@
                       <div class="form-group mb-3">
                         <div class="input-group">
                           <span class="input-group-text">%</span>
-                          <input id="costAvoidancePercent" type="number" oninput="if (this.value > 100) this.value = 100"
+                          <input id="costAvoidancePercent" type="number"
+                                 oninput="if (this.value > 100) this.value = 100"
                                  min="0" max="100" class="form-control allow-comments" placeholder="%"
                                  formControlName="costAvoidancePercent"/></div>
                       </div>
@@ -894,15 +936,19 @@
                 </small>
               </div>
 
-              <div id="section4" data-section="section4" (click)="toggleSection('section4')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <div id="section4" data-section="section4" (click)="toggleSection('section4')"
+                   class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
                 <h4 class="mb-0">4. Cost Allocation and JV Approval</h4>
                 <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section4'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section4'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
               </div>
-              <div *ngIf="sectionVisibility['section4']" class="fb-form allow-comments" formGroupName="costAllocation" id="cost_allocation_an_jv">
+              <div *ngIf="sectionVisibility['section4']" class="fb-form allow-comments" formGroupName="costAllocation"
+                   id="cost_allocation_an_jv">
                 <div class="overflow-auto">
                   <div class="cost-table-div custom-table table-responsive">
                     <table class="table table-bordered">
@@ -913,7 +959,7 @@
                           <div class="form-check-list d-flex gap-3 flex-wrap">
                             <div class="form-check-box position-relative">
                               <input [formControlName]="getPSACheckboxControlName(psa)" type="checkbox" readonly>
-                              <label>{{psa}}</label>
+                              <label>{{ psa }}</label>
                             </div>
                           </div>
                         </th>
@@ -929,7 +975,8 @@
                           <div class="input-group">
                             <span class="input-group-text">%</span>
                             <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
-                                   max="100" type="number" placeholder="%" [formControlName]="getPSAPercentageControlName(psa)">
+                                   max="100" type="number" placeholder="%"
+                                   [formControlName]="getPSAPercentageControlName(psa)">
                           </div>
                         </td>
                         <td>
@@ -955,10 +1002,13 @@
                       <tr>
                         <td><b>By value $</b></td>
                         <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                          <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1" [formControlName]="getPSAValueControlName(psa)" placeholder="0.00"></app-number-input>
+                          <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)"
+                                            inputClass="p-1" [formControlName]="getPSAValueControlName(psa)"
+                                            placeholder="0.00"></app-number-input>
                         </td>
                         <td>
-                          <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
+                          <app-number-input [readonly]="true" id="totalValue" inputClass="p-1"
+                                            formControlName="totalValue" placeholder="0.00"></app-number-input>
                         </td>
                       </tr>
 
@@ -968,7 +1018,7 @@
                           <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                             <div class="form-check-box position-relative">
                               <input [formControlName]="getFirstCommitteeControlName(psa)" type="checkbox">
-                              <label>{{getFirstCommitteeLabel(psa)}}</label>
+                              <label>{{ getFirstCommitteeLabel(psa) }}</label>
                             </div>
                           </div>
                         </td>
@@ -982,7 +1032,7 @@
                           <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                             <div class="form-check-box position-relative">
                               <input [formControlName]="getSecondCommitteeControlName(psa)" type="checkbox">
-                              <label>{{getSecondCommitteeLabel(psa)}}</label>
+                              <label>{{ getSecondCommitteeLabel(psa) }}</label>
                             </div>
                           </div>
                         </td>
@@ -990,13 +1040,13 @@
                         </td>
                       </tr>
 
-<!--                      <tr>-->
-<!--                        <td><b>Steering Committee</b></td>-->
-<!--                        <td *ngFor="let psa of getSelectedPSAJVColumns()">-->
-<!--                        </td>-->
-<!--                        <td>-->
-<!--                        </td>-->
-<!--                      </tr>-->
+                      <!--                      <tr>-->
+                      <!--                        <td><b>Steering Committee</b></td>-->
+                      <!--                        <td *ngFor="let psa of getSelectedPSAJVColumns()">-->
+                      <!--                        </td>-->
+                      <!--                        <td>-->
+                      <!--                        </td>-->
+                      <!--                      </tr>-->
                       </tbody>
                     </table>
                     <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
@@ -1007,15 +1057,19 @@
                 </div>
               </div>
 
-              <div id="section5" data-section="section5" (click)="toggleSection('section5')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <div id="section5" data-section="section5" (click)="toggleSection('section5')"
+                   class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
                 <h4 class="mb-0">5. Cost Sharing Methodology</h4>
                 <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section5'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section5'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
               </div>
-              <div *ngIf="sectionVisibility['section5']" class="fb-form allow-comments" formGroupName="costSharing" id="cost_sharing_methodology">
+              <div *ngIf="sectionVisibility['section5']" class="fb-form allow-comments" formGroupName="costSharing"
+                   id="cost_sharing_methodology">
                 <div class="cost-table-div custom-table table-responsive">
                   <table class="table table-bordered">
 
@@ -1356,20 +1410,25 @@
                 </div>
               </div>
 
-              <div id="section6" data-section="section6" (click)="toggleSection('section6')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <div id="section6" data-section="section6" (click)="toggleSection('section6')"
+                   class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
                 <h4 class="mb-0">6. Consultation</h4>
                 <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section6'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section6'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
               </div>
-              <div  *ngIf="sectionVisibility['section6']" class="form-group mb-3 allow-comments fb-form" id="consultation">
+              <div *ngIf="sectionVisibility['section6']" class="form-group mb-3 allow-comments fb-form"
+                   id="consultation">
                 <div class="overflow-auto">
                   <div class="key-risks-table custom-table">
                     <div class="form-group mb-3 text-end d-none">
                       <div class="d-inline-flex align-items-center form-check-box position-relative">
-                        <input id="isNoExistingBudget" class="allow-comments mb-0 me-2" type="checkbox" name="isNoExistingBudget"
+                        <input id="isNoExistingBudget" class="allow-comments mb-0 me-2" type="checkbox"
+                               name="isNoExistingBudget"
                                formControlName="isNoExistingBudget">
                         <label for="isNoExistingBudget" class="mb-0 me-2">No existing budget correct</label>
 
@@ -1420,7 +1479,8 @@
                           </select>
                         </td>
                         <td>
-                          <select class="form-control" formControlName="jvReview" (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
+                          <select class="form-control" formControlName="jvReview"
+                                  (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
                             <option [value]="null">Select</option>
                             <ng-container *ngFor="let user of userDetails">
                               <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
@@ -1465,11 +1525,14 @@
               </div>
 
               <!--            form end===========================================================================-->
-              <div id="section7" data-section="section7" (click)="toggleSection('section7')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <div id="section7" data-section="section7" (click)="toggleSection('section7')"
+                   class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
                 <h4 class="mb-0">7. Attachments</h4>
                 <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section7'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section7'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
               </svg>
             </span>
               </div>
@@ -1482,13 +1545,16 @@
                     <!-- Show selected files with preview and delete option -->
                     <div class="image-slider">
                       <div class="slider-container">
-                        <div class="attach-thumb bg-white slider-item" *ngFor="let file of selectedFiles; let i = index">
+                        <div class="attach-thumb bg-white slider-item"
+                             *ngFor="let file of selectedFiles; let i = index">
 
                           <!-- Show Image Preview for image files -->
-                          <img *ngIf="file.preview && file.isImage" [src]="file.preview" alt="Document Image" class="uploaded-image"/>
+                          <img *ngIf="file.preview && file.isImage" [src]="file.preview" alt="Document Image"
+                               class="uploaded-image"/>
 
                           <!-- Default icon for non-image files -->
-                          <img *ngIf="file.preview && !file.isImage" [src]="'/img/bill.png'" alt="Document Image" class="uploaded-image"/>
+                          <img *ngIf="file.preview && !file.isImage" [src]="'/img/bill.png'" alt="Document Image"
+                               class="uploaded-image"/>
 
                           <div class="file-info d-flex justify-content-between align-items-center">
                             <p class="m-0 file-name">
@@ -1496,7 +1562,8 @@
                             </p>
 
                             <!-- Delete Icon -->
-                            <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            <svg width="13" height="14" viewBox="0 0 13 14" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg"
                                  (click)="removeFile(i, file)" style="cursor: pointer;">
                               <g clip-path="url(#clip0_202_3810)">
                                 <path
@@ -1513,8 +1580,6 @@
                         </div>
                       </div>
                     </div>
-
-
 
 
                     <!-- Drag & Drop Area -->
@@ -1548,7 +1613,8 @@
                     </button>
                     <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')"
                             *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
-                      Send For PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
+                      Send For
+                      PDM {{ paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review' : 'Approval' }}
                     </button>
                     <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
                             *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
@@ -1599,17 +1665,18 @@
                         Vote Now
                       </button>
                     </div>
-                    <div class="ic-btn-div d-flex justify-content-end" *ngIf="loggedInUser?.roleName === 'Procurement Tag' && paperDetails?.paperDetails?.paperStatusName === 'Action Required by CGB'">
-                      <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3" (click)="setPaperStatus('On CGB')">
+                    <div class="ic-btn-div d-flex justify-content-end"
+                         *ngIf="loggedInUser?.roleName === 'Procurement Tag' && paperDetails?.paperDetails?.paperStatusName === 'Action Required by CGB'">
+                      <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
+                              (click)="setPaperStatus('On CGB')">
                         Return to requested
                       </button>
                     </div>
                   </ng-container>
                 </div>
               </div>
-            </form>
-
-
+            </div>
+          </form>
 
 
         </div>

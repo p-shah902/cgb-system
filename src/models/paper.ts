@@ -20,6 +20,7 @@ export interface PaperConfig {
 export interface PaperDetails {
   id: number,
   paperType: string,
+  batchPaperId?: number,
   paperStatusId: string,
   paperStatusName: string,
   paperProvision: string,
