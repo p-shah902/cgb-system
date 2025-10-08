@@ -1037,11 +1037,155 @@ export class Template1Component implements AfterViewInit  {
     });
   }
 
+  /**
+   * Evaluate thresholds and determine if committee checkbox should be checked
+   * This implements the comprehensive Partner Threshold System logic
+   */
+  evaluateThreshold(psaName: string, checkboxType: string, byValue: number): boolean {
+    const sourcingTypeId = Number(this.generalInfoForm.get('generalInfo.sourcingType')?.value) || 0;
+    const psaAgreementId = this.getPSAAgreementId(psaName);
+    const paperType = 'Approach to Market'; // For Template 1
+    console.log('===========', psaAgreementId, this.thresholdData);
+
+    // Filter relevant thresholds based on global conditions
+    const relevantThresholds = this.thresholdData.filter(t => {
+      if (!t.isActive) return false;
+      if (t.thresholdType !== 'Partner') return false;
+      if (t.psaAgreement != psaAgreementId) return false;
+
+      // Handle paperType as array or string
+      const paperTypes = Array.isArray(t.paperType) ? t.paperType : [t.paperType];
+      if (!paperTypes.some(pt => pt === paperType)) return false;
+
+      return true;
+    });
+
+    if (relevantThresholds.length === 0) {
+      console.log(`No relevant thresholds found for PSA: ${psaName}, checkbox: ${checkboxType}`);
+      return false;
+    }
+
+    // Apply sourcingType matching (ignore if threshold has no sourcingType, is 0, or is empty array)
+    const matchingThresholds = relevantThresholds.filter(t => {
+      // Handle sourcingType as array or number
+      const sourcingTypes = Array.isArray(t.sourcingType) ? t.sourcingType : [t.sourcingType];
+
+      // If empty, 0, or null, treat as "Any"
+      if (!sourcingTypes || sourcingTypes.length === 0 || sourcingTypes[0] === 0 || sourcingTypes[0] === null) {
+        return true;
+      }
+
+      return sourcingTypes.includes(sourcingTypeId);
+    });
+
+    if (matchingThresholds.length === 0) {
+      console.log(`No matching thresholds after sourcingType filter for PSA: ${psaName}`);
+      return false;
+    }
+
+    // Select threshold with highest contractValueLimit if multiple matches
+    const selectedThreshold = matchingThresholds.reduce((prev, current) =>
+      (current.contractValueLimit > prev.contractValueLimit) ? current : prev
+    );
+
+    // Check specific Paper Type + Sourcing Type + Committee combinations
+    const shouldCheckBasedOnConditions = this.checkCommitteeConditions(paperType, sourcingTypeId, checkboxType);
+
+    if (!shouldCheckBasedOnConditions) {
+      console.log(`Committee conditions not met for ${psaName} - ${checkboxType}`);
+      return false;
+    }
+
+    // Template 1 & 2 (Approach to Market & Contract): Use ByValue > threshold
+    const exceedsThreshold = byValue > selectedThreshold.contractValueLimit;
+
+    console.log(`Threshold evaluation for ${psaName} - ${checkboxType}:`, {
+      byValue,
+      thresholdLimit: selectedThreshold.contractValueLimit,
+      exceedsThreshold,
+      thresholdId: selectedThreshold.id
+    });
+
+    return exceedsThreshold;
+  }
+
+  // Method to check specific conditions from the threshold table
+  private checkCommitteeConditions(paperType: string, sourcingTypeId: number, committeeControlName: string): boolean {
+    // Map sourcing type IDs to names (adjust these based on your actual IDs)
+    const sourcingTypeMap: { [key: number]: string } = {
+      1: 'Single Source',
+      2: 'Sole Source',
+      3: 'Competitive Bid'
+      // Add more mappings as needed
+    };
+
+    const sourcingTypeName = sourcingTypeMap[sourcingTypeId] || 'Any';
+
+    // Define conditions based on the threshold table
+    const conditions = [
+      // ACG:CMC conditions
+      { paperTypes: ['Contract Award', 'Variation'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'coVenturers_CMC' },
+      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation'], sourcingTypes: ['Competitive Bid'], committee: 'coVenturers_CMC' },
+      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'coVenturers_CMC' },
+
+      // ACG:SC conditions
+      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation', 'Disposal'], sourcingTypes: ['Any'], committee: 'steeringCommittee_SC' },
+
+      // SDCC conditions
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Any'], committee: 'contractCommittee_SDCC' },
+      { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'contractCommittee_SDCC' },
+      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SDCC' },
+
+      // SDMC conditions
+      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation'], sourcingTypes: ['Any'], committee: 'coVenturers_SDMC' },
+      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SDMC' },
+
+      // SCP CC conditions
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_SCP_Co_CC' },
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_SCP_Co_CC' },
+      { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'contractCommittee_SCP_Co_CC' },
+      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SCP_Co_CC' },
+
+      // SCP Board conditions
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'coVenturers_SCP' },
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'coVenturers_SCP' },
+      { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'coVenturers_SCP' },
+      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SCP' },
+
+      // BTC CC conditions
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_BTC_CC' },
+      { paperTypes: ['Variation'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_BTC_CC' },
+      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_BTC_CC' },
+      { paperTypes: ['Variation'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_BTC_CC' },
+      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_BTC_CC' }
+    ];
+
+    // Check if current combination matches any condition
+    return conditions.some(condition => {
+      const paperTypeMatch = condition.paperTypes.includes(paperType);
+      const sourcingTypeMatch = condition.sourcingTypes.includes(sourcingTypeName) ||
+                               condition.sourcingTypes.includes('Any') ||
+                               (condition.sourcingTypes.includes('') && (sourcingTypeName === 'Any' || !sourcingTypeName));
+      const committeeMatch = condition.committee === committeeControlName;
+
+      return paperTypeMatch && sourcingTypeMatch && committeeMatch;
+    });
+  }
+
+  /**
+   * Get PSA Agreement ID from PSA name
+   */
+  getPSAAgreementId(psaName: string): number {
+    const psaItem = this.psaData.find(p => p.itemValue.toLowerCase() === psaName.toLowerCase());
+    return psaItem?.id || 0;
+  }
+
   // Common method to apply committee logic for a specific PSA
   applyCommitteeLogicForPSA(psaName: string, isChecked: boolean): void {
     const valueControlName = this.getPSAValueControlName(psaName);
-    const jvApprovalsData = this.paperDetails?.jvApprovals[0] || null;
+    const jvApprovalsData = this.paperDetails?.jvApprovals && (this.paperDetails.jvApprovals[0] || null);
     const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+    const byValue = valueControl?.value || 0;
 
     if (isChecked) {
       // Handle committee checkboxes based on PSA name
@@ -1052,45 +1196,11 @@ export class Template1Component implements AfterViewInit  {
         if (firstCommitteeControlName && firstCommitteeControl) {
           firstCommitteeControl.enable();
 
-          // Set value based on PSA name, sourcingType, and threshold conditions
-          const sourcingType = this.generalInfoForm.get('generalInfo.sourcingType')?.value;
-          const sourcingTypeData = this.sourcingTypeData.find(item => item.id === Number(sourcingType));
-          const sourcingTypeValue = sourcingTypeData?.itemValue || '';
-          const selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
-          const exceedsThreshold = selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit;
+          // Use new threshold evaluation system
+          const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
+          const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          const psaLower = psaName.toLowerCase();
-          if (psaLower === 'acg') {
-            let checkedCMCBox = jvApprovalsData?.coVenturers_CMC || false;
-            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check CMC
-            if (sourcingTypeValue === 'Competitive Bid' && exceedsThreshold) {
-              checkedCMCBox = true;
-            }
-            firstCommitteeControl.setValue(checkedCMCBox, { emitEvent: false });
-          } else if (psaLower === 'shah deniz') {
-            let checkedSDCC = jvApprovalsData?.contractCommittee_SDCC || false;
-            // Condition 2: When sourcingType is any and value > threshold, check SDCC
-            if (exceedsThreshold) {
-              checkedSDCC = true;
-            }
-            firstCommitteeControl.setValue(checkedSDCC, { emitEvent: false });
-          } else if (psaLower === 'scp') {
-            let checkedSCPCC = jvApprovalsData?.contractCommittee_SCP_Co_CC || false;
-            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check SCP CC
-            // Condition 3: When sourcingType = 'Single Source' and value > threshold, check SCP CC
-            if ((sourcingTypeValue === 'Competitive Bid' || sourcingTypeValue === 'Single Source') && exceedsThreshold) {
-              checkedSCPCC = true;
-            }
-            firstCommitteeControl.setValue(checkedSCPCC, { emitEvent: false });
-          } else if (psaLower === 'btc') {
-            let checkedBTCCC = jvApprovalsData?.contractCommittee_BTC_CC || false;
-            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check BTC CC
-            // Condition 3: When sourcingType = 'Single Source' and value > threshold, check BTC CC
-            if ((sourcingTypeValue === 'Competitive Bid' || sourcingTypeValue === 'Single Source') && exceedsThreshold) {
-              checkedBTCCC = true;
-            }
-            firstCommitteeControl.setValue(checkedBTCCC, { emitEvent: false });
-          }
+          firstCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
         }
       }
 
@@ -1101,37 +1211,11 @@ export class Template1Component implements AfterViewInit  {
         if (secondCommitteeControlName && secondCommitteeControl) {
           secondCommitteeControl.enable();
 
-          // Set value based on PSA name, sourcingType, and threshold conditions
-          const sourcingType = this.generalInfoForm.get('generalInfo.sourcingType')?.value;
-          const sourcingTypeData = this.sourcingTypeData.find(item => item.id === Number(sourcingType));
-          const sourcingTypeValue = sourcingTypeData?.itemValue || '';
-          const selectedThreshold = this.thresholdData.find(f => f.paperType === 'Approach to Market' && f.thresholdType === 'Partner' && sourcingType == f.sourcingType);
-          const exceedsThreshold = selectedThreshold && valueControl?.value > selectedThreshold.contractValueLimit;
+          // Use new threshold evaluation system
+          const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
+          const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          const psaLower = psaName.toLowerCase();
-          if (psaLower === 'acg') {
-            let checkedSC = jvApprovalsData?.steeringCommittee_SC || false;
-            // Condition 2: When sourcingType is any and value > threshold, check SC
-            if (exceedsThreshold) {
-              checkedSC = true;
-            }
-            secondCommitteeControl.setValue(checkedSC, { emitEvent: false });
-          } else if (psaLower === 'shah deniz') {
-            let checkedSDMC = jvApprovalsData?.coVenturers_SDMC || false;
-            // Condition 2: When sourcingType is any and value > threshold, check SDMC
-            if (exceedsThreshold) {
-              checkedSDMC = true;
-            }
-            secondCommitteeControl.setValue(checkedSDMC, { emitEvent: false });
-          } else if (psaLower === 'scp') {
-            let checkedSCPBoard = jvApprovalsData?.coVenturers_SCP || false;
-            // Condition 1: When sourcingType = 'Competitive Bid' and value > threshold, check SCP Board
-            // Condition 3: When sourcingType = 'Single Source' and value > threshold, check SCP Board
-            if ((sourcingTypeValue === 'Competitive Bid' || sourcingTypeValue === 'Single Source') && exceedsThreshold) {
-              checkedSCPBoard = true;
-            }
-            secondCommitteeControl.setValue(checkedSCPBoard, { emitEvent: false });
-          }
+          secondCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
         }
       }
     } else {

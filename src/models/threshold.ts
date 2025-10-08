@@ -15,8 +15,8 @@ export interface ThresholdType {
   thresholdType: string;
   thresholdName: string;
   description: string;
-  paperType: string;
-  sourcingType: number;
+  paperType: string | string[]; // Support both single string and array
+  sourcingType: number | number[]; // Support both single number and array
   contractValueLimit: number;
   extension: string;
   triggerAction: number;

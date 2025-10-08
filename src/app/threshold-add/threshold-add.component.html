@@ -36,7 +36,7 @@
 
               <div class="form-group mb-3">
                 <label>Paper Type*</label>
-                <select id="paperType" class="form-control allow-comments"
+                <select id="paperType" class="form-control allow-comments" multiple
                         formControlName="paperType">
                   <option [value]="null">Select Status</option>
                   <ng-container *ngFor="let item of paperTypeData?.length ? paperTypeData : []">
@@ -47,6 +47,9 @@
                 </select>
                 <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('required')">
                   <small>This field is required.</small>
+                </div>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('arrayMinLength')">
+                  <small>Please select at least one paper type.</small>
                 </div>
 
               </div>
@@ -81,7 +84,7 @@
 
               <div class="form-group mb-3">
                 <label>Sourcing Type*</label>
-                <select id="sourcingType" class="form-control allow-comments"
+                <select id="sourcingType" class="form-control allow-comments" multiple
                         formControlName="sourcingType">
                   <option [value]="null">Select Status</option>
                   <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
@@ -92,6 +95,9 @@
                 </select>
                 <div class="text-danger" *ngIf="submitted && thresholdForm.get('sourcingType')?.hasError('required')">
                   <small>This field is required.</small>
+                </div>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('sourcingType')?.hasError('arrayMinLength')">
+                  <small>Please select at least one sourcing type.</small>
                 </div>
 
               </div>

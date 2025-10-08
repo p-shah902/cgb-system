@@ -1053,123 +1053,31 @@
                   <thead>
                   <tr>
                     <th>PSA</th>
-                    <th>ACG</th>
-                    <th>Shah Deniz</th>
-                    <th>SCP</th>
-                    <th>BTC</th>
-
+                    <th *ngFor="let psa of getSelectedPSAJVColumns()">{{ psa }}</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr>
-                    <td>
-                      <b>Contract
-                        Committee</b>
-                    </td>
-                    <td></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                    <td><b>1st Committee</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SDCC" type="checkbox">
-                          <label>SDCC</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>BTC CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>BTC CC</label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
+                          <input [formControlName]="getFirstCommitteeControlName(psa)" type="checkbox">
+                          <label>{{ getFirstCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
                     </td>
                   </tr>
                   <tr>
-                    <td>
-                      <b>Co-
-                        Venturers</b>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                    <td><b>2nd Committee</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>CMC</label>
+                          <input [formControlName]="getSecondCommitteeControlName(psa)" type="checkbox">
+                          <label>{{ getSecondCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SDMC</label>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SCP Board</label>
-                        </div>
-                      </div>
-                    </td>
-
-                  </tr>
-                  <tr>
-                    <td>
-                      <b>Co-
-                        Venturers</b>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input type="checkbox">
-                          <label>SC</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-
-                    </td>
-
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-
                   </tr>
                   </tbody>
                 </table>

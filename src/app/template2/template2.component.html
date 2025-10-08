@@ -1307,53 +1307,11 @@
                   <thead>
                   <tr>
                     <th>PSA</th>
-                    <th>
+                    <th *ngFor="let psa of getSelectedPSAJVColumns()">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input formControlName="isACG" type="checkbox">
-                          <label>ACG</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isShah" type="checkbox">
-                          <label>Shah
-                            Deniz</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isSCP" type="checkbox">
-                          <label>SCP</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isBTC" type="checkbox">
-                          <label>BTC</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isAsiman" type="checkbox">
-                          <label>Sh-Asiman</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isBPGroup" type="checkbox">
-                          <label>BP
-                            Group</label>
+                          <input [formControlName]="getPSACheckboxControlName(psa)" type="checkbox" readonly>
+                          <label>{{ psa }}</label>
                         </div>
                       </div>
                     </th>
@@ -1365,189 +1323,72 @@
                   <tbody>
                   <tr>
                     <td><b>As%</b></td>
-                    <td>  <div class="input-group">
-                      <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
-                             max="100" type="number" placeholder="%" formControlName="percentage_isACG"></div>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
+                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
+                               max="100" type="number" placeholder="%"
+                               [formControlName]="getPSAPercentageControlName(psa)">
+                      </div>
                     </td>
-                    <td>  <div class="input-group">
-                      <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah"></div>
-                    </td>
-                    <td>  <div class="input-group">
-                      <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP"></div>
-                    </td>
-                    <td>  <div class="input-group">
-                      <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC"></div>
-                    </td>
-                    <td>  <div class="input-group">
-                      <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman"></div>
-                    </td>
-                    <td>  <div class="input-group">
-                      <span class="input-group-text">%</span>
-                      <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                             placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup"></div>
-                    </td>
-                    <td>  <div class="input-group"
-                               [ngClass]="{
-       'is-invalid': generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')
-     }">
-                      <span class="input-group-text">%</span>
-                      <input
-                        oninput="if (this.value > 100) this.value = 100"
-                        class="form-control p-1"
-                        [class.is-invalid]="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')"
-                        readonly
-                        placeholder="%"
-                        min="0"
-                        max="100"
-                        type="number"
-                        formControlName="totalPercentage">
-                    </div>
+                    <td>
+                      <div class="input-group"
+                           [ngClass]="{'is-invalid': generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')}">
+                        <span class="input-group-text">%</span>
+                        <input
+                          oninput="if (this.value > 100) this.value = 100"
+                          class="form-control p-1"
+                          [class.is-invalid]="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')"
+                          readonly
+                          placeholder="%"
+                          min="0"
+                          max="100"
+                          type="number"
+                          formControlName="totalPercentage">
+                      </div>
                     </td>
                   </tr>
 
                   <tr>
                     <td><b>By value $</b></td>
-                    <td>
-                      <app-number-input [readonly]="true" id="value_isACG" inputClass="p-1" formControlName="value_isACG" placeholder="0.00"></app-number-input>
-
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1" 
+                                        [formControlName]="getPSAValueControlName(psa)" placeholder="0.00"></app-number-input>
                     </td>
                     <td>
-
-                      <app-number-input [readonly]="true" id="value_isShah" inputClass="p-1" formControlName="value_isShah" placeholder="0.00"></app-number-input>
-
-                    </td>
-                    <td>
-
-
-                      <app-number-input [readonly]="true" id="value_isSCP" inputClass="p-1" formControlName="value_isSCP" placeholder="0.00"></app-number-input>
-
-                    </td>
-                    <td>
-
-                      <app-number-input [readonly]="true" id="value_isBTC" inputClass="p-1" formControlName="value_isBTC" placeholder="0.00"></app-number-input>
-
-                    </td>
-                    <td>
-
-                      <app-number-input [readonly]="true" id="value_isAsiman" inputClass="p-1" formControlName="value_isAsiman" placeholder="0.00"></app-number-input>
-
-                    </td>
-                    <td>
-                      <app-number-input [readonly]="true" id="value_isBPGroup" inputClass="p-1" formControlName="value_isBPGroup" placeholder="0.00"></app-number-input>
-
-                    </td>
-                    <td>
-
                       <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
-
-                    </td>
-
-                  </tr>
-
-                  <tr>
-                    <td><b>Contract Committee</b></td>
-                    <td>
-
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SDCC" type="checkbox">
-                          <label>SDCC</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SCP_Co_CC" type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_BTC_CC" type="checkbox">
-                          <label>BTC CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">
-                          <label>BTC CC </label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
                     </td>
                   </tr>
 
                   <tr>
-                    <td><b>Co-
-                      Venturers</b></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                    <td><b>1st Committee</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_CMC" type="checkbox">
-                          <label>CMC</label>
+                          <input [formControlName]="getFirstCommitteeControlName(psa)" type="checkbox">
+                          <label>{{ getFirstCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_SDMC" type="checkbox">
-                          <label>SDMC</label>
-                        </div>
+                      <div class="form-check-box position-relative">
+                        <input formControlName="contractCommittee_CGB" type="checkbox">
+                        <label>CGB</label>
                       </div>
                     </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_SCP" type="checkbox">
-                          <label>SCP</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_SCP_Board" type="checkbox">
-                          <label>SCP Board</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
+                  </tr>
 
+                  <tr>
+                    <td><b>2nd Committee</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input [formControlName]="getSecondCommitteeControlName(psa)" type="checkbox">
+                          <label>{{ getSecondCommitteeLabel(psa) }}</label>
+                        </div>
+                      </div>
                     </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
+                    <td></td>
                   </tr>
 
                   <tr>

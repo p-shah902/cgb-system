@@ -65,8 +65,8 @@ export class ThresholdAddComponent {
     this.thresholdForm = this.fb.group({
       thresholdName: ['', Validators.required],
       description: [''],
-      paperType: [null, Validators.required],
-      sourcingType: [null],
+      paperType: [[], [Validators.required, this.arrayMinLengthValidator(1)]], // Changed to array with validation
+      sourcingType: [[]], // Changed to array
       isActive: [true],
       psaAgreement: [null],
       contractValueLimit: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
@@ -81,7 +81,7 @@ export class ThresholdAddComponent {
           console.log('Type:', this.type, this.thresholdId);
 
           if (this.type === 'internal') {
-            this.thresholdForm.get('sourcingType')?.setValidators(Validators.required);
+            this.thresholdForm.get('sourcingType')?.setValidators([Validators.required, this.arrayMinLengthValidator(1)]);
           } else {
             this.thresholdForm.get('sourcingType')?.clearValidators();
           }
@@ -121,7 +121,10 @@ export class ThresholdAddComponent {
     const payload = {
       ...formValues,
       thresholdType: this.type === "internal" ? "Internal" : "Partner",
-      sourcingType: formValues.sourcingType ? Number(formValues.sourcingType) : 0,
+      // Handle sourcingType as array - convert to numbers or set to 0 if empty
+      sourcingType: Array.isArray(formValues.sourcingType) && formValues.sourcingType.length > 0 
+        ? formValues.sourcingType.map((id: string) => Number(id)) 
+        : 0,
       psaAgreement: formValues.psaAgreement ? Number(formValues.psaAgreement) : 0,
       extension: "",
       notificationSendTo: "",
@@ -218,8 +221,14 @@ export class ThresholdAddComponent {
           this.thresholdForm.patchValue({
             thresholdName: this.selectedThreshold.thresholdName,
             description: this.selectedThreshold.description,
-            paperType: this.selectedThreshold.paperType,
-            sourcingType: this.selectedThreshold.sourcingType ? this.selectedThreshold.sourcingType.toString() : '',
+            // Handle paperType as array or string
+            paperType: Array.isArray(this.selectedThreshold.paperType) 
+              ? this.selectedThreshold.paperType 
+              : [this.selectedThreshold.paperType],
+            // Handle sourcingType as array or number
+            sourcingType: Array.isArray(this.selectedThreshold.sourcingType) 
+              ? this.selectedThreshold.sourcingType.map(id => id.toString())
+              : (this.selectedThreshold.sourcingType ? [this.selectedThreshold.sourcingType.toString()] : []),
             isActive: this.selectedThreshold.isActive,
             psaAgreement: this.selectedThreshold.psaAgreement ? this.selectedThreshold.psaAgreement.toString() : '',
             contractValueLimit: this.selectedThreshold.contractValueLimit,
@@ -246,7 +255,16 @@ export class ThresholdAddComponent {
   discard(): void {
     this.thresholdForm.reset();
     this.router.navigate(['/threshold']);
+  }
 
+  // Custom validator for array minimum length
+  arrayMinLengthValidator(minLength: number) {
+    return (control: any) => {
+      if (!control.value || !Array.isArray(control.value) || control.value.length < minLength) {
+        return { arrayMinLength: { requiredLength: minLength, actualLength: control.value?.length || 0 } };
+      }
+      return null;
+    };
   }
 
 }

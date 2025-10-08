@@ -27,6 +27,7 @@
                                 <tr class="sticky">
                                   <th>Threshold Name</th>
                                   <th>Paper Type</th>
+                                  <th>Sourcing Type</th>
                                   <th>Criteria</th>
                                   <th>Action</th>
                                 </tr>
@@ -34,7 +35,25 @@
                               <tbody>
                                 <tr *ngFor="let threshold of internalThresholds">
                                   <td>{{ threshold.thresholdName }}</td>
-                                  <td>{{ threshold.paperType }}</td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.paperType)">
+                                      {{ threshold.paperType.join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.paperType)">
+                                      {{ threshold.paperType }}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.sourcingType)">
+                                      {{ getSourcingTypeNames(threshold.sourcingType).join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.sourcingType) && threshold.sourcingType">
+                                      {{ getSourcingTypeName(threshold.sourcingType) }}
+                                    </span>
+                                    <span *ngIf="!threshold.sourcingType || threshold.sourcingType === 0">
+                                      Any
+                                    </span>
+                                  </td>
                                   <td>{{ threshold.contractValueLimit }}</td>
                                   <td>
                                     <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
@@ -73,6 +92,7 @@
                                 <tr>
                                   <th>Threshold Name</th>
                                   <th>Paper Type</th>
+                                  <th>Sourcing Type</th>
                                   <th>Criteria</th>
                                   <th>Action</th>
                                 </tr>
@@ -80,7 +100,25 @@
                               <tbody>
                                 <tr *ngFor="let threshold of partnerThresholds">
                                   <td>{{ threshold.thresholdName }}</td>
-                                  <td>{{ threshold.paperType }}</td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.paperType)">
+                                      {{ threshold.paperType.join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.paperType)">
+                                      {{ threshold.paperType }}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.sourcingType)">
+                                      {{ getSourcingTypeNames(threshold.sourcingType).join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.sourcingType) && threshold.sourcingType">
+                                      {{ getSourcingTypeName(threshold.sourcingType) }}
+                                    </span>
+                                    <span *ngIf="!threshold.sourcingType || threshold.sourcingType === 0">
+                                      Any
+                                    </span>
+                                  </td>
                                   <td>{{ threshold.contractValueLimit }}</td>
                                   <td>
                                     <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">

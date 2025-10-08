@@ -61,4 +61,25 @@ export class ThresholdComponent implements OnInit {
       }
     });
   }
+
+  // Helper method to get sourcing type name by ID
+  getSourcingTypeName(id: number): string {
+    const sourcingTypeMap: { [key: number]: string } = {
+      1: 'Single Source',
+      2: 'Sole Source',
+      3: 'Competitive Bid'
+      // Add more mappings as needed
+    };
+    return sourcingTypeMap[id] || `Unknown (${id})`;
+  }
+
+  // Helper method to get multiple sourcing type names by IDs
+  getSourcingTypeNames(ids: number[]): string[] {
+    return ids.map(id => this.getSourcingTypeName(id));
+  }
+
+  // Helper method to check if value is array
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
 }
