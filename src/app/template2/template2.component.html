@@ -257,23 +257,6 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>BLT Member* </label>
-                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group mb-3">
                     <label>Subsector*</label>
                     <select class="form-control allow-comments" formControlName="subSector" id="subSector">
                       <option [value]="''">Select</option>
@@ -288,9 +271,7 @@
                     </div>
                   </div>
                 </div>
-
-
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager*</label>
 
@@ -320,6 +301,23 @@
                     </div>
                   </div>
                 </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>PDM*</label>
+                    <select class="form-control allow-comments" formControlName="pdManagerName" id="pdManagerName">
+                      <option [value]="null">Select</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>VP-1* </label>
@@ -337,21 +335,19 @@
                     </div>
                   </div>
                 </div>
-
-                <div class="col-sm-6 col-md-6">
+                <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>PDM*</label>
-                    <select class="form-control allow-comments" formControlName="pdManagerName" id="pdManagerName">
+                    <label>BLT Member* </label>
+                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
+                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
                           {{ user.displayName }}
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
                 </div>
