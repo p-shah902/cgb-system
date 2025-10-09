@@ -59,11 +59,11 @@ export const getPaperContractAwardByPaperId = baseUri + '/PaperConfiguration/Get
 export const getPaperVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperVariationByPaperId';
 export const getPaperApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperApprovalOfSalesByPaperId';
 export const getPaperInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperInfoNoteByPaperId';
-export const getPaperPreviewByApproachToMarketId = baseUri + '/PaperConfiguration/GetPaperPreviewByApproachToMarketId';
-export const getPaperPreviewContractAwardByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewContractAwardByPaperId';
-export const getPaperPreviewVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewVariationByPaperId';
-export const getPaperPreviewApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewApprovalOfSalesByPaperId';
-export const getPaperPreviewInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewInfoNoteByPaperId';
+export const getPaperPreviewByApproachToMarketId = baseUri + '/PaperConfiguration/GetPaperPreviewByApproachToMarket';
+export const getPaperPreviewContractAwardByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewContractAwardByPaper';
+export const getPaperPreviewVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewVariationByPaper';
+export const getPaperPreviewApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewApprovalOfSalesByPaper';
+export const getPaperPreviewInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewInfoNoteByPaper';
 
 // Role Management
 export const getUserRolesUri = baseUri + '/RoleManagement/GetUserRolesList';
