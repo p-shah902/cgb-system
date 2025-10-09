@@ -89,6 +89,21 @@
               </div>
 
               <div class="form-group mb-3">
+                <label>Committee*</label>
+                <select id="committee" class="form-control allow-comments" formControlName="committee">
+                  <option [value]="null">Select Committee</option>
+                  <ng-container *ngFor="let item of committeeData">
+                    <option [value]="item.value">
+                      {{ item.label }}
+                    </option>
+                  </ng-container>
+                </select>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('committee')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
                 <label>Contract Absolute Value*</label>
                 <input min="0" type="number" class="form-control" formControlName="contractValueLimit"
                        placeholder="Ie. >= $5,000,000"/>

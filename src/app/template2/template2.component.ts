@@ -1088,47 +1088,35 @@ export class Template2Component implements AfterViewInit {
 
   // Method to check specific conditions from the threshold table and return the selected threshold
   private checkCommitteeConditions(paperType: string, sourcingTypeId: number, committeeControlName: string, matchingThresholds: any[]): any | null {
-    // Dynamically map sourcing type IDs to names from sourcingTypeData
-    const sourcingTypeMap: { [key: number]: string } = {};
-    this.sourcingTypeData.forEach(item => {
-      sourcingTypeMap[item.id] = item.itemValue;
+    // Filter thresholds by committee from extension field
+    // The committee is now stored in the threshold's extension field
+    const committeeFilteredThresholds = matchingThresholds.filter(t => {
+      // Check if the threshold's committee (stored in extension) matches the requested committee
+      return t.extension === committeeControlName;
     });
 
-    const sourcingTypeName = sourcingTypeMap[sourcingTypeId] || 'Any';
-
-    // Check if current combination matches any condition and return the appropriate threshold
-    const matchingCondition = COMMITTEE_CONDITIONS.find(condition => {
-      const paperTypeMatch = condition.paperTypes.includes(paperType);
-      const sourcingTypeMatch = condition.sourcingTypes.includes(sourcingTypeName) ||
-                               condition.sourcingTypes.includes('Any') ||
-                               (condition.sourcingTypes.includes('') && (sourcingTypeName === 'Any' || !sourcingTypeName));
-      const committeeMatch = condition.committee === committeeControlName;
-
-      return paperTypeMatch && sourcingTypeMatch && committeeMatch;
-    });
-
-    if (!matchingCondition) {
-      return null; // No matching condition found
+    if (committeeFilteredThresholds.length === 0) {
+      console.log(`No thresholds found for committee: ${committeeControlName}`);
+      return null; // No matching thresholds for this committee
     }
-    
-    // Now apply paperType filtering first
-    const paperTypeFilteredThresholds = matchingThresholds.filter(t => {
+
+    // Now apply paperType filtering
+    const paperTypeFilteredThresholds = committeeFilteredThresholds.filter(t => {
       // Handle paperType as comma-separated string or array
       const thresholdPaperTypes = typeof t.paperType === 'string'
         ? t.paperType.split(',').map((pt: string) => pt.trim())
         : (Array.isArray(t.paperType) ? t.paperType : [t.paperType]);
-      
-      // Check if ALL of the threshold's paper types match the paper types from the matching condition
-      return thresholdPaperTypes.every((tpt: string) => matchingCondition.paperTypes.includes(tpt));
+
+      // Check if the paper type matches
+      return thresholdPaperTypes.includes(paperType);
     });
 
     if (paperTypeFilteredThresholds.length === 0) {
+      console.log(`No thresholds found for paper type: ${paperType}`);
       return null;
     }
 
     // Now apply sourcingType filtering to the paper type filtered thresholds
-    // This should happen after we find the matching condition
-    // We need to filter based on the sourcing types from the matching condition, not the input sourcingTypeId
     const sourcingTypeFilteredThresholds = paperTypeFilteredThresholds.filter(t => {
       // Handle sourcingType as comma-separated string or array
       let thresholdSourcingTypes: number[] = [];
@@ -1147,42 +1135,18 @@ export class Template2Component implements AfterViewInit {
         return true;
       }
 
-      // Check if the threshold's sourcing types match any of the sourcing types from the matching condition
-      // Convert condition sourcing types to IDs for comparison
-      const conditionSourcingTypeIds = matchingCondition.sourcingTypes
-        .filter(st => st !== '')
-        .map(st => {
-          const sourcingTypeItem = this.sourcingTypeData.find(item => item.itemValue === st);
-          return sourcingTypeItem ? sourcingTypeItem.id : null;
-        })
-        .filter(id => id !== null);
-
-      // If condition has "Any" or empty sourcing types, match all thresholds
-      if (matchingCondition.sourcingTypes.includes('')) {
-        return true;
-      }
-
-      // Check if any of the threshold's sourcing types match the condition's sourcing types
-      return thresholdSourcingTypes.some(thresholdSt => conditionSourcingTypeIds.includes(thresholdSt));
+      // Check if the sourcing type matches
+      return thresholdSourcingTypes.includes(sourcingTypeId);
     });
 
     if (sourcingTypeFilteredThresholds.length === 0) {
+      console.log(`No thresholds found for sourcing type: ${sourcingTypeId}`);
       return null;
     }
 
-    // The committee-specific threshold selection is based on the committee conditions
-    // Different committees should have different thresholds with different contractValueLimit values
-    // We need to return the threshold that matches the committee's expected value
-
-    // Since we can't distinguish by committee field, we need to use the committee conditions
-    // to determine which threshold to return based on the expected contractValueLimit
-
-    // The threshold data should have separate records for each committee with different contractValueLimit values
-    // We need to find the threshold that matches the committee's expected value from the matchingThresholds array
-
-    // For now, return the first matching threshold
-    // The committee-specific threshold selection should be handled by having separate threshold records
-    // with different contractValueLimit values for different committees in the threshold data
+    // Return the first matching threshold
+    // Since we've already filtered by committee, paper type, and sourcing type,
+    // we can return the first match
     return sourcingTypeFilteredThresholds[0];
   }
 

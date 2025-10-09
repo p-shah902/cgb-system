@@ -14,6 +14,7 @@ import {ThresholdService} from '../../service/threshold.service';
 import {DictionaryDetail} from '../../models/dictionary';
 import {ThresholdType} from '../../models/threshold';
 import {Select2} from 'ng-select2-component';
+import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
 
 @Component({
   selector: 'app-threshold-add',
@@ -62,8 +63,14 @@ export class ThresholdAddComponent {
     },
   ];
 
+  // Committee dropdown data - dynamically generated from COMMITTEE_CONDITIONS
+  public committeeData: { value: string; label: string }[] = [];
+
 
   ngOnInit(): void {
+    // Initialize committee data from COMMITTEE_CONDITIONS
+    this.initializeCommitteeData();
+
     this.thresholdForm = this.fb.group({
       thresholdName: ['', Validators.required],
       description: [''],
@@ -71,6 +78,7 @@ export class ThresholdAddComponent {
       sourcingType: [[]], // Changed to array
       isActive: [true],
       psaAgreement: [null],
+      committee: [null, Validators.required], // Add committee field
       contractValueLimit: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       variationPercent: [null],
     });
@@ -124,11 +132,11 @@ export class ThresholdAddComponent {
       ...formValues,
       thresholdType: this.type === "internal" ? "Internal" : "Partner",
       // Handle sourcingType as array - convert to numbers or set to 0 if empty
-      sourcingType: Array.isArray(formValues.sourcingType) && formValues.sourcingType.length > 0 
-        ? formValues.sourcingType.map((id: string) => Number(id)) 
+      sourcingType: Array.isArray(formValues.sourcingType) && formValues.sourcingType.length > 0
+        ? formValues.sourcingType.map((id: string) => Number(id))
         : 0,
       psaAgreements: formValues.psaAgreement ? Number(formValues.psaAgreement) : 0,
-      extension: "",
+      extension: formValues.committee || "", // Save committee in extension field
       notificationSendTo: "",
     };
 
@@ -207,6 +215,10 @@ export class ThresholdAddComponent {
             value: item.id.toString(),
             label: item.itemValue
           }));
+          this.sourcingTypeData.push({
+            value: "0",
+            label: "Any"
+          })
         }
       },
       error: (error) => {
@@ -232,6 +244,7 @@ export class ThresholdAddComponent {
             sourcingType: (this.selectedThreshold.sourcingType as any).split(','),
             isActive: this.selectedThreshold.isActive,
             psaAgreement: this.selectedThreshold.psaAgreement ? this.selectedThreshold.psaAgreement.toString() : '',
+            committee: this.selectedThreshold.extension || '', // Load committee from extension
             contractValueLimit: this.selectedThreshold.contractValueLimit,
             // variationPercent: this.selectedThreshold.variationPercent || '', // fallback in case field is missing
           });
@@ -251,6 +264,48 @@ export class ThresholdAddComponent {
     if (this.completedCount === this.totalCalls) {
       this.allApisDone$.next(true);
     }
+  }
+
+  /**
+   * Initialize committee dropdown data from COMMITTEE_CONDITIONS
+   * Extract unique committee values and create dropdown options
+   */
+  private initializeCommitteeData(): void {
+    // Get unique committee values from COMMITTEE_CONDITIONS
+    const uniqueCommittees = new Set<string>();
+    COMMITTEE_CONDITIONS.forEach(condition => {
+      uniqueCommittees.add(condition.committee);
+    });
+
+    // Convert to dropdown format with readable labels
+    this.committeeData = Array.from(uniqueCommittees).map(committee => ({
+      value: committee,
+      label: this.formatCommitteeLabel(committee)
+    })).sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  /**
+   * Format committee control name to readable label
+   * Based on the image format: CMC, SDCC, SCP Co CC, BTC CC, SC, SDMC, SCP Board
+   */
+  private formatCommitteeLabel(committee: string): string {
+    // Map committee control names to display labels
+    const committeeLabelMap: { [key: string]: string } = {
+      'coVenturers_CMC': 'CMC',
+      'contractCommittee_SDCC': 'SDCC',
+      'contractCommittee_SCP_Co_CC': 'SCP Co CC',
+      'contractCommittee_BTC_CC': 'BTC CC',
+      'steeringCommittee_SC': 'SC',
+      'coVenturers_SDMC': 'SDMC',
+      'coVenturers_SCP': 'SCP Board',
+      'contractCommittee_CMC': 'CMC',
+      'supplyChainCommittee_SDCC': 'SDCC',
+      'contractCommittee_SCP_CC': 'SCP CC',
+      'committeeBoard_SCP_BOARD': 'SCP Board',
+      'committeeBoard_ACG_BOARD': 'ACG Board'
+    };
+
+    return committeeLabelMap[committee] || committee;
   }
 
   discard(): void {
