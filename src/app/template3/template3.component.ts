@@ -46,6 +46,7 @@ import {CURRENCY_LIST} from '../../utils/constant';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
+import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
 
 @Component({
   selector: 'app-template3',
@@ -925,17 +926,11 @@ getGroupForm(key: string): FormGroup {
     const psaAgreementId = this.getPSAAgreementId(psaName);
     const paperType = 'Variation'; // For Template 3
 
-    // Filter relevant thresholds based on global conditions
+    // Filter relevant thresholds based on global conditions (PSA Agreement and Threshold Type only)
     const relevantThresholds = this.thresholdData.filter(t => {
       if (!t.isActive) return false;
       if (t.thresholdType !== 'Partner') return false;
       if (t.psaAgreement != psaAgreementId) return false;
-
-      // Handle paperType as comma-separated string or array
-      const paperTypes = typeof t.paperType === 'string' 
-        ? t.paperType.split(',').map(pt => pt.trim())
-        : (Array.isArray(t.paperType) ? t.paperType : [t.paperType]);
-      if (!paperTypes.some(pt => pt === paperType)) return false;
 
       return true;
     });
@@ -946,10 +941,10 @@ getGroupForm(key: string): FormGroup {
     }
 
     // Apply sourcingType matching (ignore if threshold has no sourcingType, is 0, or is empty array)
-    const matchingThresholds = relevantThresholds.filter(t => {
+    const sourcingTypeFilteredThresholds = relevantThresholds.filter(t => {
       // Handle sourcingType as comma-separated string or array
       let sourcingTypes: number[] = [];
-      
+
       if (typeof t.sourcingType === 'string') {
         // Split comma-separated string and convert to numbers
         sourcingTypes = t.sourcingType.split(',').map(st => Number(st.trim())).filter(n => !isNaN(n));
@@ -967,23 +962,15 @@ getGroupForm(key: string): FormGroup {
       return sourcingTypes.includes(sourcingTypeId);
     });
 
-    if (matchingThresholds.length === 0) {
-      console.log(`No matching thresholds after sourcingType filter for PSA: ${psaName}`);
-      return false;
-    }
+    // Check specific Paper Type + Sourcing Type + Committee combinations and get the selected threshold
+    const selectedThreshold = this.checkCommitteeConditions(paperType, sourcingTypeId, checkboxType, relevantThresholds);
 
-    // Select threshold with highest contractValueLimit if multiple matches
-    const selectedThreshold = matchingThresholds.reduce((prev, current) =>
-      (current.contractValueLimit > prev.contractValueLimit) ? current : prev
-    );
-
-    // Check specific Paper Type + Sourcing Type + Committee combinations
-    const shouldCheckBasedOnConditions = this.checkCommitteeConditions(paperType, sourcingTypeId, checkboxType);
-
-    if (!shouldCheckBasedOnConditions) {
+    if (!selectedThreshold) {
       console.log(`Committee conditions not met for ${psaName} - ${checkboxType}`);
       return false;
     }
+
+
 
     let exceedsThreshold = false;
 
@@ -1038,57 +1025,18 @@ getGroupForm(key: string): FormGroup {
     return exceedsThreshold;
   }
 
-  // Method to check specific conditions from the threshold table
-  private checkCommitteeConditions(paperType: string, sourcingTypeId: number, committeeControlName: string): boolean {
+  // Method to check specific conditions from the threshold table and return the selected threshold
+  private checkCommitteeConditions(paperType: string, sourcingTypeId: number, committeeControlName: string, matchingThresholds: any[]): any | null {
     // Dynamically map sourcing type IDs to names from sourcingTypeData
     const sourcingTypeMap: { [key: number]: string } = {};
     this.sourcingTypeData.forEach(item => {
       sourcingTypeMap[item.id] = item.itemValue;
     });
-    
+
     const sourcingTypeName = sourcingTypeMap[sourcingTypeId] || 'Any';
 
-    // Define conditions based on the threshold table
-    const conditions = [
-      // ACG:CMC conditions
-      { paperTypes: ['Contract Award', 'Variation'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'coVenturers_CMC' },
-      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation'], sourcingTypes: ['Competitive Bid'], committee: 'coVenturers_CMC' },
-      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'coVenturers_CMC' },
-
-      // ACG:SC conditions
-      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation', 'Approval of Sale / Disposal Form'], sourcingTypes: ['Any'], committee: 'steeringCommittee_SC' },
-
-      // SDCC conditions
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Any'], committee: 'contractCommittee_SDCC' },
-      { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'contractCommittee_SDCC' },
-      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SDCC' },
-
-      // SDMC conditions
-      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation'], sourcingTypes: ['Any'], committee: 'coVenturers_SDMC' },
-      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SDMC' },
-
-      // SCP CC conditions
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_SCP_Co_CC' },
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_SCP_Co_CC' },
-      { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'contractCommittee_SCP_Co_CC' },
-      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SCP_Co_CC' },
-
-      // SCP Board conditions
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'coVenturers_SCP' },
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'coVenturers_SCP' },
-      { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'coVenturers_SCP' },
-      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SCP' },
-
-      // BTC CC conditions
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_BTC_CC' },
-      { paperTypes: ['Variation'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_BTC_CC' },
-      { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_BTC_CC' },
-      { paperTypes: ['Variation'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_BTC_CC' },
-      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_BTC_CC' }
-    ];
-
-    // Check if current combination matches any condition
-    return conditions.some(condition => {
+    // Check if current combination matches any condition and return the appropriate threshold
+    const matchingCondition = COMMITTEE_CONDITIONS.find(condition => {
       const paperTypeMatch = condition.paperTypes.includes(paperType);
       const sourcingTypeMatch = condition.sourcingTypes.includes(sourcingTypeName) ||
                                condition.sourcingTypes.includes('Any') ||
@@ -1097,6 +1045,84 @@ getGroupForm(key: string): FormGroup {
 
       return paperTypeMatch && sourcingTypeMatch && committeeMatch;
     });
+
+    if (!matchingCondition) {
+      return null; // No matching condition found
+    }
+    
+    // Now apply paperType filtering first
+    const paperTypeFilteredThresholds = matchingThresholds.filter(t => {
+      // Handle paperType as comma-separated string or array
+      const thresholdPaperTypes = typeof t.paperType === 'string'
+        ? t.paperType.split(',').map((pt: string) => pt.trim())
+        : (Array.isArray(t.paperType) ? t.paperType : [t.paperType]);
+      
+      // Check if ALL of the threshold's paper types match the paper types from the matching condition
+      return thresholdPaperTypes.every((tpt: string) => matchingCondition.paperTypes.includes(tpt));
+    });
+
+    if (paperTypeFilteredThresholds.length === 0) {
+      return null;
+    }
+
+    // Now apply sourcingType filtering to the paper type filtered thresholds
+    // This should happen after we find the matching condition
+    // We need to filter based on the sourcing types from the matching condition, not the input sourcingTypeId
+    const sourcingTypeFilteredThresholds = paperTypeFilteredThresholds.filter(t => {
+      // Handle sourcingType as comma-separated string or array
+      let thresholdSourcingTypes: number[] = [];
+
+      if (typeof t.sourcingType === 'string') {
+        // Split comma-separated string and convert to numbers
+        thresholdSourcingTypes = t.sourcingType.split(',').map((st: string) => Number(st.trim())).filter((n: number) => !isNaN(n));
+      } else if (Array.isArray(t.sourcingType)) {
+        thresholdSourcingTypes = t.sourcingType;
+      } else if (t.sourcingType) {
+        thresholdSourcingTypes = [t.sourcingType];
+      }
+
+      // If threshold has no sourcingType, 0, or empty array, it matches any sourcing type
+      if (!thresholdSourcingTypes || thresholdSourcingTypes.length === 0 || thresholdSourcingTypes[0] === 0 || thresholdSourcingTypes[0] === null) {
+        return true;
+      }
+
+      // Check if the threshold's sourcing types match any of the sourcing types from the matching condition
+      // Convert condition sourcing types to IDs for comparison
+      const conditionSourcingTypeIds = matchingCondition.sourcingTypes
+        .filter(st => st !== '')
+        .map(st => {
+          const sourcingTypeItem = this.sourcingTypeData.find(item => item.itemValue === st);
+          return sourcingTypeItem ? sourcingTypeItem.id : null;
+        })
+        .filter(id => id !== null);
+
+      // If condition has "Any" or empty sourcing types, match all thresholds
+      if (matchingCondition.sourcingTypes.includes('')) {
+        return true;
+      }
+
+      // Check if any of the threshold's sourcing types match the condition's sourcing types
+      return thresholdSourcingTypes.some(thresholdSt => conditionSourcingTypeIds.includes(thresholdSt));
+    });
+
+    if (sourcingTypeFilteredThresholds.length === 0) {
+      return null;
+    }
+
+    // The committee-specific threshold selection is based on the committee conditions
+    // Different committees should have different thresholds with different contractValueLimit values
+    // We need to return the threshold that matches the committee's expected value
+
+    // Since we can't distinguish by committee field, we need to use the committee conditions
+    // to determine which threshold to return based on the expected contractValueLimit
+
+    // The threshold data should have separate records for each committee with different contractValueLimit values
+    // We need to find the threshold that matches the committee's expected value from the matchingThresholds array
+
+    // For now, return the first matching threshold
+    // The committee-specific threshold selection should be handled by having separate threshold records
+    // with different contractValueLimit values for different committees in the threshold data
+    return sourcingTypeFilteredThresholds[0];
   }
 
   /**
