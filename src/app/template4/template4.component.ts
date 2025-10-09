@@ -19,6 +19,7 @@ import {LoginUser, UserDetails} from '../../models/user';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
 import {Generalervice} from '../../service/general.service';
+import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
 import {ToastService} from '../../service/toast.service';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
@@ -40,7 +41,7 @@ import {CommentableDirective} from '../../directives/commentable.directive';
 import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {cleanObject} from '../../utils/index';
+import {cleanObject, base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
@@ -89,6 +90,7 @@ export class Template4Component  implements AfterViewInit{
   procurementTagUsers: any[] = [];
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
+  deletedFiles: number[] = []
   isDragging = false;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
@@ -105,9 +107,10 @@ export class Template4Component  implements AfterViewInit{
     section1: true,
     section2: false,
     section3: false,
+    section4: false,
   };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
-              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
+              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -378,6 +381,7 @@ export class Template4Component  implements AfterViewInit{
 
         this.addConsultationRow(true);
         this.setupPSAListeners()
+        this.getUploadedDocs(paperId);
       }
     })
   }
@@ -1331,6 +1335,10 @@ export class Template4Component  implements AfterViewInit{
     this.paperService.upsertApprovalOfSales(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
+          const docId = response.data || null
+          this.uploadFiles(docId)
+          this.deleteMultipleDocuments(docId)
+
           this.generalInfoForm.reset();
           this.submitted = false;
           this.toastService.show(response.message || "Added Successfully", 'success');
@@ -1462,5 +1470,128 @@ export class Template4Component  implements AfterViewInit{
     this.sectionVisibility[section] = !this.sectionVisibility[section];
   }
 
+  // Attachment methods
+  getUploadedDocs(paperId: number): void {
+    this.uploadService.getDocItemsListByPaperId(paperId).subscribe((value: any) => {
+      const response = value?.data;
+
+      if (response && Array.isArray(response) && response.length > 0) {
+        this.selectedFiles = response.map((doc: any) => {
+          const mimeType = getMimeTypeFromFileName(doc.docName);
+          return {
+            name: doc.docName,
+            preview: `data:${mimeType};base64,${doc.fileData}`,
+            file: null,
+            isImage: mimeType.startsWith('image'),
+            id: doc.id
+          };
+        });
+      } else {
+        this.selectedFiles = []; // Clear or handle empty state
+      }
+    });
+  }
+
+  onFileSelected(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files) {
+      Array.from(inputElement.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileType = getMimeTypeFromFileName(file.name);
+          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'),id: null });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+
+    if (event.dataTransfer?.files) {
+      Array.from(event.dataTransfer.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileType = getMimeTypeFromFileName(file.name);
+
+          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  // Remove a selected file
+  removeFile(index: number, file: any = null) {
+    this.selectedFiles.splice(index, 1);
+    if(file.id && !this.isCopy) {
+      this.deletedFiles.push(Number(file.id))
+    }
+  }
+
+  deleteMultipleDocuments(paperId: number | null) {
+    if (!paperId || this.deletedFiles.length === 0) return;
+
+    this.deletedFiles.forEach(docId => {
+      this.uploadService.deleteDocuments(paperId, docId).subscribe({
+        next: (res: any) => {
+          if (res.success) {
+            console.log(`Deleted docId: ${docId}`);
+          }
+        },
+        error: (err: any) => {
+          console.error(`Failed to delete docId ${docId}:`, err);
+        }
+      });
+    });
+  }
+
+  uploadFiles(docId: number | null) {
+    if (!docId || this.selectedFiles.length === 0) return;
+
+    const formData = new FormData();
+
+    this.selectedFiles.forEach(item => {
+      let file: File | null = null;
+
+      if (item.file) {
+        file = item.file;
+      } else if (item.preview) {
+        const base64 = item.preview.split(',')[1];
+        const mimeType = getMimeTypeFromFileName(item.name);
+        file = base64ToFile(base64, item.name, mimeType);
+      }
+
+      if (file) {
+        formData.append('Files', file);
+      }
+    });
+
+    if (formData.has('Files')) {
+      this.uploadService.uploadDocuments(docId, formData).subscribe({
+        next: (response: any) => {
+          if (response.status && response.data) {
+            console.log('Files uploaded successfully!');
+            this.selectedFiles = [];
+          }
+        },
+        error: (error: any) => {
+          console.error('Upload error:', error);
+        },
+      });
+    }
+  }
 
 }
