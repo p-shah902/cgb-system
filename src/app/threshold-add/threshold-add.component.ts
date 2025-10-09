@@ -13,11 +13,12 @@ import {DictionaryService} from '../../service/dictionary.service';
 import {ThresholdService} from '../../service/threshold.service';
 import {DictionaryDetail} from '../../models/dictionary';
 import {ThresholdType} from '../../models/threshold';
+import {Select2} from 'ng-select2-component';
 
 @Component({
   selector: 'app-threshold-add',
   standalone: true,
-  imports: [NgbToastModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [NgbToastModule, CommonModule, FormsModule, ReactiveFormsModule, Select2],
   templateUrl: './threshold-add.component.html',
   styleUrl: './threshold-add.component.scss'
 })
@@ -29,7 +30,8 @@ export class ThresholdAddComponent {
   thresholdForm!: FormGroup;
   psaList: DictionaryDetail[] = []
   thresholdId: null | number = null
-  sourcingTypeData: DictionaryDetail[] = [];
+  // sourcingTypeData: DictionaryDetail[] = [];
+  sourcingTypeData: { value: string; label: string }[] = [];
   selectedThreshold: ThresholdType | null = null;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
@@ -65,7 +67,7 @@ export class ThresholdAddComponent {
     this.thresholdForm = this.fb.group({
       thresholdName: ['', Validators.required],
       description: [''],
-      paperType: [[], [Validators.required, this.arrayMinLengthValidator(1)]], // Changed to array with validation
+      paperTypes: [[], [Validators.required, this.arrayMinLengthValidator(1)]], // Changed to array with validation
       sourcingType: [[]], // Changed to array
       isActive: [true],
       psaAgreement: [null],
@@ -125,7 +127,7 @@ export class ThresholdAddComponent {
       sourcingType: Array.isArray(formValues.sourcingType) && formValues.sourcingType.length > 0 
         ? formValues.sourcingType.map((id: string) => Number(id)) 
         : 0,
-      psaAgreement: formValues.psaAgreement ? Number(formValues.psaAgreement) : 0,
+      psaAgreements: formValues.psaAgreement ? Number(formValues.psaAgreement) : 0,
       extension: "",
       notificationSendTo: "",
     };
@@ -201,7 +203,10 @@ export class ThresholdAddComponent {
       next: (response) => {
         if (response.status && response.data) {
           this.incrementAndCheck();
-          this.sourcingTypeData = response.data || [];
+          this.sourcingTypeData = (response.data || []).map(item => ({
+            value: item.id.toString(),
+            label: item.itemValue
+          }));
         }
       },
       error: (error) => {
@@ -222,13 +227,9 @@ export class ThresholdAddComponent {
             thresholdName: this.selectedThreshold.thresholdName,
             description: this.selectedThreshold.description,
             // Handle paperType as array or string
-            paperType: Array.isArray(this.selectedThreshold.paperType) 
-              ? this.selectedThreshold.paperType 
-              : [this.selectedThreshold.paperType],
+            paperTypes: (this.selectedThreshold.paperType as any).split(','),
             // Handle sourcingType as array or number
-            sourcingType: Array.isArray(this.selectedThreshold.sourcingType) 
-              ? this.selectedThreshold.sourcingType.map(id => id.toString())
-              : (this.selectedThreshold.sourcingType ? [this.selectedThreshold.sourcingType.toString()] : []),
+            sourcingType: (this.selectedThreshold.sourcingType as any).split(','),
             isActive: this.selectedThreshold.isActive,
             psaAgreement: this.selectedThreshold.psaAgreement ? this.selectedThreshold.psaAgreement.toString() : '',
             contractValueLimit: this.selectedThreshold.contractValueLimit,

@@ -36,15 +36,8 @@
 
               <div class="form-group mb-3">
                 <label>Paper Type*</label>
-                <select id="paperType" class="form-control allow-comments" multiple
-                        formControlName="paperType">
-                  <option [value]="null">Select Status</option>
-                  <ng-container *ngFor="let item of paperTypeData?.length ? paperTypeData : []">
-                    <option [value]="item.value">
-                      {{ item.label }}
-                    </option>
-                  </ng-container>
-                </select>
+                <ng-select2 placeholder="Select Paper Type" displaySearchStatus="hidden" id="paperType" class="allow-comments" formControlName="paperTypes" [data]="paperTypeData"
+                                multiple></ng-select2>
                 <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('required')">
                   <small>This field is required.</small>
                 </div>
@@ -84,15 +77,8 @@
 
               <div class="form-group mb-3">
                 <label>Sourcing Type*</label>
-                <select id="sourcingType" class="form-control allow-comments" multiple
-                        formControlName="sourcingType">
-                  <option [value]="null">Select Status</option>
-                  <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
-                    <option [value]="item.id.toString()">
-                      {{ item.itemValue }}
-                    </option>
-                  </ng-container>
-                </select>
+                <ng-select2 placeholder="Select Status" displaySearchStatus="hidden" id="sourcingType" class="allow-comments" formControlName="sourcingType" [data]="sourcingTypeData"
+                                multiple></ng-select2>
                 <div class="text-danger" *ngIf="submitted && thresholdForm.get('sourcingType')?.hasError('required')">
                   <small>This field is required.</small>
                 </div>

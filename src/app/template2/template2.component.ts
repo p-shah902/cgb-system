@@ -1032,8 +1032,10 @@ export class Template2Component implements AfterViewInit {
       if (t.thresholdType !== 'Partner') return false;
       if (t.psaAgreement != psaAgreementId) return false;
 
-      // Handle paperType as array or string
-      const paperTypes = Array.isArray(t.paperType) ? t.paperType : [t.paperType];
+      // Handle paperType as comma-separated string or array
+      const paperTypes = typeof t.paperType === 'string' 
+        ? t.paperType.split(',').map(pt => pt.trim())
+        : (Array.isArray(t.paperType) ? t.paperType : [t.paperType]);
       if (!paperTypes.some(pt => pt === paperType)) return false;
 
       return true;
@@ -1046,8 +1048,17 @@ export class Template2Component implements AfterViewInit {
 
     // Apply sourcingType matching (ignore if threshold has no sourcingType, is 0, or is empty array)
     const matchingThresholds = relevantThresholds.filter(t => {
-      // Handle sourcingType as array or number
-      const sourcingTypes = Array.isArray(t.sourcingType) ? t.sourcingType : [t.sourcingType];
+      // Handle sourcingType as comma-separated string or array
+      let sourcingTypes: number[] = [];
+      
+      if (typeof t.sourcingType === 'string') {
+        // Split comma-separated string and convert to numbers
+        sourcingTypes = t.sourcingType.split(',').map(st => Number(st.trim())).filter(n => !isNaN(n));
+      } else if (Array.isArray(t.sourcingType)) {
+        sourcingTypes = t.sourcingType;
+      } else if (t.sourcingType) {
+        sourcingTypes = [t.sourcingType];
+      }
 
       // If empty, 0, or null, treat as "Any"
       if (!sourcingTypes || sourcingTypes.length === 0 || sourcingTypes[0] === 0 || sourcingTypes[0] === null) {
@@ -1090,14 +1101,12 @@ export class Template2Component implements AfterViewInit {
 
   // Method to check specific conditions from the threshold table
   private checkCommitteeConditions(paperType: string, sourcingTypeId: number, committeeControlName: string): boolean {
-    // Map sourcing type IDs to names (adjust these based on your actual IDs)
-    const sourcingTypeMap: { [key: number]: string } = {
-      1: 'Single Source',
-      2: 'Sole Source',
-      3: 'Competitive Bid'
-      // Add more mappings as needed
-    };
-
+    // Dynamically map sourcing type IDs to names from sourcingTypeData
+    const sourcingTypeMap: { [key: number]: string } = {};
+    this.sourcingTypeData.forEach(item => {
+      sourcingTypeMap[item.id] = item.itemValue;
+    });
+    
     const sourcingTypeName = sourcingTypeMap[sourcingTypeId] || 'Any';
 
     // Define conditions based on the threshold table
@@ -1105,38 +1114,38 @@ export class Template2Component implements AfterViewInit {
       // ACG:CMC conditions
       { paperTypes: ['Contract Award', 'Variation'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'coVenturers_CMC' },
       { paperTypes: ['Approach to Market', 'Contract Award', 'Variation'], sourcingTypes: ['Competitive Bid'], committee: 'coVenturers_CMC' },
-      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'coVenturers_CMC' },
+      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'coVenturers_CMC' },
 
       // ACG:SC conditions
-      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation', 'Disposal'], sourcingTypes: ['Any'], committee: 'steeringCommittee_SC' },
+      { paperTypes: ['Approach to Market', 'Contract Award', 'Variation', 'Approval of Sale / Disposal Form'], sourcingTypes: ['Any'], committee: 'steeringCommittee_SC' },
 
       // SDCC conditions
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Any'], committee: 'contractCommittee_SDCC' },
       { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'contractCommittee_SDCC' },
-      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SDCC' },
+      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SDCC' },
 
       // SDMC conditions
       { paperTypes: ['Approach to Market', 'Contract Award', 'Variation'], sourcingTypes: ['Any'], committee: 'coVenturers_SDMC' },
-      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SDMC' },
+      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SDMC' },
 
       // SCP CC conditions
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_SCP_Co_CC' },
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_SCP_Co_CC' },
       { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'contractCommittee_SCP_Co_CC' },
-      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SCP_Co_CC' },
+      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_SCP_Co_CC' },
 
       // SCP Board conditions
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'coVenturers_SCP' },
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'coVenturers_SCP' },
       { paperTypes: ['Variation'], sourcingTypes: ['Any'], committee: 'coVenturers_SCP' },
-      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SCP' },
+      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'coVenturers_SCP' },
 
       // BTC CC conditions
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_BTC_CC' },
       { paperTypes: ['Variation'], sourcingTypes: ['Single Source', 'Sole Source'], committee: 'contractCommittee_BTC_CC' },
       { paperTypes: ['Approach to Market', 'Contract Award'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_BTC_CC' },
       { paperTypes: ['Variation'], sourcingTypes: ['Competitive Bid'], committee: 'contractCommittee_BTC_CC' },
-      { paperTypes: ['Disposal'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_BTC_CC' }
+      { paperTypes: ['Approval of Sale / Disposal Form'], sourcingTypes: ['Any', ''], committee: 'contractCommittee_BTC_CC' }
     ];
 
     // Check if current combination matches any condition
