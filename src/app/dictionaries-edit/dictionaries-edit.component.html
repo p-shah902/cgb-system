@@ -1,0 +1,68 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast 
+    *ngFor="let toast of toastService.toasts" 
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-8">
+      <div class="page-card-div mb-4">
+        <div class="page-card-body">
+        <form [formGroup]="dictForm">
+          <div class="mb-4">
+            <div class="form-group mb-3">
+              <label>Item Name</label>
+              <input type="text" class="form-control" placeholder="Enter Item Name" [value]="iteam" [disabled]="true" />
+            </div>
+            <div class="form-group mb-3">
+              <label>Item Value</label>
+              <input type="text" class="form-control" placeholder="Enter Item Value" formControlName="itemValue"/>
+            </div>
+            <div class="form-group mb-3">
+              <label>Status</label>
+              <div class="form-radio d-flex gap-3">
+                <div class="radio-box position-relative">
+                  <input type="radio" name="isActive" checked formControlName="isActive" [value]="true">
+                  <label>Yes</label>
+                </div>
+                <div class="radio-box position-relative">
+                  <input type="radio" name="isActive" formControlName="isActive" [value]="false">
+                  <label>No</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+          <hr/>
+          <div class="fb-form pt-0">
+            <div class="ff-btn-list d-flex gap-3 justify-content-end">
+              <button class="btn btn-outline-dark" (click)="resetForm()">
+                Discard
+              </button>
+              <!-- <button class="btn btn-primary" (click)="addDictionaryDetails()">
+                Save
+              </button> -->
+              <button 
+                  class="btn btn-primary" 
+                  (click)="addDictionaryDetails()"
+                  [disabled]="isSubmitting"
+              >
+                <span *ngIf="!isSubmitting">Save Changes</span>
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                <span *ngIf="isSubmitting">Saving...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

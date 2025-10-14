@@ -1,0 +1,64 @@
+<div class="sidebar expanded" [ngClass]="{ 'expanded': isExpanded }">
+  <div class="header">
+    <div class="d-flex justify-content-between align-items-center">
+      <svg width="84" height="26" viewBox="0 0 84 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M21.4514 15.6001C20.3411 19.2133 16.9773 21.84 13 21.84C8.1178 21.84 4.16 17.8822 4.16 13C4.16 8.1178 8.1178 4.16 13 4.16C17.3499 4.16 20.966 7.30186 21.7028 11.4401H25.9074C25.1367 4.99584 19.6518 0 13 0C5.8203 0 0 5.8203 0 13C0 20.1797 5.8203 26 13 26C19.2893 26 24.5354 21.5339 25.7399 15.6001H21.4514Z"
+              fill="#0C0C0C"/>
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M50.3588 15.6001C49.2485 19.2133 45.8847 21.84 41.9073 21.84C37.0252 21.84 33.0673 17.8822 33.0673 13C33.0673 8.1178 37.0252 4.16 41.9073 4.16C46.2573 4.16 49.8734 7.30186 50.6101 11.4401H42.4273V15.6001H50.3588ZM54.9073 13C54.9073 20.1797 49.087 26 41.9073 26C34.7276 26 28.9073 20.1797 28.9073 13C28.9073 5.8203 34.7276 0 41.9073 0C49.087 0 54.9073 5.8203 54.9073 13Z"
+              fill="#0C0C0C"/>
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M57.9073 13C57.9073 9.23415 59.5086 5.8423 62.0674 3.46815L62.0674 12.9807L62.0673 13L62.0674 13.0193V13.5201H62.0824C62.3516 18.1602 66.1997 21.84 70.9073 21.84C75.7895 21.84 79.7473 17.8822 79.7473 13C79.7473 8.1178 75.7895 4.16 70.9073 4.16C69.1887 4.16 67.5846 4.65046 66.2274 5.49904L66.2274 0.86786C67.6795 0.307329 69.2575 0 70.9073 0C78.087 0 83.9073 5.8203 83.9073 13C83.9073 20.1797 78.087 26 70.9073 26C63.7276 26 57.9073 20.1797 57.9073 13ZM71.4274 9.35997C69.1299 9.35997 67.2674 11.2225 67.2674 13.52C67.2674 15.8175 69.1299 17.68 71.4274 17.68C73.7249 17.68 75.5874 15.8175 75.5874 13.52C75.5874 11.2225 73.7249 9.35997 71.4274 9.35997Z"
+              fill="#0C0C0C"/>
+      </svg>
+      <button class="btn navbar-brand toggle px-0" (click)="handleSidebarToggle()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 5.60156H24M0 18.4016H24M0 12.0016H24" stroke="#1B202B" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="content">
+    <ng-container *ngFor="let menuItem of menuItems">
+      <ng-template
+        [ngTemplateOutlet]="recursiveMenu"
+        [ngTemplateOutletContext]="{ $implicit: menuItem }">
+      </ng-template>
+    </ng-container>
+
+    <ng-template #recursiveMenu let-item>
+      <div *ngIf="item.children?.length > 0; else singleMenu" class="link with-children">
+        <div class="content" (click)="toggleSubmenu(item.title)">
+          <div class="icon" [safeHtml]="item.icon"></div>
+          <div class="title">{{ item.title }}</div>
+          <span class="arrow" [ngClass]="{ 'open': expandedMenus[item.title] }">
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14.0667 1.66797L8.00002 8.2013L1.93335 1.66797" stroke="#626262" stroke-width="1.6"
+                stroke-linecap="square"/>
+        </svg>
+      </span>
+        </div>
+
+        <div class="children" *ngIf="expandedMenus[item.title]">
+          <ng-container *ngFor="let child of item.children">
+            <ng-template
+              [ngTemplateOutlet]="recursiveMenu"
+              [ngTemplateOutletContext]="{ $implicit: child }">
+            </ng-template>
+          </ng-container>
+        </div>
+      </div>
+
+      <ng-template #singleMenu>
+        <a [href]="item.path" class="link">
+          <div class="content">
+            <div class="icon" [safeHtml]="item.icon"></div>
+            <div class="title">{{ item.title }}</div>
+          </div>
+        </a>
+      </ng-template>
+    </ng-template>
+  </div>
+  <div class="footer"></div>
+</div>

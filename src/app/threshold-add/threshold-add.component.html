@@ -1,0 +1,145 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid" xmlns="http://www.w3.org/1999/html">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-8">
+      <div class="page-card-div mb-4">
+        <div class="page-card-body">
+          <div class="mb-4">
+            <form [formGroup]="thresholdForm" (ngSubmit)="onSubmit()">
+              <div class="form-group mb-3">
+                <label>Threshold Name*</label>
+                <input type="text" class="form-control" formControlName="thresholdName"
+                       placeholder="ie.High-Value Contracts"/>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('thresholdName')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Description</label>
+                <textarea class="form-control" formControlName="description" placeholder="Enter Description"
+                          rows="4"></textarea>
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Paper Type*</label>
+                <ng-select2 placeholder="Select Paper Type" displaySearchStatus="hidden" id="paperType" class="allow-comments" formControlName="paperTypes" [data]="paperTypeData"
+                                multiple></ng-select2>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('arrayMinLength')">
+                  <small>Please select at least one paper type.</small>
+                </div>
+
+              </div>
+
+              <div class="form-group mb-3">
+                <div class="d-flex align-items-center gap-3">
+                  <label>Status</label>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" formControlName="isActive"
+                           id="flt-sw1">
+                    <label class="form-check-label ms-2 text-dark" for="flt-sw1">Active</label>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="this.type === 'partner'" class="form-group mb-3">
+                <label>PSA Agreement*</label>
+                <select id="remunerationType" class="form-control allow-comments"
+                        formControlName="psaAgreement">
+                  <option [value]="null">Select Status</option>
+                  <ng-container *ngFor="let item of psaList?.length ? psaList : []">
+                    <option [value]="item.id.toString()">
+                      {{ item.itemValue }}
+                    </option>
+                  </ng-container>
+                </select>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('psaAgreement')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Sourcing Type*</label>
+                <ng-select2 placeholder="Select Status" displaySearchStatus="hidden" id="sourcingType" class="allow-comments" formControlName="sourcingType" [data]="sourcingTypeData"
+                                multiple></ng-select2>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('sourcingType')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('sourcingType')?.hasError('arrayMinLength')">
+                  <small>Please select at least one sourcing type.</small>
+                </div>
+
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Committee*</label>
+                <select id="committee" class="form-control allow-comments" formControlName="committee">
+                  <option [value]="null">Select Committee</option>
+                  <ng-container *ngFor="let item of committeeData">
+                    <option [value]="item.value">
+                      {{ item.label }}
+                    </option>
+                  </ng-container>
+                </select>
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('committee')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Contract Absolute Value*</label>
+                <input min="0" type="number" class="form-control" formControlName="contractValueLimit"
+                       placeholder="Ie. >= $5,000,000"/>
+                <div class="text-danger"
+                     *ngIf="submitted && thresholdForm.get('contractValueLimit')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label>Contract Variation (%)</label>
+                <input min="0" oninput="if (this.value > 100) this.value = 100"
+                       max="100" type="number" class="form-control" formControlName="variationPercent"
+                       placeholder="Ie. >= 20%"/>
+                <div class="text-danger"
+                     *ngIf="submitted && thresholdForm.get('variationPercent')?.hasError('required')">
+                  <small>This field is required.</small>
+                </div>
+              </div>
+
+              <div class="fb-form pt-0">
+                <div class="ff-btn-list d-flex gap-3 justify-content-end">
+                  <button type="button" class="btn btn-outline-dark" (click)="discard()">Discard</button>
+                  <button [disabled]="thresholdForm.invalid || submitted" type="submit" class="btn btn-primary">
+                    <span *ngIf="!submitted">Save Changes</span>
+                    <span *ngIf="submitted" class="spinner-border spinner-border-sm me-1"></span>
+                    <span *ngIf="submitted">Submitting...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

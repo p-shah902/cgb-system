@@ -1,0 +1,92 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 col-xl-8">
+      <div class="d-flex flex-wrap flex-column gap-3">
+        <div class="configuration-card">
+          <div class="d-flex gap-2 align-items-center">
+            <div>
+              <h4>Approach to Market (ATM)</h4>
+              <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a ...
+              </p>
+              <h5>
+                Martin Gurly Send Template Approve Request
+              </h5>
+            </div>
+
+            <div class="sd-btn-div d-flex justify-content-end ms-auto">
+              <button class="btn p-0">
+                See details
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.95142 4L5 4.94L8.09042 8L5 11.06L5.95142 12L10 8L5.95142 4Z" fill="#898989"/>
+                </svg>
+
+              </button>
+            </div>
+          </div>
+          <hr/>
+          <div class="fb-form pt-0">
+            <div class="ff-btn-list d-flex gap-3 justify-content-end">
+              <button class="btn btn-outline-dark">
+                Return to Originator
+              </button>
+              <button class="btn btn-primary" (click)="approvePaper()">
+                Approve
+              </button>
+            </div>
+          </div>
+
+        </div>
+        <div class="configuration-card">
+          <div class="d-flex gap-2 align-items-center">
+            <div>
+              <h4>Approach to Market (ATM)</h4>
+              <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a ...
+              </p>
+              <h5>
+                Martin Gurly Send Template Approve Request
+              </h5>
+            </div>
+
+            <div class="sd-btn-div d-flex justify-content-end ms-auto">
+              <button class="btn p-0">
+                See details
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.95142 4L5 4.94L8.09042 8L5 11.06L5.95142 12L10 8L5.95142 4Z" fill="#898989"/>
+                </svg>
+
+              </button>
+            </div>
+          </div>
+          <hr/>
+          <div class="fb-form pt-0">
+            <div class="ff-btn-list d-flex gap-3 justify-content-end">
+              <button class="btn btn-outline-dark">
+                Return to Originator
+              </button>
+              <button class="btn btn-primary">
+                Approve
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

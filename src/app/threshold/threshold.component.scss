@@ -1,0 +1,139 @@
+.page-card-div {
+  padding: 20px;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  background-color: #ffffff;
+  .custom-nav-div {
+    .nav.nav-tabs {
+      display: flex;
+      border: 1px solid #E8E8E8;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 350px;
+      .nav-item {
+        flex: 0 0 50%;
+        .nav-link {
+          border: none;
+          font-size: 14px;
+          font-weight: 500;
+          color: #1B202B;
+          padding: 15px 20px;
+          display: flex;
+          gap: 10px;
+          width: 100%;
+          border-radius: 0;
+          text-align: center;
+          justify-content: center;
+          &.active {
+            background-color: #582AA2;
+            color: #ffffff;
+
+          }
+          span {
+            background-color: #EC4747;
+            color: #ffffff;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
+  .approach-table {
+    thead {
+      tr {
+        th {
+          padding: 15px;
+          font-weight: 500;
+          background-color: #F8F9FB;
+          font-size: 14px;
+        }
+      }
+    }
+    tbody {
+      tr {
+        td {
+          padding: 10px 15px;
+          vertical-align: middle;
+          font-size: 14px;
+        }
+      }
+      tr:nth-child(even) {
+        td {
+          background-color: #F8F9FB;
+        }
+      }
+    }
+  }
+  .edit-btb-div {
+    .btn {
+      background-color: #E6EFFC;
+      width: 44px;
+      height: 44px;
+    }
+  }
+  .ud-img {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    overflow: hidden;
+  }
+  .user-action-dropdown {
+    .dropdown-toggle {
+      &:after {
+        display: none;
+      }
+    }
+    .action-menu {
+      padding: 10px;
+      background: #FFFFFF;
+      border-right: 1px solid #DCDCDC;
+      box-shadow: 0px 0px 4px rgba(0, 16, 79, 0.12);
+      border-radius: 8px;
+      left: auto;
+      right: 0;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+      min-width: 107px;
+      .links {
+        background-color: #F0F0F0;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        font-size: 12px;
+      }
+    }
+  }
+  @media screen and (max-width: 991px) {
+    .approach-table {
+      thead {
+        tr {
+          th {
+            padding: 10px;
+            font-size: 12px;
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            padding: 10px;
+            font-size: 12px;
+          }
+        }
+
+      }
+    }
+    .role-btn-div .btn {
+      font-size: 12px;
+    }
+  }
+}

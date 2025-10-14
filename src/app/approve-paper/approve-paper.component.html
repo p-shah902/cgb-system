@@ -1,0 +1,67 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-basic-title">Add New Role</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
+</div>
+<div class="modal-body">
+  <form>
+    <div class="modal-form">
+      <div class="form-group mb-3">
+        <label>Approve By</label>
+        <input class="form-control" placeholder="Enter Authorize Name  "/>
+      </div>
+      <div class="form-group mb-3">
+        <label>Write Comment</label>
+        <textarea class="form-control" placeholder="Write Here" rows="3"></textarea>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer px-0">
+  <div class="fb-form pt-0">
+    <div class="ff-btn-list d-flex gap-3 justify-content-end">
+      <button class="btn btn-outline-dark" (click)="activeModal.close('Save click')">
+        Revised
+      </button>
+      <button class="btn btn-primary">
+        Approve
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="approval-div text-center">
+  <div class="appv-icon mb-3">
+    <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50.3854 59.0625L60.5208 49L57.4583 45.9375L50.3854 52.8646L47.5417 50.0208L44.4792 53.1563L50.3854 59.0625ZM17.5 26.25H52.5V20.4167H17.5V26.25ZM52.5 67.0833C48.4653 67.0833 45.0265 65.661 42.1838 62.8163C39.341 59.9715 37.9186 56.5328 37.9167 52.5C37.9147 48.4672 39.3371 45.0285 42.1838 42.1838C45.0304 39.339 48.4692 37.9167 52.5 37.9167C56.5308 37.9167 59.9706 39.339 62.8192 42.1838C65.6678 45.0285 67.0892 48.4672 67.0833 52.5C67.0775 56.5328 65.6551 59.9725 62.8163 62.8192C59.9774 65.6658 56.5386 67.0872 52.5 67.0833ZM8.75 64.1667V14.5833C8.75 12.9792 9.32167 11.6064 10.465 10.465C11.6083 9.32361 12.9811 8.75194 14.5833 8.75H55.4167C57.0208 8.75 58.3946 9.32167 59.5379 10.465C60.6813 11.6083 61.2519 12.9811 61.25 14.5833V34.0521C59.8889 33.3715 58.4665 32.8728 56.9829 32.5558C55.4993 32.2389 54.005 32.0814 52.5 32.0833H17.5V37.9167H38.2083C37.3819 38.7431 36.6168 39.6424 35.9129 40.6146C35.209 41.5868 34.5888 42.6319 34.0521 43.75H17.5V49.5833H32.3021C32.2049 50.0694 32.1446 50.5439 32.1213 51.0067C32.0979 51.4694 32.0853 51.9672 32.0833 52.5C32.0833 54.5417 32.3633 56.4988 32.9233 58.3713C33.4833 60.2438 34.3214 62.0297 35.4375 63.7292L35 64.1667L30.625 59.7917L26.25 64.1667L21.875 59.7917L17.5 64.1667L13.125 59.7917L8.75 64.1667Z" fill="#229000"/>
+    </svg>
+  </div>
+  <div class="appv-content">
+    <h2>Paper Approved</h2>
+    <p>
+      Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a ...
+    </p>
+  </div>
+  <div class="modal-footer border-0 px-0">
+    <div class="fb-form pt-0 d-flex gap-3 justify-content-center w-100">
+      <div class="ff-btn-list">
+        <button class="btn btn-primary">
+          Ok
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

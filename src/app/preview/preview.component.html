@@ -1,0 +1,869 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type +' text-white'" [autohide]="true"
+    [delay]="5000" (hidden)="toastService.remove(toast)">
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+
+
+<div class="container-fluid" *ngIf="paperDetails">
+
+  <div class="timeline-main-div mb-5">
+
+    <div *ngFor="let activity of paperTimelineDetails; let i = index" [class]="getStatusClass(i)">
+      <div class="tb-head d-flex gap-2">
+        <div>
+          <h1>{{ activity.id }}</h1>
+        </div>
+        <div>
+          <h6>{{ activity.activityName }}</h6>
+          <p>
+            {{ activity.activityDate ? (activity.activityDate | date: 'dd-MMM, yyyy hh:mm a') : 'Pending' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="form-main-div">
+        <div class="form-header mb-4">
+          <div class="row align-items-center">
+            <div class="fh-title">
+              <h3>Preview</h3>
+            </div>
+          </div>
+        </div>
+        <div class="form-body bg-white">
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>1. General Information</h4>
+            </div>
+
+            <div class="fb-form">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>For the provision of </label>
+                    <h6>{{paperInfo?.paperProvision}}</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>CGB Item Ref </label>
+                    <h6>{{paperInfo?.cgbItemRefNo}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>CGB Circulation Date</label>
+                    <h6>{{paperInfo?.cgbCirculationDate| date: 'dd MMMM yyyy'}}</h6>
+                  </div>
+                </div>
+                <div class="col-md-12">
+
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>Why is this work required? </label>
+                      <h6 [innerHTML]="paperInfo?.scopeOfWork">{{paperInfo?.purposeRequired}}</h6>
+
+                    </div>
+                  </div>
+
+                </div>
+
+
+                <div class="col-md-12">
+
+                  <div class="col-md-12">
+                    <div class="form-group mb-3">
+                      <label>Scope of Work </label>
+                      <h6 [innerHTML]="paperInfo?.scopeOfWork">{{paperInfo?.scopeOfWork}}</h6>
+
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Global CGB</label>
+                    <h6>{{paperInfo?.globalCGB}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>BLT Member </label>
+                    <h6>{{paperInfo?.bltMemberName}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Operating Function </label>
+                    <h6>{{paperInfo?.operatingFunction}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Subsector</label>
+                    <h6>{{paperInfo?.subSector}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Type</label>
+                    <h6>{{paperInfo?.sourcingType}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Contract Accountable Manager</label>
+                    <h6>{{paperInfo?.camUserName}}</h6>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>VP-1 </label>
+                    <h6>{{paperInfo?.vP1UserName}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Procurement SPA</label>
+                    <h6>{{paperInfo?.procurementSPAUsers}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PDM</label>
+                    <h6>{{paperInfo?.pdManagerName}}</h6>
+
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Total Award Value (USD)</label>
+                    <h6>{{paperInfo?.totalAwardValueUSD}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>Original Currency</label>
+                     <h6>{{paperInfo?.currencyCode}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                  <div class="form-group mb-3">
+                    <label>Exchange Rate</label>
+                    <h6>{{paperInfo?.exchangeRate}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Contract Value (Original Currency)</label>
+                    <h6>{{paperInfo?.contractValue}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <label class="mb-2">Contract Duration </label>
+                  <div class="row">
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Start Date</label>
+                        <h6>{{paperInfo?.contractStartDate| date: 'dd MMMM yyyy'}}</h6>
+
+                      </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>End Date</label>
+                        <h6>{{paperInfo?.contractEndDate| date: 'dd MMMM yyyy'}}</h6>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>PHCA </label>
+                    <h6>{{paperInfo?.isPHCA ? 'Yes':'No'}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV </label>
+                    <h6>{{paperInfo?.psajv }}</h6>
+
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Long-Term Commercial Commitment (LTCC) </label>
+                    <h6>{{paperInfo?.isLTCC ? 'Yes':'No'}}</h6>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>LTCC Note</label>
+                    <h6>{{paperInfo?.ltccNotes }}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Aligned with Government Representative </label>
+                    <h6>{{paperInfo?.isGovtReprAligned ? 'Yes':'No'}}</h6>
+
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Government Representative Comment</label>
+                    <h6>{{paperInfo?.govtReprAlignedComment }}</h6>
+
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="position-relative">
+                        <label>IFRS16 Impact Compliance</label>
+                        <h6>{{paperInfo?.isIFRS16 ? 'Yes':'No'}}</h6>
+                      </div>
+                      <div class="position-relative">
+                        <label>GIAAP Compliance Check</label>
+                        <h6>{{paperInfo?.isGIAAPCheck ? 'Yes':'No'}}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 mt-3">
+                  <div class="form-group mb-3">
+                    <label class="mb-3">Conflict of Interest with SOCAR or Affiliates </label>
+                    <h6>{{paperInfo?.isConflictOfInteres ? 'Yes':'No'}}</h6>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Conflict of Interest Comments</label>
+                    <h6>{{paperInfo?.conflictOfInterestCommen }}</h6>
+
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Strategy Description</label>
+                    <h6 [innerHTML]="paperInfo?.strategyDescription"></h6>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>2. Procurement Strategy</h4>
+            </div>
+
+            <div class="fb-form">
+              <div class="row">
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Remuneration Type</label>
+                    <h6>{{paperInfo?.remunerationType}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Proposed Contract Management Level</label>
+                    <h6>{{paperInfo?.contractMgmtLevel}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Rigor</label>
+                    <h6>{{paperInfo?.sourcingRigor}}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Strategy</label>
+                    <h6 [innerHTML]="paperInfo?.sourcingStrategy"></h6>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Key Risks and Mitigations</label>
+                    <div class="overflow-auto">
+                      <div class="key-risks-table custom-table">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Risks</th>
+                              <th>Mitigations</th>
+                            </tr>
+                          </thead>
+                          <tbody formArrayName="risks">
+                            <tr *ngFor="let risk of riskMitigation; let i = index">
+                              <td>{{ risk.srNo }}</td>
+                              <td>
+                                <h6>{{risk.risks}}</h6>
+                              </td>
+                              <td>
+                                <h6>{{risk.mitigations}}</h6>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Single Source Justification</label>
+                    <h6 [innerHTML]="paperInfo?.singleSourceJustification"></h6>
+
+                  </div>
+                </div>
+
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Who is invited to bid?</label>
+                    <div class="overflow-auto">
+                      <div class="key-risks-table custom-table">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Full Name of Legal Entity</th>
+                              <th>Local/JV</th>
+                              <th>Country of Incorporation</th>
+                              <th>Parent Company name</th>
+                              <th>Remarks (If any)</th>
+
+                            </tr>
+                          </thead>
+                          <tbody formArrayName="inviteToBid">
+                            <tr *ngFor="let bid of bidInvites; let i = index">
+                              <td>
+                                <h6>{{bid.legalName}}</h6>
+                              </td>
+                              <td class="text-center align-middle">
+                                <h6>{{ bid.isLocalOrJV ? 'Yes' : 'No' }}</h6>
+                              </td>
+                              <td>
+                                <h6>{{ bid.countryName }}</h6>
+                              </td>
+                              <td>
+                                <h6>{{ bid.parentCompanyName }}</h6>
+                              </td>
+                              <td>
+                                <h6>{{ bid.remarks }}</h6>
+                              </td>
+
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>SOCAR notification sent on </label>
+                    <h6>{{paperInfo?.socaRsentOn | date: 'dd MMMM yyyy'}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>SOCAR Response Received Date </label>
+                    <h6>{{paperInfo?.socaRreceivedOn | date: 'dd MMMM yyyy'}}</h6>
+
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>SOCAR’s response</label>
+                    <h6 [innerHTML]="paperInfo?.socarDescription"></h6>
+
+
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Results of Pre-qualification Exercise</label>
+                    <h6 [innerHTML]="paperInfo?.preQualificationResult"></h6>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>3. Value Delivery</h4>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Cost Reduction</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let costReduction of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>value</label>
+                  <h6>{{ costReduction.costReductionValue }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Percent</label>
+                  <h6>{{ costReduction.costReductionPercent }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remark</label>
+                  <h6>{{ costReduction.costReductionRemarks }}</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Operating Efficiency</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let operatingEfficiency of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>value</label>
+                  <h6>{{ operatingEfficiency.operatingEfficiencyValue }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Percent</label>
+                  <h6>{{ operatingEfficiency.operatingEfficiencyPercent }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remark</label>
+                  <h6>{{ operatingEfficiency.operatingEfficiencyRemarks }}</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Cost Avoidance</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let costAvoidance of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>value</label>
+                  <h6>{{ costAvoidance.costAvoidanceValue }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Percent</label>
+                  <h6>{{ costAvoidance.costAvoidancePercent }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Remark</label>
+                  <h6>{{ costAvoidance.costAvoidanceRemarks }}</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>4 Cost Allocation And JV Approval</h4>
+            </div>
+
+            <div class="fb-form">
+              <div class="cost-table-div custom-table table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>PSA</th>
+                      <th *ngFor="let column of psaColumns">
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="column.value" disabled>
+                            <label>{{ column.name }}</label>
+                          </div>
+                        </div>
+                      </th>
+                      <th>
+                        <b>Total</b>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><b>As%</b></td>
+                      <td *ngFor="let column of psaColumns">
+                        <label>{{ column.percentage !== null ? (column.percentage | number:'1.2-2') + '%' : ''
+                          }}</label>
+                      </td>
+                      <td>
+                        <label>{{ totalPercentage > 0 ? (totalPercentage | number:'1.2-2') + '%' : '' }}</label>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td><b>By value $</b></td>
+                      <td *ngFor="let column of psaColumns">
+                        <label>{{ column.amount !== null ? (column.amount | number:'1.2-2') : '' }}</label>
+                      </td>
+                      <td>
+                        <label>{{ totalValue > 0 ? (totalValue | number:'1.2-2') : '' }}</label>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td><b>Contract Committee</b></td>
+                      <td> <!-- ACG cell - empty --> </td>
+                      <td> <!-- Shah Deniz cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SDCC" disabled>
+                            <label>SDCC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- SCP cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CC" disabled>
+                            <label>SCP Co CC</label>
+                          </div>
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"
+                              disabled>
+                            <label>SCP Co CC info note</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- BTC cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_BTC_CC" disabled>
+                            <label>BTC CC</label>
+                          </div>
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"
+                              disabled>
+                            <label>BTC CC Info Note</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> {{jvApprovals[0].contractCommittee_ShAsimanValue}} </td>
+                      <td> {{jvApprovals[0].contractCommittee_BPGroupValue}} </td>
+                      <td>
+                        <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_CGB" disabled>
+                        <label>CGB</label>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td><b>Co-Venturers</b></td>
+                      <td> <!-- ACG cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_CMC" disabled>
+                            <label>CMC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- Shah Deniz cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SDMC" disabled>
+                            <label>SDMC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- SCP cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SCP" disabled>
+                            <label>SCP</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- BTC cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SCP_Board" disabled>
+                            <label>SCP Board</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- Sh-Asiman cell - empty --> </td>
+                      <td> <!-- BP Group cell - empty --> </td>
+                      <td>
+                        <label></label>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td><b>Steering Committee</b></td>
+                      <td> <!-- ACG cell -->
+                        <div class="form-check-list d-flex gap-3 flex-wrap">
+                          <div class="form-check-box position-relative">
+                            <input type="checkbox" [checked]="jvApprovals[0].steeringCommittee_SC" disabled>
+                            <label>SC</label>
+                          </div>
+                        </div>
+                      </td>
+                      <td> <!-- Shah Deniz cell - empty --> </td>
+                      <td> <!-- SCP cell - empty --> </td>
+                      <td> <!-- BTC cell - empty --> </td>
+                      <td> <!-- Sh-Asiman cell - empty --> </td>
+                      <td> <!-- BP Group cell - empty --> </td>
+                      <td>
+                        <label></label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>5. Cost Sharing Methodology</h4>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Capex</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let capex of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isCapex</label>
+                  <h6>{{ capex.isCapex ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ capex.capexMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Fixed Opex</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let fixedOpex of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isFixedOpex</label>
+                  <h6>{{ fixedOpex.isFixOpex ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ fixedOpex.fixOpexMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Variable Opex</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let varOpex of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isVariableOpex</label>
+                  <h6>{{ varOpex.isVariableOpex ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ varOpex.variableOpexMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-view-group">
+                  <label></label>
+                  <h6>Inventory Item</h6>
+                </div>
+              </div>
+            </div>
+            <div class="row" *ngFor="let item of valueDeliveriesCostsharing;let i=index">
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>isInventoryItems</label>
+                  <h6>{{ item.isInventoryItems ? 'Yes' : 'No' }}</h6>
+                </div>
+              </div>
+              <div class="col-sm-4 col-md-4">
+                <div class="form-view-group">
+                  <label>Methodology</label>
+                  <h6>{{ item.inventoryItemsMethodology }}</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fb-form">
+            <div class="fb-title-div mb-3">
+              <h4>6. Consultations</h4>
+            </div>
+            <div class="fb-form">
+              <div *ngFor="let consultation of consultationsDetails;let i=index">
+                <div class="row">
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>PSA</label>
+                      <h6>{{consultation.psa}}</h6>
+                    </div>
+                  </div>
+
+                  <!-- <div class="col-sm-6 col-md-2">
+                    <label>No existing budget Correct</label>
+                    <div class="text-center align-middle">
+                      <h6>{{consultation.isNoExistingBudget ? 'Yes':'No'}}</h6>
+                    </div>
+                  </div> -->
+
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>Technically Correct</label>
+                      <h6>{{consultation.technicalCorrectName}}</h6>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>Budget Statement</label>
+                      <h6>{{consultation.budgetStatementName}}</h6>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-md-2">
+                    <div class="form-group mb-3">
+                      <label>JV Review</label>
+                      <h6>{{consultation.jvReviewName}}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="form-main-div">
+        <div class="form-header mb-4">
+          <div class="row align-items-center">
+            <div class="col-md-12">
+              <div class="fh-title">
+                <h3>Visitor Logs</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="visitor-logs-card">
+          <div class="visitor-box mb-3" *ngFor="let log of logs">
+            <div class="vb-img">
+              <img src="/img/visitor.png" alt="visitor" class="img-fluid">
+            </div>
+            <div class="vb-detail">
+              <h6>{{ log.logCreateByName }}
+                <!--                <span>(Secretary)</span> -->
+              </h6>
+              <p>
+                {{ log.description }}
+              </p>
+              <small>{{ log.logCreateDate | timeAgo }}</small>
+
+            </div>
+          </div>
+          <div class="chat-input-group position-relative">
+            <textarea class="form-control" [(ngModel)]="comment" placeholder="Write comment here"></textarea>
+            <button class="btn" (click)="addPaperCommentLogs()">
+              <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M0.636705 0.0448581C0.556778 0.00584078 0.46695 -0.00818904 0.378933 0.00459804C0.290916 0.0173851 0.208793 0.0563957 0.143274 0.116543C0.077754 0.176691 0.0318774 0.255185 0.0116255 0.341789C-0.00862634 0.428394 -0.0023138 0.519092 0.0297403 0.602056L2.55624 7.37997C2.70525 7.78008 2.70525 8.22045 2.55624 8.62056L0.0306291 15.3985C-0.00126334 15.4813 -0.00749372 15.5719 0.0127476 15.6583C0.0329889 15.7448 0.078766 15.8231 0.14413 15.8832C0.209493 15.9433 0.291421 15.9824 0.379265 15.9953C0.46711 16.0082 0.556808 15.9944 0.636705 15.9557L16.6328 8.40195C16.7089 8.36596 16.7732 8.3091 16.8183 8.23799C16.8633 8.16688 16.8872 8.08444 16.8872 8.00027C16.8872 7.91609 16.8633 7.83365 16.8183 7.76254C16.7732 7.69143 16.7089 7.63457 16.6328 7.59859L0.636705 0.0448581Z"
+                  fill="#582AA2" />
+                <path d="M3.2002 8H16.0002" stroke="#E6EFFC" stroke-width="0.646308" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

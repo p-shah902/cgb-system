@@ -1,0 +1,164 @@
+.form-main-div {
+  .form-body {
+    background-color: #f8f9fb;
+  }
+}
+
+::ng-deep .ck-editor__editable {
+  min-height: 250px !important;
+  max-height: 400px;
+  overflow: auto;
+}
+
+.btn-toggle {
+  background: #582AA2;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.btn-toggle:hover {
+  background: #451c82;
+}
+
+.document-attachment {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+
+  .attach-thumb {
+    border: 1px solid #BABABA;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+
+    p {
+      font-size: 14px;
+      line-height: 17px;
+      color: #1B202B;
+    }
+  }
+
+  .drag-drop {
+    border: 1px dashed #DCDCDC;
+    padding: 10px;
+    border-radius: 8px;
+
+    h4 {
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 19px;
+      color: #1B202B;
+    }
+
+    label {
+      color: #582AA2;
+      background-color: #E6EFFC;
+      padding: 8px 15px;
+      border-radius: 6px;
+    }
+
+    p {
+
+      font-size: 14px;
+      line-height: 17px;
+      color: #1B202B;
+    }
+  }
+
+
+
+  @media screen and (max-width: 991px) {
+    .attach-thumb {
+      p {
+        font-size: 12px;
+      }
+    }
+
+    .drag-drop {
+      h4 {
+        font-size: 14px;
+      }
+
+      label {
+        font-size: 12px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+}
+.highlight {
+  border: 2px solid yellow !important;
+  background-color: yellow !important;
+}
+
+.image-slider {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px 0; /* Optional: adds some spacing around the slider */
+}
+
+.slider-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap; /* Ensures the items remain on one row */
+}
+
+.slider-item {
+  min-width: 150px; /* Adjust as per need */
+  max-width: 200px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Align text and icons properly */
+}
+
+.uploaded-image {
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  object-fit: cover;
+}
+
+.file-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Truncate the file name with ellipsis if it's too long */
+}
+
+.file-name {
+  max-width: 70%; /* Adjust based on your layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.image-slider svg {
+  cursor: pointer;
+  transition: transform 0.3s;
+  width: 16px;
+  height: 16px;
+  fill: #DC3545; /* Ensure the icon color is red for delete icon */
+}
+
+.image-slider svg:hover {
+  transform: scale(1.1);
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}

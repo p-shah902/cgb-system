@@ -1,0 +1,437 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type + ' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-card-div">
+        <div class="row row-gap-3">
+          <div class="col-md-5">
+            <div class="custom-nav-div">
+              <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+                <li [ngbNavItem]="1">
+                  <button ngbNavLink>Active</button>
+                  <ng-template ngbNavContent>
+                    <div *ngIf="isLoading" class="table-loader">
+                      <div class="spinner"></div>
+                      <p>Loading data, please wait...</p>
+                    </div>
+                    <div class="page-card-body" *ngIf="!isLoading">
+                      <div class="table-responsive">
+                        <div class="approach-table custom-table tbl-div pb-5">
+                          <table class="table table-wrapper">
+                            <thead>
+                              <tr class="sticky">
+                                <th width="5%">
+                                  <div
+                                    class="form-check-list d-flex gap-3 flex-wrap"
+                                  >
+                                    <div
+                                      class="form-check-box position-relative"
+                                    >
+                                      <input type="checkbox" />
+                                      <label
+                                        ><span class="opacity-0">-</span></label
+                                      >
+                                    </div>
+                                  </div>
+                                </th>
+                                <th>ID</th>
+                                <th>User Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                *ngFor="
+                                  let user of getActiveUsers();
+                                  let i = index
+                                "
+                              >
+                                <td>
+                                  <div
+                                    class="form-check-list d-flex gap-3 flex-wrap"
+                                  >
+                                    <div
+                                      class="form-check-box position-relative"
+                                    >
+                                      <input type="checkbox" />
+                                      <label
+                                        ><span class="opacity-0">-</span></label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>
+                                  {{ user.id }}
+                                </td>
+                                <td>
+                                  <div
+                                    class="user-div d-flex align-items-center gap-3"
+                                  >
+                                    <div class="ud-img">
+                                      <img
+                                        src="/img/visitor.png"
+                                        alt="visitor"
+                                        class="img-fluid"
+                                      />
+                                    </div>
+                                    <div class="ud-detail">
+                                      <p class="mb-0">{{ user.displayName }}</p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.roleName }}</td>
+                                <td>{{ user.departmentName }}</td>
+                                <td>
+                                  {{ user.isActive ? "Active" : "Inactive" }}
+                                </td>
+                                <td>
+                                  {{
+                                    user.modifiedDate || user.createdDate
+                                      | date : "dd MMMM yyyy"
+                                  }}
+                                </td>
+                                <td>
+                                  <div
+                                    ngbDropdown
+                                    placement="bottom-end"
+                                    class="d-inline-block user-action-dropdown"
+                                  >
+                                    <button
+                                      type="button"
+                                      class="btn"
+                                      id="dropdownBasic1"
+                                      ngbDropdownToggle
+                                    >
+                                      <svg
+                                        width="25"
+                                        height="24"
+                                        viewBox="0 0 25 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          fill-rule="evenodd"
+                                          clip-rule="evenodd"
+                                          d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z"
+                                          fill="#898989"
+                                        />
+                                      </svg>
+                                    </button>
+                                    <div
+                                      class="action-menu"
+                                      ngbDropdownMenu
+                                      aria-labelledby="dropdownBasic1"
+                                    >
+                                      <a
+                                        class="links"
+                                        [routerLink]="['/userdetails', user.id]"
+                                        ngbDropdownItem
+                                      >
+                                        <svg
+                                          width="16"
+                                          height="14"
+                                          viewBox="0 0 16 14"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <g clip-path="url(#clip0_202_1532)">
+                                            <path
+                                              d="M7.87505 0.875C5.66567 0.875 3.89653 1.88125 2.60864 3.07891C1.32896 4.26562 0.473096 5.6875 0.0684082 6.66367C-0.0218262 6.87969 -0.0218262 7.12031 0.0684082 7.33633C0.473096 8.3125 1.32896 9.73438 2.60864 10.9211C3.89653 12.1187 5.66567 13.125 7.87505 13.125C10.0844 13.125 11.8536 12.1187 13.1415 10.9211C14.4211 9.73164 15.277 8.3125 15.6844 7.33633C15.7747 7.12031 15.7747 6.87969 15.6844 6.66367C15.277 5.6875 14.4211 4.26562 13.1415 3.07891C11.8536 1.88125 10.0844 0.875 7.87505 0.875ZM3.93755 7C3.93755 5.95571 4.35239 4.95419 5.09082 4.21577C5.82924 3.47734 6.83076 3.0625 7.87505 3.0625C8.91934 3.0625 9.92086 3.47734 10.6593 4.21577C11.3977 4.95419 11.8125 5.95571 11.8125 7C11.8125 8.04429 11.3977 9.04581 10.6593 9.78423C9.92086 10.5227 8.91934 10.9375 7.87505 10.9375C6.83076 10.9375 5.82924 10.5227 5.09082 9.78423C4.35239 9.04581 3.93755 8.04429 3.93755 7ZM7.87505 5.25C7.87505 6.21523 7.09028 7 6.12505 7C5.93091 7 5.74497 6.96719 5.56997 6.90977C5.41958 6.86055 5.24458 6.95352 5.25005 7.11211C5.25825 7.30078 5.2856 7.48945 5.33755 7.67812C5.71216 9.07812 7.15317 9.90938 8.55317 9.53477C9.95317 9.16016 10.7844 7.71914 10.4098 6.31914C10.1063 5.18438 9.10278 4.42148 7.98716 4.375C7.82856 4.36953 7.7356 4.5418 7.78481 4.69492C7.84224 4.86992 7.87505 5.05586 7.87505 5.25Z"
+                                              fill="#787878"
+                                            />
+                                          </g>
+                                          <defs>
+                                            <clipPath id="clip0_202_1532">
+                                              <rect
+                                                width="15.75"
+                                                height="14"
+                                                fill="white"
+                                              />
+                                            </clipPath>
+                                          </defs>
+                                        </svg>
+
+                                        View
+                                      </a>
+                                      <a class="links" ngbDropdownItem>
+                                        <svg
+                                          width="13"
+                                          height="14"
+                                          viewBox="0 0 13 14"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <g clip-path="url(#clip0_202_1537)">
+                                            <path
+                                              d="M3.69687 0.483984C3.84453 0.185938 4.14805 0 4.47891 0H7.77109C8.10195 0 8.40547 0.185938 8.55312 0.483984L8.75 0.875H11.375C11.859 0.875 12.25 1.26602 12.25 1.75C12.25 2.23398 11.859 2.625 11.375 2.625H0.875C0.391016 2.625 0 2.23398 0 1.75C0 1.26602 0.391016 0.875 0.875 0.875H3.5L3.69687 0.483984ZM0.875 3.5H11.375V12.25C11.375 13.2152 10.5902 14 9.625 14H2.625C1.65977 14 0.875 13.2152 0.875 12.25V3.5ZM3.5 5.25C3.25938 5.25 3.0625 5.44688 3.0625 5.6875V11.8125C3.0625 12.0531 3.25938 12.25 3.5 12.25C3.74062 12.25 3.9375 12.0531 3.9375 11.8125V5.6875C3.9375 5.44688 3.74062 5.25 3.5 5.25ZM6.125 5.25C5.88438 5.25 5.6875 5.44688 5.6875 5.6875V11.8125C5.6875 12.0531 5.88438 12.25 6.125 12.25C6.36562 12.25 6.5625 12.0531 6.5625 11.8125V5.6875C6.5625 5.44688 6.36562 5.25 6.125 5.25ZM8.75 5.25C8.50937 5.25 8.3125 5.44688 8.3125 5.6875V11.8125C8.3125 12.0531 8.50937 12.25 8.75 12.25C8.99063 12.25 9.1875 12.0531 9.1875 11.8125V5.6875C9.1875 5.44688 8.99063 5.25 8.75 5.25Z"
+                                              fill="#DC3545"
+                                            />
+                                          </g>
+                                          <defs>
+                                            <clipPath id="clip0_202_1537">
+                                              <rect
+                                                width="12.25"
+                                                height="14"
+                                                fill="white"
+                                              />
+                                            </clipPath>
+                                          </defs>
+                                        </svg>
+                                        Delete
+                                      </a>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+                <li [ngbNavItem]="2">
+                  <button ngbNavLink>Inactive</button>
+                  <ng-template ngbNavContent>
+                    <div *ngIf="isLoading" class="table-loader">
+                      <div class="spinner"></div>
+                      <p>Loading data, please wait...</p>
+                    </div>
+                    <div class="page-card-body" *ngIf="!isLoading">
+                      <div class="table-responsive">
+                        <div class="approach-table custom-table pb-5">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th width="5%">
+                                  <div
+                                    class="form-check-list d-flex gap-3 flex-wrap"
+                                  >
+                                    <div
+                                      class="form-check-box position-relative"
+                                    >
+                                      <input type="checkbox" />
+                                      <label
+                                        ><span class="opacity-0">-</span></label
+                                      >
+                                    </div>
+                                  </div>
+                                </th>
+                                <th>ID</th>
+                                <th>User Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                *ngFor="
+                                  let user of getInActiveUsers();
+                                  let i = index
+                                "
+                              >
+                                <td>
+                                  <div
+                                    class="form-check-list d-flex gap-3 flex-wrap"
+                                  >
+                                    <div
+                                      class="form-check-box position-relative"
+                                    >
+                                      <input type="checkbox" />
+                                      <label
+                                        ><span class="opacity-0">-</span></label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>
+                                  {{ user.id }}
+                                </td>
+                                <td>
+                                  <div
+                                    class="user-div d-flex align-items-center gap-3"
+                                  >
+                                    <div class="ud-img">
+                                      <img
+                                        src="/img/visitor.png"
+                                        alt="visitor"
+                                        class="img-fluid"
+                                      />
+                                    </div>
+                                    <div class="ud-detail">
+                                      <p class="mb-0">{{ user.displayName }}</p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.roleName }}</td>
+                                <td>{{ user.departmentName }}</td>
+                                <td>
+                                  {{ user.isActive ? "Active" : "Inactive" }}
+                                </td>
+                                <td>
+                                  {{
+                                    user.modifiedDate || user.createdDate
+                                      | date : "dd MMMM yyyy"
+                                  }}
+                                </td>
+
+                                <td>
+                                  <div
+                                    ngbDropdown
+                                    placement="bottom-end"
+                                    class="d-inline-block user-action-dropdown"
+                                  >
+                                    <button
+                                      type="button"
+                                      class="btn"
+                                      id="dropdownBasic1"
+                                      ngbDropdownToggle
+                                    >
+                                      <svg
+                                        width="25"
+                                        height="24"
+                                        viewBox="0 0 25 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          fill-rule="evenodd"
+                                          clip-rule="evenodd"
+                                          d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z"
+                                          fill="#898989"
+                                        />
+                                      </svg>
+                                    </button>
+                                    <div
+                                      class="action-menu"
+                                      ngbDropdownMenu
+                                      aria-labelledby="dropdownBasic1"
+                                    >
+                                      <a
+                                        class="links"
+                                        [routerLink]="['/userdetails', user.id]"
+                                        ngbDropdownItem
+                                      >
+                                        <svg
+                                          width="16"
+                                          height="14"
+                                          viewBox="0 0 16 14"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <g clip-path="url(#clip0_202_1532)">
+                                            <path
+                                              d="M7.87505 0.875C5.66567 0.875 3.89653 1.88125 2.60864 3.07891C1.32896 4.26562 0.473096 5.6875 0.0684082 6.66367C-0.0218262 6.87969 -0.0218262 7.12031 0.0684082 7.33633C0.473096 8.3125 1.32896 9.73438 2.60864 10.9211C3.89653 12.1187 5.66567 13.125 7.87505 13.125C10.0844 13.125 11.8536 12.1187 13.1415 10.9211C14.4211 9.73164 15.277 8.3125 15.6844 7.33633C15.7747 7.12031 15.7747 6.87969 15.6844 6.66367C15.277 5.6875 14.4211 4.26562 13.1415 3.07891C11.8536 1.88125 10.0844 0.875 7.87505 0.875ZM3.93755 7C3.93755 5.95571 4.35239 4.95419 5.09082 4.21577C5.82924 3.47734 6.83076 3.0625 7.87505 3.0625C8.91934 3.0625 9.92086 3.47734 10.6593 4.21577C11.3977 4.95419 11.8125 5.95571 11.8125 7C11.8125 8.04429 11.3977 9.04581 10.6593 9.78423C9.92086 10.5227 8.91934 10.9375 7.87505 10.9375C6.83076 10.9375 5.82924 10.5227 5.09082 9.78423C4.35239 9.04581 3.93755 8.04429 3.93755 7ZM7.87505 5.25C7.87505 6.21523 7.09028 7 6.12505 7C5.93091 7 5.74497 6.96719 5.56997 6.90977C5.41958 6.86055 5.24458 6.95352 5.25005 7.11211C5.25825 7.30078 5.2856 7.48945 5.33755 7.67812C5.71216 9.07812 7.15317 9.90938 8.55317 9.53477C9.95317 9.16016 10.7844 7.71914 10.4098 6.31914C10.1063 5.18438 9.10278 4.42148 7.98716 4.375C7.82856 4.36953 7.7356 4.5418 7.78481 4.69492C7.84224 4.86992 7.87505 5.05586 7.87505 5.25Z"
+                                              fill="#787878"
+                                            />
+                                          </g>
+                                          <defs>
+                                            <clipPath id="clip0_202_1532">
+                                              <rect
+                                                width="15.75"
+                                                height="14"
+                                                fill="white"
+                                              />
+                                            </clipPath>
+                                          </defs>
+                                        </svg>
+
+                                        View
+                                      </a>
+                                      <a class="links" ngbDropdownItem>
+                                        <svg
+                                          width="13"
+                                          height="14"
+                                          viewBox="0 0 13 14"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <g clip-path="url(#clip0_202_1537)">
+                                            <path
+                                              d="M3.69687 0.483984C3.84453 0.185938 4.14805 0 4.47891 0H7.77109C8.10195 0 8.40547 0.185938 8.55312 0.483984L8.75 0.875H11.375C11.859 0.875 12.25 1.26602 12.25 1.75C12.25 2.23398 11.859 2.625 11.375 2.625H0.875C0.391016 2.625 0 2.23398 0 1.75C0 1.26602 0.391016 0.875 0.875 0.875H3.5L3.69687 0.483984ZM0.875 3.5H11.375V12.25C11.375 13.2152 10.5902 14 9.625 14H2.625C1.65977 14 0.875 13.2152 0.875 12.25V3.5ZM3.5 5.25C3.25938 5.25 3.0625 5.44688 3.0625 5.6875V11.8125C3.0625 12.0531 3.25938 12.25 3.5 12.25C3.74062 12.25 3.9375 12.0531 3.9375 11.8125V5.6875C3.9375 5.44688 3.74062 5.25 3.5 5.25ZM6.125 5.25C5.88438 5.25 5.6875 5.44688 5.6875 5.6875V11.8125C5.6875 12.0531 5.88438 12.25 6.125 12.25C6.36562 12.25 6.5625 12.0531 6.5625 11.8125V5.6875C6.5625 5.44688 6.36562 5.25 6.125 5.25ZM8.75 5.25C8.50937 5.25 8.3125 5.44688 8.3125 5.6875V11.8125C8.3125 12.0531 8.50937 12.25 8.75 12.25C8.99063 12.25 9.1875 12.0531 9.1875 11.8125V5.6875C9.1875 5.44688 8.99063 5.25 8.75 5.25Z"
+                                              fill="#DC3545"
+                                            />
+                                          </g>
+                                          <defs>
+                                            <clipPath id="clip0_202_1537">
+                                              <rect
+                                                width="12.25"
+                                                height="14"
+                                                fill="white"
+                                              />
+                                            </clipPath>
+                                          </defs>
+                                        </svg>
+
+                                        Delete
+                                      </a>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="filter-head d-flex justify-content-end gap-3 mb-4">
+              <div class="role-btn-div text-end">
+                <button
+                  class="btn btn-outline-secondary d-flex gap-2 align-items-center"
+                  (click)="nevigate()"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334"
+                      stroke="white"
+                      stroke-width="1.66667"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  Add New User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>

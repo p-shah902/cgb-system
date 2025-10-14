@@ -1,0 +1,270 @@
+<script src="../../../../../../Downloads/ckeditor/src/app/app.component.ts"></script>
+
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="filter-head mb-4">
+  <div class="row align-items-center">
+    <div class="col-md-12">
+      <div class=" d-flex flex-wrap gap-3">
+        <div class="fh-search">
+          <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                  fill="#84818A"/>
+          </svg>
+          <input class="form-control" placeholder="Search Field"/>
+        </div>
+        <div class="filter-btn-div">
+          <button class="btn btn-outline-secondary d-flex gap-2 align-items-center">
+            <svg width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M7 11.8515V14.0515H13V11.8515H7ZM4 6.35146V8.55147H16V6.35146H4ZM0 0.851562V3.05156H20V0.851562H0Z"
+                    fill="#898989"/>
+            </svg>
+            Filter
+          </button>
+        </div>
+        <div ngbDropdown class="filter-btn-div">
+          <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" ngbDropdownToggle>
+            <svg width="9" height="24" viewBox="0 0 9 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M0.450271 8.45H8.5505C8.63251 8.4497 8.7129 8.42386 8.78301 8.37524C8.85312 8.32662 8.91031 8.25707 8.9484 8.17408C8.9865 8.09108 9.00406 7.99779 8.99921 7.90423C8.99436 7.81068 8.96727 7.72041 8.92086 7.64314L4.87075 0.957886C4.70289 0.680705 4.29878 0.680705 4.13048 0.957886L0.0803605 7.64314C0.0334803 7.72025 0.00598872 7.81056 0.000872541 7.90427C-0.00424364 7.99798 0.0132113 8.0915 0.0513409 8.17467C0.0894705 8.25784 0.146816 8.32748 0.217148 8.37602C0.28748 8.42456 0.368108 8.45015 0.450271 8.45Z"
+                fill="#898989"/>
+              <path
+                d="M0.450271 14.45H8.5505C8.63251 14.4503 8.7129 14.4799 8.78301 14.5354C8.85312 14.591 8.91031 14.6705 8.9484 14.7653C8.9865 14.8602 9.00406 14.9668 8.99921 15.0737C8.99436 15.1807 8.96727 15.2838 8.92086 15.3721L4.87075 23.0124C4.70289 23.3292 4.29878 23.3292 4.13048 23.0124L0.0803605 15.3721C0.0334803 15.284 0.00598872 15.1808 0.000872541 15.0737C-0.00424364 14.9666 0.0132113 14.8597 0.0513409 14.7647C0.0894705 14.6696 0.146816 14.59 0.217148 14.5345C0.28748 14.4791 0.368108 14.4498 0.450271 14.45Z"
+                fill="#898989"/>
+            </svg>
+            A Z
+          </button>
+          <div class="filter-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <div class="flt-head">
+              <div class="row">
+                <div class="col-12">
+                  <h5>Filter</h5>
+                </div>
+              </div>
+            </div>
+            <div class="flt-body">
+              <div class="row">
+                <div class="col-6">
+                  <label class="text-secondary">Select Date</label>
+                </div>
+                <div class="col-6 text-end">
+                  <button class="btn p-0 h-auto">
+                    Clear
+                  </button>
+                </div>
+                <div class="col-6">
+                  <input type="date" class="form-control"/>
+                </div>
+                <div class="col-6 text-end">
+                  <input type="date" class="form-control"/>
+                </div>
+              </div>
+              <hr/>
+              <div class="row mt-2">
+                <div class="col-8">
+                  <label class="text-secondary">Select Date</label>
+                </div>
+                <div class="col-4 text-end">
+                  <button class="btn p-0 h-auto">
+                    Clear
+                  </button>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-8">
+                  <p>
+                    Approved by PDM
+                  </p>
+                </div>
+                <div class="col-4">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw1">
+                    <label class="form-check-label" for="flt-sw1"></label>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-8">
+                  <p>
+                    On Pre-CGB
+                  </p>
+                </div>
+                <div class="col-4">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw2">
+                    <label class="form-check-label" for="flt-sw2"></label>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-8">
+                  <p>
+                    Approved by Pre-CGB
+                  </p>
+                </div>
+                <div class="col-4">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw3">
+                    <label class="form-check-label" for="flt-sw3"></label>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-8">
+                  <p>
+                    On CGB
+                  </p>
+                </div>
+                <div class="col-4">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw4">
+                    <label class="form-check-label" for="flt-sw4"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="open($event, content, 'pre')" *ngIf="showPreCGBButton">
+          Initiate Pre CGB Cycle
+        </button>
+        <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="open($event, content, 'cgb')" *ngIf="showCGBButton">
+          Initiate CGB Cycle
+        </button>
+      </div>
+    </div>
+    <div class="col-md-4 d-none">
+      <div class="member-div justify-content-end">
+        <h4>Member</h4>
+        <div class="d-flex">
+          <div class="member-box">
+            <img src="/img/visitor.png" alt="visitor" class="img-fluid">
+          </div>
+          <div class="member-box">
+            <img src="/img/visitor.png" alt="visitor" class="img-fluid">
+          </div>
+          <div class="member-box">
+            <img src="/img/visitor.png" alt="visitor" class="img-fluid">
+          </div>
+          <div class="member-box">
+            <img src="/img/visitor.png" alt="visitor" class="img-fluid">
+          </div>
+          <div class="member-box">
+            <button class="btn p-0">
+              +2
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div *ngIf="isLoading" class="table-loader">
+  <div class="spinner"></div>
+  <p>Loading data, please wait...</p>
+</div>
+<div class="paper-status-div d-flex gap-3 overflow-auto pb-3" *ngIf="!isLoading">
+  <div class="paper-card" *ngFor="let group of groupedPaper | keyvalue: keepOrder; index as i;trackBy: trackByGroupKey">
+    <div class="paper-head d-flex align-items-center justify-content-between">
+      <h3 class="w-100">
+        {{ i + 1 }}. {{ group.key }} <span>{{ group.value.length }}</span>
+      </h3>
+      <div *ngIf="isChecked(group.value)">
+        <select class="form-control py-1" (change)="updateValue($event, group.key)">
+          <option selected disabled>Move to</option>
+          <option *ngFor="let key of getData(group.key)" [value]="key.value">{{ key.label }}</option>
+        </select>
+      </div>
+      <hr class="b-hr"/>
+    </div>
+    <div class="d-flex flex-column gap-3">
+      <div class="paper-box" *ngFor="let paper of group.value">
+        <div class="paper-check">
+          <input type="checkbox" [(ngModel)]="paper.checked" (change)="onCheckboxChange()">
+          <label></label>
+        </div>
+        <div class="st-div low-st d-none">
+          Low
+        </div>
+        <h4>{{ paper.description }}</h4>
+        <p [safeHtml]="paper.purposeTitle">
+        </p>
+        <div class="paper-action-div d-flex gap-3 flex-wrap">
+          <button class="btn p-0 text-secondary d-flex align-items-center">
+            <svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M8.63765 15.2073C8.14103 15.2073 7.67319 14.974 7.34211 14.5673L6.26249 13.234C6.2409 13.2073 6.15453 13.174 6.11854 13.1673H5.75867C2.75733 13.1673 0.900391 12.414 0.900391 8.66732V5.33398C0.900391 2.38732 2.5774 0.833984 5.75867 0.833984H11.5166C14.6979 0.833984 16.3749 2.38732 16.3749 5.33398V8.66732C16.3749 11.614 14.6979 13.1673 11.5166 13.1673H11.1568C11.0992 13.1673 11.0488 13.194 11.0128 13.234L9.93319 14.5673C9.60211 14.974 9.13428 15.2073 8.63765 15.2073ZM5.75867 1.83398C3.18198 1.83398 1.98001 2.94732 1.98001 5.33398V8.66732C1.98001 11.6807 3.09561 12.1673 5.75867 12.1673H6.11854C6.48561 12.1673 6.90307 12.3607 7.12619 12.634L8.2058 13.9673C8.45772 14.274 8.81759 14.274 9.0695 13.9673L10.1491 12.634C10.3866 12.3407 10.7609 12.1673 11.1568 12.1673H11.5166C14.0933 12.1673 15.2953 11.054 15.2953 8.66732V5.33398C15.2953 2.94732 14.0933 1.83398 11.5166 1.83398H5.75867Z"
+                fill="#787486"/>
+              <path
+                d="M8.63771 7.99935C8.23466 7.99935 7.91797 7.69935 7.91797 7.33268C7.91797 6.96602 8.24185 6.66602 8.63771 6.66602C9.03357 6.66602 9.35746 6.96602 9.35746 7.33268C9.35746 7.69935 9.04077 7.99935 8.63771 7.99935Z"
+                fill="#787486"/>
+              <path
+                d="M11.5166 7.99935C11.1136 7.99935 10.7969 7.69935 10.7969 7.33268C10.7969 6.96602 11.1208 6.66602 11.5166 6.66602C11.9125 6.66602 12.2364 6.96602 12.2364 7.33268C12.2364 7.69935 11.9197 7.99935 11.5166 7.99935Z"
+                fill="#787486"/>
+              <path
+                d="M5.75881 7.99935C5.35575 7.99935 5.03906 7.69935 5.03906 7.33268C5.03906 6.96602 5.36295 6.66602 5.75881 6.66602C6.15467 6.66602 6.47855 6.96602 6.47855 7.33268C6.47855 7.69935 6.16186 7.99935 5.75881 7.99935Z"
+                fill="#787486"/>
+            </svg>
+            {{paper.logCounts}} comments
+          </button>
+          <button class="btn p-0 text-secondary d-flex align-items-center">
+            <svg width="19" height="16" viewBox="0 0 19 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M16.393 7.33398V11.334C16.393 14.0007 15.6732 14.6673 12.7942 14.6673H5.59677C2.71779 14.6673 1.99805 14.0007 1.99805 11.334V4.66732C1.99805 2.00065 2.71779 1.33398 5.59677 1.33398H6.67639C7.75601 1.33398 7.99352 1.62732 8.40378 2.13398L9.4834 3.46732C9.7569 3.80065 9.91524 4.00065 10.635 4.00065H12.7942C15.6732 4.00065 16.393 4.66732 16.393 7.33398Z"
+                stroke="#787486" stroke-miterlimit="10"/>
+              <path d="M6.67578 1.33398H13.1535C14.593 1.33398 15.3127 2.00065 15.3127 3.33398V4.25398" stroke="#787486"
+                    stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10.9952 10H7.39648" stroke="#787486" stroke-miterlimit="10" stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+
+            {{paper.fileCounts}} files
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Initiate {{openType ? 'Pre' : ''}} CGB Cycle</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <td>#</td>
+          <td>Paper</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let paper of getSelectedPapers(this.openType); let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ paper.description }}</td>
+        </tr>
+        </tbody>
+      </table>
+      <label>Write Comment</label>
+      <textarea class="form-control" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="addReview(modal)">Add comment</button>
+  </div>
+</ng-template>

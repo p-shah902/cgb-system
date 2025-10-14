@@ -1,0 +1,16 @@
+<div class="input-group">
+  <span *ngIf="showDollarSign" class="input-group-text">$</span>
+  <input
+    type="text"
+    [placeholder]="placeholder"
+    [id]="id"
+    [ngClass]="['form-control', inputClass]"
+    [disabled]="disabled"
+    [readonly]="readonly"
+    [value]="inputText"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    (keypress)="validateKeyPress($event)"
+  />
+
+</div>

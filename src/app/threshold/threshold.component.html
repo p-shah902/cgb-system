@@ -1,0 +1,167 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type +' text-white'" [autohide]="true"
+    [delay]="5000" (hidden)="toastService.remove(toast)">
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-card-div">
+
+        <div class="row row-gap-3">
+          <div class="col-md-5">
+            <div class="custom-nav-div">
+              <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+                <li [ngbNavItem]="1">
+                  <button ngbNavLink>Internal Thresholds </button>
+                  <ng-template ngbNavContent>
+                    <div class="page-card-div">
+                      <div class="page-card-body">
+                        <div class="table-responsive">
+                          <div class="approach-table tbl-div custom-table pb-5">
+                            <table class="table table-wrapper">
+                              <thead>
+                                <tr class="sticky">
+                                  <th>Threshold Name</th>
+                                  <th>Paper Type</th>
+                                  <th>Sourcing Type</th>
+                                  <th>Criteria</th>
+                                  <th>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let threshold of internalThresholds">
+                                  <td>{{ threshold.thresholdName }}</td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.paperType)">
+                                      {{ threshold.paperType.join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.paperType)">
+                                      {{ threshold.paperType }}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.sourcingType)">
+                                      {{ getSourcingTypeNames(threshold.sourcingType).join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.sourcingType) && threshold.sourcingType">
+                                      {{ getSourcingTypeName(threshold.sourcingType) }}
+                                    </span>
+                                    <span *ngIf="!threshold.sourcingType || threshold.sourcingType === 0">
+                                      Any
+                                    </span>
+                                  </td>
+                                  <td>{{ threshold.contractValueLimit }}</td>
+                                  <td>
+                                    <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
+                                      <button type="button" class="btn" ngbDropdownToggle>
+                                        <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
+                                          xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z"
+                                            fill="#898989" />
+                                        </svg>
+                                      </button>
+                                      <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                                        <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
+                                        <a class="links cursor-pointer" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>Delete</a>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+                <li [ngbNavItem]="2">
+                  <button ngbNavLink>Partner Approval </button>
+                  <ng-template ngbNavContent>
+                    <div class="page-card-div">
+                      <div class="page-card-body">
+                        <div class="table-responsive">
+                          <div class="approach-table custom-table pb-5">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th>Threshold Name</th>
+                                  <th>Paper Type</th>
+                                  <th>Sourcing Type</th>
+                                  <th>Criteria</th>
+                                  <th>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let threshold of partnerThresholds">
+                                  <td>{{ threshold.thresholdName }}</td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.paperType)">
+                                      {{ threshold.paperType.join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.paperType)">
+                                      {{ threshold.paperType }}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <span *ngIf="isArray(threshold.sourcingType)">
+                                      {{ getSourcingTypeNames(threshold.sourcingType).join(', ') }}
+                                    </span>
+                                    <span *ngIf="!isArray(threshold.sourcingType) && threshold.sourcingType">
+                                      {{ getSourcingTypeName(threshold.sourcingType) }}
+                                    </span>
+                                    <span *ngIf="!threshold.sourcingType || threshold.sourcingType === 0">
+                                      Any
+                                    </span>
+                                  </td>
+                                  <td>{{ threshold.contractValueLimit }}</td>
+                                  <td>
+                                    <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
+                                      <button type="button" class="btn" ngbDropdownToggle>
+                                        <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
+                                          xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" clip-rule="evenodd"
+                                            d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z"
+                                            fill="#898989" />
+                                        </svg>
+                                      </button>
+                                      <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic2">
+                                        <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
+                                        <a class="links" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>Delete</a>
+                                      </div>
+                                    </div>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="role-btn-div text-end d-flex justify-content-end">
+              <a (click)="navigateToThreshold()" class="btn btn-light ms-auto">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Add New Value
+              </a>
+            </div>
+          </div>
+        </div>
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>

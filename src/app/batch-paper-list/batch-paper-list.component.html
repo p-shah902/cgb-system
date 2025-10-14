@@ -1,0 +1,123 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type + ' text-white'" [autohide]="true"
+             [delay]="5000" (hidden)="toastService.remove(toast)">
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-card-div">
+        <div class="filter-head d-flex gap-3 mb-4">
+          <div class="fh-search">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                    fill="#84818A"/>
+            </svg>
+            <input class="form-control" placeholder="Search Field"/>
+          </div>
+
+          <div class="filter-btn-div">
+            <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="togalOrder()">
+              <svg width="9" height="24" viewBox="0 0 9 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M0.450271 8.45H8.5505C8.63251 8.4497 8.7129 8.42386 8.78301 8.37524C8.85312 8.32662 8.91031 8.25707 8.9484 8.17408C8.9865 8.09108 9.00406 7.99779 8.99921 7.90423C8.99436 7.81068 8.96727 7.72041 8.92086 7.64314L4.87075 0.957886C4.70289 0.680705 4.29878 0.680705 4.13048 0.957886L0.0803605 7.64314C0.0334803 7.72025 0.00598872 7.81056 0.000872541 7.90427C-0.00424364 7.99798 0.0132113 8.0915 0.0513409 8.17467C0.0894705 8.25784 0.146816 8.32748 0.217148 8.37602C0.28748 8.42456 0.368108 8.45015 0.450271 8.45Z"
+                  fill="#898989"/>
+                <path
+                  d="M0.450271 14.45H8.5505C8.63251 14.4503 8.7129 14.4799 8.78301 14.5354C8.85312 14.591 8.91031 14.6705 8.9484 14.7653C8.9865 14.8602 9.00406 14.9668 8.99921 15.0737C8.99436 15.1807 8.96727 15.2838 8.92086 15.3721L4.87075 23.0124C4.70289 23.3292 4.29878 23.3292 4.13048 23.0124L0.0803605 15.3721C0.0334803 15.284 0.00598872 15.1808 0.000872541 15.0737C-0.00424364 14.9666 0.0132113 14.8597 0.0513409 14.7647C0.0894705 14.6696 0.146816 14.59 0.217148 14.5345C0.28748 14.4791 0.368108 14.4498 0.450271 14.45Z"
+                  fill="#898989"/>
+              </svg>
+              {{ aToZ }}
+            </button>
+          </div>
+
+          <div class="filter-btn-div ms-auto d-flex gap-2">
+            <button class="btn create-btn" (click)="open($event, content)">
+              Create Paper
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading; else contentPart" class="table-loader">
+          <div class="spinner"></div>
+          <p>Loading data, please wait...</p>
+        </div>
+        <ng-template #contentPart>
+          <div class="page-card-body">
+            <div class="table-responsive">
+              <div class="approach-table custom-table tbl-div pb-5">
+                <table class="table table-wrapper">
+                  <thead>
+                  <tr class="sticky">
+                    <th width="5%">
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input type="checkbox"/>
+                          <label><span class="opacity-0">-</span></label>
+                        </div>
+                      </div>
+                    </th>
+                    <th>Title</th>
+                    <th>Last Modify</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let paper of batchPaperList; let i = index">
+                    <td>
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input type="checkbox"/>
+                          <label><span class="opacity-0">-</span></label>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="paper-name">
+                        <div class="paper-detail">
+                          <p class="cursor-pointer">
+                            {{ paper.paperProvision }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-nowrap">
+                      {{ paper.createdDate | date : "dd-MMMM-yyyy" }}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Create Batch Paper</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group mb-3">
+      <label>Name</label>
+      <input class="form-control" type="text" placeholder="Write here" [(ngModel)]="form.name" />
+    </div>
+    <div class="mb-3">
+      <ng-select2 [data]="creatPaperList" [multiple]="true" [value]="form.papers" (update)="update($event, 'papers')" placeholder="Select Papers"/>
+    </div>
+    <div class="mb-3">
+      <ng-select2 [data]="userDetails" [value]="form.pdm" (update)="update($event, 'pdm')" placeholder="Select PDM"/>
+    </div>
+  </div>
+  <div class="modal-footer filter-btn-div">
+    <button type="button" class="btn create-btn create-btn-paper d-flex align-items-center gap-3 justify-content-center" [disabled]="isCreating" (click)="addBatchPaper(modal)">
+      <div class="spinner" *ngIf="isCreating"></div> Save
+    </button>
+  </div>
+</ng-template>

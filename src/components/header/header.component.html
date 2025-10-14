@@ -1,0 +1,159 @@
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header w-100">
+      <div class="row align-items-center">
+        <div class="col-md-8 order-2 order-sm-2 order-md-1 d-none d-sm-none d-md-block">
+          <h3>{{ pageTitle }}</h3>
+        </div>
+        <div class="col-md-4 order-1 order-sm-1 order-md-2">
+          <div class="navbar-profile-div justify-content-end pe-3">
+            <div ngbDropdown class="btn-group pull-right top-head-dropdown">
+              <button type="button" class="btn btn-default dropdown-toggle" ngbDropdownToggle>
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M16.2499 20.5834C16.2499 22.3783 14.7949 23.8334 12.9999 23.8334C11.205 23.8334 9.74994 22.3783 9.74994 20.5834M14.9462 6.75852C15.4179 6.27111 15.7083 5.607 15.7083 4.87508C15.7083 3.37931 14.4957 2.16675 12.9999 2.16675C11.5042 2.16675 10.2916 3.37931 10.2916 4.87508C10.2916 5.607 10.5819 6.27111 11.0537 6.75852M19.4999 12.1334C19.4999 10.6394 18.8151 9.2065 17.5961 8.15005C16.3772 7.09359 14.7238 6.50008 12.9999 6.50008C11.276 6.50008 9.62273 7.09359 8.40375 8.15005C7.18476 9.2065 6.49994 10.6394 6.49994 12.1334C6.49994 14.6054 5.88692 16.4132 5.12201 17.7068C4.25022 19.1812 3.81433 19.9184 3.83155 20.0944C3.85124 20.2959 3.8875 20.3595 4.05089 20.479C4.19371 20.5834 4.91124 20.5834 6.34631 20.5834H19.6536C21.0886 20.5834 21.8062 20.5834 21.949 20.479C22.1124 20.3595 22.1486 20.2959 22.1683 20.0944C22.1856 19.9184 21.7497 19.1812 20.8779 17.7068C20.113 16.4132 19.4999 14.6054 19.4999 12.1334Z"
+                    stroke="#151515" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="nt-cunt">10</span>
+              </button>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic1"
+                class="dropdown-menu dropdown-menu-right nty-dropdown-div">
+                <div class="nty-head">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="m-0">Notification</h4>
+                    <button class="btn p-0 w-auto border-0 text-decoration-underline">
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+                <div class="nty-body">
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+                      <span class="unread">
+
+                      </span>
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+                      <span class="unread">
+
+                      </span>
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                  <div class="top-text-block">
+                    <a href="#">
+                      <div class="top-text-heading">Caleb Flakelar commented on Admin</div>
+                      <div class="top-text-light">1 min ago</div>
+
+                    </a>
+                  </div>
+                </div>
+                <div class="nty-foot">
+                  <button class="btn p-0 border-0 w-100 m-0">View All</button>
+                </div>
+
+
+              </div>
+            </div>
+            <div ngbDropdown class="dropdown profile-dropdown">
+              <div class="btn w-auto border-0 d-flex profile-dropdown-detail" ngbDropdownToggle>
+                <div class="profile-img">
+                  <img src="/img/visitor.png" alt="visitor" class="img-fluid">
+                </div>
+                <div class="text-start">
+                  <p>{{ loggedInUser?.displayName }}</p>
+                  <span>{{ loggedInUser?.roleName }}</span>
+                </div>
+              </div>
+              <div class="profile-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <div class="pfl-head">
+                  <h5>{{ loggedInUser?.displayName }}</h5>
+                  <p>{{ loggedInUser?.email }}</p>
+                </div>
+                <div class="pfl-body">
+                  <a href="#">
+                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M5.33333 6.36667C5.33333 4.89391 6.52724 3.7 8 3.7C9.47276 3.7 10.6667 4.89391 10.6667 6.36667C10.6667 7.83943 9.47276 9.03333 8 9.03333C6.52724 9.03333 5.33333 7.83943 5.33333 6.36667Z"
+                        fill="#626262" />
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M8 0.5C3.58172 0.5 0 4.08172 0 8.5C0 12.9183 3.58172 16.5 8 16.5C12.4183 16.5 16 12.9183 16 8.5C16 4.08172 12.4183 0.5 8 0.5ZM1.06667 8.5C1.06667 4.67083 4.17083 1.56667 8 1.56667C11.8292 1.56667 14.9333 4.67083 14.9333 8.5C14.9333 10.4729 14.1093 12.2533 12.7867 13.5159C12.6257 11.6025 11.0216 10.1 9.06667 10.1H6.93333C4.97839 10.1 3.37435 11.6025 3.2133 13.5159C1.89067 12.2533 1.06667 10.4729 1.06667 8.5Z"
+                        fill="#626262" />
+                    </svg>
+                    Profile
+                  </a>
+                  <a href="#">
+                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M6.42815 8.50003C6.42815 7.61756 7.13165 6.9005 7.99888 6.9005C8.86611 6.9005 9.56961 7.61756 9.56961 8.50003C9.56961 9.38253 8.86609 10.0996 7.99888 10.0996C7.13167 10.0996 6.42815 9.38253 6.42815 8.50003Z"
+                        fill="#626262" />
+                      <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M5.93961 0.5H10.0574L10.2318 1.39246L10.2324 1.39551L10.5193 2.81996C10.9284 3.00385 11.3078 3.23153 11.6587 3.48923L13.0928 3.0005L13.9428 2.73209L14.3867 3.50779L15.5463 5.48563L16 6.27858L15.3244 6.87887L14.2488 7.81146C14.2826 8.02079 14.3139 8.2571 14.3139 8.49997C14.3139 8.74284 14.2826 8.97918 14.2488 9.18854L15.3292 10.1253L16 10.7214L15.5435 11.5192L14.3868 13.492L13.9428 14.2699L13.0818 13.9959L11.6587 13.5108C11.3078 13.7685 10.9284 13.9961 10.5193 14.18L10.2324 15.6044L10.2318 15.6075L10.0574 16.5H5.9396L5.76681 15.6055L5.47887 14.1801C5.0697 13.9962 4.69023 13.7685 4.33926 13.5108L2.90621 13.9992L2.05442 14.2701L1.61198 13.4916L0.451175 11.5135L0 10.7215L0.673605 10.1211L1.74959 9.18821C1.71594 8.97943 1.68413 8.74221 1.68413 8.49997C1.68413 8.25773 1.71594 8.02054 1.74959 7.81179L0.66822 6.87415L2.27192e-05 6.27856L0.454615 5.48053L1.61212 3.50817L2.05442 2.73184L2.91619 3.00412L4.33926 3.48923C4.69021 3.23149 5.06968 3.00379 5.47887 2.81988L5.76682 1.39437L5.93961 0.5ZM7.99888 5.83318C6.55399 5.83318 5.38099 7.02741 5.38099 8.50003C5.38099 9.97263 6.55397 11.1669 7.99888 11.1669C9.44379 11.1669 10.6168 9.97263 10.6168 8.50003C10.6168 7.02741 9.44377 5.83318 7.99888 5.83318Z"
+                        fill="#626262" />
+                    </svg>
+                    Setting
+                  </a>
+                </div>
+                <div class="pfl-footer">
+                  <a href="/login" (click)="authService.logout()">
+                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M8.58862 14.8226C8.58862 14.6429 8.51725 14.4706 8.39021 14.3436C8.26317 14.2165 8.09087 14.1452 7.9112 14.1452H2.49185C2.43196 14.1452 2.37453 14.1214 2.33218 14.079C2.28983 14.0367 2.26604 13.9792 2.26604 13.9194V3.08065C2.26604 3.02076 2.28983 2.96332 2.33218 2.92098C2.37453 2.87863 2.43196 2.85484 2.49185 2.85484H7.9112C8.09087 2.85484 8.26317 2.78347 8.39021 2.65643C8.51725 2.52939 8.58862 2.35708 8.58862 2.17742C8.58862 1.99776 8.51725 1.82545 8.39021 1.69841C8.26317 1.57137 8.09087 1.5 7.9112 1.5H2.49185C1.61933 1.5 0.911204 2.20813 0.911204 3.08065V13.9194C0.911204 14.3386 1.07774 14.7406 1.37416 15.037C1.67059 15.3335 2.07264 15.5 2.49185 15.5H7.9112C8.09087 15.5 8.26317 15.4286 8.39021 15.3016C8.51725 15.1745 8.58862 15.0022 8.58862 14.8226Z"
+                        fill="#626262" />
+                      <path
+                        d="M4.64886 9.50642C4.64886 9.74597 4.74402 9.97571 4.91341 10.1451C5.08279 10.3145 5.31253 10.4096 5.55208 10.4096H9.93815C9.95922 10.7306 9.98512 11.0515 10.0158 11.3725L10.0429 11.648C10.053 11.7518 10.088 11.8516 10.1449 11.9391C10.2018 12.0265 10.279 12.0989 10.3699 12.1501C10.4607 12.2014 10.5626 12.2299 10.6669 12.2334C10.7711 12.2369 10.8747 12.2151 10.9687 12.17C12.6203 11.3795 14.1151 10.2965 15.381 8.97351L15.4081 8.94551C15.5245 8.82437 15.5896 8.66285 15.5896 8.4948C15.5896 8.32676 15.5245 8.16524 15.4081 8.0441L15.381 8.0161C14.1151 6.69311 12.6203 5.61015 10.9687 4.81958C10.8747 4.77449 10.7711 4.75275 10.6669 4.75622C10.5626 4.75968 10.4607 4.78825 10.3699 4.83948C10.279 4.89072 10.2018 4.96312 10.1449 5.05054C10.088 5.13796 10.053 5.23782 10.0429 5.34164L10.0158 5.61713C9.98512 5.93747 9.95922 6.25842 9.93815 6.57997H5.55208C5.31253 6.57997 5.08279 6.67513 4.91341 6.84451C4.74402 7.0139 4.64886 7.24364 4.64886 7.48319V9.50642Z"
+                        fill="#626262" />
+                    </svg>
+                    Logout
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

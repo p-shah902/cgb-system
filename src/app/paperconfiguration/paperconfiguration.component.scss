@@ -1,0 +1,129 @@
+.page-card-div {
+  padding: 20px;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  background-color: #ffffff;
+  .bill-card {
+    background-color: #E6EFFC;
+    padding: 20px;
+    border-radius: 12px;
+    .bill-detail {
+      h5 {
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 22px;
+        color: #1B202B;
+      }
+      p {
+        font-size: 16px;
+        line-height: 19px;
+        color: #0C0C0C;
+      }
+      small {
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 150%;
+        color: #626262;
+      }
+    }
+    .bill-action {
+      display: flex;
+      gap: 10px;
+      .update-btn {
+        background-color: #582AA2;
+        color: #fff;
+        font-size: 14px;
+        padding: 10px 15px;
+        height: 44px;
+        width: 100%;
+
+      }
+      .normal-btn {
+        background-color: #ffffff;
+        color: #000000;
+        font-size: 14px;
+        padding: 10px 15px;
+        height: 44px;
+        width: 100%;
+
+      }
+      .disabled {
+        opacity: 0.4!important;
+      }
+      .action-btn {
+        width: 44px;
+        height: 44px;
+        background-color: #ffffff;
+      }
+    }
+    @media screen and (max-width: 991px) {
+      .bill-detail {
+        h5 {
+          font-size: 14px;
+        }
+        p {
+          font-size: 12px;
+        }
+      }
+      .bill-action {
+        display: flex;
+        gap: 10px;
+        .update-btn {
+          font-size: 12px;
+          padding: 10px 5px;
+          height: 38px;
+        }
+        .action-btn {
+          width: 38px;
+          height: 38px;
+        }
+      }
+    }
+  }
+}
+
+.modal-content {
+  border-radius: 10px; /* Optional: Rounded corners */
+}
+
+.modal-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+
+.table-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  background-color: #f8f9fb;
+  border-radius: 15px;
+  border: 1px solid #BABABA;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1B202B;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: #787878;
+    font-weight: 500;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
