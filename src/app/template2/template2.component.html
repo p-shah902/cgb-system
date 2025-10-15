@@ -132,14 +132,22 @@
 
                   <div class="form-group mb-3">
                     <label>CGB ATM Ref No</label>
-                    <select class="form-control allow-comments" id="cgbAtmRefNo" formControlName="cgbAtmRefNo">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
-                        <option [value]="item.paperID">
-                          {{ item.paperSubject }}
-                        </option>
-                      </ng-container>
-                    </select>
+                    <div class="d-flex gap-2">
+                      <select class="form-control allow-comments" id="cgbAtmRefNo" formControlName="cgbAtmRefNo"
+                              [style.flex]="generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value ? '1' : 'auto'">
+                        <option [value]="null">Select</option>
+                        <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
+                          <option [value]="item.paperID">
+                            {{ item.paperSubject }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <button type="button" class="btn btn-primary" (click)="onPopulateFromATM()"
+                              *ngIf="generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value"
+                              style="white-space: nowrap;">
+                        Populate
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6">

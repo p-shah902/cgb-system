@@ -1669,7 +1669,7 @@ export class Template2Component implements AfterViewInit {
     this.paperService.upsertContractAward(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          const docId = response.data || null
+          const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
 
@@ -1922,15 +1922,137 @@ export class Template2Component implements AfterViewInit {
     }
     const convertedValue =  cgbATM.entryDate ? format(new Date(cgbATM.entryDate), 'yyyy-MM-dd') : null
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
-    this.fetchATMPaperDetails(id)
+  }
+
+  onPopulateFromATM() {
+    const cgbAtmRefNo = this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value;
+    if (!cgbAtmRefNo) {
+      this.toastService.show('Please select CGB ATM Ref No first', 'warning');
+      return;
+    }
+    this.fetchATMPaperDetails(Number(cgbAtmRefNo));
   }
 
   fetchATMPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
+    this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
       const atmPaperDetails = value.data as any;
-      this.atmPaperContactValueUSD = atmPaperDetails?.paperDetails?.totalAwardValueUSD || 0
-      this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.setValue(atmPaperDetails?.paperDetails?.totalAwardValueUSD || 0,{ emitEvent: true });
-    })}
+      const atmGeneralInfo = atmPaperDetails?.paperDetails || null;
+      const atmValueData = atmPaperDetails?.valueDeliveriesCostsharing[0] || null;
+      const atmJvApprovalsData = atmPaperDetails?.jvApprovals[0] || null;
+      const atmCostAllocationJVApprovalData = atmPaperDetails?.costAllocationJVApproval || [];
+
+      // Store ATM contract value for comparison
+      this.atmPaperContactValueUSD = atmGeneralInfo?.contractValueUsd || 0;
+
+      // Map PSA/JV values
+      const selectedValuesPSAJV = atmGeneralInfo?.psajv
+        ? atmGeneralInfo.psajv
+          .split(',')
+          .map((label: any) => label.trim())
+          .map((label: any) => this.psaJvOptions.find((option) => option.label === label)?.value)
+          .filter((value: any) => value != null)
+        : [];
+
+      const selectedValuesProcurementTagUsers = atmGeneralInfo?.procurementSPAUsers
+        ? atmGeneralInfo.procurementSPAUsers
+          .split(',')
+          .map((id: any) => id.trim())
+          .map((id: any) => this.procurementTagUsers.find((option: any) => option.value === Number(id))?.value)
+          .filter((value: any) => value != null)
+        : [];
+
+      // Prepare cost allocation patch values
+      const patchValues: any = { costAllocation: {} };
+
+      // Assign PSA/JV values dynamically from ATM paper using the same naming logic
+      atmCostAllocationJVApprovalData.forEach((psa: any) => {
+        // Use the same method that creates control names to ensure consistency
+        const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+        const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+        const valueKey = this.getPSAValueControlName(psa.psaName);
+
+        if (checkboxKey) {
+          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          patchValues.costAllocation[percentageKey] = psa.percentage;
+          patchValues.costAllocation[valueKey] = psa.value;
+        }
+      });
+
+      // Assign JV Approvals data from ATM paper
+      Object.assign(patchValues.costAllocation, {
+        contractCommittee_SDCC: atmJvApprovalsData?.contractCommittee_SDCC || false,
+        contractCommittee_SCP_Co_CC: atmJvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+        contractCommittee_SCP_Co_CCInfoNote: atmJvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BTC_CC: atmJvApprovalsData?.contractCommittee_BTC_CC || false,
+        contractCommittee_BTC_CCInfoNote: atmJvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_CGB: false,
+        coVenturers_CMC: atmJvApprovalsData?.coVenturers_CMC || false,
+        coVenturers_SDMC: atmJvApprovalsData?.coVenturers_SDMC || false,
+        coVenturers_SCP: atmJvApprovalsData?.coVenturers_SCP || false,
+        coVenturers_SCP_Board: atmJvApprovalsData?.coVenturers_SCP_Board || false,
+        steeringCommittee_SC: atmJvApprovalsData?.steeringCommittee_SC || false,
+      });
+
+      // Patch all matching fields from ATM paper to Contract template
+      this.generalInfoForm.patchValue({
+        generalInfo: {
+          // Keep the paperProvision from the current form (user entered)
+          purposeRequired: atmGeneralInfo?.purposeRequired || '',
+          globalCGB: atmGeneralInfo?.globalCGB || '',
+          bltMember: atmGeneralInfo?.bltMemberId ? Number(atmGeneralInfo.bltMemberId) : null,
+          operatingFunction: atmGeneralInfo?.operatingFunction || '',
+          subSector: atmGeneralInfo?.subSector || '',
+          sourcingType: atmGeneralInfo?.sourcingType || '',
+          camUserId: atmGeneralInfo?.camUserId || null,
+          vP1UserId: atmGeneralInfo?.vP1UserId || null,
+          procurementSPAUsers: selectedValuesProcurementTagUsers,
+          pdManagerName: atmGeneralInfo?.pdManagerNameId || null,
+          currencyCode: atmGeneralInfo?.currencyCode || '',
+          totalAwardValueUSD: atmGeneralInfo?.contractValueUsd || 0,
+          exchangeRate: atmGeneralInfo?.exchangeRate || 0,
+          contractValue: atmGeneralInfo?.contractValue || 0,
+          remunerationType: atmGeneralInfo?.remunerationType || '',
+          workspaceNo: atmGeneralInfo?.workspaceNo || '',
+          psajv: selectedValuesPSAJV,
+          isLTCC: atmGeneralInfo?.isLTCC || false,
+          ltccNotes: atmGeneralInfo?.ltccNotes || '',
+          isGovtReprAligned: atmGeneralInfo?.isGovtReprAligned || false,
+          govtReprAlignedComment: atmGeneralInfo?.govtReprAlignedComment || '',
+        },
+        valueDelivery: {
+          costReductionPercent: atmValueData?.costReductionPercent || null,
+          costReductionValue: atmValueData?.costReductionValue || null,
+          costReductionRemarks: atmValueData?.costReductionRemarks || '',
+          operatingEfficiencyValue: atmValueData?.operatingEfficiencyValue || null,
+          operatingEfficiencyPercent: atmValueData?.operatingEfficiencyPercent || null,
+          operatingEfficiencyRemarks: atmValueData?.operatingEfficiencyRemarks || '',
+          costAvoidanceValue: atmValueData?.costAvoidanceValue || null,
+          costAvoidancePercent: atmValueData?.costAvoidancePercent || null,
+          costAvoidanceRemarks: atmValueData?.costAvoidanceRemarks || '',
+        },
+        costSharing: {
+          isCapex: atmValueData?.isCapex || false,
+          isFixOpex: atmValueData?.isFixOpex || false,
+          isVariableOpex: atmValueData?.isVariableOpex || false,
+          isInventoryItems: atmValueData?.isInventoryItems || false,
+          capexMethodology: atmValueData?.capexMethodology || '',
+          fixOpexMethodology: atmValueData?.fixOpexMethodology || '',
+          variableOpexMethodology: atmValueData?.variableOpexMethodology || '',
+          inventoryItemsMethodology: atmValueData?.inventoryItemsMethodology || '',
+        },
+        costAllocation: patchValues.costAllocation,
+      }, { emitEvent: true });
+
+      // Set PSA/JV values with delay to ensure proper initialization
+      setTimeout(() => {
+        this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+        this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV, { emitEvent: false });
+      }, 500);
+
+      // Setup PSA listeners after patching values
+      this.setupPSAListeners();
+    });
+  }
 
   get inviteToBid(): FormArray {
     return this.generalInfoForm.get('procurementDetails.legalEntitiesAwarded') as FormArray;

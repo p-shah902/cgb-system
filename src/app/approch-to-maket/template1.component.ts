@@ -1858,7 +1858,7 @@ export class Template1Component implements AfterViewInit  {
     this.paperService.upsertApproachToMarkets(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          const docId = response.data || null
+          const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
 

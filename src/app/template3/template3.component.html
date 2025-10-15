@@ -169,14 +169,22 @@
 
                   <div class="form-group mb-3">
                     <label>CGB Award Ref No*</label>
-                    <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
-                        <option [value]="item.paperID">
-                          {{ item.paperSubject }}
-                        </option>
-                      </ng-container>
-                    </select>
+                    <div class="d-flex gap-2">
+                      <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo"
+                              [style.flex]="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value ? '1' : 'auto'">
+                        <option [value]="null">Select</option>
+                        <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
+                          <option [value]="item.paperID">
+                            {{ item.paperSubject }}
+                          </option>
+                        </ng-container>
+                      </select>
+                      <button type="button" class="btn btn-primary" (click)="onPopulateFromContract()"
+                              *ngIf="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
+                              style="white-space: nowrap;">
+                        Populate
+                      </button>
+                    </div>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>

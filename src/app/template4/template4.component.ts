@@ -1335,7 +1335,7 @@ export class Template4Component  implements AfterViewInit{
     this.paperService.upsertApprovalOfSales(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          const docId = response.data || null
+          const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
 

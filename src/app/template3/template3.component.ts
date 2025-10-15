@@ -458,14 +458,151 @@ getGroupForm(key: string): FormGroup {
     }
     const convertedValue =  cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
-    this.fetchCAPaperDetails(id)
+  }
+
+  onPopulateFromContract() {
+    const cgbAwardRefNo = this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value;
+    if (!cgbAwardRefNo) {
+      this.toastService.show('Please select CGB Award Ref No first', 'warning');
+      return;
+    }
+    this.fetchCAPaperDetails(Number(cgbAwardRefNo));
   }
 
   fetchCAPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'variation').subscribe((value) => {
-      const atmPaperDetails = value.data as any;
-      this.generalInfoForm.get('contractValues.originalContractValue')?.setValue(atmPaperDetails?.contractAwardDetails?.totalAwardValueUSD || 0,{ emitEvent: true });
-    })}
+    this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
+      const contractPaperDetails = value.data as any;
+      const contractGeneralInfo = contractPaperDetails?.contractAwardDetails || null;
+      const contractValueData = contractPaperDetails?.valueDeliveriesCostsharing[0] || null;
+      const contractJvApprovalsData = contractPaperDetails?.jvApprovals[0] || null;
+      const contractCostAllocationJVApprovalData = contractPaperDetails?.costAllocationJVApproval || [];
+
+      // Map PSA/JV values
+      const selectedValuesPSAJV = contractGeneralInfo?.psajv
+        ? contractGeneralInfo.psajv
+          .split(',')
+          .map((label: any) => label.trim())
+          .map((label: any) => this.psaJvOptions.find((option) => option.label === label)?.value)
+          .filter((value: any) => value != null)
+        : [];
+
+      const selectedValuesProcurementTagUsers = contractGeneralInfo?.procurementSPAUsers
+        ? contractGeneralInfo.procurementSPAUsers
+          .split(',')
+          .map((id: any) => id.trim())
+          .map((id: any) => this.procurementTagUsers.find((option: any) => option.value === Number(id))?.value)
+          .filter((value: any) => value != null)
+        : [];
+
+      // Prepare cost allocation patch values
+      const patchValues: any = { costAllocation: {} };
+
+      // Assign PSA/JV values dynamically from Contract paper using the same naming logic
+      contractCostAllocationJVApprovalData.forEach((psa: any) => {
+        // Use the same method that creates control names to ensure consistency
+        const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+        const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+        const valueKey = this.getPSAValueControlName(psa.psaName);
+
+        if (checkboxKey) {
+          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          patchValues.costAllocation[percentageKey] = psa.percentage;
+          patchValues.costAllocation[valueKey] = psa.value;
+        }
+      });
+
+      // Assign JV Approvals data from Contract paper
+      Object.assign(patchValues.costAllocation, {
+        contractCommittee_SDCC: contractJvApprovalsData?.contractCommittee_SDCC || false,
+        contractCommittee_SCP_Co_CC: contractJvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+        contractCommittee_SCP_Co_CCInfoNote: contractJvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BTC_CC: contractJvApprovalsData?.contractCommittee_BTC_CC || false,
+        contractCommittee_BTC_CCInfoNote: contractJvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_CGB: false,
+        coVenturers_CMC: contractJvApprovalsData?.coVenturers_CMC || false,
+        coVenturers_SDMC: contractJvApprovalsData?.coVenturers_SDMC || false,
+        coVenturers_SCP: contractJvApprovalsData?.coVenturers_SCP || false,
+        coVenturers_SCP_Board: contractJvApprovalsData?.coVenturers_SCP_Board || false,
+        steeringCommittee_SC: contractJvApprovalsData?.steeringCommittee_SC || false,
+      });
+
+      // Patch all matching fields from Contract paper to Variation template
+      this.generalInfoForm.patchValue({
+        generalInfo: {
+          // Keep the paperProvision from the current form (user entered)
+          purposeRequired: contractGeneralInfo?.purposeRequired || '',
+          fullLegalName: contractGeneralInfo?.fullLegalName || '',
+          contractNo: contractGeneralInfo?.contractNo || '',
+          vendorId: contractGeneralInfo?.vendorId || null,
+          globalCGB: contractGeneralInfo?.globalCGB || '',
+          camUserId: contractGeneralInfo?.camUserId || null,
+          vP1UserId: contractGeneralInfo?.vP1UserId || null,
+          procurementSPAUsers: selectedValuesProcurementTagUsers,
+          pdManagerName: contractGeneralInfo?.pdManagerNameId || null,
+          operatingFunction: contractGeneralInfo?.operatingFunction || '',
+          bltMember: contractGeneralInfo?.bltMemberId ? Number(contractGeneralInfo.bltMemberId) : null,
+          subSector: contractGeneralInfo?.subSector || '',
+          sourcingType: contractGeneralInfo?.sourcingType || '',
+          psajv: selectedValuesPSAJV,
+          isLTCC: contractGeneralInfo?.isLTCC || false,
+          ltccNotes: contractGeneralInfo?.ltccNotes || '',
+          isGovtReprAligned: contractGeneralInfo?.isGovtReprAligned || false,
+          govtReprAlignedComment: contractGeneralInfo?.govtReprAlignedComment || '',
+        },
+        contractInfo: {
+          isPHCA: contractGeneralInfo?.isPHCA || false,
+          workspaceNo: contractGeneralInfo?.workspaceNo || '',
+          remunerationType: contractGeneralInfo?.remunerationType || '',
+          isPaymentRequired: contractGeneralInfo?.isPaymentRequired || false,
+          prePayAmount: contractGeneralInfo?.prePayAmount || 0,
+          isRetrospectiveApproval: contractGeneralInfo?.isRetrospectiveApproval || false,
+          retrospectiveApprovalReason: contractGeneralInfo?.retrospectiveApprovalReason || '',
+        },
+        contractValues: {
+          // Map Contract value to Previous Variation Total in Variation template
+          previousVariationTotal: contractGeneralInfo?.totalAwardValueUSD || 0,
+          originalContractValue: contractGeneralInfo?.totalAwardValueUSD || 0,
+          currencyCode: contractGeneralInfo?.currencyCode || '',
+          exchangeRate: contractGeneralInfo?.exchangeRate || 0,
+          contractValue: contractGeneralInfo?.contractValue || 0,
+          isCurrencyLinktoBaseCost: contractGeneralInfo?.contractCurrencyLinktoBaseCost || false,
+          noCurrencyLinkNotes: contractGeneralInfo?.explanationsforBaseCost || '',
+          isConflictOfInterest: contractGeneralInfo?.isConflictOfInterest || false,
+          conflictOfInterestComment: contractGeneralInfo?.conflictOfInterestComment || '',
+        },
+        ccd: {
+          isHighRiskContract: contractGeneralInfo?.isHighRiskContract || false,
+          daCDDCompleted: contractGeneralInfo?.cddCompleted
+            ? format(new Date(contractGeneralInfo.cddCompleted), 'yyyy-MM-dd')
+            : null,
+          highRiskExplanation: contractGeneralInfo?.highRiskExplanation || '',
+          flagRaisedCDD: contractGeneralInfo?.flagRaisedCDD || '',
+          additionalCDD: contractGeneralInfo?.additionalCDD || '',
+        },
+        valueDelivery: {
+          costReductionPercent: contractValueData?.costReductionPercent || null,
+          costReductionValue: contractValueData?.costReductionValue || null,
+          costReductionRemarks: contractValueData?.costReductionRemarks || '',
+          operatingEfficiencyValue: contractValueData?.operatingEfficiencyValue || null,
+          operatingEfficiencyPercent: contractValueData?.operatingEfficiencyPercent || null,
+          operatingEfficiencyRemarks: contractValueData?.operatingEfficiencyRemarks || '',
+          costAvoidanceValue: contractValueData?.costAvoidanceValue || null,
+          costAvoidancePercent: contractValueData?.costAvoidancePercent || null,
+          costAvoidanceRemarks: contractValueData?.costAvoidanceRemarks || '',
+        },
+        costAllocation: patchValues.costAllocation,
+      }, { emitEvent: true });
+
+      // Set PSA/JV values with delay to ensure proper initialization
+      setTimeout(() => {
+        this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+        this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV, { emitEvent: false });
+      }, 500);
+
+      // Setup PSA listeners after patching values
+      this.setupPSAListeners();
+    });
+  }
 
   getAllSelectedPsa(): PSAEntry[] {
     const result: PSAEntry[] = [];
@@ -1545,7 +1682,7 @@ getGroupForm(key: string): FormGroup {
     this.paperService.upsertVariationPaper(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          const docId = response.data || null
+          const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
 
