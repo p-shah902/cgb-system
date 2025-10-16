@@ -175,7 +175,7 @@ export class VendorDetailComponent implements OnInit {
   }
 
   submitVendor(): void {
-    if (this.vendorForm.invalid || this.fileError || !this.selectedFile) {
+    if (this.vendorForm.invalid || this.fileError) {
       this.toastService.show('Please Fill All Required Fields', 'danger');
       return;
     }
@@ -256,7 +256,7 @@ export class VendorDetailComponent implements OnInit {
           if(this.vendorInfo.vendorDetails && this.vendorInfo.vendorDetails.length>0)
           {
             this.vendorDetail={...this.vendorInfo.vendorDetails[0]};
-            this.vendorForm.patchValue({...this.vendorDetail});
+            this.vendorForm.patchValue({...this.vendorDetail, vendorName: this.vendorInfo.vendorDetails[0].legalName});
           }else{
             this.toastService.show("Please Select Valid Vendor",'danger');
             this.router.navigate(['/vendors']);

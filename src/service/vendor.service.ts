@@ -17,18 +17,18 @@ export class VendorService {
     public vendorInfo$ = this.vendorInfoSubject.asObservable();
 
     constructor(private http:HttpClient) { }
-  
+
     getVendorDetailsList():Observable<ApiResponse<VendorDetail[]>>{
-      
+
         return this.http.get<ApiResponse<VendorDetail[]>>(getVendorListUri).pipe(
           tap(response=>{
             if(response.status && response.data)
             {
               this.vendorListSubject.next(response.data);
-              
+
             }
           })
-          
+
         );
     }
 
@@ -62,7 +62,7 @@ export class VendorService {
     private createFormData(vendor: VendorDetail, file: File|null): FormData {
       const formData = new FormData();
       formData.append('Id', vendor.id.toString());
-      formData.append('VendorName', vendor.vendorName);
+      formData.append('LegalName', vendor.vendorName);
       formData.append('TaxId', vendor.taxId);
       formData.append('SAPId', vendor.sapId);
       formData.append('CountryId', vendor.countryId.toString());
@@ -73,11 +73,11 @@ export class VendorService {
       formData.append('IsCGBRegistered', vendor.isCGBRegistered.toString());
       formData.append('ApprovalStatus', vendor.approvalStatus);
       formData.append('AvatarPath', vendor.avatarPath);
-  
+
       if (file) {
         formData.append('Files', file, file.name);
       }
-  
+
       console.log('Form Data',formData);
       return formData;
     }

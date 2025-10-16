@@ -50,6 +50,8 @@ import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
 import {BatchService} from '../../service/batch.service';
 import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
+import { VendorService } from '../../service/vendor.service';
+import { VendorDetail } from '../../models/vendor';
 
 @Component({
   selector: 'app-template1',
@@ -69,6 +71,7 @@ export class Template1Component implements AfterViewInit  {
   private authService = inject(AuthService);
   private searchTimeout: any;
   private readonly thresholdService = inject(ThresholdService);
+  private readonly vendorService = inject(VendorService);
   private psaCalculationListenersSet = new Set<string>(); // Track which PSAJV columns have calculation listeners
 
   isEndDateDisabled: boolean = true;
@@ -99,6 +102,7 @@ export class Template1Component implements AfterViewInit  {
   userDetails: UserDetails[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
+  vendorData: VendorDetail[] = [];
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
@@ -181,6 +185,7 @@ export class Template1Component implements AfterViewInit  {
     this.loadPaperStatusListData();
     this.loadThresholdData()
     this.loadBatchPapersList();
+    this.loadVendorData();
 
     let camId = null
 
@@ -1320,6 +1325,44 @@ export class Template1Component implements AfterViewInit  {
     })
   }
 
+  loadVendorData() {
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.vendorData = response.data.filter(vendor => vendor.isActive);
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+  getVendorOptions() {
+    return this.vendorData.map(vendor => ({
+      value: vendor.id,
+      label: vendor.legalName
+    }));
+  }
+
+  onVendorSelectionChange(rowIndex: number) {
+    const row = this.inviteToBid.at(rowIndex);
+    const parentCompanyNameControl = row.get('parentCompanyName');
+    
+    // Get the value from the form control instead of the event
+    const selectedValue = row.get('legalName')?.value;
+    
+    const vendorIdNum = Number(selectedValue);
+    if (vendorIdNum && !isNaN(vendorIdNum) && parentCompanyNameControl) {
+      const selectedVendor = this.vendorData.find(vendor => vendor.id === vendorIdNum);
+      if (selectedVendor) {
+        parentCompanyNameControl.setValue(selectedVendor.legalName);
+      }
+    } else if (parentCompanyNameControl) {
+      parentCompanyNameControl.setValue('');
+    }
+  }
+
   private incrementAndCheck(increaseCount: number | null = null) {
     this.completedCount++;
     if (increaseCount) {
@@ -1526,9 +1569,11 @@ export class Template1Component implements AfterViewInit  {
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item, index) => {
+        // Find vendor by legalName to get vendorId
+        const vendor = this.vendorData.find(v => v.vendorName === item.legalName);
         riskMitigationArray.push(
           this.fb.group({
-            legalName: [item.legalName, Validators.required],
+            legalName: [vendor?.id || null, Validators.required], // Now stores vendorId
             isLocalOrJV: [item.isLocalOrJV], // Checkbox
             countryId: [item.countryId, Validators.required],
             parentCompanyName: [item.parentCompanyName],
@@ -1755,43 +1800,42 @@ export class Template1Component implements AfterViewInit  {
 
     const params = {
       papers: {
+        id: this.paperId && !this.isCopy ? Number(this.paperId) : 0,
         paperStatusId: this.paperStatusId,
         paperProvision: generalInfoValue?.paperProvision,
         purposeRequired: generalInfoValue?.purposeRequired,
         isActive: true,
-        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
-      },
-      approachMarket: {
-        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
-        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        scopeOfWork: generalInfoValue?.scopeOfWork,
-        globalCGB: generalInfoValue?.globalCGB,
         bltMember: generalInfoValue?.bltMember,
-        operatingFunction: generalInfoValue?.operatingFunction,
-        subSector: generalInfoValue?.subSector,
-        sourcingType: generalInfoValue?.sourcingType,
         camUserId: generalInfoValue?.camUserId || null,
         vP1UserId: generalInfoValue?.vP1UserId || null,
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
         pdManagerName: generalInfoValue?.pdManagerName || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || null,
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
+        globalCGB: generalInfoValue?.globalCGB,
+        subSector: generalInfoValue?.subSector,
+        operatingFunction: generalInfoValue?.operatingFunction,
+        sourcingType: generalInfoValue?.sourcingType,
         isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
-        totalAwardValueUSD: generalInfoValue?.contractValueUsd || null,
+        contractValue: generalInfoValue?.contractValueOriginalCurrency || 0,
         currencyCode: generalInfoValue?.originalCurrency || null,
-        exchangeRate: generalInfoValue?.exchangeRate,
-        contractValue: generalInfoValue?.contractValueOriginalCurrency,
+        exchangeRate: generalInfoValue?.exchangeRate || 0,
         contractStartDate: generalInfoValue?.contractStartDate || null,
         contractEndDate: generalInfoValue?.contractEndDate || null,
         isLTCC: generalInfoValue?.isLTCC || false,
-        ltccNotes: generalInfoValue?.ltccNotes,
         isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
+        ltccNotes: generalInfoValue?.ltccNotes,
         govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
         isIFRS16: generalInfoValue?.isIFRS16 || false,
-        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
         isConflictOfInterest: generalInfoValue?.isConflictOfInterest || false,
         conflictOfInterestComment: generalInfoValue?.conflictOfInterestComment,
-        strategyDescription: generalInfoValue?.strategyDescription,
         remunerationType: procurementValue?.remunerationType,
+        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false
+      },
+      approachMarket: {
+        scopeOfWork: generalInfoValue?.scopeOfWork,
+        strategyDescription: generalInfoValue?.strategyDescription,
         contractMgmtLevel: procurementValue?.contractMgmtLevel,
         sourcingRigor: procurementValue?.sourcingRigor,
         sourcingStrategy: procurementValue?.sourcingStrategy,
@@ -1800,14 +1844,19 @@ export class Template1Component implements AfterViewInit  {
         socaRreceivedOn: procurementValue?.socaRreceivedOn || null,
         socarDescription: procurementValue?.socarDescription,
         preQualificationResult: procurementValue?.preQualificationResult,
-        isNoExistingBudget:  this.generalInfoForm?.value?.isNoExistingBudget || false,
+        isNoExistingBudget: this.generalInfoForm?.value?.isNoExistingBudget || false
       },
-      consultations: consultationsValue || [],
-      bidInvite: filteredBids || [],
-      riskMitigation: filteredRisks || [],
+      consultations: consultationsValue?.map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa,
+        technicalCorrect: consultation.technicalCorrect,
+        budgetStatement: consultation.budgetStatement,
+        jvReview: consultation.jvReview,
+        isJVReviewDone: consultation.jvAligned || false
+      })) || [],
       valueDeliveriesCostSharings: {
-        costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
         costReductionValue: valueDeliveryValues?.costReductionValue || 0,
+        costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
         costReductionRemarks: valueDeliveryValues?.costReductionRemarks || "",
         operatingEfficiencyValue: valueDeliveryValues?.operatingEfficiencyValue || 0,
         operatingEfficiencyPercent: valueDeliveryValues?.operatingEfficiencyPercent || 0,
@@ -1815,25 +1864,41 @@ export class Template1Component implements AfterViewInit  {
         costAvoidanceValue: valueDeliveryValues?.costAvoidanceValue || 0,
         costAvoidancePercent: valueDeliveryValues?.costAvoidancePercent || 0,
         costAvoidanceRemarks: valueDeliveryValues?.costAvoidanceRemarks || "",
-        capexMethodology: costSharingValues.capexMethodology || "",
-        fixOpexMethodology: costSharingValues.fixOpexMethodology || "",
-        variableOpexMethodology: costSharingValues.variableOpexMethodology || "",
-        inventoryItemsMethodology: costSharingValues.inventoryItemsMethodology || "",
+        capexMethodology: costSharingValues?.capexMethodology || "",
+        fixOpexMethodology: costSharingValues?.fixOpexMethodology || "",
+        variableOpexMethodology: costSharingValues?.variableOpexMethodology || "",
+        inventoryItemsMethodology: costSharingValues?.inventoryItemsMethodology || ""
       },
-      costAllocationJVApproval: costAllocationJVApproval || [],
+      bidInvite: filteredBids?.map((bid: any) => ({
+        id: bid.id || 0,
+        vendorId: bid.legalName || 0, // legalName now contains vendorId
+        isLocalOrJV: bid.isLocalOrJV || false,
+        countryId: bid.countryId,
+        parentCompanyName: bid.parentCompanyName,
+        remarks: bid.remarks
+      })) || [],
+      riskMitigation: filteredRisks?.map((risk: any) => ({
+        id: risk.id || 0,
+        srNo: risk.srNo,
+        risks: risk.risks,
+        mitigations: risk.mitigations
+      })) || [],
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
+        contractCommittee_BTC_CCInfoNote: costAllocationValues?.contractCommittee_BTC_CCInfoNote || false,
+        contractCommittee_ShAsimanValue: 0, // This field is not in the form, setting to 0
         contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,
         contractCommittee_SCP_Co_CCInfoNote: costAllocationValues?.contractCommittee_SCP_Co_CCInfoNote || false,
+        contractCommittee_BPGroupValue: 0, // This field is not in the form, setting to 0
         contractCommittee_BTC_CC: costAllocationValues?.contractCommittee_BTC_CC || false,
-        contractCommittee_BTC_CCInfoNote: costAllocationValues?.contractCommittee_BTC_CCInfoNote || false,
         contractCommittee_CGB: costAllocationValues?.contractCommittee_CGB || false,
         coVenturers_CMC: costAllocationValues?.coVenturers_CMC || false,
         coVenturers_SDMC: costAllocationValues?.coVenturers_SDMC || false,
         coVenturers_SCP: costAllocationValues?.coVenturers_SCP || false,
         coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
-        steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
-      }
+        steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false
+      },
+      costAllocationJVApproval: costAllocationJVApproval || []
     }
 
     if (this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
