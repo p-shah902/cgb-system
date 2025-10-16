@@ -49,7 +49,7 @@
                       <td>
                         <div class="paper-name">
                           <div class="paper-detail">
-                            <p>
+                            <p class="cursor-pointer" (click)="goToPreview(paper)">
                               {{ paper.description }}
                             </p>
                           </div>
@@ -77,8 +77,12 @@
                           </button>
                           <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
                             <p class="links cursor-pointer" href="/vendor-detail" ngbDropdownItem
-                              (click)="gotoPaper(paper.paperID, paper.paperType)">
+                              (click)="goToPreview(paper)">
                               View
+                            </p>
+                            <p class="links cursor-pointer" href="/vendor-detail" ngbDropdownItem
+                               (click)="goToApproachToMarket(paper)">
+                              Edit
                             </p>
                             <a class="links cursor-pointer" (click)="open($event, content, paper, 'approve')"
                               ngbDropdownItem>

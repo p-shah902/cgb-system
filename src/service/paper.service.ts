@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {
-  addPaperVisitorLogs, getApprovedPapersForMappingUri, getPaperApproachToMarketByPaperId,
+  addPaperVisitorLogs, generatePdf, getApprovedPapersForMappingUri, getPaperApproachToMarketByPaperId,
   getPaperApprovalOfSalesByPaperId,
   getPaperContractAwardByPaperId,
   getPaperDetails, getPaperInfoNoteByPaperId,
@@ -40,6 +40,20 @@ export class PaperService {
   paperStatusList$ = this.paperStatusListSubject.asObservable();
 
   constructor(private http: HttpClient) {
+  }
+
+  generatePaperPDf(paperId: number) {
+    return this.http.post<any>(`${generatePdf}/${paperId}`, {}).pipe(
+      tap(response => {
+        console.log(response);
+        if (response && response.success) {
+        }
+      }),
+      catchError(error => {
+        console.error(error);
+        return of({success: false, message: error.error?.message || 'Error Accured'});
+      })
+    );
   }
 
 

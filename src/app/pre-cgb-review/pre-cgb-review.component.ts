@@ -78,6 +78,33 @@ export class PreCgbReviewComponent implements OnInit {
     this.router.navigate([route, paperId])
   }
 
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove non-word characters
+      .replace(/\s+/g, '-')     // Replace spaces with dashes
+  }
+
+  goToPreview(paper: any): void {
+    const routePath = this.slugify(paper.paperType);
+
+    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
+  }
+
+  goToApproachToMarket(paper: any, isCopy: boolean = false): void {
+    const routePath = this.slugify(paper.paperType);
+
+    const queryParams: any = {};
+    if (isCopy) {
+      queryParams.isCopy = 'true';
+    }
+
+    this.router.navigate([`/${routePath}`, paper.paperID], {
+      queryParams: queryParams
+    });
+  }
+
   ngOnInit(): void {
     this.loadPaperConfigList();
   }
