@@ -765,161 +765,82 @@
 
             <div class="fb-form">
               <div class="fb-title-div mb-3">
-                <h4>7. Cost Allocation And JV Approval</h4>
+                <h4>7. Cost Allocation and JV Approval</h4>
               </div>
 
               <div class="fb-form">
-                <div class="cost-table-div custom-table table-responsive">
-                  <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>PSA</th>
-                        <th *ngFor="let column of psaColumns">
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="column.value" disabled>
-                              <label>{{ column.name }}</label>
+                <div class="overflow-auto">
+                  <div class="cost-table-div custom-table table-responsive">
+                    <table class="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>PSA</th>
+                          <th *ngFor="let psa of getSelectedPSAJVColumns()">
+                            <div class="form-check-list d-flex gap-3 flex-wrap">
+                              <div class="form-check-box position-relative">
+                                <input type="checkbox" [checked]="getPSACheckboxValue(psa)" disabled>
+                                <label>{{ psa }}</label>
+                              </div>
                             </div>
-                          </div>
-                        </th>
-                        <th>
-                          <b>Total</b>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><b>As%</b></td>
-                        <td *ngFor="let column of psaColumns">
-                          <label>{{ column.percentage !== null ? (column.percentage | number:'1.2-2') + '%' : ''
-                            }}</label>
-                        </td>
-                        <td>
-                          <label>{{ totalPercentage > 0 ? (totalPercentage | number:'1.2-2') + '%' : '' }}</label>
-                        </td>
-                      </tr>
+                          </th>
+                          <th>
+                            <b>Total</b>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><b>As%</b></td>
+                          <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                            <label>{{ getPSAPercentageValue(psa) !== null ? (getPSAPercentageValue(psa) | number:'1.2-2') + '%' : '' }}</label>
+                          </td>
+                          <td>
+                            <label>{{ getTotalPercentage() > 0 ? (getTotalPercentage() | number:'1.2-2') + '%' : '' }}</label>
+                          </td>
+                        </tr>
 
-                      <tr>
-                        <td><b>By value $</b></td>
-                        <td *ngFor="let column of psaColumns">
-                          <label>{{ column.amount !== null ? (column.amount | number:'1.2-2') : '' }}</label>
-                        </td>
-                        <td>
-                          <label>{{ totalValue > 0 ? (totalValue | number:'1.2-2') : '' }}</label>
-                        </td>
-                      </tr>
+                        <tr>
+                          <td><b>By value $</b></td>
+                          <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                            <label>{{ getPSAValueValue(psa) !== null ? (getPSAValueValue(psa) | number:'1.2-2') : '' }}</label>
+                          </td>
+                          <td>
+                            <label>{{ getTotalValue() > 0 ? (getTotalValue() | number:'1.2-2') : '' }}</label>
+                          </td>
+                        </tr>
 
-                      <tr>
-                        <td><b>Contract Committee</b></td>
-                        <td> <!-- ACG cell - empty --> </td>
-                        <td> <!-- Shah Deniz cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SDCC" disabled>
-                              <label>SDCC</label>
+                        <tr>
+                          <td><b>1st Committee</b></td>
+                          <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                            <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
+                              <div class="form-check-box position-relative">
+                                <input type="checkbox" [checked]="getFirstCommitteeValue(psa)" disabled>
+                                <label>{{ getFirstCommitteeLabel(psa) }}</label>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td> <!-- SCP cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CC" disabled>
-                              <label>SCP Co CC</label>
-                            </div>
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"
-                                disabled>
-                              <label>SCP Co CC info note</label>
-                            </div>
-                          </div>
-                        </td>
-                        <td> <!-- BTC cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_BTC_CC" disabled>
-                              <label>BTC CC</label>
-                            </div>
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_SCP_Co_CCInfoNote"
-                                disabled>
-                              <label>BTC CC Info Note</label>
-                            </div>
-                          </div>
-                        </td>
-                        <td> {{jvApprovals[0].contractCommittee_ShAsimanValue}} </td>
-                        <td> {{jvApprovals[0].contractCommittee_BPGroupValue}} </td>
-                        <td>
-                          <input type="checkbox" [checked]="jvApprovals[0].contractCommittee_CGB" disabled>
-                          <label>CGB</label>
-                        </td>
-                      </tr>
+                          </td>
+                          <td>
+                          </td>
+                        </tr>
 
-                      <tr>
-                        <td><b>Co-Venturers</b></td>
-                        <td> <!-- ACG cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].coVenturers_CMC" disabled>
-                              <label>CMC</label>
+                        <tr>
+                          <td><b>2nd Committee</b></td>
+                          <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                            <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
+                              <div class="form-check-box position-relative">
+                                <input type="checkbox" [checked]="getSecondCommitteeValue(psa)" disabled>
+                                <label>{{ getSecondCommitteeLabel(psa) }}</label>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td> <!-- Shah Deniz cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SDMC" disabled>
-                              <label>SDMC</label>
-                            </div>
-                          </div>
-                        </td>
-                        <td> <!-- SCP cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SCP" disabled>
-                              <label>SCP</label>
-                            </div>
-                          </div>
-                        </td>
-                        <td> <!-- BTC cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].coVenturers_SCP_Board" disabled>
-                              <label>SCP Board</label>
-                            </div>
-                          </div>
-                        </td>
-                        <td> <!-- Sh-Asiman cell - empty --> </td>
-                        <td> <!-- BP Group cell - empty --> </td>
-                        <td>
-                          <label></label>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td><b>Steering Committee</b></td>
-                        <td> <!-- ACG cell -->
-                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                            <div class="form-check-box position-relative">
-                              <input type="checkbox" [checked]="jvApprovals[0].steeringCommittee_SC" disabled>
-                              <label>SC</label>
-                            </div>
-                          </div>
-                        </td>
-                        <td> <!-- Shah Deniz cell - empty --> </td>
-                        <td> <!-- SCP cell - empty --> </td>
-                        <td> <!-- BTC cell - empty --> </td>
-                        <td> <!-- Sh-Asiman cell - empty --> </td>
-                        <td> <!-- BP Group cell - empty --> </td>
-                        <td>
-                          <label></label>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                          </td>
+                          <td>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-
-
             </div>
 
             <div class="fb-form">

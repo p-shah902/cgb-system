@@ -329,4 +329,104 @@ this.loadUserDetails()
     return 'timeline-box st-pen position-relative'; // Pending
   }
 
+  // Helper methods for dynamic PSAJV columns (similar to template1)
+  getSelectedPSAJVColumns(): string[] {
+    if (!this.paperInfo?.psajv) {
+      return [];
+    }
+    return this.paperInfo.psajv.split(',').map((psa: string) => psa.trim());
+  }
+
+  getPSACheckboxValue(psa: string): boolean {
+    const psaEntry = this.costAllocationJVApproval.find(entry => entry.psaName === psa);
+    return psaEntry?.psaValue || false;
+  }
+
+  getPSAPercentageValue(psa: string): number | null {
+    const psaEntry = this.costAllocationJVApproval.find(entry => entry.psaName === psa);
+    return psaEntry?.percentage || null;
+  }
+
+  getPSAValueValue(psa: string): number | null {
+    const psaEntry = this.costAllocationJVApproval.find(entry => entry.psaName === psa);
+    return psaEntry?.value || null;
+  }
+
+  getTotalPercentage(): number {
+    return this.totalPercentage;
+  }
+
+  getTotalValue(): number {
+    return this.totalValue;
+  }
+
+  hasFirstCommitteeCheckbox(psa: string): boolean {
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp', 'btc'].includes(psaLower);
+  }
+
+  hasSecondCommitteeCheckbox(psa: string): boolean {
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp'].includes(psaLower);
+  }
+
+  getFirstCommitteeValue(psa: string): boolean {
+    if (!this.jvApprovals || this.jvApprovals.length === 0) return false;
+    
+    const psaLower = psa.toLowerCase();
+    const jvApproval = this.jvApprovals[0];
+    
+    switch (psaLower) {
+      case 'acg':
+        return jvApproval.coVenturers_CMC || false;
+      case 'shah deniz':
+        return jvApproval.contractCommittee_SDCC || false;
+      case 'scp':
+        return jvApproval.contractCommittee_SCP_Co_CC || false;
+      case 'btc':
+        return jvApproval.contractCommittee_BTC_CC || false;
+      default:
+        return false;
+    }
+  }
+
+  getSecondCommitteeValue(psa: string): boolean {
+    if (!this.jvApprovals || this.jvApprovals.length === 0) return false;
+    
+    const psaLower = psa.toLowerCase();
+    const jvApproval = this.jvApprovals[0];
+    
+    switch (psaLower) {
+      case 'acg':
+        return jvApproval.steeringCommittee_SC || false;
+      case 'shah deniz':
+        return jvApproval.coVenturers_SDMC || false;
+      case 'scp':
+        return jvApproval.coVenturers_SCP || false;
+      default:
+        return false;
+    }
+  }
+
+  getFirstCommitteeLabel(psa: string): string {
+    const psaLower = psa.toLowerCase();
+    const mapping: { [key: string]: string } = {
+      "acg": "CMC",
+      "shah deniz": "SDCC",
+      "scp": "SCP Co CC",
+      "btc": "BTC CC"
+    };
+    return mapping[psaLower] || '';
+  }
+
+  getSecondCommitteeLabel(psa: string): string {
+    const psaLower = psa.toLowerCase();
+    const mapping: { [key: string]: string } = {
+      "acg": "SC",
+      "shah deniz": "SDMC",
+      "scp": "SCP Board"
+    };
+    return mapping[psaLower] || '';
+  }
+
 }
