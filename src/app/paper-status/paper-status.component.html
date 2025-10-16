@@ -246,22 +246,28 @@
   </div>
   <div class="modal-body">
     <div class="form-group mb-3">
-      <table class="table table-bordered">
-        <thead>
-        <tr>
-          <td>#</td>
-          <td>Paper</td>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let paper of getSelectedPapers(this.openType); let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ paper.description }}</td>
-        </tr>
-        </tbody>
-      </table>
-      <label>Write Comment</label>
-      <textarea class="form-control" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+      <div class="mb-3">
+        <label for="deadlineDate" class="form-label">Deadline Date</label>
+        <input type="datetime-local" class="form-control" id="deadlineDate" [(ngModel)]="deadlineDate" required>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Papers (Drag & Drop to Reorder)</label>
+        <div cdkDropList class="paper-list" (cdkDropListDropped)="drop($event)">
+          <div cdkDrag *ngFor="let paper of getSelectedPapers(this.openType); let i = index" class="paper-item">
+            <div class="paper-content">
+              <span class="drag-handle">⋮⋮</span>
+              <span class="paper-number">{{ i + 1 }}</span>
+              <span class="paper-description">{{ paper.description }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label for="approvalRemark" class="form-label">Write Comment</label>
+        <textarea class="form-control" id="approvalRemark" placeholder="Write here" [(ngModel)]="approvalRemark"></textarea>
+      </div>
     </div>
   </div>
   <div class="modal-footer">

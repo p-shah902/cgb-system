@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {ApiResponse} from '../models/role';
-import {getCurrentCgbCycle, initiateCgbCycle, updatePaperVote} from '../utils/api/api';
+import {getCurrentCgbCycle, initiateCgbCycle, updateCgbCycleOrder, updatePaperVote} from '../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +22,10 @@ export class VotingService {
 
   updateVote(voteBody: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(updatePaperVote, voteBody);
+  }
+
+  updateCgbCycleOrder(voteBody: any): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(updateCgbCycleOrder, voteBody);
   }
 
 }

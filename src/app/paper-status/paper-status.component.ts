@@ -8,6 +8,7 @@ import {FormsModule} from '@angular/forms';
 import {ToastService} from '../../service/toast.service';
 import {VotingService} from '../../service/voting.service';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
+import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-paper-status',
@@ -22,7 +23,9 @@ import {SafeHtmlDirective} from '../../directives/safe-html.directive';
     NgIf,
     NgbToastModule,
     CommonModule,
-    SafeHtmlDirective
+    SafeHtmlDirective,
+    CdkDropList,
+    CdkDrag
   ],
   templateUrl: './paper-status.component.html',
   styleUrl: './paper-status.component.scss'
@@ -36,6 +39,7 @@ export class PaperStatusComponent implements OnInit {
   showCGBButton = false;
   openType: string = '';
   approvalRemark = "";
+  deadlineDate: string = "";
   isLoading: boolean = false
   groupedPaper: { [key: string]: PaperConfig[] } = {
     'Registered': [],
@@ -97,11 +101,11 @@ export class PaperStatusComponent implements OnInit {
     }).result.then(
       (result) => {
         // Handle modal close
-        this.approvalRemark = '';
+        this.resetModalFields();
       },
       (reason) => {
         // Handle modal dismiss
-        this.approvalRemark = '';
+        this.resetModalFields();
       }
     );
   }
@@ -156,6 +160,11 @@ export class PaperStatusComponent implements OnInit {
     return this.groupedPaper[type === 'pre' ? 'On Pre-CGB' : 'On CGB'].filter(item => item.checked);
   }
 
+  drop(event: CdkDragDrop<PaperConfig[]>) {
+    const selectedPapers = this.getSelectedPapers(this.openType);
+    moveItemInArray(selectedPapers, event.previousIndex, event.currentIndex);
+  }
+
   addReview(modal: any) {
     if (this.openType) {
       if (this.openType === 'pre') {
@@ -173,23 +182,85 @@ export class PaperStatusComponent implements OnInit {
               return d;
             });
             this.showPreCGBButton = false;
+            this.resetModalFields();
           }, error: (error) => {
             console.log('error', error);
           }
         });
       } else if (this.openType === 'cgb') {
+        const selectedPapers = this.getSelectedPapers(this.openType);
+        
+        // First, initiate the CGB cycle with deadline date
         this.votingService.initiateCgbCycle({
-          paperIds: this.getSelectedPapers(this.openType).map(f => f.paperID),
+          paperIds: selectedPapers.map(f => f.paperID),
           remarks: this.approvalRemark,
+          deadlineDate: this.deadlineDate
         }).subscribe({
           next: (response) => {
             if (response.status && response.data) {
-              this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
-                d.checked = false;
-                return d;
+              // Call getCgbCycle to get the vote cycle ID
+              this.votingService.getCgbCycle().subscribe({
+                next: (cycleResponse) => {
+                  if (cycleResponse.status && cycleResponse.data) {
+                    const voteCycleId = cycleResponse.data.voteCycleId || cycleResponse.data.id;
+                    
+                    if (voteCycleId) {
+                      // Update the paper order with the current drag & drop order
+                      const serialData = selectedPapers.map((paper, index) => ({
+                        paperId: paper.paperID,
+                        serialNumber: index + 1
+                      }));
+
+                      this.votingService.updateCgbCycleOrder({
+                        votingCycleId: voteCycleId,
+                        serialData: serialData
+                      }).subscribe({
+                        next: (orderResponse) => {
+                          console.log('Paper order updated successfully', orderResponse);
+                          this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
+                            d.checked = false;
+                            return d;
+                          });
+                          this.showCGBButton = false;
+                          modal.close('Save click');
+                          this.resetModalFields();
+                        },
+                        error: (orderError) => {
+                          console.log('Error updating paper order', orderError);
+                          // Still close modal even if order update fails
+                          this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
+                            d.checked = false;
+                            return d;
+                          });
+                          this.showCGBButton = false;
+                          modal.close('Save click');
+                          this.resetModalFields();
+                        }
+                      });
+                    } else {
+                      console.log('No vote cycle ID received from getCgbCycle');
+                      this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
+                        d.checked = false;
+                        return d;
+                      });
+                      this.showCGBButton = false;
+                      modal.close('Save click');
+                      this.resetModalFields();
+                    }
+                  }
+                },
+                error: (cycleError) => {
+                  console.log('Error getting CGB cycle', cycleError);
+                  // Still close modal even if getCgbCycle fails
+                  this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
+                    d.checked = false;
+                    return d;
+                  });
+                  this.showCGBButton = false;
+                  modal.close('Save click');
+                  this.resetModalFields();
+                }
               });
-              this.showCGBButton = false;
-              modal.close('Save click');
             }
           }, error: (error) => {
             console.log('error', error);
@@ -197,5 +268,10 @@ export class PaperStatusComponent implements OnInit {
         });
       }
     }
+  }
+
+  resetModalFields() {
+    this.approvalRemark = "";
+    this.deadlineDate = "";
   }
 }
