@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { DepartmentDetails } from '../models/department';
 import { ApiResponse } from '../models/role';
-import { getCountryListUri, getDepartmentListUri } from '../utils/api/api';
+import { getCountryListUri, getDepartmentListUri, getAuditLogs } from '../utils/api/api';
 import { CountryDetail } from '../models/general';
+import { AuditLogs } from '../models/auditlogs';
 
 @Injectable({
   providedIn: 'root',
@@ -41,5 +42,9 @@ export class Generalervice {
           }
         })
       );
+  }
+
+  getAuditLogs(): Observable<ApiResponse<AuditLogs[]>> {
+    return this.http.get<ApiResponse<AuditLogs[]>>(getAuditLogs);
   }
 }

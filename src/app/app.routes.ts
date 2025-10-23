@@ -35,6 +35,21 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'preview/variation-paper/:id',
+    loadComponent: () => import('./preview3/preview3.component').then(m => m.Preview3Component),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'preview/approval-of-sale-disposal-form/:id',
+    loadComponent: () => import('./preview4/preview4.component').then(m => m.Preview4Component),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'preview/info-note/:id',
+    loadComponent: () => import('./preview5/preview5.component').then(m => m.Preview5Component),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'variation-paper',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
     canActivate: [AuthGuard]
@@ -216,6 +231,11 @@ export const routes: Routes = [
   {
     path: 'paper-list',
     loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'audit-logs',
+    loadComponent: () => import('./audit-logs/audit-logs.component').then(m => m.AuditLogsComponent),
     canActivate: [AuthGuard]
   },
 ];

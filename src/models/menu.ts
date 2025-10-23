@@ -191,7 +191,7 @@ export const menuItems: Menu[] = [
         checkPermission: true,
       },
       {
-        path: '#',
+        path: '/audit-logs',
         title: 'Audit Log',
         roleMap: 'Audit Log',
         checkPermission: true,

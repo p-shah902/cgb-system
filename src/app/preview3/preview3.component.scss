@@ -1,0 +1,53 @@
+// Preview3 component styles - similar to preview and preview2
+.form-control-plaintext {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.cost-table-div {
+  .table {
+    th, td {
+      vertical-align: middle;
+      text-align: center;
+    }
+  }
+}
+
+.document-attachment {
+  .image-slider {
+    .slider-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .attach-thumb {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 10px;
+      width: 150px;
+      text-align: center;
+      
+      .uploaded-image {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+      
+      .file-info {
+        margin-top: 8px;
+        
+        .file-name {
+          font-size: 12px;
+          word-break: break-all;
+        }
+      }
+    }
+  }
+}

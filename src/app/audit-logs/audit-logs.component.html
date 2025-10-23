@@ -1,0 +1,93 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type + ' text-white'" [autohide]="true"
+    [delay]="5000" (hidden)="toastService.remove(toast)">
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-card-div">
+        <div class="filter-head d-flex gap-3 mb-4">
+          <div class="fh-search">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                fill="#84818A" />
+            </svg>
+            <input class="form-control" placeholder="Search Audit Logs" [(ngModel)]="searchTerm" (input)="onSearch()" />
+          </div>
+        </div>
+
+        <div *ngIf="isLoading; else contentPart" class="table-loader">
+          <div class="spinner"></div>
+          <p>Loading audit logs, please wait...</p>
+        </div>
+        <ng-template #contentPart>
+          <div class="page-card-body">
+            <div class="table-responsive">
+              <div class="approach-table custom-table tbl-div pb-5">
+                <table class="table table-wrapper">
+                  <thead>
+                    <tr class="sticky">
+                      <th>ID</th>
+                      <th>Paper ID</th>
+                      <th>Activity Type</th>
+                      <th>Description</th>
+                      <th>Created By</th>
+                      <th>Created Date</th>
+                      <th>Modified By</th>
+                      <th>Modified Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let log of auditLogs; let i = index">
+                      <td>{{ log.id }}</td>
+                      <td>{{ log.paperId }}</td>
+                      <td>
+                        <span [ngClass]="getStatusClass(log.activityType)">
+                          {{ log.activityType }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="paper-name">
+                          <div class="paper-detail">
+                            <p>{{ log.logDescription }}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="paper-name">
+                          <div class="paper-detail">
+                            <p>{{ log.createdByName }}</p>
+                            <small class="text-muted">ID: {{ log.createdBy }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-nowrap">
+                        {{ log.createdDate | date : "dd-MMM-yyyy HH:mm" }}
+                      </td>
+                      <td>
+                        <div class="paper-name">
+                          <div class="paper-detail">
+                            <p>{{ log.modifiedByName }}</p>
+                            <small class="text-muted">ID: {{ log.modifiedBy }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-nowrap">
+                        {{ log.modifiedDate | date : "dd-MMM-yyyy HH:mm" }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

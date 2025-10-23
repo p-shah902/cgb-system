@@ -6,6 +6,9 @@ export const loginUri = baseUri + '/Account/Login';
 export const verifyTotp = baseUri + '/Account/verify-TOTP';
 export const changePassword = baseUri + '/Account/ChangePassword';
 
+// AUDIT LOGS
+export const getAuditLogs = baseUri + '/AuditLog/GetAuditLogsList';
+
 // APPROVAL API
 export const multipleStatuUpdate = baseUri + '/Approval/ChangeMultiplePaperStatuses';
 
