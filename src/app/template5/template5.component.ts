@@ -32,6 +32,8 @@ import {CostAllocationJVApproval, Paper, PaperDetails, PaperStatusType} from '..
 import {DictionaryDetail} from '../../models/dictionary';
 import {ThresholdType} from '../../models/threshold';
 import {DictionaryService} from '../../service/dictionary.service';
+import {VendorService} from '../../service/vendor.service';
+import {VendorDetail} from '../../models/vendor';
 import {BehaviorSubject} from 'rxjs';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {EditorComponent} from '../../components/editor/editor.component';
@@ -57,6 +59,7 @@ export class Template5Component  implements AfterViewInit{
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
+  private readonly vendorService = inject(VendorService);
   private paperConfigService = inject(PaperConfigService);
   private editorService = inject(EditorService);
   private commentService = inject(CommentService);
@@ -74,6 +77,7 @@ export class Template5Component  implements AfterViewInit{
   paperStatusList: PaperStatusType[] = [];
   paperDetails: any = null
   isRegisterPaper: boolean = false
+  vendorList: VendorDetail[] = []
 
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -92,7 +96,7 @@ export class Template5Component  implements AfterViewInit{
   isDragging = false;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
-  private totalCalls = 2;
+  private totalCalls = 3;
   logs: any[] = [];
   comment: string = '';
   loggedInUser: LoginUser | null = null;
@@ -165,6 +169,7 @@ export class Template5Component  implements AfterViewInit{
     this.loadUserDetails();
     this.loadDictionaryItems();
     this.loadPaperStatusListData();
+    this.loadVendorDetails();
     // this.loadThresholdData()
 
     this.generalInfoForm = this.fb.group({
@@ -379,7 +384,7 @@ export class Template5Component  implements AfterViewInit{
             reasontoChangeRequired: generatlInfoData?.reasontoChangeRequired || '',
             cgbItemRefNo: generatlInfoData?.cgbItemRef || '',
             cgbCirculationDate: generatlInfoData?.cgbCirculationDate || '',
-            legalName: generatlInfoData?.legalName || '',
+            legalName: generatlInfoData?.vendorId || null,
             contractNumber: generatlInfoData?.contractNumber || '',
             operatingFunction: generatlInfoData?.operatingFunction || '',
             bltMember: generatlInfoData?.bltMemberId || null,
@@ -914,6 +919,37 @@ export class Template5Component  implements AfterViewInit{
     });
   }
 
+  loadVendorDetails() {
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+          this.vendorList = reponse.data.filter(vendor => vendor.isActive);
+          this.incrementAndCheck();
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  getVendorOptions() {
+    return this.vendorList.map(vendor => ({
+      value: vendor.id,
+      label: vendor.legalName
+    }));
+  }
+
+  onVendorSelectionChange() {
+    // No need to store vendor ID separately since legalName now contains the vendor ID
+  }
+
+  getVendorLegalName(vendorId: number | null): string {
+    if (!vendorId) return '';
+    const vendor = this.vendorList.find(v => v.id === vendorId);
+    return vendor?.legalName || '';
+  }
+
   scrollToSection(event: Event) {
     const selectedValue = (event.target as HTMLSelectElement).value;
     const section = document.getElementById(selectedValue);
@@ -1091,7 +1127,7 @@ export class Template5Component  implements AfterViewInit{
         reasontoChangeRequired: generalInfoValue?.reasontoChangeRequired || "",
         cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
         cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        legalName: generalInfoValue?.legalName || '',
+        vendorId: generalInfoValue?.legalName || '',
         contractNumber: generalInfoValue?.contractNumber || '',
         operatingFunction: generalInfoValue?.operatingFunction,
         bltMember: generalInfoValue?.bltMember,

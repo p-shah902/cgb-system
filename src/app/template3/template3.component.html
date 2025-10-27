@@ -216,9 +216,12 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Full Legal Name *</label>
-                    <input id="fullLegalName" type="text" class="form-control allow-comments"
-                           placeholder="Full Legal Name"
-                           formControlName="fullLegalName"/>
+                    <select class="form-control allow-comments" id="fullLegalName" formControlName="fullLegalName" (change)="onVendorSelectionChange()">
+                      <option [value]="null">Select vendor</option>
+                      <option *ngFor="let vendor of getVendorOptions()" [value]="vendor.value">
+                        {{ vendor.label }}
+                      </option>
+                    </select>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('fullLegalName')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
@@ -230,22 +233,6 @@
                     <label>Contract Number</label>
                     <input formControlName="contractNo" type="text" id="contractNo" class="form-control allow-comments"
                            placeholder="Enter Value"/></div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Vendor ID *</label>
-                    <select class="form-control allow-comments" id="vendorId" formControlName="vendorId">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let item of vendorList?.length ? vendorList : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.vendorName }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('vendorId')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
-                  </div>
                 </div>
 
                 <div class="col-sm-6 col-md-4">

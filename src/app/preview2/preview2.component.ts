@@ -30,6 +30,7 @@ export class Preview2Component implements OnInit {
   paperDetails: PaperData | null = null;
   comment: string = '';
   logs: any[] = [];
+  showComments: boolean = true;
   riskMitigation: RiskMitigations[] = [];
   bidInvites: BidInvites[] = [];
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[] = [];
@@ -77,7 +78,7 @@ export class Preview2Component implements OnInit {
       }
 
       if (this.paperDetails.paperDetails.riskMitigations) {
-        this.riskMitigation = this.paperDetails.paperDetails.riskMitigations;
+        this.riskMitigation = this.paperDetails.paperDetails.riskMitigations.filter(item => item.risks && item.risks.trim() !== '');
         console.log('Risk Mitigation', this.riskMitigation)
       }
 
@@ -482,6 +483,10 @@ export class Preview2Component implements OnInit {
       "scp": "SCP Board"
     };
     return mapping[psaLower] || '';
+  }
+
+  toggleComments(): void {
+    this.showComments = !this.showComments;
   }
 
 }

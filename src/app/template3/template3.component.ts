@@ -307,7 +307,6 @@ export class Template3Component  implements AfterViewInit {
         cgbApprovalDate: [null],
         fullLegalName: ['', Validators.required],
         contractNo: [''],
-        vendorId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         globalCGB: ['', Validators.required],
         camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -531,9 +530,8 @@ getGroupForm(key: string): FormGroup {
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
           purposeRequired: contractGeneralInfo?.purposeRequired || '',
-          fullLegalName: contractGeneralInfo?.fullLegalName || '',
+          fullLegalName: contractGeneralInfo?.vendorId || null,
           contractNo: contractGeneralInfo?.contractNo || '',
-          vendorId: contractGeneralInfo?.vendorId || null,
           globalCGB: contractGeneralInfo?.globalCGB || '',
           camUserId: contractGeneralInfo?.camUserId || null,
           vP1UserId: contractGeneralInfo?.vP1UserId || null,
@@ -660,7 +658,7 @@ getGroupForm(key: string): FormGroup {
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          this.vendorList = reponse.data;
+          this.vendorList = reponse.data.filter(vendor => vendor.isActive);
           this.incrementAndCheck();
         }
       },
@@ -668,6 +666,23 @@ getGroupForm(key: string): FormGroup {
         console.log('error', error);
       },
     });
+  }
+
+  getVendorOptions() {
+    return this.vendorList.map(vendor => ({
+      value: vendor.id,
+      label: vendor.legalName
+    }));
+  }
+
+  onVendorSelectionChange() {
+    // No need to store vendor ID separately since fullLegalName now contains the vendor ID
+  }
+
+  getVendorLegalName(vendorId: number | null): string {
+    if (!vendorId) return '';
+    const vendor = this.vendorList.find(v => v.id === vendorId);
+    return vendor?.legalName || '';
   }
 
   loadPaperStatusListData() {
@@ -918,9 +933,8 @@ getGroupForm(key: string): FormGroup {
             cgbApprovalDate: generatlInfoData.cgbApprovalDate
               ? format(new Date(generatlInfoData.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
-            fullLegalName: generatlInfoData.fullLegalName || '',
+            fullLegalName: generatlInfoData.vendorId || null,
             contractNo: generatlInfoData.contractNo || '',
-            vendorId: generatlInfoData.vendorId || null,
             globalCGB: generatlInfoData.globalCGB || null,
             camUserId: generatlInfoData.camUserId || null,
             vP1UserId: generatlInfoData.vP1UserId || null,
@@ -1373,7 +1387,7 @@ getGroupForm(key: string): FormGroup {
     const thisValue = this.generalInfoForm.get('thisValue')?.value || 0;
     const revisedValue = this.generalInfoForm.get('revisedValue')?.value || 0;
     const byValue = valueControl?.value || 0;
-    const vendorId = Number(this.generalInfoForm.get('generalInfo.vendorId')?.value) || undefined;
+    const vendorId = Number(this.generalInfoForm.get('generalInfo.fullLegalName')?.value) || undefined;
 
     if (isChecked) {
       // Handle committee checkboxes based on PSA name
@@ -1566,9 +1580,8 @@ getGroupForm(key: string): FormGroup {
         cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
         cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
         cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
-        fullLegalName: generalInfoValue?.fullLegalName || '',
+        fullLegalName: this.getVendorLegalName(generalInfoValue?.fullLegalName) || '',
         contractNo: generalInfoValue?.contractNo || '',
-        vendorId: generalInfoValue?.vendorId || null,
         globalCGB: generalInfoValue?.globalCGB,
         camUserId: generalInfoValue?.camUserId || null,
         vP1UserId: generalInfoValue?.vP1UserId || null,

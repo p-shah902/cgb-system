@@ -169,7 +169,7 @@ export class Preview5Component implements OnInit {
       }
 
       if (this.paperDetails?.paperDetails?.riskMitigations) {
-        this.riskMitigation = this.paperDetails.paperDetails.riskMitigations;
+        this.riskMitigation = this.paperDetails.paperDetails.riskMitigations.filter(item => item.risks && item.risks.trim() !== '');
         console.log('Risk Mitigation', this.riskMitigation)
       }
 

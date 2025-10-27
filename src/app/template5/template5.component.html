@@ -219,9 +219,12 @@
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>Full Legal Name *</label>
-                  <input id="legalName" type="text" class="form-control allow-comments"
-                         placeholder="Full Legal Name"
-                         formControlName="legalName"/>
+                  <select class="form-control allow-comments" id="legalName" formControlName="legalName" (change)="onVendorSelectionChange()">
+                    <option [value]="null">Select vendor</option>
+                    <option *ngFor="let vendor of getVendorOptions()" [value]="vendor.value">
+                      {{ vendor.label }}
+                    </option>
+                  </select>
                   <div class="text-danger"
                        *ngIf="submitted && generalInfo?.get('legalName')?.hasError('required')">
                     <small class="text-danger">Please select value.</small>

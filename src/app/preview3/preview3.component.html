@@ -185,12 +185,38 @@
             <h4 class="mb-0">6. Value Delivery</h4>
           </div>
           <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-12 col-md-12">
-                <div class="form-group mb-3">
-                  <label>Value Delivery Description</label>
-                  <div class="form-control-plaintext">N/A</div>
-                </div>
+            <div class="overflow-auto">
+              <div class="cost-table-div custom-table table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Value</th>
+                      <th>Percentage</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of valueDeliveriesCostsharing">
+                      <td><b>Cost Reduction</b></td>
+                      <td>{{ item.costReductionValue | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>{{ item.costReductionPercent | number:'1.2-2' }}%</td>
+                      <td>{{ item.costReductionRemarks }}</td>
+                    </tr>
+                    <tr *ngFor="let item of valueDeliveriesCostsharing">
+                      <td><b>Operating Efficiency</b></td>
+                      <td>{{ item.operatingEfficiencyValue | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>{{ item.operatingEfficiencyPercent | number:'1.2-2' }}%</td>
+                      <td>{{ item.operatingEfficiencyRemarks }}</td>
+                    </tr>
+                    <tr *ngFor="let item of valueDeliveriesCostsharing">
+                      <td><b>Cost Avoidance</b></td>
+                      <td>{{ item.costAvoidanceValue | currency:'USD':'symbol':'1.2-2' }}</td>
+                      <td>{{ item.costAvoidancePercent | number:'1.2-2' }}%</td>
+                      <td>{{ item.costAvoidanceRemarks }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

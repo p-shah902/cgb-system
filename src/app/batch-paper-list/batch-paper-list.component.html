@@ -60,7 +60,13 @@
                         </div>
                       </div>
                     </th>
-                    <th>Title</th>
+                    <th>CGB Item Ref</th>
+                    <th>Paper Type</th>
+                    <th>Title (Provision of)</th>
+                    <th>Contract Value</th>
+                    <th>PTs</th>
+                    <th>CAM</th>
+                    <th>VP-1</th>
                     <th>Last Modify</th>
                   </tr>
                   </thead>
@@ -74,7 +80,8 @@
                         </div>
                       </div>
                     </td>
-
+                    <td>{{ paper.cgbItemRefNo || '-' }}</td>
+                    <td>{{ paper.paperType || '-' }}</td>
                     <td>
                       <div class="paper-name">
                         <div class="paper-detail">
@@ -84,6 +91,10 @@
                         </div>
                       </div>
                     </td>
+                    <td>{{ paper.contractValue | currency:'USD':'symbol':'1.2-2' }}</td>
+                    <td>{{ paper.procurementSPAUsers || '-' }}</td>
+                    <td>{{ paper.camUserId || '-' }}</td>
+                    <td>{{ paper.vP1UserId || '-' }}</td>
                     <td class="text-nowrap">
                       {{ paper.createdDate | date : "dd-MMMM-yyyy" }}
                     </td>
