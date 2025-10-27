@@ -806,95 +806,154 @@
               <div class="fb-title-div mb-3">
                 <h4>8. Cost Sharing Methodology</h4>
               </div>
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-view-group">
-                    <label></label>
-                    <h6>Capex</h6>
-                  </div>
-                </div>
-              </div>
-              <div class="row" *ngFor="let capex of valueDeliveriesCostsharing;let i=index">
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>isCapex</label>
-                    <h6>{{ capex.isCapex ? 'Yes' : 'No' }}</h6>
-                  </div>
-                </div>
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>Methodology</label>
-                    <h6>{{ capex.capexMethodology }}</h6>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-view-group">
-                    <label></label>
-                    <h6>Fixed Opex</h6>
-                  </div>
-                </div>
-              </div>
-              <div class="row" *ngFor="let fixedOpex of valueDeliveriesCostsharing;let i=index">
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>isFixedOpex</label>
-                    <h6>{{ fixedOpex.isFixOpex ? 'Yes' : 'No' }}</h6>
-                  </div>
-                </div>
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>Methodology</label>
-                    <h6>{{ fixedOpex.fixOpexMethodology }}</h6>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-view-group">
-                    <label></label>
-                    <h6>Variable Opex</h6>
-                  </div>
-                </div>
-              </div>
-              <div class="row" *ngFor="let varOpex of valueDeliveriesCostsharing;let i=index">
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>isVariableOpex</label>
-                    <h6>{{ varOpex.isVariableOpex ? 'Yes' : 'No' }}</h6>
-                  </div>
-                </div>
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>Methodology</label>
-                    <h6>{{ varOpex.variableOpexMethodology }}</h6>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-view-group">
-                    <label></label>
-                    <h6>Inventory Item</h6>
-                  </div>
-                </div>
-              </div>
-              <div class="row" *ngFor="let item of valueDeliveriesCostsharing;let i=index">
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>isInventoryItems</label>
-                    <h6>{{ item.isInventoryItems ? 'Yes' : 'No' }}</h6>
-                  </div>
-                </div>
-                <div class="col-sm-4 col-md-4">
-                  <div class="form-view-group">
-                    <label>Methodology</label>
-                    <h6>{{ item.inventoryItemsMethodology }}</h6>
-                  </div>
+              <div class="overflow-auto">
+                <div class="cost-table-div custom-table table-responsive">
+                  <table class="table table-bordered">
+                    <tbody>
+                      <tr *ngFor="let item of valueDeliveriesCostsharing">
+                        <th width="15%">
+                          <div class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="item.isCapex" disabled>
+                              <label><b class="text-dark">Capex</b></label>
+                            </div>
+                          </div>
+                        </th>
+                        <td>
+                          <div class="form-radio-custom-width form-radio">
+                            <div class="row">
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="capexMethodology" value="1a" [checked]="item.capexMethodology === '1a'" disabled>
+                                  <label>1a</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="capexMethodology" value="1b" [checked]="item.capexMethodology === '1b'" disabled>
+                                  <label>1b</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="capexMethodology" value="1c" [checked]="item.capexMethodology === '1c'" disabled>
+                                  <label>1c</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="capexMethodology" value="1d" [checked]="item.capexMethodology === '1d'" disabled>
+                                  <label>1d</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="capexMethodology" value="1e" [checked]="item.capexMethodology === '1e'" disabled>
+                                  <label>1e</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr *ngFor="let item of valueDeliveriesCostsharing">
+                        <th width="15%">
+                          <div class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="item.isFixOpex" disabled>
+                              <label><b class="text-dark">Fixed Opex</b></label>
+                            </div>
+                          </div>
+                        </th>
+                        <td>
+                          <div class="form-radio-custom-width form-radio">
+                            <div class="row">
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="fixOpexMethodology" value="2a" [checked]="item.fixOpexMethodology === '2a'" disabled>
+                                  <label>2a</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="fixOpexMethodology" value="2b" [checked]="item.fixOpexMethodology === '2b'" disabled>
+                                  <label>2b</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="fixOpexMethodology" value="2c" [checked]="item.fixOpexMethodology === '2c'" disabled>
+                                  <label>2c</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="fixOpexMethodology" value="2d" [checked]="item.fixOpexMethodology === '2d'" disabled>
+                                  <label>2d</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr *ngFor="let item of valueDeliveriesCostsharing">
+                        <th width="15%">
+                          <div class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="item.isVariableOpex" disabled>
+                              <label><b class="text-dark">Variable Opex</b></label>
+                            </div>
+                          </div>
+                        </th>
+                        <td>
+                          <div class="form-radio-custom-width form-radio">
+                            <div class="row">
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="variableOpexMethodology" value="2e" [checked]="item.variableOpexMethodology === '2e'" disabled>
+                                  <label>2e</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr *ngFor="let item of valueDeliveriesCostsharing">
+                        <th width="15%">
+                          <div class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="item.isInventoryItems" disabled>
+                              <label><b class="text-dark">Inventory Items</b></label>
+                            </div>
+                          </div>
+                        </th>
+                        <td>
+                          <div class="form-radio-custom-width form-radio">
+                            <div class="row">
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="inventoryItemsMethodology" value="BP Warehouse" [checked]="item.inventoryItemsMethodology === 'BP Warehouse'" disabled>
+                                  <label>Yes</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="inventoryItemsMethodology" value="VMI" [checked]="item.inventoryItemsMethodology === 'VMI'" disabled>
+                                  <label>Yes</label>
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="radio-box position-relative">
+                                  <input type="radio" name="inventoryItemsMethodology" value="No" [checked]="item.inventoryItemsMethodology === 'No'" disabled>
+                                  <label>No</label>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -903,46 +962,29 @@
               <div class="fb-title-div mb-3">
                 <h4>9. Consultations</h4>
               </div>
-              <div class="fb-form">
-                <div *ngFor="let consultation of consultationsDetails;let i=index">
-                  <div class="row">
-                    <div class="col-sm-6 col-md-2">
-                      <div class="form-group mb-3">
-                        <label>PSA</label>
-                        <h6>{{consultation.psa}}</h6>
-                      </div>
-                    </div>
-
-                    <!-- <div class="col-sm-6 col-md-2">
-                      <label>No existing budget Correct</label>
-                      <div class="text-center align-middle">
-                        <h6>{{consultation.isNoExistingBudget ? 'Yes':'No'}}</h6>
-                      </div>
-                    </div> -->
-
-                    <div class="col-sm-6 col-md-2">
-                      <div class="form-group mb-3">
-                        <label>Technically Correct</label>
-                        <h6>{{consultation.technicalCorrectName}}</h6>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-2">
-                      <div class="form-group mb-3">
-                        <label>Budget Statement</label>
-                        <h6>{{consultation.budgetStatementName}}</h6>
-                      </div>
-                    </div>
-
-                    <div class="col-sm-6 col-md-2">
-                      <div class="form-group mb-3">
-                        <label>JV Review</label>
-                        <h6>{{consultation.jvReviewName}}</h6>
-                      </div>
-                    </div>
-                  </div>
+              <div class="overflow-auto">
+                <div class="key-risks-table custom-table">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>PSA</th>
+                        <th>Technically Correct</th>
+                        <th>Budget Statement</th>
+                        <th>JV Review</th>
+                        <th>JV Aligned</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let consultation of consultationsDetails">
+                        <td>{{ consultation.psa }}</td>
+                        <td>{{ consultation.technicalCorrectName }}</td>
+                        <td>{{ consultation.budgetStatementName }}</td>
+                        <td>{{ consultation.jvReviewName }}</td>
+                        <td>{{ consultation.jvAligned ? 'Yes' : 'No' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-
               </div>
             </div>
 

@@ -1,4 +1,68 @@
-// Preview4 component styles - similar to preview and preview2
+// Preview4 component styles - copied from preview.component.scss
+.timeline-main-div {
+  display: flex;
+
+  .st-pen {
+    .tb-head {
+      h1 {
+        color: #626262;
+      }
+      h6 {
+        color: #626262;
+      }
+    }
+  }
+}
+
+.form-main-div {
+  .form-body {
+    .fb-form {
+      .fb-title-div {
+        h4 {
+          font-weight: 600;
+          font-size: 14px;
+          line-height: 17px;
+          color: #1B202B;
+          background-color: #EEEEEE;
+        }
+      }
+      .form-view-group {
+        label {
+          font-weight: 400;
+          font-size: 12px;
+          line-height: 15px;
+          color: #626262;
+          margin-bottom: 8px;
+        }
+        h6 {
+          font-weight: 500;
+          font-size: 14px;
+          line-height: 17px;
+          color: #1B202B;
+        }
+      }
+      .attchment-view {
+        border: 1px solid #DCDCDC;
+        border-radius: 8px;
+        padding: 10px;
+        h6 {
+          font-weight: 500;
+          font-size: 12px;
+          line-height: 15px;
+          color: #0C0C0C;
+        }
+        p {
+          font-weight: 500;
+          font-size: 10px;
+          line-height: 12px;
+          color: #626262;
+        }
+      }
+    }
+  }
+}
+
+// Additional styles for preview4
 .form-control-plaintext {
   background-color: #f8f9fa;
   border: 1px solid #dee2e6;
@@ -49,5 +113,92 @@
         }
       }
     }
+  }
+}
+
+// Visitor logs card styles for comments section
+.visitor-logs-card {
+  background: #FFFFFF;
+  border: 1px solid #DCDCDC;
+  border-radius: 12px;
+  padding: 15px;
+  max-height: 300px;
+  overflow: auto;
+
+  .visitor-box {
+    display: flex;
+    gap: 10px;
+
+    .vb-img {
+      flex: 0 0 38px;
+      height: 38px;
+      width: 38px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .vb-detail {
+      background-color: #F8F9FB;
+      padding: 10px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      h6 {
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 17px;
+        color: #1B202B;
+
+        span {
+          font-weight: 500;
+          font-size: 14px;
+          line-height: 17px;
+          color: #626262;
+        }
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 140%;
+        color: #626262;
+        margin-bottom: 0;
+      }
+
+      small {
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 140%;
+        color: #626262;
+        border-top: 1px solid #DCDCDC;
+        padding-top: 10px;
+        margin-top: 0;
+      }
+    }
+  }
+
+  .chat-input-group {
+    .btn {
+      width: 33px;
+      height: 33px;
+      background-color: #E6EFFC;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+    }
+
+    textarea {
+      height: 100px;
+    }
+
+    position: sticky !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 }

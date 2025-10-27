@@ -169,10 +169,10 @@ export class PaperService {
     else if (type === 'variation') {
       url = getPaperVariationByPaperId;
     }
-    else if (type === 'sale') {
+    else if (type === 'disposal') {
       url = getPaperApprovalOfSalesByPaperId;
     }
-    else if (type === 'info') {
+    else if (type === 'info-note') {
       url = getPaperInfoNoteByPaperId;
     }
     return this.http.get<ApiResponse<Paper>>(url + '/' + paperId);
