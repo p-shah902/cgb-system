@@ -248,59 +248,6 @@
 
                 </div>
 
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Operating Function* </label>
-                    <select class="form-control allow-comments" id="operatingFunction"
-                            formControlName="operatingFunction">
-                      <option [value]="''">Select</option>
-                      <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>BLT Member* </label>
-                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Subsector*</label>
-                    <select class="form-control allow-comments" formControlName="subSector" id="subSector">
-                      <option [value]="''">Select</option>
-                      <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
-
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PSA/JV*</label>
@@ -329,7 +276,43 @@
                   </div>
                 </div>
 
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Operating Function* </label>
+                    <select class="form-control allow-comments" id="operatingFunction"
+                            formControlName="operatingFunction">
+                      <option [value]="''">Select</option>
+                      <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Subsector*</label>
+                    <select class="form-control allow-comments" formControlName="subSector" id="subSector">
+                      <option [value]="''">Select</option>
+                      <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>Contract Account Manager (CAM)*</label>
                   <select class="form-control allow-comments" formControlName="camUserId" id="camUserId">
@@ -389,6 +372,22 @@
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('pdManagerName')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>BLT Member* </label>
+                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
+                      <option [value]="null">Select</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
                 </div>

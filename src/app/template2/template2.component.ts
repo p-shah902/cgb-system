@@ -848,7 +848,7 @@ export class Template2Component implements AfterViewInit {
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          this.vendorList = reponse.data;
+          this.vendorList = reponse.data.filter(vendor => vendor.isActive);
           console.log('vendor:', this.vendorList);
           this.incrementAndCheck();
         }
@@ -857,6 +857,41 @@ export class Template2Component implements AfterViewInit {
         console.log('error', error);
       },
     });
+  }
+
+  getVendorOptions() {
+    return this.vendorList.map(vendor => ({
+      value: vendor.id,
+      label: vendor.legalName
+    }));
+  }
+
+  onVendorSelectionChange(rowIndex: number, formArray?: string) {
+    let row: any;
+    
+    // Determine which form array to use
+    if (formArray === 'supplierTechnical') {
+      row = this.supplierTechnical.at(rowIndex);
+    } else if (formArray === 'commericalEvaluation') {
+      row = this.commericalEvaluation.at(rowIndex);
+    } else {
+      row = this.inviteToBid.at(rowIndex);
+    }
+    
+    const legalNameControl = row.get('legalName');
+    
+    // Get the value from the form control instead of the event
+    const selectedValue = row.get('vendorId')?.value;
+    
+    const vendorIdNum = Number(selectedValue);
+    if (vendorIdNum && !isNaN(vendorIdNum) && legalNameControl) {
+      const selectedVendor = this.vendorList.find(vendor => vendor.id === vendorIdNum);
+      if (selectedVendor) {
+        legalNameControl.setValue(selectedVendor.legalName);
+      }
+    } else if (legalNameControl) {
+      legalNameControl.setValue('');
+    }
   }
 
 
@@ -1749,8 +1784,10 @@ export class Template2Component implements AfterViewInit {
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData?.forEach((item: any, index: number) => {
+        const vendor = this.vendorList.find(v => v.legalName === item.legalName);
         riskMitigationArray.push(
           this.fb.group({
+            vendorId: [vendor?.id || null],
             legalName: [item.legalName || '', Validators.required],
             totalValue: [item.totalValue || 0, Validators.required],
             id: [item.id]
@@ -1760,6 +1797,7 @@ export class Template2Component implements AfterViewInit {
     } else {
       this.commericalEvaluation.push(
         this.fb.group({
+          vendorId: [null],
           legalName: ['', Validators.required],
           totalValue: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
           id: [0]
@@ -1787,8 +1825,10 @@ export class Template2Component implements AfterViewInit {
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData?.forEach((item: any, index: number) => {
+        const vendor = this.vendorList.find(v => v.legalName === item.legalName);
         riskMitigationArray.push(
           this.fb.group({
+            vendorId: [vendor?.id || null],
             legalName: [item.legalName, Validators.required],
             resultOfHSSE: [item.resultOfHSSE, Validators.required],
             commentary: [item.commentary],
@@ -1802,6 +1842,7 @@ export class Template2Component implements AfterViewInit {
     } else {
       this.supplierTechnical.push(
         this.fb.group({
+          vendorId: [null],
           legalName: ['', Validators.required],
           resultOfHSSE: ['', Validators.required],
           commentary: [''],
@@ -2071,8 +2112,10 @@ export class Template2Component implements AfterViewInit {
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item: any, index: number) => {
+        const vendor = this.vendorList.find(v => v.legalName === item.legalName);
         riskMitigationArray.push(
           this.fb.group({
+            vendorId: [vendor?.id || null],
             legalName: [item.legalName, Validators.required],
             isLocalOrJV: [item.isLocalOrJV], // Checkbox
             id: [item.id],
@@ -2094,6 +2137,7 @@ export class Template2Component implements AfterViewInit {
     } else {
       this.inviteToBid.push(
         this.fb.group({
+          vendorId: [null],
           legalName: ['', Validators.required],
           isLocalOrJV: [false],
           contractStartDate: [''],
