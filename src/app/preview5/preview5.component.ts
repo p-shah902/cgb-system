@@ -10,11 +10,12 @@ import {UserService} from '../../service/user.service';
 import {UserDetails} from '../../models/user';
 import {DictionaryDetail} from '../../models/dictionary';
 import {DictionaryService} from '../../service/dictionary.service';
+import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-preview5',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule, NgbToastModule],
+  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe],
   templateUrl: './preview5.component.html',
   styleUrl: './preview5.component.scss'
 })
@@ -23,6 +24,7 @@ export class Preview5Component implements OnInit {
   paperDetails: PaperData | null = null;
   comment: string = '';
   logs: any[] = [];
+  showComments: boolean = true;
   riskMitigation: RiskMitigations[] = [];
   bidInvites: BidInvites[] = [];
   valueDeliveriesCostsharing: ValueDeliveriesCostsharing[] = [];
@@ -498,6 +500,10 @@ this.loadUserDetails()
 
   onSearch(event: any) {
     // Implementation for search functionality
+  }
+
+  toggleComments(): void {
+    this.showComments = !this.showComments;
   }
 
 }
