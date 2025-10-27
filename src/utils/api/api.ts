@@ -108,3 +108,4 @@ export const getCurrentCgbCycle = baseUri + '/Voting/GetCGBVotingCycleData';
 export const updatePaperVote = baseUri + '/Voting/UpdateVote';
 export const initiateCgbCycle = baseUri + '/Voting/InitiateCGBVotingCycle';
 export const updateCgbCycleOrder = baseUri + '/Voting/UpdateVotingCyclePapersOrder';
+export const addPaperToCgbCycle = baseUri + '/Voting/AddPapertoCGBCycle';

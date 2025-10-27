@@ -1334,7 +1334,7 @@
                 </ng-container>
                 <ng-container *ngIf="paperId && !isCopy">
                   <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag'|| loggedInUser?.roleName === 'Secretary')">
+                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag'|| loggedInUser?.roleName === 'Secretary') && (paperDetails?.paperDetails?.paperStatusName === 'Registered' || paperDetails?.paperDetails?.paperStatusName === 'Withdrawn')">
                     Archive
                   </button>
                   <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')"
