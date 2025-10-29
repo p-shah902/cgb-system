@@ -177,6 +177,7 @@ export class Template2Component implements AfterViewInit {
     this.currencyLinkedChange()
     this.conflictIntrestChanges()
     this.restrospectiveChanges()
+    this.onChangeInApproachMarketChange()
     this.addRow()
     this.addSupplierTechnicalnRow()
     this.addBidRow()
@@ -252,7 +253,7 @@ export class Template2Component implements AfterViewInit {
         contractNo: [''],
         contactNo: [''],
         vendorId: [null],
-        purposeRequired: ['', Validators.required],
+        purposeRequired: [{value: '', disabled: true}],
         globalCGB: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
@@ -561,6 +562,17 @@ export class Template2Component implements AfterViewInit {
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          // Ensure purposeRequired field state is correct based on isChangeinApproachMarket
+          const isChangeinApproachMarket = this.generalInfoForm.get('generalInfo.isChangeinApproachMarket')?.value;
+          const purposeRequiredControl = this.generalInfoForm.get('generalInfo.purposeRequired');
+          if (isChangeinApproachMarket === true) {
+            purposeRequiredControl?.setValidators([Validators.required]);
+            purposeRequiredControl?.enable();
+          } else {
+            purposeRequiredControl?.clearValidators();
+            purposeRequiredControl?.disable();
+          }
+          purposeRequiredControl?.updateValueAndValidity();
           this.isInitialLoad = false;
         }, 500)
 
@@ -1532,6 +1544,31 @@ export class Template2Component implements AfterViewInit {
       }
 
       conflictOfInterestCommentControl?.updateValueAndValidity();
+    });
+  }
+
+  onChangeInApproachMarketChange() {
+    // Handle initial value
+    const initialValue = this.generalInfoForm.get('generalInfo.isChangeinApproachMarket')?.value;
+    const purposeRequiredControl = this.generalInfoForm.get('generalInfo.purposeRequired');
+    
+    if (initialValue === true) {
+      purposeRequiredControl?.setValidators([Validators.required]);
+      purposeRequiredControl?.enable();
+      purposeRequiredControl?.updateValueAndValidity();
+    }
+
+    // Subscribe to changes
+    this.generalInfoForm.get('generalInfo.isChangeinApproachMarket')?.valueChanges.subscribe((value) => {
+      if (value === true) {
+        purposeRequiredControl?.setValidators([Validators.required]);
+        purposeRequiredControl?.enable();
+      } else {
+        purposeRequiredControl?.clearValidators();
+        purposeRequiredControl?.disable();
+      }
+
+      purposeRequiredControl?.updateValueAndValidity();
     });
   }
 

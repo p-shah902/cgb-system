@@ -178,7 +178,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-12" *ngIf="generalInfo?.get('isChangeinApproachMarket')?.value === true">
                   <div class="form-group mb-3">
                     <label>Changes since AtM / Why is this work required?* </label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
