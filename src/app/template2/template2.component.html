@@ -133,15 +133,17 @@
                   <div class="form-group mb-3">
                     <label>CGB ATM Ref No</label>
                     <div class="d-flex gap-2">
-                      <select class="form-control allow-comments" id="cgbAtmRefNo" formControlName="cgbAtmRefNo"
-                              [style.flex]="generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value ? '1' : 'auto'">
-                        <option [value]="null">Select</option>
-                        <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
-                          <option [value]="item.paperID">
-                            {{ item.paperSubject }}
-                          </option>
-                        </ng-container>
-                      </select>
+                      <div [style.flex]="generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value ? '1' : 'auto'" style="width: 100%;">
+                        <ng-select2 
+                          placeholder="Search by Ref# or Title..." 
+                          displaySearchStatus="always" 
+                          id="cgbAtmRefNo" 
+                          class="allow-comments" 
+                          formControlName="cgbAtmRefNo"
+                          [data]="cgbAtmRefOptions"
+                          (update)="onCgbAtmRefSelected($event)">
+                        </ng-select2>
+                      </div>
                       <button type="button" class="btn btn-primary" (click)="onPopulateFromATM()"
                               *ngIf="generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value"
                               style="white-space: nowrap;">
@@ -163,7 +165,7 @@
 
                 <div class="col-md-12">
                   <div class="form-group mb-3 allow-comments" id="isChangeinApproachMarket">
-                    <label>Have there been changes to the Scope since CGB Approach to Market?</label>
+                    <label>Have there been changes to the Scope since CGB Approach to Market?*</label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" [value]="true" formControlName="isChangeinApproachMarket"
@@ -175,6 +177,9 @@
                                name="isChangeinApproachMarket">
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('isChangeinApproachMarket')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -362,7 +367,7 @@
 
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3 allow-comments" id="isPHCA">
-                    <label>PHCA </label>
+                    <label>PHCA*</label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="true">
@@ -372,6 +377,9 @@
                         <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="false">
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('isPHCA')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -389,6 +397,9 @@
                     </div>
                     <div *ngIf="!isContactDiffFromATM">
                       <small class="text-warning">Value is different from selected ATM paper.</small>
+                    </div>
+                    <div *ngIf="totalAwardValueMismatch" class="mt-2">
+                      <small class="text-warning"><strong>Warning:</strong> The sum of Total Award Values from Legal Entities does not match the Paper's Total Award Value.</small>
                     </div>
                   </div>
                 </div>
@@ -409,8 +420,8 @@
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
                    <input type="number" id="exchangeRate" formControlName="exchangeRate"
-                           class="form-control allow-comments" placeholder="0.00" readonly/>
-<!--                    <app-number-input id="exchangeRate" [readonly]="true" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>-->
+                           class="form-control allow-comments" placeholder="0.00"/>
+<!--                    <app-number-input id="exchangeRate" [readonly]="!generalInfo?.get('isExchangeRateManual')?.value" inputClass="allow-comments" formControlName="exchangeRate" placeholder="0.00"></app-number-input>-->
 
                   </div>
                 </div>
@@ -446,7 +457,7 @@
                   <div class="form-group mb-3">
 
                     <div class="form-group mb-3 allow-comments" id="isPaymentRequired">
-                      <label>Prepayment Required </label>
+                      <label>Prepayment Required*</label>
                       <div class="form-radio d-flex gap-3">
                         <div class="radio-box position-relative">
                           <input type="radio" formControlName="isPaymentRequired" name="isPaymentRequired"
@@ -459,6 +470,9 @@
                           <label>No</label>
                         </div>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('isPaymentRequired')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -498,7 +512,7 @@
                   <div class="form-group mb-3">
 
                     <div class="form-group mb-3 allow-comments" id="isSplitAward">
-                      <label>Split Award </label>
+                      <label>Split Award*</label>
                       <div class="form-radio d-flex gap-3">
                         <div class="radio-box position-relative">
                           <input type="radio" formControlName="isSplitAward" name="isSplitAward" [value]="true">
@@ -509,13 +523,16 @@
                           <label>No</label>
                         </div>
                       </div>
+                      <div class="text-danger" *ngIf="submitted && generalInfo?.get('isSplitAward')?.hasError('required')">
+                        <small class="text-danger">This field is required.</small>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3 allow-comments" id="isLTCC">
-                    <label>Long Term Commercial Commitment </label>
+                    <label>Long Term Commercial Commitment*</label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
@@ -525,6 +542,9 @@
                         <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('isLTCC')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
 
                   </div>
@@ -536,11 +556,11 @@
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3 allow-comments" id="isGovtReprAligned">
-                    <label>Aligned with Government Representative </label>
+                      </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3 allow-comments" id="isGovtReprAligned">
+                        <label>Aligned with Government Representative*</label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isGovtReprAligned" [value]="true"
@@ -552,6 +572,9 @@
                                formControlName="isGovtReprAligned"/>
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('isGovtReprAligned')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
 
@@ -581,23 +604,6 @@
                     </div>
                   </div>
                 </div> -->
-
-                <div class="form-group mb-3 allow-comments" id="contractSpendCommitment">
-                  <label class="mb-3">Framework or Commitment</label>
-                  <div class="form-radio d-flex flex-column ps-3">
-                    <div class="radio-box position-relative mb-2">
-                      <input type="radio" name="contractSpendCommitment"
-                             [value]="'The contract is a framework agreement with no spending commitment'"
-                             formControlName="contractSpendCommitment">
-                      <label>The contract is a framework agreement with no spending commitment</label>
-                    </div>
-                    <div class="radio-box position-relative">
-                      <input type="radio" name="contractSpendCommitment" [value]="'The contract is a commitment'"
-                             formControlName="contractSpendCommitment">
-                      <label> The contract is a commitment</label>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -635,7 +641,7 @@
                             <th>Total Award Value (USD)</th>
                             <th>Original Currency</th>
                             <th>Exchange Rate</th>
-                            <th>Contract Value</th>
+                            <th>Contract Value (Original Currency)</th>
                             <th>Start Date</th>
                             <th>End Date</th>
                             <th>Extension Options</th>
@@ -677,9 +683,9 @@
                                      placeholder="0.00"/>
                             </td>
                             <td>
-<!--                              <input min="0" type="number" formControlName="contractValue" class="form-control"-->
-<!--                                     placeholder="0.00"/>-->
-                              <app-number-input id="contractValue_legalEntitiesAwarded" inputClass="allow-comments" formControlName="contractValue" placeholder="Value"></app-number-input>
+                             <input min="0" type="number" formControlName="contractValue" class="form-control"
+                                  placeholder="0.00"/>
+                              <!-- <app-number-input id="contractValue_legalEntitiesAwarded" inputClass="allow-comments" formControlName="contractValue" placeholder="Value"></app-number-input> -->
 
                             </td>
                             <td>
@@ -733,7 +739,7 @@
               <div class="row">
                 <div class="col-sm-6">
                   <div class="form-group mb-3 allow-comments" id="isConflictOfInterest">
-                    <label class="mb-3">Conflict of Interest
+                    <label class="mb-3">Conflict of Interest*</label>
                       <svg width="17" height="16" viewBox="0 0 17 16" fill="none" class="pointer"
                            [ngbTooltip]="'Conflict of Interest with SOCAR, SOCAR Affiliated entities (JVs, Alliances) or other'" placement="top" container="body"
                            xmlns="http://www.w3.org/2000/svg">
@@ -742,7 +748,6 @@
                           fill="#252525"/>
 
                       </svg>
-                    </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isConflictOfInterest" formControlName="isConflictOfInterest"
@@ -754,6 +759,9 @@
                                [value]="false">
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('isConflictOfInterest')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                   <div class="form-group mb-3">
@@ -769,7 +777,7 @@
                 </div>
                 <div class="col-sm-6">
                   <div class="form-group mb-3 allow-comments" id="isRetrospectiveApproval">
-                    <label class="mb-3">Retrospective Approval</label>
+                    <label class="mb-3">Retrospective Approval*</label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isRetrospectiveApproval" formControlName="isRetrospectiveApproval"
@@ -781,6 +789,9 @@
                                [value]="false">
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('isRetrospectiveApproval')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                   <div class="form-group mb-3">
@@ -797,10 +808,13 @@
                 <div class="col-sm-12">
 
                   <div class="form-group mb-3">
-                    <label>National Content</label>
+                    <label>National Content*</label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="nationalContent"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'nationalContent') : ''"
                                 formControlName="nationalContent"/>
+                    <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('nationalContent')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -818,7 +832,7 @@
               <div class="row">
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>High Risk Contract</label>
+                    <label>High Risk Contract*</label>
                     <div class="form-radio d-flex gap-3 allow-comments" id="isHighRiskContract">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isHighRiskContract" formControlName="isHighRiskContract"
@@ -831,42 +845,57 @@
                         <label>No</label>
                       </div>
                     </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.isHighRiskContract')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>CDD Completed / Refreshed</label>
+                    <label>CDD Completed / Refreshed*</label>
                     <div class="date-input position-relative">
                       <input type="date" formControlName="cddCompleted" id="cddCompleted"
                              class="form-control allow-comments" placeholder=""/>
                     </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.cddCompleted')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-12" *ngIf="generalInfoForm.get('ccd.isHighRiskContract')?.value === true">
 
                   <div class="form-group mb-3">
-                    <label>Explanation for High Risk</label>
-                    <textarea type="text" id="highRiskExplanation" class="form-control allow-comments"
-                              placeholder="Write Description"
-                              formControlName="highRiskExplanation"></textarea>
+                    <label>Explanation for High Risk*</label>
+                    <app-editor-normal *ngIf="!isRegisterPaper" formControlName="highRiskExplanation"/>
+                    <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'highRiskExplanation') : ''"
+                                formControlName="highRiskExplanation"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.highRiskExplanation')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6" *ngIf="generalInfoForm.get('ccd.isHighRiskContract')?.value === true">
 
                   <div class="form-group mb-3">
-                    <label>Flags raised during initial CDD / CDD refresh</label>
-                    <textarea type="text" id="flagRaisedCDD" class="form-control allow-comments"
-                              placeholder="Write Description"
-                              formControlName="flagRaisedCDD"></textarea>
+                    <label>Flags raised during initial CDD / CDD refresh*</label>
+                    <app-editor-normal *ngIf="!isRegisterPaper" formControlName="flagRaisedCDD"/>
+                    <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'flagRaisedCDD') : ''"
+                                formControlName="flagRaisedCDD"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.flagRaisedCDD')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6" *ngIf="generalInfoForm.get('ccd.isHighRiskContract')?.value === true">
 
                   <div class="form-group mb-3">
-                    <label>Additional CDD Controls for High Risk Contracts</label>
-                    <textarea type="text" id="additionalCDD" class="form-control allow-comments"
-                              placeholder="Write Description"
-                              formControlName="additionalCDD"></textarea>
+                    <label>Additional CDD Controls for High Risk Contracts*</label>
+                    <app-editor-normal *ngIf="!isRegisterPaper" formControlName="additionalCDD"/>
+                    <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'additionalCDD') : ''"
+                                formControlName="additionalCDD"/>
+                    <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.additionalCDD')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1031,7 +1060,7 @@
                           <td>
                             <select class="form-control shadow-none" formControlName="vendorId" (change)="onVendorSelectionChange(i, 'commericalEvaluation')">
                               <option [ngValue]="null">Select vendor</option>
-                              <option *ngFor="let vendor of getVendorOptions()" [ngValue]="vendor.value">
+                              <option *ngFor="let vendor of getVendorsWithTechnicalGo()" [ngValue]="vendor.value">
                                 {{ vendor.label }}
                               </option>
                             </select>
@@ -1081,10 +1110,13 @@
 
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
-                  <label>Previous supplier(s) and spend</label>
+                  <label>Previous supplier(s) and respective spend</label>
                   <textarea type="text" id="previousSupplierSpendInfo" class="form-control allow-comments"
                             placeholder="Write Description"
                             formControlName="previousSupplierSpendInfo"></textarea>
+                  <div class="text-danger" *ngIf="submitted && generalInfoForm.get('evaluationSummary.previousSupplierSpendInfo')?.hasError('required')">
+                    <small class="text-danger">This field is required.</small>
+                  </div>
                 </div>
               </div>
               <div class="col-sm-12 col-md-12"  *ngIf="isShowBenchmarking">
@@ -1108,7 +1140,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3 allow-comments" id="contractCurrencyLinktoBaseCost">
-                    <label>Contract Currency Linked to Base Cost</label>
+                    <label>Contract Currency Linked to Base Cost*</label>
                     <div class="form-radio d-flex gap-3 flex-wrap">
                       <div class="radio-box position-relative">
                         <input type="radio" name="contractCurrencyLinktoBaseCost"
@@ -1122,6 +1154,9 @@
                                [value]="false">
                         <label>No</label>
                       </div>
+                    </div>
+                    <div class="text-danger" *ngIf="submitted && generalInfoForm.get('additionalDetails.contractCurrencyLinktoBaseCost')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
                 </div>
@@ -1234,6 +1269,9 @@
                       <input id="costReductionRemarks" type="text" class="form-control allow-comments"
                              placeholder="Remark"
                              formControlName="costReductionRemarks"/>
+                      <div class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery.costReductionRemarks')?.hasError('required')">
+                        <small class="text-danger">Remark is required when $ or % is entered.</small>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1264,6 +1302,9 @@
                       <input id="operatingEfficiencyRemarks" type="text" class="form-control allow-comments"
                              placeholder="Remark"
                              formControlName="operatingEfficiencyRemarks"/>
+                      <div class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery.operatingEfficiencyRemarks')?.hasError('required')">
+                        <small class="text-danger">Remark is required when $ or % is entered.</small>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1293,6 +1334,9 @@
                       <input id="costAvoidanceRemarks" type="text" class="form-control allow-comments"
                              placeholder="Remark"
                              formControlName="costAvoidanceRemarks"/>
+                      <div class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery.costAvoidanceRemarks')?.hasError('required')">
+                        <small class="text-danger">Remark is required when $ or % is entered.</small>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1451,7 +1495,7 @@
             </div>
 
             <div id="section7" data-section="section7" (click)="toggleSection('section7')" class="fb-title-div cursor-pointer ft-bg2 d-flex justify-content-between align-items-center px-3">
-              <h4  class="mb-0">8. Cost Sharing Methodology</h4>
+              <h4  class="mb-0">7. Cost Sharing Methodology</h4>
               <span class="btn collapse-btn">
               <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path [attr.d]="sectionVisibility['section7'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
@@ -1791,6 +1835,27 @@
                   </tr>
                   </tbody>
                 </table>
+              </div>
+              
+              <!-- Framework or Commitment field - additional field in Cost Sharing Methodology section -->
+              <div class="form-group mb-3 allow-comments mt-4" id="contractSpendCommitment">
+                <label class="mb-3">Framework or Commitment*</label>
+                <div class="form-radio d-flex flex-column ps-3">
+                  <div class="radio-box position-relative mb-2">
+                    <input type="radio" name="contractSpendCommitment"
+                           [value]="'The contract is a framework agreement with no spending commitment'"
+                           formControlName="contractSpendCommitment">
+                    <label>The contract is a framework agreement with no spending commitment</label>
+                  </div>
+                  <div class="radio-box position-relative">
+                    <input type="radio" name="contractSpendCommitment" [value]="'The contract is a commitment'"
+                           formControlName="contractSpendCommitment">
+                    <label> The contract is a commitment</label>
+                  </div>
+                </div>
+                <div class="text-danger" *ngIf="submitted && generalInfoForm.get('costSharing.contractSpendCommitment')?.hasError('required')">
+                  <small class="text-danger">This field is required.</small>
+                </div>
               </div>
             </div>
 

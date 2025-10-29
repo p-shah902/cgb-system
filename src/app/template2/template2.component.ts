@@ -81,6 +81,7 @@ export class Template2Component implements AfterViewInit {
   userDetails: UserDetails[] = [];
   procurementTagUsers: any[] = [];
   paperMappingData: PaperMappingType[] = [];
+  cgbAtmRefOptions: { value: string; label: string }[] = [];
   countryDetails: CountryDetail[] = [];
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
@@ -110,6 +111,7 @@ export class Template2Component implements AfterViewInit {
   logs: any[] = [];
   comment: string = '';
   atmPaperContactValueUSD: number = 0
+  totalAwardValueMismatch: boolean = false
   sectionVisibility: { [key: string]: boolean } = {
     section1: true,
     section2: false,
@@ -178,6 +180,7 @@ export class Template2Component implements AfterViewInit {
     this.conflictIntrestChanges()
     this.restrospectiveChanges()
     this.onChangeInApproachMarketChange()
+    this.onHighRiskContractChange()
     this.addRow()
     this.addSupplierTechnicalnRow()
     this.addBidRow()
@@ -185,16 +188,31 @@ export class Template2Component implements AfterViewInit {
     this.setupPSAListeners()
     this.setupPSACalculations()
     this.setupMethodologyListeners()
+    this.setupValueDeliveryRemarksValidation()
+    this.setupScoreThresholdSync()
+    this.setupTechnicalGoNoGoAutoUpdate()
 
 
-    // Subscribe to changes in originalCurrency or contractValueUsd
-    this.generalInfoForm.get('generalInfo.currencyCode')?.valueChanges.subscribe(() => {
-      this.updateExchangeRate();
-    });
+    // Note: Exchange rate is always manually entered, no auto-population from currency
 
     this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
-      this.setupPSACalculationsManually()
+      this.setupPSACalculationsManually();
+      // Recalculate prepayment amount if percentage is already entered
+      const prePayPercent = this.generalInfoForm.get('generalInfo.prePayPercent')?.value;
+      const isPaymentRequired = this.generalInfoForm.get('generalInfo.isPaymentRequired')?.value;
+      if (isPaymentRequired === true && prePayPercent !== null && prePayPercent !== undefined && prePayPercent !== '') {
+        const totalValue = Number(this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value) || 0;
+        if (totalValue > 0 && prePayPercent >= 0 && prePayPercent <= 100) {
+          const calculatedAmount = (Number(prePayPercent) / 100) * totalValue;
+          this.generalInfoForm.get('generalInfo.prePayAmount')?.setValue(calculatedAmount, { emitEvent: false });
+        }
+      }
+    });
+
+    // Update contract value when exchange rate changes manually
+    this.generalInfoForm.get('generalInfo.exchangeRate')?.valueChanges.subscribe(() => {
+      this.updateContractValueOriginalCurrency();
     });
 
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
@@ -215,6 +233,10 @@ export class Template2Component implements AfterViewInit {
     this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.valueChanges.subscribe((cgbAtmRefNo) => {
       this.updateCgbApprovalDate(Number(cgbAtmRefNo));
     });
+
+    // Check for total award value mismatch
+    this.checkTotalAwardValueMismatch();
+    this.subscribeToTotalAwardValueChanges();
 
   }
 
@@ -247,7 +269,7 @@ export class Template2Component implements AfterViewInit {
         paperProvision: ['', Validators.required],
         cgbAtmRefNo: [null],
         cgbApprovalDate: [null],
-        isChangeinApproachMarket: [null],
+        isChangeinApproachMarket: [null, Validators.required],
         cgbItemRefNo: [{value: '', disabled: true}],
         cgbCirculationDate: [{value: null, disabled: true}],
         contractNo: [''],
@@ -263,7 +285,7 @@ export class Template2Component implements AfterViewInit {
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
-        isPHCA: [null],
+        isPHCA: [null, Validators.required],
         currencyCode: [''],
         totalAwardValueUSD: [
           null,
@@ -272,33 +294,32 @@ export class Template2Component implements AfterViewInit {
         exchangeRate: [0], // Number input
         contractValue: [0],
         remunerationType: ['', Validators.required],
-        isPaymentRequired: [null],
-        prePayPercent: [null],
-        prePayAmount: [null],
+        isPaymentRequired: [null, Validators.required],
+        prePayPercent: [{value: null, disabled: true}],
+        prePayAmount: [{value: null, disabled: true}],
         workspaceNo: [''],
-        isSplitAward: [null],
+        isSplitAward: [null, Validators.required],
         psajv: [[], Validators.required],
-        isLTCC: [null],
+        isLTCC: [null, Validators.required],
         ltccNotes: [{ value: '', disabled: true }],
-        isGovtReprAligned: [null],
+        isGovtReprAligned: [null, Validators.required],
         govtReprAlignedComment: [''],
-        contractSpendCommitment: [''],
       }),
       procurementDetails: this.fb.group({
         supplierAwardRecommendations: ['', Validators.required],
         legalEntitiesAwarded: this.fb.array([]),
-        isConflictOfInterest: [null],
+        isConflictOfInterest: [null, Validators.required],
         conflictOfInterestComment: [{ value: '', disabled: true }],
-        isRetrospectiveApproval: [null],
+        isRetrospectiveApproval: [null, Validators.required],
         retrospectiveApprovalReason: [{ value: '', disabled: true }],
-        nationalContent: [''],
+        nationalContent: ['', Validators.required],
       }),
       ccd: this.fb.group({
-        isHighRiskContract: [null],
-        cddCompleted: [null],
-        highRiskExplanation: [''],
-        flagRaisedCDD: [''],
-        additionalCDD: [''],
+        isHighRiskContract: [null, Validators.required],
+        cddCompleted: [null, Validators.required],
+        highRiskExplanation: [{value: '', disabled: true}],
+        flagRaisedCDD: [{value: '', disabled: true}],
+        additionalCDD: [{value: '', disabled: true}],
 
       }),
       evaluationSummary: this.fb.group({
@@ -306,14 +327,14 @@ export class Template2Component implements AfterViewInit {
         submittedBids: [0],
         previousContractLearning: [''],
         performanceImprovements: [''],
-        previousSupplierSpendInfo: [''],
+        previousSupplierSpendInfo: ['', Validators.required],
         benchMarking: [''],
         commericalEvaluation: this.fb.array([]),
         supplierTechnical: this.fb.array([]),
       }),
       additionalDetails: this.fb.group({
         contractualControls: [''],
-        contractCurrencyLinktoBaseCost: [null],
+        contractCurrencyLinktoBaseCost: [null, Validators.required],
         explanationsforBaseCost: [{ value: '', disabled: true }],
         riskMitigation: this.fb.array([]),
       }),
@@ -372,7 +393,8 @@ export class Template2Component implements AfterViewInit {
         capexMethodology: [{value: '', disabled: true}],
         fixOpexMethodology: [{value: '', disabled: true}],
         variableOpexMethodology: [{value: '', disabled: true}],
-        inventoryItemsMethodology: [{value: '', disabled: true}]
+        inventoryItemsMethodology: [{value: '', disabled: true}],
+        contractSpendCommitment: ['', Validators.required]
       }),
       consultation: this.fb.array([]),
 
@@ -462,10 +484,18 @@ export class Template2Component implements AfterViewInit {
         : [];
 
       if (value.data) {
+        // Enable conditional CDD fields if High Risk Contract is true, before patching values
+        const isHighRisk = contractAwardDetails?.isHighRiskContract === true;
+        if (isHighRisk) {
+          this.generalInfoForm.get('ccd.highRiskExplanation')?.enable();
+          this.generalInfoForm.get('ccd.flagRaisedCDD')?.enable();
+          this.generalInfoForm.get('ccd.additionalCDD')?.enable();
+        }
+        
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: contractAwardDetails?.paperProvision || "",
-            cgbAtmRefNo: contractAwardDetails?.cgbAtmRefNo ? Number(contractAwardDetails?.cgbAtmRefNo) : null,
+            cgbAtmRefNo: contractAwardDetails?.cgbAtmRefNo ? contractAwardDetails?.cgbAtmRefNo.toString() : null,
             cgbApprovalDate:  contractAwardDetails?.cgbApprovalDate
               ? format(new Date(contractAwardDetails.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
@@ -503,7 +533,6 @@ export class Template2Component implements AfterViewInit {
             ltccNotes: contractAwardDetails?.ltccNotes || '',
             isGovtReprAligned: contractAwardDetails?.isGovtReprAligned || false,
             govtReprAlignedComment: contractAwardDetails?.govtReprAlignedComment || '',
-            contractSpendCommitment: contractAwardDetails?.contractSpendCommitment || '',
           },
           procurementDetails: {
             supplierAwardRecommendations: contractAwardDetails?.supplierAwardRecommendations || '',
@@ -556,6 +585,7 @@ export class Template2Component implements AfterViewInit {
             fixOpexMethodology: valueData?.fixOpexMethodology || '',
             variableOpexMethodology: valueData?.variableOpexMethodology || '',
             inventoryItemsMethodology: valueData?.inventoryItemsMethodology || '',
+            contractSpendCommitment: contractAwardDetails?.contractSpendCommitment || '',
           },
           costAllocation: patchValues.costAllocation,
         },{ emitEvent: true })
@@ -573,6 +603,17 @@ export class Template2Component implements AfterViewInit {
             purposeRequiredControl?.disable();
           }
           purposeRequiredControl?.updateValueAndValidity();
+          // Ensure prepayment fields are correctly enabled/disabled based on isPaymentRequired
+          const isPaymentRequired = this.generalInfoForm.get('generalInfo.isPaymentRequired')?.value;
+          const prePayAmountControl = this.generalInfoForm.get('generalInfo.prePayAmount');
+          const prePayPercentControl = this.generalInfoForm.get('generalInfo.prePayPercent');
+          if (isPaymentRequired === true) {
+            prePayAmountControl?.enable();
+            prePayPercentControl?.enable();
+          } else {
+            prePayAmountControl?.disable();
+            prePayPercentControl?.disable();
+          }
           this.isInitialLoad = false;
         }, 500)
 
@@ -582,6 +623,10 @@ export class Template2Component implements AfterViewInit {
         this.addConsultationRow(true);
         this.addCommericalEvaluationRow(true)
         this.setupPSAListeners()
+        // Ensure High Risk Contract conditional fields are properly initialized
+        setTimeout(() => {
+          this.onHighRiskContractChange();
+        }, 100);
         this.getUploadedDocs(paperId);
       }
     })
@@ -789,7 +834,30 @@ export class Template2Component implements AfterViewInit {
       next: (response) => {
         if (response.status && response.data) {
           if(response.data && response.data.length > 0) {
-            this.paperMappingData = response.data.filter((item) => item.paperType == "Approach to Market")
+            // Filter by paper type and exclude Draft/Withdrawn
+            this.paperMappingData = response.data.filter((item) => 
+              item.paperType == "Approach to Market" 
+            );
+            
+            // Create formatted options for Select2
+            // Format: "CGB ref number, Value, Title (first 50 symbols), Date"
+            this.cgbAtmRefOptions = this.paperMappingData.map((item) => {
+              const refNo = item.paperID.toString();
+              const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
+              const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
+              // Note: Value field might not be available in PaperMappingType, using placeholder for now
+              // This can be updated when API provides contractValue/totalContractValue field
+              const value = 'N/A'; // Could be extended if API provides contractValue or similar
+              
+              // Format label to include Ref#, Value, Title, Date for dropdown display
+              // Select2 will automatically search through the label text
+              const label = `${refNo}, ${value}, ${title}, ${date}`;
+              
+              return {
+                value: refNo,
+                label: label
+              };
+            });
           }
           this.incrementAndCheck();
         }
@@ -797,6 +865,21 @@ export class Template2Component implements AfterViewInit {
         console.log('error', error);
       }
     })
+  }
+  
+  
+  // Handle CGB ATM Ref selection - Select2 will store the value (Ref. No)
+  onCgbAtmRefSelected(event: any) {
+    // The form control already has the value set (Ref. No as string)
+    // Select2 will display the label in dropdown, but we can customize if needed
+  }
+  
+  // Get the selected display value for form control (just Ref. No)
+  getSelectedCgbAtmRefDisplay(): string {
+    const selectedValue = this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value;
+    if (!selectedValue) return '';
+    // Return just the Ref. No (which is the value)
+    return selectedValue.toString();
   }
 
   private incrementAndCheck(increaseCount: number | null = null) {
@@ -876,6 +959,29 @@ export class Template2Component implements AfterViewInit {
       value: vendor.id,
       label: vendor.legalName
     }));
+  }
+
+  getVendorsWithTechnicalGo() {
+    // Get all vendor IDs that have Technical Go/No Go = Yes
+    const technicalGoVendorIds = new Set<number>();
+    
+    this.supplierTechnical.controls.forEach(control => {
+      const vendorId = control.get('vendorId')?.value;
+      const isTechnical = control.get('isTechnical')?.value;
+      
+      // Only include vendors where isTechnical is true
+      if (vendorId && isTechnical === true) {
+        technicalGoVendorIds.add(Number(vendorId));
+      }
+    });
+    
+    // Filter vendorList to only include vendors with Technical Go = Yes
+    return this.vendorList
+      .filter(vendor => technicalGoVendorIds.has(vendor.id))
+      .map(vendor => ({
+        value: vendor.id,
+        label: vendor.legalName
+      }));
   }
 
   onVendorSelectionChange(rowIndex: number, formArray?: string) {
@@ -1436,15 +1542,92 @@ export class Template2Component implements AfterViewInit {
     return Object.values(errors).some(error => error) ? errors : null;
   }
 
-  updateExchangeRate() {
-    const originalCurrency = this.generalInfoForm.get('generalInfo.currencyCode')?.value;
-    const currencyItem = this.currenciesData.find((item) => item.id === Number(originalCurrency)) || null
-    const currency = CURRENCY_LIST.find(c => c.code === currencyItem?.itemValue);
-    const exchangeRate = currency ? currency.rate : 0;
+  setupValueDeliveryRemarksValidation() {
+    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+    if (!valueDeliveryGroup) return;
 
-    this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(exchangeRate);
-    this.updateContractValueOriginalCurrency();
+    // Setup validation for Cost Reduction
+    const checkCostReductionRemarks = () => {
+      const percent = valueDeliveryGroup.get('costReductionPercent')?.value;
+      const value = valueDeliveryGroup.get('costReductionValue')?.value;
+      const remarksControl = valueDeliveryGroup.get('costReductionRemarks');
+      
+      const hasValue = (percent !== null && percent !== undefined && percent !== '') || 
+                      (value !== null && value !== undefined && value !== '');
+      
+      if (hasValue) {
+        remarksControl?.setValidators([Validators.required]);
+      } else {
+        remarksControl?.clearValidators();
+      }
+      remarksControl?.updateValueAndValidity();
+    };
+
+    // Setup validation for Operating Efficiency
+    const checkOperatingEfficiencyRemarks = () => {
+      const percent = valueDeliveryGroup.get('operatingEfficiencyPercent')?.value;
+      const value = valueDeliveryGroup.get('operatingEfficiencyValue')?.value;
+      const remarksControl = valueDeliveryGroup.get('operatingEfficiencyRemarks');
+      
+      const hasValue = (percent !== null && percent !== undefined && percent !== '') || 
+                      (value !== null && value !== undefined && value !== '');
+      
+      if (hasValue) {
+        remarksControl?.setValidators([Validators.required]);
+      } else {
+        remarksControl?.clearValidators();
+      }
+      remarksControl?.updateValueAndValidity();
+    };
+
+    // Setup validation for Cost Avoidance
+    const checkCostAvoidanceRemarks = () => {
+      const percent = valueDeliveryGroup.get('costAvoidancePercent')?.value;
+      const value = valueDeliveryGroup.get('costAvoidanceValue')?.value;
+      const remarksControl = valueDeliveryGroup.get('costAvoidanceRemarks');
+      
+      const hasValue = (percent !== null && percent !== undefined && percent !== '') || 
+                      (value !== null && value !== undefined && value !== '');
+      
+      if (hasValue) {
+        remarksControl?.setValidators([Validators.required]);
+      } else {
+        remarksControl?.clearValidators();
+      }
+      remarksControl?.updateValueAndValidity();
+    };
+
+    // Subscribe to changes for Cost Reduction
+    valueDeliveryGroup.get('costReductionPercent')?.valueChanges.subscribe(() => {
+      checkCostReductionRemarks();
+    });
+    valueDeliveryGroup.get('costReductionValue')?.valueChanges.subscribe(() => {
+      checkCostReductionRemarks();
+    });
+
+    // Subscribe to changes for Operating Efficiency
+    valueDeliveryGroup.get('operatingEfficiencyPercent')?.valueChanges.subscribe(() => {
+      checkOperatingEfficiencyRemarks();
+    });
+    valueDeliveryGroup.get('operatingEfficiencyValue')?.valueChanges.subscribe(() => {
+      checkOperatingEfficiencyRemarks();
+    });
+
+    // Subscribe to changes for Cost Avoidance
+    valueDeliveryGroup.get('costAvoidancePercent')?.valueChanges.subscribe(() => {
+      checkCostAvoidanceRemarks();
+    });
+    valueDeliveryGroup.get('costAvoidanceValue')?.valueChanges.subscribe(() => {
+      checkCostAvoidanceRemarks();
+    });
+
+    // Check initial state
+    checkCostReductionRemarks();
+    checkOperatingEfficiencyRemarks();
+    checkCostAvoidanceRemarks();
   }
+
+  // Exchange rate is always manually entered - no automatic updates
 
   updateContractValueOriginalCurrency() {
     const contractValueUsd = Number(this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value) || 0;
@@ -1487,15 +1670,67 @@ export class Template2Component implements AfterViewInit {
       const prePayPercent = this.generalInfoForm.get('generalInfo.prePayPercent');
 
       if (value === true) {
+        // Enable fields and set validators
+        prePayAmount?.enable();
+        prePayPercent?.enable();
         prePayAmount?.setValidators([Validators.required]);
         prePayPercent?.setValidators([Validators.required]);
       } else {
+        // Disable fields and clear validators
+        prePayAmount?.disable();
+        prePayPercent?.disable();
         prePayAmount?.clearValidators();
         prePayPercent?.clearValidators();
+        // Clear values when disabled
+        prePayAmount?.setValue(null, { emitEvent: false });
+        prePayPercent?.setValue(null, { emitEvent: false });
       }
 
       prePayAmount?.updateValueAndValidity();
       prePayPercent?.updateValueAndValidity();
+    });
+    
+    // Handle initial state
+    const initialValue = this.generalInfoForm.get('generalInfo.isPaymentRequired')?.value;
+    const prePayAmount = this.generalInfoForm.get('generalInfo.prePayAmount');
+    const prePayPercent = this.generalInfoForm.get('generalInfo.prePayPercent');
+    
+    if (initialValue === true) {
+      prePayAmount?.enable();
+      prePayPercent?.enable();
+    } else {
+      prePayAmount?.disable();
+      prePayPercent?.disable();
+    }
+    
+    // Setup automatic calculation when % changes
+    this.generalInfoForm.get('generalInfo.prePayPercent')?.valueChanges.subscribe((percent) => {
+      // Skip if disabled or no value
+      if (prePayPercent?.disabled || percent === null || percent === undefined || percent === '') {
+        return;
+      }
+      
+      const totalValue = Number(this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value) || 0;
+      if (totalValue > 0 && percent >= 0 && percent <= 100) {
+        const calculatedAmount = (Number(percent) / 100) * totalValue;
+        // Update amount without triggering its valueChanges to avoid circular calculation
+        prePayAmount?.setValue(calculatedAmount, { emitEvent: false });
+      }
+    });
+    
+    // Setup automatic calculation when $ changes
+    this.generalInfoForm.get('generalInfo.prePayAmount')?.valueChanges.subscribe((amount) => {
+      // Skip if disabled or no value
+      if (prePayAmount?.disabled || amount === null || amount === undefined || amount === '') {
+        return;
+      }
+      
+      const totalValue = Number(this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value) || 0;
+      if (totalValue > 0 && Number(amount) >= 0) {
+        const calculatedPercent = (Number(amount) / totalValue) * 100;
+        // Update percent without triggering its valueChanges to avoid circular calculation
+        prePayPercent?.setValue(Math.min(100, Math.max(0, calculatedPercent)), { emitEvent: false });
+      }
     });
   }
 
@@ -1547,6 +1782,49 @@ export class Template2Component implements AfterViewInit {
     });
   }
 
+  onHighRiskContractChange() {
+    const initialValue = this.generalInfoForm.get('ccd.isHighRiskContract')?.value;
+    const highRiskExplanationControl = this.generalInfoForm.get('ccd.highRiskExplanation');
+    const flagRaisedCDDControl = this.generalInfoForm.get('ccd.flagRaisedCDD');
+    const additionalCDDControl = this.generalInfoForm.get('ccd.additionalCDD');
+
+    if (initialValue === true) {
+      highRiskExplanationControl?.setValidators([Validators.required]);
+      flagRaisedCDDControl?.setValidators([Validators.required]);
+      additionalCDDControl?.setValidators([Validators.required]);
+      highRiskExplanationControl?.enable();
+      flagRaisedCDDControl?.enable();
+      additionalCDDControl?.enable();
+      highRiskExplanationControl?.updateValueAndValidity();
+      flagRaisedCDDControl?.updateValueAndValidity();
+      additionalCDDControl?.updateValueAndValidity();
+    }
+
+    this.generalInfoForm.get('ccd.isHighRiskContract')?.valueChanges.subscribe((value) => {
+      if (value === true) {
+        highRiskExplanationControl?.setValidators([Validators.required]);
+        flagRaisedCDDControl?.setValidators([Validators.required]);
+        additionalCDDControl?.setValidators([Validators.required]);
+        highRiskExplanationControl?.enable();
+        flagRaisedCDDControl?.enable();
+        additionalCDDControl?.enable();
+      } else {
+        highRiskExplanationControl?.clearValidators();
+        flagRaisedCDDControl?.clearValidators();
+        additionalCDDControl?.clearValidators();
+        highRiskExplanationControl?.disable();
+        flagRaisedCDDControl?.disable();
+        additionalCDDControl?.disable();
+        highRiskExplanationControl?.setValue('', { emitEvent: false });
+        flagRaisedCDDControl?.setValue('', { emitEvent: false });
+        additionalCDDControl?.setValue('', { emitEvent: false });
+      }
+      highRiskExplanationControl?.updateValueAndValidity();
+      flagRaisedCDDControl?.updateValueAndValidity();
+      additionalCDDControl?.updateValueAndValidity();
+    });
+  }
+
   onChangeInApproachMarketChange() {
     // Handle initial value
     const initialValue = this.generalInfoForm.get('generalInfo.isChangeinApproachMarket')?.value;
@@ -1571,6 +1849,7 @@ export class Template2Component implements AfterViewInit {
       purposeRequiredControl?.updateValueAndValidity();
     });
   }
+
 
   setPaperStatus(status: string, callAPI: boolean = true): void {
     if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
@@ -1680,7 +1959,6 @@ export class Template2Component implements AfterViewInit {
         contractualControls: additionalDetailsValue?.contractualControls || "",
         contractCurrencyLinktoBaseCost: additionalDetailsValue?.contractCurrencyLinktoBaseCost || false,
         explanationsforBaseCost: additionalDetailsValue?.explanationsforBaseCost || "",
-        contractSpendCommitment: "",
         psajv: generalInfoValue?.psajv?.join(',') || "",
         procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
       },
@@ -1702,6 +1980,7 @@ export class Template2Component implements AfterViewInit {
         fixOpexMethodology: costSharingValues.fixOpexMethodology || "",
         variableOpexMethodology: costSharingValues.variableOpexMethodology || "",
         inventoryItemsMethodology: costSharingValues.inventoryItemsMethodology || "",
+        contractSpendCommitment: costSharingValues.contractSpendCommitment || "",
       },
       costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
@@ -1863,18 +2142,22 @@ export class Template2Component implements AfterViewInit {
 
       riskMitigationsData?.forEach((item: any, index: number) => {
         const vendor = this.vendorList.find(v => v.legalName === item.legalName);
-        riskMitigationArray.push(
-          this.fb.group({
-            vendorId: [vendor?.id || null],
-            legalName: [item.legalName, Validators.required],
-            resultOfHSSE: [item.resultOfHSSE, Validators.required],
-            commentary: [item.commentary],
-            thresholdPercent: [item.thresholdPercent],
-            technicalScorePercent: [item.technicalScorePercent],
-            isTechnical: [item.isTechnical],
-            id: [item.id]
-          })
-        );
+        const rowGroup = this.fb.group({
+          vendorId: [vendor?.id || null],
+          legalName: [item.legalName, Validators.required],
+          resultOfHSSE: [item.resultOfHSSE, Validators.required],
+          commentary: [item.commentary],
+          thresholdPercent: [item.thresholdPercent],
+          technicalScorePercent: [item.technicalScorePercent],
+          isTechnical: [item.isTechnical],
+          id: [item.id]
+        });
+        riskMitigationArray.push(rowGroup);
+        
+        // Update Technical Go/No Go based on loaded values
+        setTimeout(() => {
+          this.updateTechnicalGoNoGoForRow(rowGroup);
+        }, 200);
       });
     } else {
       this.supplierTechnical.push(
@@ -1897,6 +2180,189 @@ export class Template2Component implements AfterViewInit {
     if (this.supplierTechnical.length > 1) {
       this.supplierTechnical.removeAt(index);
     }
+  }
+
+  setupScoreThresholdSync() {
+    // Listen for form array valueChanges to detect when rows are added/removed
+    this.supplierTechnical.valueChanges.subscribe(() => {
+      // Delay to ensure form array is stable before setting up subscriptions
+      setTimeout(() => {
+        this.setupThresholdPercentSync();
+      }, 100);
+    });
+    
+    // Initial setup
+    this.setupThresholdPercentSync();
+  }
+
+  private isUpdatingThresholds = false;
+
+  setupThresholdPercentSync() {
+    const supplierTechnicalArray = this.supplierTechnical;
+    
+    // Set up individual subscriptions for each row's thresholdPercent
+    supplierTechnicalArray.controls.forEach((control, index) => {
+      const thresholdControl = control.get('thresholdPercent');
+      if (thresholdControl && !(thresholdControl as any)._thresholdSynced) {
+        // Mark as synced to prevent duplicate subscriptions
+        (thresholdControl as any)._thresholdSynced = true;
+        
+        // Subscribe to value changes for this specific control
+        thresholdControl.valueChanges.subscribe((value) => {
+          // Prevent infinite loops
+          if (this.isUpdatingThresholds) {
+            return;
+          }
+          
+          // Only sync if a value is entered
+          if (value !== null && value !== undefined && value !== '') {
+            this.isUpdatingThresholds = true;
+            
+            // Update all other rows with the same value
+            supplierTechnicalArray.controls.forEach((otherControl, otherIndex) => {
+              if (otherIndex !== index) {
+                const otherThresholdControl = otherControl.get('thresholdPercent');
+                if (otherThresholdControl && otherThresholdControl.value !== value) {
+                  otherThresholdControl.setValue(value, { emitEvent: false });
+                }
+              }
+            });
+            
+            // Reset flag and update Technical Go/No Go for this row
+            setTimeout(() => {
+              this.isUpdatingThresholds = false;
+              this.updateTechnicalGoNoGoForRow(control);
+            }, 0);
+          } else {
+            // If threshold is cleared, also update Technical Go/No Go
+            this.updateTechnicalGoNoGoForRow(control);
+          }
+        });
+      }
+    });
+  }
+
+  private isUpdatingTechnicalGoNoGo = false;
+
+  setupTechnicalGoNoGoAutoUpdate() {
+    // Listen for form array valueChanges to detect when rows are added/removed
+    this.supplierTechnical.valueChanges.subscribe(() => {
+      // Delay to ensure form array is stable before setting up subscriptions
+      setTimeout(() => {
+        this.setupTechnicalGoNoGoSubscriptions();
+      }, 100);
+    });
+    
+    // Initial setup
+    this.setupTechnicalGoNoGoSubscriptions();
+  }
+
+  setupTechnicalGoNoGoSubscriptions() {
+    const supplierTechnicalArray = this.supplierTechnical;
+    
+    // Set up subscriptions for each row's technicalScorePercent
+    supplierTechnicalArray.controls.forEach((control) => {
+      const technicalScoreControl = control.get('technicalScorePercent');
+      if (technicalScoreControl && !(technicalScoreControl as any)._technicalGoSynced) {
+        // Mark as synced to prevent duplicate subscriptions
+        (technicalScoreControl as any)._technicalGoSynced = true;
+        
+        // Subscribe to value changes for technicalScorePercent
+        technicalScoreControl.valueChanges.subscribe(() => {
+          if (!this.isUpdatingTechnicalGoNoGo) {
+            this.updateTechnicalGoNoGoForRow(control);
+          }
+        });
+      }
+
+      // Also subscribe to thresholdPercent changes for this row
+      const thresholdControl = control.get('thresholdPercent');
+      if (thresholdControl && !(thresholdControl as any)._technicalGoThresholdSynced) {
+        (thresholdControl as any)._technicalGoThresholdSynced = true;
+        
+        thresholdControl.valueChanges.subscribe(() => {
+          if (!this.isUpdatingTechnicalGoNoGo && !this.isUpdatingThresholds) {
+            this.updateTechnicalGoNoGoForRow(control);
+          }
+        });
+      }
+
+      // Subscribe to manual changes in isTechnical to validate Commercial Evaluation
+      const isTechnicalControl = control.get('isTechnical');
+      if (isTechnicalControl && !(isTechnicalControl as any)._commercialValidationSynced) {
+        (isTechnicalControl as any)._commercialValidationSynced = true;
+        
+        isTechnicalControl.valueChanges.subscribe(() => {
+          if (!this.isUpdatingTechnicalGoNoGo) {
+            // Validate Commercial Evaluation when Technical Go/No Go changes manually
+            setTimeout(() => {
+              this.validateCommercialEvaluationVendors();
+            }, 100);
+          }
+        });
+      }
+    });
+  }
+
+  updateTechnicalGoNoGoForRow(control: any) {
+    const technicalScoreControl = control.get('technicalScorePercent');
+    const thresholdControl = control.get('thresholdPercent');
+    const isTechnicalControl = control.get('isTechnical');
+    
+    if (!technicalScoreControl || !thresholdControl || !isTechnicalControl) {
+      return;
+    }
+    
+    const technicalScore = technicalScoreControl.value;
+    const threshold = thresholdControl.value;
+    
+    // Only auto-update if both values are present and are numbers
+    if (technicalScore !== null && technicalScore !== undefined && technicalScore !== '' &&
+        threshold !== null && threshold !== undefined && threshold !== '') {
+      const technicalScoreNum = Number(technicalScore);
+      const thresholdNum = Number(threshold);
+      
+      if (!isNaN(technicalScoreNum) && !isNaN(thresholdNum)) {
+        this.isUpdatingTechnicalGoNoGo = true;
+        
+        // Set to Yes if Technical Score >= Score Threshold
+        if (technicalScoreNum >= thresholdNum) {
+          isTechnicalControl.setValue(true, { emitEvent: false });
+        }
+        
+        setTimeout(() => {
+          this.isUpdatingTechnicalGoNoGo = false;
+          // Validate Commercial Evaluation selections after Technical Go/No Go changes
+          this.validateCommercialEvaluationVendors();
+        }, 0);
+      }
+    }
+  }
+
+  validateCommercialEvaluationVendors() {
+    // Get all vendor IDs that have Technical Go/No Go = Yes
+    const validVendorIds = new Set<number>();
+    
+    this.supplierTechnical.controls.forEach(control => {
+      const vendorId = control.get('vendorId')?.value;
+      const isTechnical = control.get('isTechnical')?.value;
+      
+      if (vendorId && isTechnical === true) {
+        validVendorIds.add(Number(vendorId));
+      }
+    });
+    
+    // Check each Commercial Evaluation row and clear invalid selections
+    this.commericalEvaluation.controls.forEach(control => {
+      const vendorIdControl = control.get('vendorId');
+      const vendorId = vendorIdControl?.value;
+      
+      if (vendorId && !validVendorIds.has(Number(vendorId))) {
+        // Clear the selection if vendor is no longer valid
+        vendorIdControl?.setValue(null);
+        control.get('legalName')?.setValue('');
+      }
+    });
   }
 
   // Generate ID dynamically (001, 002, etc.)
@@ -1994,8 +2460,10 @@ export class Template2Component implements AfterViewInit {
   }
 
   updateCgbApprovalDate(id: number | null) {
-    const cgbATM = this.paperMappingData.find((item) => item.paperID == id)
-    if(!cgbATM || !id) {
+    // Handle both string and number IDs
+    const paperId = typeof id === 'string' ? Number(id) : id;
+    const cgbATM = this.paperMappingData.find((item) => item.paperID == paperId)
+    if(!cgbATM || !paperId) {
       return
     }
     const convertedValue =  cgbATM.entryDate ? format(new Date(cgbATM.entryDate), 'yyyy-MM-dd') : null
@@ -2008,7 +2476,9 @@ export class Template2Component implements AfterViewInit {
       this.toastService.show('Please select CGB ATM Ref No first', 'warning');
       return;
     }
-    this.fetchATMPaperDetails(Number(cgbAtmRefNo));
+    // Handle both string and number IDs
+    const paperId = typeof cgbAtmRefNo === 'string' ? Number(cgbAtmRefNo) : cgbAtmRefNo;
+    this.fetchATMPaperDetails(paperId);
   }
 
   fetchATMPaperDetails(paperId: number) {
@@ -2171,6 +2641,7 @@ export class Template2Component implements AfterViewInit {
           })
         );
       });
+      this.checkTotalAwardValueMismatch();
     } else {
       this.inviteToBid.push(
         this.fb.group({
@@ -2187,6 +2658,7 @@ export class Template2Component implements AfterViewInit {
           id: [0]
         })
       );
+      this.checkTotalAwardValueMismatch();
     }
   }
 
@@ -2195,7 +2667,40 @@ export class Template2Component implements AfterViewInit {
   removeBidRow(index: number) {
     if (this.inviteToBid.length > 1) {
       this.inviteToBid.removeAt(index);
+      this.checkTotalAwardValueMismatch();
     }
+  }
+
+  checkTotalAwardValueMismatch() {
+    const mainTotal = Number(this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value) || 0;
+    const legalEntitiesArray = this.inviteToBid;
+    let sumOfIndividualTotals = 0;
+
+    legalEntitiesArray.controls.forEach((control) => {
+      const individualTotal = Number(control.get('totalAwardValueUSD')?.value) || 0;
+      sumOfIndividualTotals += individualTotal;
+    });
+
+    // Check if they match (allow small floating point differences)
+    const difference = Math.abs(mainTotal - sumOfIndividualTotals);
+    this.totalAwardValueMismatch = difference > 0.01 && (mainTotal > 0 || sumOfIndividualTotals > 0);
+  }
+
+  subscribeToTotalAwardValueChanges() {
+    // Subscribe to main total award value changes
+    this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.valueChanges.subscribe(() => {
+      this.checkTotalAwardValueMismatch();
+    });
+
+    // Subscribe to each legal entity's total award value changes
+    this.inviteToBid.valueChanges.subscribe(() => {
+      this.checkTotalAwardValueMismatch();
+    });
+
+    // Also subscribe when rows are added/removed
+    this.inviteToBid.statusChanges.subscribe(() => {
+      this.checkTotalAwardValueMismatch();
+    });
   }
 
 
