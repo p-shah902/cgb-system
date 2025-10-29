@@ -78,6 +78,8 @@ export class Template5Component  implements AfterViewInit{
   paperDetails: any = null
   isRegisterPaper: boolean = false
   vendorList: VendorDetail[] = []
+  previousCGBItemOptions: any[] = []
+  paperMappingData: any[] = []
 
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -184,7 +186,6 @@ export class Template5Component  implements AfterViewInit{
         cgbCirculationDate: [{value: '', disabled: true}],
         legalName: ['', Validators.required],
         contractNumber: [''],
-        referenceNo: [''],
         operatingFunction: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         previousCGBItemRefNo: ['', Validators.required],
@@ -198,9 +199,8 @@ export class Template5Component  implements AfterViewInit{
         contractEndDate: [null, Validators.required],
         variationStartDate: [null, Validators.required],
         variationEndDate: [null, Validators.required],
+        contractValue: [null],
         psajv: [[], Validators.required],
-        isLTCC: [null],
-        ltccNotes: [{ value: '', disabled: true }],
       }),
       ccd: this.fb.group({
         isHighRiskContract: [null],
@@ -265,9 +265,9 @@ export class Template5Component  implements AfterViewInit{
     });
     this.setupPSAListeners()
     this.setupPSACalculations()
-    this.onLTCCChange()
     this.onRTOhange()
     this.alignGovChange()
+    this.setupPreviousCGBItemReference()
 
   }
 
@@ -388,8 +388,8 @@ export class Template5Component  implements AfterViewInit{
             contractNumber: generatlInfoData?.contractNumber || '',
             operatingFunction: generatlInfoData?.operatingFunction || '',
             bltMember: generatlInfoData?.bltMemberId || null,
-            referenceNo: generatlInfoData?.referenceNo || '',
-            previousCGBItemRefNo: generatlInfoData?.previousCGBItemRefNo || '',
+            previousCGBItemRefNo: generatlInfoData?.previousCGBItemRefNo ? generatlInfoData.previousCGBItemRefNo.toString() : '',
+            contractValue: generatlInfoData?.contractValue || null,
             subSector: generatlInfoData?.subSector || '',
             sourcingType: generatlInfoData?.sourcingType || '',
             camUserId: generatlInfoData?.camUserId ? Number(generatlInfoData?.camUserId) : null,
@@ -408,8 +408,6 @@ export class Template5Component  implements AfterViewInit{
               ? format(new Date(generatlInfoData.variationEndDate), 'yyyy-MM-dd')
               : '',
             psajv: selectedValues,
-            isLTCC: generatlInfoData?.isLTCC || false,
-            ltccNotes: generatlInfoData?.ltccNotes || '',
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: generatlInfoData?.pdManagerNameId || null,
           },
@@ -785,22 +783,6 @@ export class Template5Component  implements AfterViewInit{
 
   }
 
-  onLTCCChange() {
-    this.generalInfoForm.get('generalInfo.isLTCC')?.valueChanges.subscribe((value) => {
-      const ltccNotesControl = this.generalInfoForm.get('generalInfo.ltccNotes');
-
-      if (value === true) {
-        ltccNotesControl?.setValidators([Validators.required]);
-        ltccNotesControl?.enable();
-      } else {
-        ltccNotesControl?.clearValidators();
-        ltccNotesControl?.disable(); // <- disables the field
-      }
-
-      ltccNotesControl?.updateValueAndValidity();
-    });
-  }
-
   onRTOhange() {
     this.generalInfoForm.get('generalInfo.isRetrospectiveApproval')?.valueChanges.subscribe((value) => {
       const ltccNotesControl = this.generalInfoForm.get('generalInfo.retrospectiveApprovalReason');
@@ -941,7 +923,178 @@ export class Template5Component  implements AfterViewInit{
   }
 
   onVendorSelectionChange() {
-    // No need to store vendor ID separately since legalName now contains the vendor ID
+    // Update Previous CGB Item Reference options when vendor changes
+    this.updatePreviousCGBItemOptions();
+    
+    // If a linked paper is selected and it's a Contract Award with split award,
+    // recalculate the contract value based on the new vendor selection
+    const previousCGBItemRefNo = this.generalInfoForm.get('generalInfo.previousCGBItemRefNo')?.value;
+    if (previousCGBItemRefNo) {
+      const linkedPaper = this.paperMappingData.find(p => p.paperID?.toString() === previousCGBItemRefNo.toString());
+      if (linkedPaper && linkedPaper.paperType === 'Contract Award') {
+        // Re-populate contract value for split award scenario
+        this.populateContractValueFromLinkedPaper(Number(previousCGBItemRefNo));
+      }
+    }
+  }
+
+  setupPreviousCGBItemReference() {
+    // Fetch all papers for mapping
+    this.paperService.getApprovedPapersForMapping().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.paperMappingData = response.data || [];
+          // Initial update based on current vendor selection
+          this.updatePreviousCGBItemOptions();
+        }
+      },
+      error: (error) => {
+        console.log('error fetching papers for mapping', error);
+      }
+    });
+
+    // Subscribe to legalName changes to update options
+    this.generalInfoForm.get('generalInfo.legalName')?.valueChanges.subscribe(() => {
+      this.updatePreviousCGBItemOptions();
+    });
+  }
+
+  updatePreviousCGBItemOptions() {
+    const selectedVendorId = this.generalInfoForm.get('generalInfo.legalName')?.value;
+    
+    if (!selectedVendorId || !this.paperMappingData.length) {
+      this.previousCGBItemOptions = [];
+      return;
+    }
+
+    // Find the vendor's legal name
+    const selectedVendor = this.vendorList.find(v => v.id === Number(selectedVendorId));
+    const vendorLegalName = selectedVendor?.legalName;
+
+    if (!vendorLegalName) {
+      this.previousCGBItemOptions = [];
+      return;
+    }
+
+    // Filter papers by same vendor (legalName)
+    // Filter by paperType = "Info Note" (template5 papers) and excluding Draft/Withdrawn
+    // Also filter by vendorId if available in the API response
+    const filteredPapers = this.paperMappingData.filter((item) => {
+      // Exclude current paper if editing
+      if (this.paperId && item.paperID?.toString() === this.paperId) {
+        return false;
+      }
+      
+      // Basic filters
+      if (item.paperStatusName === "Draft" || item.paperStatusName === "Withdrawn") {
+        return false;
+      }
+      
+      if (item.paperType !== "Info Note") {
+        return false;
+      }
+      
+      // Filter by vendorId if available in the response
+      // If vendorId is available, match it with selected vendor
+      if (item.vendorId !== undefined && item.vendorId !== null) {
+        return Number(item.vendorId) === Number(selectedVendorId);
+      }
+      
+      // If vendorId not available, include all Info Note papers (vendor filtering will need backend support)
+      return true;
+    });
+
+    // Create formatted options for Select2
+    this.previousCGBItemOptions = filteredPapers.map((item) => {
+      const refNo = item.paperID.toString();
+      const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
+      const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
+      
+      const label = `${refNo}, ${title}, ${date}`;
+      
+      return {
+        value: refNo,
+        label: label
+      };
+    });
+  }
+
+  onPreviousCGBItemSelected(event: any) {
+    // The form control already has the value set (Ref. No as string)
+    const selectedPaperId = event;
+    if (selectedPaperId) {
+      this.populateContractValueFromLinkedPaper(Number(selectedPaperId));
+    } else {
+      // Clear contract value if no paper is selected
+      this.generalInfoForm.get('generalInfo.contractValue')?.setValue(null);
+    }
+  }
+
+  populateContractValueFromLinkedPaper(paperId: number) {
+    // Find the paper from mapping data to determine its type
+    const linkedPaper = this.paperMappingData.find(p => p.paperID === paperId);
+    
+    if (!linkedPaper) {
+      return;
+    }
+
+    const paperType = linkedPaper.paperType;
+    const contractValueControl = this.generalInfoForm.get('generalInfo.contractValue');
+
+    // Fetch paper details based on type
+    let apiType = '';
+    if (paperType === 'Approach to Market') {
+      apiType = 'approch';
+    } else if (paperType === 'Contract Award') {
+      apiType = 'contract';
+    } else if (paperType === 'Variation') {
+      apiType = 'variation';
+    } else {
+      return;
+    }
+
+    this.paperService.getPaperDetails(paperId, apiType).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const paperData = response.data as any;
+          let contractValue = null;
+
+          if (paperType === 'Approach to Market') {
+            // Linked AtM: Take Contract Value
+            const generalInfo = paperData?.paperDetails || null;
+            contractValue = generalInfo?.contractValue || null;
+          } else if (paperType === 'Contract Award') {
+            // Linked Award: Take Award Value or Award Value for selected Vendor (if Split Award)
+            const generalInfo = paperData?.paperDetails || null;
+            const isSplitAward = generalInfo?.isSplitAward || false;
+            const selectedVendorId = this.generalInfoForm.get('generalInfo.legalName')?.value;
+
+            if (isSplitAward && selectedVendorId) {
+              // For split award, get vendor-specific award value
+              const legalEntitiesAwarded = paperData?.legalEntitiesAwarded || [];
+              const vendorEntity = legalEntitiesAwarded.find((entity: any) => 
+                entity.vendorId === Number(selectedVendorId)
+              );
+              contractValue = vendorEntity?.totalAwardValueUSD || null;
+            } else {
+              // Use total award value
+              contractValue = generalInfo?.totalAwardValueUSD || null;
+            }
+          } else if (paperType === 'Variation') {
+            // Linked Variation: Take Total Revised Value
+            const contractValues = paperData?.contractValues || null;
+            contractValue = contractValues?.revisedContractValue || null;
+          }
+
+          if (contractValue !== null && contractValue !== undefined) {
+            contractValueControl?.setValue(Number(contractValue));
+          }
+        }
+      },
+      error: (error) => {
+        console.log('Error fetching linked paper details:', error);
+      }
+    });
   }
 
   getVendorLegalName(vendorId: number | null): string {
@@ -1131,8 +1284,8 @@ export class Template5Component  implements AfterViewInit{
         contractNumber: generalInfoValue?.contractNumber || '',
         operatingFunction: generalInfoValue?.operatingFunction,
         bltMember: generalInfoValue?.bltMember,
-        referenceNo: generalInfoValue?.referenceNo || null,
         previousCGBItemRefNo: generalInfoValue?.previousCGBItemRefNo || null,
+        contractValue: generalInfoValue?.contractValue || null,
         subSector: generalInfoValue?.subSector,
         sourcingType: generalInfoValue?.sourcingType,
         cam: generalInfoValue?.camUserId || null, //TODO
@@ -1142,8 +1295,6 @@ export class Template5Component  implements AfterViewInit{
         variationStartDate: generalInfoValue?.variationStartDate || null,
         variationEndDate: generalInfoValue?.variationEndDate || null,
         psajv: generalInfoValue?.psajv?.join(',') || "",
-        isLTCC: generalInfoValue?.isLTCC || false,
-        ltccNotes: generalInfoValue?.ltccNotes,
         procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
         pdManagerName: generalInfoValue?.pdManagerName || null,
         //ccd
