@@ -1476,6 +1476,9 @@ export class Template2Component implements AfterViewInit {
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {

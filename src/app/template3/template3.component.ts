@@ -1501,6 +1501,9 @@ export class Template3Component implements AfterViewInit {
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
@@ -1546,8 +1549,69 @@ export class Template3Component implements AfterViewInit {
   }
 
   setupPSACalculations() {
-    // Template 3 has different value groups, so calculation logic is handled per group
-    // This method can be extended if needed for specific PSA calculations
+    // Calculate By Value for costAllocation based on This Value (variation) and keep totals in sync
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        percentageControl.valueChanges.subscribe((percentageValue) => {
+          const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+          if (percentageValue >= 0 && percentageValue <= 100) {
+            const calculatedValue = (Number(percentageValue) / 100) * thisValue;
+            valueControl.setValue(calculatedValue, { emitEvent: false });
+            this.calculateTotalCostAllocation();
+            // Trigger committee logic after value is updated
+            this.triggerCommitteeLogicForPSA(psaName);
+          }
+        });
+      }
+    });
+  }
+
+  private calculateTotalCostAllocation() {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    let totalPercentage = 0;
+    let totalValue = 0;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = costAllocation.get(percentageControlName);
+      const valueControl = costAllocation.get(valueControlName);
+
+      if (percentageControl) {
+        const percentageValue = percentageControl.value;
+        if (!isNaN(percentageValue) && percentageValue !== null && percentageValue !== '') {
+          totalPercentage += Number(percentageValue);
+        }
+      }
+
+      if (valueControl) {
+        const valueValue = valueControl.value;
+        if (!isNaN(valueValue) && valueValue !== null && valueValue !== '') {
+          totalValue += Number(valueValue);
+        }
+      }
+    });
+
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+
+    if (totalPercentage !== 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ notExactly100: true });
+    } else {
+      costAllocation.get('totalPercentage')?.setErrors(null);
+    }
   }
 
   requireAllIfAny(group: AbstractControl): ValidationErrors | null {

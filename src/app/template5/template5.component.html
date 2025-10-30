@@ -586,11 +586,11 @@
                   <tr>
                     <td><b>By value $</b></td>
                     <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                      <app-number-input [disabled]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1"
+                      <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1"
                                         [formControlName]="getPSAValueControlName(psa)" placeholder="0.00"></app-number-input>
                     </td>
                     <td>
-                      <app-number-input [disabled]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
+                      <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
                     </td>
                   </tr>
 
@@ -620,36 +620,7 @@
                     <td></td>
                   </tr>
 
-                  <tr>
-                    <td><b>Steering
-                      Committee</b></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="steeringCommittee_SC" type="checkbox">
-                          <label>SCP Board</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                  </tr>
+                  
                   </tbody>
                 </table>
                 <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">

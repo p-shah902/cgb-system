@@ -1068,74 +1068,65 @@
               </svg>
             </span>
             </div>
-            <ng-container *ngIf="sectionVisibility['section7']">
-            <div *ngFor="let group of allowedGroups">
-              <h6 class="mb-3 mt-3 mx-3"><b>{{ group.label }}</b></h6>
-
-              <div class="cost-table-div custom-table table-responsive" [formGroup]="getGroupForm(group.key)">
-                <table class="table table-bordered">
-                  <thead>
-                  <tr>
-                    <th>PSA</th>
-                    <th *ngFor="let psa of psaItems"><input type="checkbox"
-                                                            [formControlName]="psa.control"> {{" "}}{{ psa.psaName }}
-                    </th>
-                    <th>Total</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                    <td><b>As%</b></td>
-                    <td *ngFor="let psa of psaItems">
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input type="number" class="form-control p-1"  oninput="if (this.value > 100) this.value = 100"
-                               [formControlName]="psa.percentage" min="0" max="100">
-                      </div>
-                    </td>
-                    <td>
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input type="number" class="form-control p-1" formControlName="totalPercentage">
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><b>By value $</b></td>
-                    <td *ngFor="let psa of psaItems">
-
-                      <app-number-input inputClass="p-1" [formControlName]="psa.value" placeholder="0.00"></app-number-input>
-
-                    </td>
-                    <td>
-
-                      <app-number-input inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
-
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div></ng-container>
-
-            <div id="section8" data-section="section8" (click)="toggleSection('section8')" class="fb-title-div cursor-pointer ft-bg3 d-flex justify-content-between align-items-center px-3 ">
-              <h4 class="mb-0">8. JV Approval</h4>
-              <span class="btn collapse-btn">
-              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                <path [attr.d]="sectionVisibility['section8'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
-              </svg>
-            </span>
-            </div>
-            <div *ngIf="sectionVisibility['section8']" class="fb-form" formGroupName="costAllocation">
+            <div *ngIf="sectionVisibility['section7']" class="fb-form allow-comments" formGroupName="costAllocation" id="cost_allocation_an_jv">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
                   <thead>
                   <tr>
                     <th>PSA</th>
-                    <th *ngFor="let psa of getSelectedPSAJVColumns()">{{ psa }}</th>
+                    <th *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                        <div class="form-check-box position-relative">
+                          <input [formControlName]="getPSACheckboxControlName(psa)" type="checkbox" readonly>
+                          <label>{{ psa }}</label>
+                        </div>
+                      </div>
+                    </th>
+                    <th>
+                      <b>Total</b>
+                    </th>
                   </tr>
                   </thead>
                   <tbody>
+                  <tr>
+                    <td><b>As%</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div class="input-group">
+                        <span class="input-group-text">%</span>
+                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
+                               max="100" type="number" placeholder="%"
+                               [formControlName]="getPSAPercentageControlName(psa)">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="input-group"
+                           [ngClass]="{'is-invalid': generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')}">
+                        <span class="input-group-text">%</span>
+                        <input
+                          oninput="if (this.value > 100) this.value = 100"
+                          class="form-control p-1"
+                          [class.is-invalid]="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')"
+                          readonly
+                          placeholder="%"
+                          min="0"
+                          max="100"
+                          type="number"
+                          formControlName="totalPercentage">
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><b>By value $</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1"
+                                        [formControlName]="getPSAValueControlName(psa)" placeholder="0.00"></app-number-input>
+                    </td>
+                    <td>
+                      <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
+                    </td>
+                  </tr>
+
                   <tr>
                     <td><b>1st Committee</b></td>
                     <td *ngFor="let psa of getSelectedPSAJVColumns()">
@@ -1146,7 +1137,10 @@
                         </div>
                       </div>
                     </td>
+                    <td>
+                    </td>
                   </tr>
+
                   <tr>
                     <td><b>2nd Committee</b></td>
                     <td *ngFor="let psa of getSelectedPSAJVColumns()">
@@ -1157,11 +1151,18 @@
                         </div>
                       </div>
                     </td>
+                    <td>
+                    </td>
                   </tr>
                   </tbody>
                 </table>
+                <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
+                  <small class="text-danger">Total percentage must be exactly 100%.</small>
+                </div>
               </div>
             </div>
+
+            
 
             <div id="section9" data-section="section9" (click)="toggleSection('section9')" class="fb-title-div cursor-pointer ft-bg3 d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">9. Consultation</h4>

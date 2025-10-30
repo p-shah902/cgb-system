@@ -511,6 +511,9 @@ export class Template5Component  implements AfterViewInit{
         this.addPSAJVFormControls(psaName);
         const checkboxControlName = this.getPSACheckboxControlName(psaName);
         costAllocationControl.get(checkboxControlName)?.setValue(true);
+        // Ensure As% (percentage) input is enabled like template1
+        const percentageControlName = this.getPSAPercentageControlName(psaName);
+        costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
         this.addConsultationRowOnChangePSAJV(psaName);
       });
     }
