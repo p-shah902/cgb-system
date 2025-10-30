@@ -1,6 +1,6 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit} from '@angular/core';
-import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
-import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
+import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit } from '@angular/core';
+import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
+import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
   FormBuilder,
   FormArray,
@@ -10,52 +10,52 @@ import {
   AbstractControl,
   ValidationErrors, FormsModule
 } from '@angular/forms';
-import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
-import {CommonModule} from '@angular/common';
-import {environment} from '../../environments/environment';
-import {Select2} from 'ng-select2-component';
-import {DictionaryService} from '../../service/dictionary.service';
-import {Generalervice} from '../../service/general.service';
-import {UploadService} from '../../service/document.service';
-import {ToastService} from '../../service/toast.service';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {DictionaryDetail} from '../../models/dictionary';
-import {LoginUser, UserDetails} from '../../models/user';
-import {UserService} from '../../service/user.service';
-import {PaperService} from '../../service/paper.service';
-import {CountryDetail} from '../../models/general';
-import {PaperMappingType, PaperStatusType, PSAEntry} from '../../models/paper';
-import {VendorService} from '../../service/vendor.service';
-import {VendorDetail} from '../../models/vendor';
-import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
-import {EditorComponent} from '../../components/editor/editor.component';
-import {CommentableDirective} from '../../directives/commentable.directive';
-import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
-import {PaperConfigService} from '../../service/paper/paper-config.service';
-import {CommentService} from '../../service/comment.service';
-import {EditorService} from '../../service/editor.service';
-import {AuthService} from '../../service/auth.service';
-import {format} from 'date-fns';
-import {BehaviorSubject} from 'rxjs';
-import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
-import {cleanObject, base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
-import {ThresholdType} from '../../models/threshold';
-import {ThresholdService} from '../../service/threshold.service';
-import {ToggleService} from '../shared/services/toggle.service';
-import {CURRENCY_LIST} from '../../utils/constant';
+import { NgbModal, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
+import { Select2 } from 'ng-select2-component';
+import { DictionaryService } from '../../service/dictionary.service';
+import { Generalervice } from '../../service/general.service';
+import { UploadService } from '../../service/document.service';
+import { ToastService } from '../../service/toast.service';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { DictionaryDetail } from '../../models/dictionary';
+import { LoginUser, UserDetails } from '../../models/user';
+import { UserService } from '../../service/user.service';
+import { PaperService } from '../../service/paper.service';
+import { CountryDetail } from '../../models/general';
+import { PaperMappingType, PaperStatusType, PSAEntry } from '../../models/paper';
+import { VendorService } from '../../service/vendor.service';
+import { VendorDetail } from '../../models/vendor';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
+import { EditorComponent } from '../../components/editor/editor.component';
+import { CommentableDirective } from '../../directives/commentable.directive';
+import { EditorNormalComponent } from '../../components/editor-normal/editor-normal.component';
+import { PaperConfigService } from '../../service/paper/paper-config.service';
+import { CommentService } from '../../service/comment.service';
+import { EditorService } from '../../service/editor.service';
+import { AuthService } from '../../service/auth.service';
+import { format } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
+import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
+import { cleanObject, base64ToFile, getMimeTypeFromFileName } from '../../utils/index';
+import { ThresholdType } from '../../models/threshold';
+import { ThresholdService } from '../../service/threshold.service';
+import { ToggleService } from '../shared/services/toggle.service';
+import { CURRENCY_LIST } from '../../utils/constant';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {NumberInputComponent} from '../../components/number-input/number-input.component';
+import { NumberInputComponent } from '../../components/number-input/number-input.component';
 import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
 
 @Component({
   selector: 'app-template3',
   standalone: true,
-  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip],
+  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip],
   templateUrl: './template3.component.html',
   styleUrl: './template3.component.scss'
 })
-export class Template3Component  implements AfterViewInit {
+export class Template3Component implements AfterViewInit {
   @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
 
   private readonly userService = inject(UserService);
@@ -124,20 +124,20 @@ export class Template3Component  implements AfterViewInit {
   };
   paperMappingData: PaperMappingType[] = [];
 
-  psaItems: Array<{psaName: string, control: string, percentage: string, value: string}> = [];
+  psaItems: Array<{ psaName: string, control: string, percentage: string, value: string }> = [];
 
   allowedGroups = [
-    {key: 'originalValue', label: 'Original Value'},
-    {key: 'previousValue', label: 'Previous Value'},
-    {key: 'thisValue', label: 'This Value'},
-    {key: 'revisedValue', label: 'Revised Value'}
+    { key: 'originalValue', label: 'Original Value' },
+    { key: 'previousValue', label: 'Previous Value' },
+    { key: 'thisValue', label: 'This Value' },
+    { key: 'revisedValue', label: 'Revised Value' }
   ];
 
 
   public psaJvOptions: { value: string; label: string }[] = [];
 
-  constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
-              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+  constructor(private router: Router, private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+    private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -257,7 +257,7 @@ export class Template3Component  implements AfterViewInit {
       Link
     } = cloud.CKEditor;
 
-    const {FormatPainter} = cloud.CKEditorPremiumFeatures;
+    const { FormatPainter } = cloud.CKEditorPremiumFeatures;
 
     this.Editor = ClassicEditor;
     this.config = {
@@ -275,7 +275,7 @@ export class Template3Component  implements AfterViewInit {
         supportAllValues: true
       },
       ui: {
-        viewportOffset: {top: 50, bottom: 50}  // Adjust editor's viewport
+        viewportOffset: { top: 50, bottom: 50 }  // Adjust editor's viewport
       }
     };
   }
@@ -302,10 +302,11 @@ export class Template3Component  implements AfterViewInit {
         isTEToCompleteBidding: [false],
         teToCompleteBiddingJustification: [''],
         isChangeInRates: [false],
-        cgbItemRefNo: [{value: '', disabled: true}],
-        cgbCirculationDate: [{value: '', disabled: true}],
+        cgbItemRefNo: [{ value: '', disabled: true }],
+        cgbCirculationDate: [{ value: '', disabled: true }],
         cgbAwardRefNo: [null, Validators.required],
         cgbApprovalDate: [null],
+        otherRelatedCgbPapers: [''],
         fullLegalName: ['', Validators.required],
         contractNo: [''],
         globalCGB: ['', Validators.required],
@@ -429,7 +430,7 @@ export class Template3Component  implements AfterViewInit {
   }
 
 
-getGroupForm(key: string): FormGroup {
+  getGroupForm(key: string): FormGroup {
     return this.generalInfoForm.get(key) as FormGroup;
   }
 
@@ -453,15 +454,20 @@ getGroupForm(key: string): FormGroup {
 
   updateCgbApprovalDate(id: number | null) {
     const cgbAward = this.paperMappingData.find((item) => item.paperID == id)
-    if(!cgbAward || !id) {
+    if (!cgbAward || !id) {
       return
     }
-    const convertedValue =  cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
+    const convertedValue = cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
   }
 
   onPopulateFromContract() {
+    const vendorSelected = this.generalInfoForm.get('generalInfo.fullLegalName')?.value;
     const cgbAwardRefNo = this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value;
+    if (!vendorSelected) {
+      this.toastService.show('Please select Legal Name (Vendor) first', 'warning');
+      return;
+    }
     if (!cgbAwardRefNo) {
       this.toastService.show('Please select CGB Award Ref No first', 'warning');
       return;
@@ -531,6 +537,7 @@ getGroupForm(key: string): FormGroup {
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
           purposeRequired: contractGeneralInfo?.purposeRequired || '',
+          otherRelatedCgbPapers: contractGeneralInfo?.otherRelatedCgbPapers || '',
           fullLegalName: contractGeneralInfo?.vendorId || null,
           contractNo: contractGeneralInfo?.contractNo || '',
           globalCGB: contractGeneralInfo?.globalCGB || '',
@@ -677,7 +684,9 @@ getGroupForm(key: string): FormGroup {
   }
 
   onVendorSelectionChange() {
-    // No need to store vendor ID separately since fullLegalName now contains the vendor ID
+    // Reset dependent fields when vendor changes to enforce selection order
+    this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.setValue(null);
+    this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(null);
   }
 
   getVendorLegalName(vendorId: number | null): string {
@@ -723,7 +732,7 @@ getGroupForm(key: string): FormGroup {
     this.paperService.getApprovedPapersForMapping().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          if(response.data && response.data.length > 0) {
+          if (response.data && response.data.length > 0) {
             this.paperMappingData = response.data.filter((item) => item.paperType == "Contract Award")
           }
           this.incrementAndCheck();
@@ -921,6 +930,7 @@ getGroupForm(key: string): FormGroup {
           generalInfo: {
             paperProvision: generatlInfoData.paperProvision || "",
             purposeRequired: generatlInfoData.purposeRequired || "",
+            otherRelatedCgbPapers: generatlInfoData?.otherRelatedCgbPapers || '',
             isChangeinSOW: generatlInfoData.isChangeinSOW || false,
             isIncreaseInValue: generatlInfoData.isIncreaseInValue || false,
             isExtensionOfDuration: generatlInfoData.isExtensionOfDuration || false,
@@ -1532,7 +1542,7 @@ getGroupForm(key: string): FormGroup {
       const hasValue = values.some(val => val);  // If at least one field has a value
       const allFilled = values.every(val => val); // If all fields are filled
 
-      return hasValue && !allFilled ? {requireAllFields: true} : null;
+      return hasValue && !allFilled ? { requireAllFields: true } : null;
     };
 
     // Apply validation for each group separately
@@ -1569,7 +1579,7 @@ getGroupForm(key: string): FormGroup {
         paperProvision: generalInfoValue?.paperProvision || "",
         purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
-        ...(this.paperId && !this.isCopy ? {id: Number(this.paperId)} : {})
+        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
       variationPaper: {
         isChangeinSOW: generalInfoValue?.isChangeinSOW || false,
@@ -1581,6 +1591,7 @@ getGroupForm(key: string): FormGroup {
         cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
         cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
         cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
+        otherRelatedCgbPapers: generalInfoValue?.otherRelatedCgbPapers || '',
         fullLegalName: this.getVendorLegalName(generalInfoValue?.fullLegalName) || '',
         contractNo: generalInfoValue?.contractNo || '',
         globalCGB: generalInfoValue?.globalCGB,
@@ -1776,7 +1787,7 @@ getGroupForm(key: string): FormGroup {
         this.renderer.addClass(matchingLabel, this.highlightClass);
 
         // Scroll into view
-        matchingLabel.scrollIntoView({behavior: 'smooth', block: 'center'});
+        matchingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 500); // Adjust delay as needed
   }
@@ -1786,12 +1797,12 @@ getGroupForm(key: string): FormGroup {
     const section = document.getElementById(selectedValue);
 
     if (section) {
-      section.scrollIntoView({behavior: 'smooth', block: 'start'});
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
   scrollToTop(): void {
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   get generalInfo() {
@@ -1861,7 +1872,7 @@ getGroupForm(key: string): FormGroup {
         riskMitigationArray.push(
           this.fb.group({
             psa: [item.psa, Validators.required],
-            technicalCorrect: [{value: item.technicalCorrectId, disabled: false}, Validators.required],
+            technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
             id: [item.id]
@@ -1876,7 +1887,7 @@ getGroupForm(key: string): FormGroup {
       this.consultationRows.push(
         this.fb.group({
           psa: ['', Validators.required],
-          technicalCorrect: [{value: camUserId ? Number(camUserId) : null, disabled: false}, Validators.required],
+          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
           id: [0]
@@ -1902,13 +1913,13 @@ getGroupForm(key: string): FormGroup {
         size: 'lg', // Adjust size as needed (sm, lg, xl)
       })
       .result.then(
-      (result) => {
-        // Handle modal close
-      },
-      (reason) => {
-        // Handle modal dismiss
-      }
-    );
+        (result) => {
+          // Handle modal close
+        },
+        (reason) => {
+          // Handle modal dismiss
+        }
+      );
 
     if (paperId) {
       this.selectedPaper = paperId;
@@ -2022,7 +2033,7 @@ getGroupForm(key: string): FormGroup {
         const reader = new FileReader();
         reader.onload = (e) => {
           const fileType = getMimeTypeFromFileName(file.name);
-          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'),id: null });
+          this.selectedFiles.push({ file, name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
         };
         reader.readAsDataURL(file);
       });
@@ -2049,7 +2060,7 @@ getGroupForm(key: string): FormGroup {
         reader.onload = (e) => {
           const fileType = getMimeTypeFromFileName(file.name);
 
-          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
+          this.selectedFiles.push({ file, name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
         };
         reader.readAsDataURL(file);
       });
@@ -2059,7 +2070,7 @@ getGroupForm(key: string): FormGroup {
   // Remove a selected file
   removeFile(index: number, file: any = null) {
     this.selectedFiles.splice(index, 1);
-    if(file.id && !this.isCopy) {
+    if (file.id && !this.isCopy) {
       this.deletedFiles.push(Number(file.id))
     }
   }

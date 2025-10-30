@@ -178,7 +178,7 @@
                   <div class="form-group mb-3">
                     <label>Previous CGB Ref No*</label>
                     <div class="d-flex gap-2">
-                      <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo"
+                      <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo" [disabled]="!generalInfoForm.get('generalInfo.fullLegalName')?.value"
                               [style.flex]="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value ? '1' : 'auto'">
                         <option [value]="null">Select</option>
                         <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
@@ -187,7 +187,7 @@
                           </option>
                         </ng-container>
                       </select>
-                      <button type="button" class="btn btn-primary" (click)="onPopulateFromContract()"
+                      <button type="button" class="btn btn-primary" (click)="onPopulateFromContract()" [disabled]="!generalInfoForm.get('generalInfo.fullLegalName')?.value || !generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
                               *ngIf="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
                               style="white-space: nowrap;">
                         Populate
@@ -204,6 +204,13 @@
                     <label>Previous CGB Approval Date</label>
                     <input id="cgbApprovalDate" type="date" class="form-control"
                            formControlName="cgbApprovalDate" placeholder="" readonly/>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Other Related CGB Papers</label>
+                    <textarea id="otherRelatedCgbPapers" class="form-control allow-comments" placeholder="Write here"
+                              formControlName="otherRelatedCgbPapers"></textarea>
                   </div>
                 </div>
                 <div class="col-md-12">
