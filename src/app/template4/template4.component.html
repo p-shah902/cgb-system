@@ -138,21 +138,22 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
+                    <label>CGB Circulation Date</label>
+                    <div class="date-input position-relative">
+                      <input id="cgbCirculationDate" type="date" class="form-control"
+                             formControlName="cgbCirculationDate" placeholder=""/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
                     <label>Reference Number*</label>
                     <input id="referenceNo" type="text" class="form-control allow-comments" placeholder="Ref Number"
                            formControlName="referenceNo"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('referenceNo')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>CGB Circulation Date</label>
-                    <div class="date-input position-relative">
-                      <input id="cgbCirculationDate" type="date" class="form-control"
-                             formControlName="cgbCirculationDate" placeholder=""/>
                     </div>
                   </div>
                 </div>
@@ -346,22 +347,6 @@
                   </div>
                 </div>
 
-                <div class="col-md-12">
-                  <div class="form-group mb-3">
-                    <div class="form-check-list d-flex gap-3 flex-wrap">
-                      <div class="form-check-box position-relative">
-                        <input id="isIFRS16" class="allow-comments" type="checkbox" name="isIFRS16"
-                               formControlName="isIFRS16">
-                        <label>IFRS16 Impact Compliance</label>
-                      </div>
-                      <div class="form-check-box position-relative">
-                        <input id="isGIAAPCheck" class="allow-comments" type="checkbox" name="isGIAAPCheck"
-                               formControlName="isGIAAPCheck">
-                        <label>GIAAP Compliance Check</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
 
               </div>

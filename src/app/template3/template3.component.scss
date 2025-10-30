@@ -26,3 +26,9 @@
 .btn-toggle:hover {
   background: #451c82;
 }
+
+/* Increase PSA header font size in JV Approval (Section 8) */
+#section8 .custom-table thead th {
+  font-size: 16px;
+  font-weight: 600;
+}
