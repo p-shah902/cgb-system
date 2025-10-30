@@ -37,6 +37,7 @@ import {VendorDetail} from '../../models/vendor';
 import {BehaviorSubject} from 'rxjs';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {EditorComponent} from '../../components/editor/editor.component';
+import {NumberInputComponent} from '../../components/number-input/number-input.component';
 import {CommentableDirective} from '../../directives/commentable.directive';
 import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
@@ -49,7 +50,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-template5',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
+  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
   templateUrl: './template5.component.html',
   styleUrl: './template5.component.scss'
 })
@@ -1094,6 +1095,7 @@ export class Template5Component  implements AfterViewInit{
             technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
+            jvAligned: [{ value: (item as any).jvAligned || false, disabled: true }],
             id: [item.id]
           })
         );
@@ -1109,9 +1111,30 @@ export class Template5Component  implements AfterViewInit{
           technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
+          jvAligned: [{ value: false, disabled: true }],
           id: [0]
         })
       );
+    }
+  }
+
+  canEditJVAligned(jvReviewUserId: number | null): boolean {
+    if (!this.loggedInUser || !jvReviewUserId) {
+      return false;
+    }
+    return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+    const row = this.consultationRows.at(rowIndex);
+    const jvAlignedControl = row.get('jvAligned');
+    if (jvAlignedControl) {
+      if (this.canEditJVAligned(jvReviewUserId)) {
+        jvAlignedControl.enable();
+      } else {
+        jvAlignedControl.disable();
+        jvAlignedControl.setValue(false);
+      }
     }
   }
 

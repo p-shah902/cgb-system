@@ -608,11 +608,11 @@
                   <tr>
                     <td><b>By value $</b></td>
                     <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                      <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1"
+                      <app-number-input [disabled]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1"
                                         [formControlName]="getPSAValueControlName(psa)" placeholder="0.00"></app-number-input>
                     </td>
                     <td>
-                      <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
+                      <app-number-input [disabled]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
                     </td>
                   </tr>
 
@@ -706,7 +706,7 @@
                       <th>Technically Correct</th>
                       <th>Budget Statement</th>
                       <th>JV Review</th>
-                      <th>Action</th>
+                      <th>JV Aligned</th>
                     </tr>
                     </thead>
                     <tbody formArrayName="consultation">
@@ -742,7 +742,7 @@
                         </select>
                       </td>
                       <td>
-                        <select class="form-control" formControlName="jvReview">
+                        <select class="form-control" formControlName="jvReview" (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
                           <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
@@ -752,15 +752,11 @@
                         </select>
                       </td>
                       <td>
-                        <div class="krt-action">
-                          <button class="btn p-0" type="button" (click)="removeConsultationRow(i)">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                                fill="#EC4747"/>
-                            </svg>
-                          </button>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" formControlName="jvAligned"
+                                 [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
+                                 (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
+                          <label class="form-check-label">JV Aligned</label>
                         </div>
                       </td>
                     </tr>

@@ -1863,6 +1863,7 @@ getGroupForm(key: string): FormGroup {
             technicalCorrect: [{value: item.technicalCorrectId, disabled: false}, Validators.required],
             budgetStatement: [item.budgetStatementId, Validators.required],
             jvReview: [item.jvReviewId, Validators.required],
+            jvAligned: [{ value: (item as any).jvAligned || false, disabled: true }],
             id: [item.id]
           })
         );
@@ -1878,9 +1879,30 @@ getGroupForm(key: string): FormGroup {
           technicalCorrect: [{value: camUserId ? Number(camUserId) : null, disabled: false}, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
+          jvAligned: [{ value: false, disabled: true }],
           id: [0]
         })
       );
+    }
+  }
+
+  canEditJVAligned(jvReviewUserId: number | null): boolean {
+    if (!this.loggedInUser || !jvReviewUserId) {
+      return false;
+    }
+    return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+    const row = this.consultationRows.at(rowIndex);
+    const jvAlignedControl = row.get('jvAligned');
+    if (jvAlignedControl) {
+      if (this.canEditJVAligned(jvReviewUserId)) {
+        jvAlignedControl.enable();
+      } else {
+        jvAlignedControl.disable();
+        jvAlignedControl.setValue(false);
+      }
     }
   }
 
