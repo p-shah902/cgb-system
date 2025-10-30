@@ -125,14 +125,7 @@ export class Template5Component  implements AfterViewInit{
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
-  public psaJvOptions = [
-    {value: 'ACG', label: 'ACG'},
-    {value: 'Shah Deniz', label: 'Shah Deniz'},
-    {value: 'SCP', label: 'SCP'},
-    {value: 'BTC', label: 'BTC'},
-    {value: 'Sh-Asiman', label: 'Sh-Asiman'},
-    {value: 'BP Group', label: 'BP Group'}
-  ];
+  public psaJvOptions: { value: string; label: string }[] = [];
 
 
   public ngOnInit(): void {
@@ -328,33 +321,15 @@ export class Template5Component  implements AfterViewInit{
         steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
       });
 
-      // PSA/JV mappings
-      const psaNameToCheckbox: Record<string, string> = {
-        "ACG": "isACG",
-        "Shah Deniz": "isShah",
-        "SCP": "isSCP",
-        "BTC": "isBTC",
-        "Asiman": "isAsiman",
-        "BP Group": "isBPGroup"
-      };
-
-      // Assign PSA/JV values dynamically
-      costAllocationJVApprovalData.forEach(psa => {
-        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      // Assign PSA/JV values dynamically using helper names
+      costAllocationJVApprovalData.forEach((psa: any) => {
+        const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+        const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+        const valueKey = this.getPSAValueControlName(psa.psaName);
         if (checkboxKey) {
           patchValues.costAllocation[checkboxKey] = psa.psaValue;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
-          patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
-        }
-      });
-
-      // Assign default values for all PSA/JV fields if not in API data
-      Object.keys(psaNameToCheckbox).forEach(key => {
-        const checkboxKey = psaNameToCheckbox[key];
-        if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
-          patchValues.costAllocation[checkboxKey] = false;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
-          patchValues.costAllocation[`value_${checkboxKey}`] = '';
+          patchValues.costAllocation[percentageKey] = psa.percentage;
+          patchValues.costAllocation[valueKey] = psa.value;
         }
       });
 
@@ -517,30 +492,17 @@ export class Template5Component  implements AfterViewInit{
 
   onSelectChangePSAJV() {
     const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-
-    const costAllocationControl = this.generalInfoForm.get('costAllocation');
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
     if (costAllocationControl) {
-      const mapping: { [key: string]: string } = {
-        "ACG": "isACG",
-        "Shah Deniz": "isShah",
-        "SCP": "isSCP",
-        "BTC": "isBTC",
-        "Sh-Asiman": "isAsiman",
-        "BP Group": "isBPGroup"
-      };
-
-      Object.keys(mapping).forEach((key) => {
-        const controlName = mapping[key];
-        const isSelected = selectedOptions.includes(key);
-        costAllocationControl.get(controlName)?.setValue(isSelected);
-        if (isSelected) {
-          this.addConsultationRowOnChangePSAJV(key);
-        } else {
-          this.removeConsultationRowByPSAJV(key);
-        }
+      selectedOptions.forEach((psaName: string) => {
+        this.addPSAJVFormControls(psaName);
+        const checkboxControlName = this.getPSACheckboxControlName(psaName);
+        costAllocationControl.get(checkboxControlName)?.setValue(true);
+        this.addConsultationRowOnChangePSAJV(psaName);
       });
     }
-
+    this.setupPSAListeners();
+    this.setupPSACalculations();
   }
 
   addConsultationRowOnChangePSAJV(jvValue: string) {
@@ -871,6 +833,7 @@ export class Template5Component  implements AfterViewInit{
 
             case 'PSA':
               this.psaData = (response.data || []).filter(item => item.isActive);
+              this.psaJvOptions = this.psaData.map(item => ({ value: item.itemValue, label: item.itemValue }));
               break;
 
             case 'Sourcing Type':
@@ -891,6 +854,106 @@ export class Template5Component  implements AfterViewInit{
         console.log('Error:', error);
       }
     });
+  }
+
+  // Dynamic PSA helpers (mirroring template1/template2)
+  getSelectedPSAJVColumns(): string[] {
+    if (!this.generalInfoForm || !this.generalInfoForm.get('generalInfo.psajv')) {
+      return [];
+    }
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    return selectedPSAJV;
+  }
+
+  getPSACheckboxControlName(psa: string): string {
+    if (!psa) return '';
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `is${cleanName}`;
+  }
+
+  getPSAPercentageControlName(psa: string): string {
+    if (!psa) return '';
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `percentage_is${cleanName}`;
+  }
+
+  getPSAValueControlName(psa: string): string {
+    if (!psa) return '';
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `value_is${cleanName}`;
+  }
+
+  getPSAControlSuffix(psa: string): string {
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `is${cleanName}`;
+  }
+
+  hasFirstCommitteeCheckbox(psa: string): boolean {
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp', 'btc'].includes(psaLower);
+  }
+
+  hasSecondCommitteeCheckbox(psa: string): boolean {
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp'].includes(psaLower);
+  }
+
+  getFirstCommitteeControlName(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'coVenturers_CMC',
+      'shah deniz': 'contractCommittee_SDCC',
+      'scp': 'contractCommittee_SCP_Co_CC',
+      'btc': 'contractCommittee_BTC_CC'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  getFirstCommitteeLabel(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'CMC',
+      'shah deniz': 'SDCC',
+      'scp': 'SCP Co CC',
+      'btc': 'BTC CC'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  getSecondCommitteeControlName(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'steeringCommittee_SC',
+      'shah deniz': 'coVenturers_SDMC',
+      'scp': 'coVenturers_SCP'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  getSecondCommitteeLabel(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'SC',
+      'shah deniz': 'SDMC',
+      'scp': 'SCP Board'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  // Add PSA controls dynamically into costAllocation group
+  addPSAJVFormControls(psaName: string): void {
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (costAllocationControl) {
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      if (!costAllocationControl.get(checkboxControlName)) {
+        costAllocationControl.addControl(checkboxControlName, this.fb.control({ value: true, disabled: true }));
+      }
+      if (!costAllocationControl.get(percentageControlName)) {
+        costAllocationControl.addControl(percentageControlName, this.fb.control({ value: '', disabled: false }, [Validators.min(0), Validators.max(100)]));
+      }
+      if (!costAllocationControl.get(valueControlName)) {
+        costAllocationControl.addControl(valueControlName, this.fb.control(null));
+      }
+    }
   }
 
 
