@@ -191,6 +191,7 @@ export class Template2Component implements AfterViewInit {
     this.setupValueDeliveryRemarksValidation()
     this.setupScoreThresholdSync()
     this.setupTechnicalGoNoGoAutoUpdate()
+    this.setupJVAlignedAutoReset()
 
 
     // Note: Exchange rate is always manually entered, no auto-population from currency
@@ -239,6 +240,19 @@ export class Template2Component implements AfterViewInit {
     this.subscribeToTotalAwardValueChanges();
 
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   ngAfterViewInit() {
     const options = {

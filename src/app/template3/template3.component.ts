@@ -219,8 +219,22 @@ export class Template3Component implements AfterViewInit {
     this.onCurrencyLinktoBaseCostChange()
     this.onConflictofInterestChange()
     this.onApprovalChange()
+    this.setupJVAlignedAutoReset()
 
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   ngAfterViewInit() {
     const options = {

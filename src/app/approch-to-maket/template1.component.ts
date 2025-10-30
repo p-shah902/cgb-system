@@ -186,6 +186,7 @@ export class Template1Component implements AfterViewInit  {
     this.loadThresholdData()
     this.loadBatchPapersList();
     this.loadVendorData();
+    this.setupJVAlignedAutoReset();
 
     let camId = null
 
@@ -351,6 +352,19 @@ export class Template1Component implements AfterViewInit  {
       }, 1000)
     }
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   loadBatchPapersList() {
     this.batchPaperService.getBatchPapersList().subscribe({

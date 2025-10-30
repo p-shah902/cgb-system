@@ -240,9 +240,23 @@ export class Template4Component  implements AfterViewInit{
     this.setupPSAListeners()
     this.setupPSACalculations()
     this.onLTCCChange()
+    this.setupJVAlignedAutoReset()
     // this.alignGovChange()
 
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   ngAfterViewInit() {
     const options = {
