@@ -45,6 +45,7 @@ import {cleanObject, base64ToFile, getMimeTypeFromFileName} from '../../utils/in
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
+import { PermissionService } from '../shared/services/permission.service';
 
 @Component({
   selector: 'app-template4',
@@ -111,6 +112,7 @@ export class Template4Component  implements AfterViewInit{
   };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+              public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;

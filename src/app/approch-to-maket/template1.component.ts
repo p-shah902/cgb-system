@@ -41,11 +41,13 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 import { EditorService } from '../../service/editor.service';
 import { CommentService } from '../../service/comment.service';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 import { AuthService } from '../../service/auth.service';
 import { ThresholdService } from '../../service/threshold.service';
 import { ThresholdType } from '../../models/threshold';
 import { cleanObject } from '../../utils';
 import {ToggleService} from '../shared/services/toggle.service';
+import { PermissionService } from '../shared/services/permission.service';
 import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
 import {BatchService} from '../../service/batch.service';
@@ -56,7 +58,7 @@ import { VendorDetail } from '../../models/vendor';
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule],
+  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule, ActionBarComponent],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -131,7 +133,8 @@ export class Template1Component implements AfterViewInit  {
 
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
-              private batchPaperService: BatchService
+              private batchPaperService: BatchService,
+              public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;

@@ -1339,17 +1339,25 @@
                   </button>
                 </ng-container>
                 <ng-container *ngIf="paperId && !isCopy">
+                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)"
+                          *ngIf="permission.canShowDraftRegisterInEdit(paperDetails?.paperDetails?.paperStatusName)">
+                    Draft
+                  </button>
+                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
+                          *ngIf="permission.canShowDraftRegisterInEdit(paperDetails?.paperDetails?.paperStatusName)">
+                    Register
+                  </button>
                   <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag'|| loggedInUser?.roleName === 'Secretary') && (paperDetails?.paperDetails?.paperStatusName === 'Registered' || paperDetails?.paperDetails?.paperStatusName === 'Withdrawn')">
+                          *ngIf="permission.canShowArchive(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName)">
                     Archive
                   </button>
                   <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
+                          *ngIf="permission.canShowSendForPDM(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName)">
                     Send For
                     PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review' : 'Approval'}}
                   </button>
                   <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
+                          *ngIf="permission.canShowUpdate(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName)">
                     Update
                   </button>
 

@@ -1,0 +1,81 @@
+<div class="ff-btn-list d-flex gap-3 justify-content-end">
+  <!-- Create mode: show Draft/Register -->
+  <ng-container *ngIf="!paperId || (paperId && isCopy)">
+    <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')">
+      Draft
+    </button>
+    <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')">
+      Register
+    </button>
+  </ng-container>
+
+  <!-- Edit mode -->
+  <ng-container *ngIf="paperId && !isCopy">
+    <!-- Draft/Register when not Registered -->
+    <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')"
+            *ngIf="permission.canShowDraftRegisterInEdit(statusName)">
+      Draft
+    </button>
+    <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
+            *ngIf="permission.canShowDraftRegisterInEdit(statusName)">
+      Register
+    </button>
+
+    <!-- Archive -->
+    <button class="btn btn-outline-dark" type="button" (click)="setStatus.emit('Archived')"
+            *ngIf="permission.canShowArchive(roleName, statusName)">
+      Archive
+    </button>
+
+    <!-- Send for PDM -->
+    <button class="btn btn-primary" type="button" (click)="setStatus.emit('Waiting for PDM')"
+            *ngIf="permission.canShowSendForPDM(roleName, statusName)">
+      Send For
+      PDM
+    </button>
+
+    <!-- Update -->
+    <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
+            *ngIf="permission.canShowUpdate(roleName, statusName)">
+      Update
+    </button>
+
+    <!-- PDM actions (kept generic with outputs) -->
+    <div class="d-flex align-items-center justify-content-between gap-3"
+         *ngIf="roleName === 'PDM' && statusName === 'Waiting for PDM'">
+      <button class="btn normal-btn" (click)="openReturn.emit($event)">
+        Return to Originator
+      </button>
+      <button class="btn update-btn" (click)="openApprove.emit($event)">
+        Approve
+      </button>
+    </div>
+
+    <!-- Add review (Pre-CGB) -->
+    <div class="d-flex align-items-center justify-content-between gap-3"
+         *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB'">
+      <button class="btn update-btn" (click)="openAddReview.emit($event)">
+        Add Review
+      </button>
+    </div>
+
+    <!-- Voting (On CGB) -->
+    <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
+         *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On CGB'">
+      <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+        Vote Now
+      </button>
+    </div>
+
+    <!-- Return to requested (Action Required by CGB) -->
+    <div class="ic-btn-div d-flex justify-content-end"
+         *ngIf="roleName === 'Procurement Tag' && statusName === 'Action Required by CGB'">
+      <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
+              (click)="returnToRequested.emit()">
+        Return to requested
+      </button>
+    </div>
+  </ng-container>
+</div>
+
+

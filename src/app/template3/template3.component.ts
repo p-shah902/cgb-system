@@ -42,6 +42,7 @@ import { cleanObject, base64ToFile, getMimeTypeFromFileName } from '../../utils/
 import { ThresholdType } from '../../models/threshold';
 import { ThresholdService } from '../../service/threshold.service';
 import { ToggleService } from '../shared/services/toggle.service';
+import { PermissionService } from '../shared/services/permission.service';
 import { CURRENCY_LIST } from '../../utils/constant';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
@@ -138,6 +139,7 @@ export class Template3Component implements AfterViewInit {
 
   constructor(private router: Router, private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+    public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
