@@ -2104,7 +2104,7 @@ export class Template2Component implements AfterViewInit {
         sourcingType: generalInfoValue?.sourcingType || "",
         isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
-        contractValue: generalInfoValue?.contractValue || 0,
+        contractValue: generalInfoValue?.totalAwardValueUSD || 0,
         currencyCode: generalInfoValue?.currencyCode || "",
         exchangeRate: generalInfoValue?.exchangeRate || 0,
         isLTCC: generalInfoValue?.isLTCC || false,
