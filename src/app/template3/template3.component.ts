@@ -626,8 +626,8 @@ export class Template3Component implements AfterViewInit {
     });
   }
 
-  getAllSelectedPsa(): PSAEntry[] {
-    const result: PSAEntry[] = [];
+  getAllSelectedPsa(): any[] {
+    const result: any[] = [];
 
     this.allowedGroups.forEach(group => {
       const section = this.generalInfoForm.get(group.key) as FormGroup;
@@ -637,7 +637,7 @@ export class Template3Component implements AfterViewInit {
         if (values[psa.control]) {
           result.push({
             id: 0,
-            paperType: group.label,
+            valueType: group.label,
             psaName: psa.psaName,
             psaValue: true,
             percentage: values[psa.percentage],
@@ -1503,6 +1503,9 @@ export class Template3Component implements AfterViewInit {
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
@@ -1548,8 +1551,69 @@ export class Template3Component implements AfterViewInit {
   }
 
   setupPSACalculations() {
-    // Template 3 has different value groups, so calculation logic is handled per group
-    // This method can be extended if needed for specific PSA calculations
+    // Calculate By Value for costAllocation based on This Value (variation) and keep totals in sync
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        percentageControl.valueChanges.subscribe((percentageValue) => {
+          const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+          if (percentageValue >= 0 && percentageValue <= 100) {
+            const calculatedValue = (Number(percentageValue) / 100) * thisValue;
+            valueControl.setValue(calculatedValue, { emitEvent: false });
+            this.calculateTotalCostAllocation();
+            // Trigger committee logic after value is updated
+            this.triggerCommitteeLogicForPSA(psaName);
+          }
+        });
+      }
+    });
+  }
+
+  private calculateTotalCostAllocation() {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    let totalPercentage = 0;
+    let totalValue = 0;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = costAllocation.get(percentageControlName);
+      const valueControl = costAllocation.get(valueControlName);
+
+      if (percentageControl) {
+        const percentageValue = percentageControl.value;
+        if (!isNaN(percentageValue) && percentageValue !== null && percentageValue !== '') {
+          totalPercentage += Number(percentageValue);
+        }
+      }
+
+      if (valueControl) {
+        const valueValue = valueControl.value;
+        if (!isNaN(valueValue) && valueValue !== null && valueValue !== '') {
+          totalValue += Number(valueValue);
+        }
+      }
+    });
+
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+
+    if (totalPercentage !== 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ notExactly100: true });
+    } else {
+      costAllocation.get('totalPercentage')?.setErrors(null);
+    }
   }
 
   requireAllIfAny(group: AbstractControl): ValidationErrors | null {
@@ -1595,73 +1659,66 @@ export class Template3Component implements AfterViewInit {
         paperProvision: generalInfoValue?.paperProvision || "",
         purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
+        bltMember: generalInfoValue?.bltMember || null,
+        camUserId: generalInfoValue?.camUserId || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
+        pdManagerName: generalInfoValue?.pdManagerName || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
+        globalCGB: generalInfoValue?.globalCGB || '',
+        subSector: generalInfoValue?.subSector || '',
+        operatingFunction: generalInfoValue?.operatingFunction || '',
+        sourcingType: generalInfoValue?.sourcingType || '',
+        isPHCA: contractInfoValue?.isPHCA || false,
+        psajv: generalInfoValue?.psajv?.join(',') || "",
+        currencyCode: contractValues?.currencyCode || '',
+        exchangeRate: contractValues?.exchangeRate || 0,
+        contractStartDate: generalInfoValue?.contractStartDate || null,
+        contractEndDate: generalInfoValue?.contractEndDate || null,
+        isLTCC: generalInfoValue?.isLTCC || false,
+        ltccNotes: generalInfoValue?.ltccNotes || '',
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
+        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment || '',
+        isIFRS16: generalInfoValue?.isIFRS16 || false,
+        isConflictOfInterest: contractInfoValue?.isConflictOfInterest || false,
+        conflictOfInterestComment: contractInfoValue?.conflictOfInterestComment || '',
+        remunerationType: contractInfoValue?.remunerationType || '',
+        contractNo: generalInfoValue?.contractNo || '',
+        isRetrospectiveApproval: contractInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: contractInfoValue?.retrospectiveApprovalReason || '',
+        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
+        cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
+        isHighRiskContract: ccdValues?.isHighRiskContract || false,
+        cddCompleted: ccdValues?.daCDDCompleted || null,
+        highRiskExplanation: ccdValues?.highRiskExplanation || '',
+        flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
+        additionalCDD: ccdValues?.additionalCDD || '',
         ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
       variationPaper: {
+        cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
+        variationStartDate: generalInfoValue?.variationStartDate || null,
+        variationEndDate: generalInfoValue?.variationEndDate || null,
+        whyChangeRequired: justificationSectionValue?.whyChangeRequired || '',
+        longTermStrategy: justificationSectionValue?.longTermStrategy || '',
+        workspaceNo: contractInfoValue?.workspaceNo || '',
+        previousCGBRefNo: contractInfoValue?.previousCGBRefNo || '',
+        isPaymentRequired: contractInfoValue?.isPaymentRequired || false,
+        prePayAmount: contractInfoValue?.prePayAmount || 0,
+        originalContractValue: contractValues?.originalContractValue || 0,
+        previousVariationTotal: contractValues?.previousVariationTotal || 0,
+        thisVariationNote: contractValues?.thisVariationNote?.toString() || '',
+        revisedContractValue: contractValues?.revisedContractValue || 0,
+        spendOnContract: contractValues?.spendOnContract || 0,
+        isCurrencyLinktoBaseCost: contractValues?.isCurrencyLinktoBaseCost || false,
         isChangeinSOW: generalInfoValue?.isChangeinSOW || false,
         isIncreaseInValue: generalInfoValue?.isIncreaseInValue || false,
         isExtensionOfDuration: generalInfoValue?.isExtensionOfDuration || false,
         isTEToCompleteBidding: generalInfoValue?.isTEToCompleteBidding || false,
         isChangeInRates: generalInfoValue?.isChangeInRates || false,
-        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
-        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
-        cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
-        otherRelatedCgbPapers: generalInfoValue?.otherRelatedCgbPapers || '',
-        fullLegalName: this.getVendorLegalName(generalInfoValue?.fullLegalName) || '',
-        contractNo: generalInfoValue?.contractNo || '',
-        globalCGB: generalInfoValue?.globalCGB,
-        camUserId: generalInfoValue?.camUserId || null,
-        vP1UserId: generalInfoValue?.vP1UserId || null,
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
-        pdManagerName: generalInfoValue?.pdManagerName || null,
-        operatingFunction: generalInfoValue?.operatingFunction,
-        bltMember: generalInfoValue?.bltMember,
-        subSector: generalInfoValue?.subSector,
-        sourcingType: generalInfoValue?.sourcingType,
-        contractStartDate: generalInfoValue?.contractStartDate || null,
-        contractEndDate: generalInfoValue?.contractEndDate || null,
-        variationStartDate: generalInfoValue?.variationStartDate || null,
-        variationEndDate: generalInfoValue?.variationEndDate || null,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        isLTCC: generalInfoValue?.isLTCC || false,
-        ltccNotes: generalInfoValue?.ltccNotes,
-        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
-        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
-        isIFRS16: generalInfoValue?.isIFRS16 || false,
-        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
-        //justificationSection
-        whyChangeRequired: justificationSectionValue?.whyChangeRequired || '',
-        longTermStrategy: justificationSectionValue?.longTermStrategy || '',
-        //contractInfo
-
-        isPHCA: contractInfoValue?.isPHCA || false,
-        workspaceNo: contractInfoValue?.workspaceNo || '',
-        remunerationType: contractInfoValue?.remunerationType || '',
-        previousCGBRefNo: contractInfoValue?.previousCGBRefNo || null,
-        isPaymentRequired: contractInfoValue?.isPaymentRequired || false,
-        prePayAmount: contractInfoValue?.prePayAmount || 0,
-        isRetrospectiveApproval: contractInfoValue?.isRetrospectiveApproval || false,
-        retrospectiveApprovalReason: contractInfoValue?.retrospectiveApprovalReason || '',
-        //contractValues
-        originalContractValue: contractValues?.originalContractValue || 0,
-        previousVariationTotal: contractValues?.previousVariationTotal || 0,
-        exchangeRate: contractValues?.exchangeRate || 0,
-        currencyCode: contractValues?.currencyCode || null,
-        contractValue: contractValues?.contractValue || 0,
-        revisedContractValue: contractValues?.revisedContractValue || 0,
-        spendOnContract: contractValues?.spendOnContract || 0,
-        thisVariationNote: contractValues?.thisVariationNote || '',
-        isCurrencyLinktoBaseCost: contractValues?.isCurrencyLinktoBaseCost || false,
+        fullLegalName: generalInfoValue?.fullLegalName || null,
         noCurrencyLinkNotes: contractValues?.noCurrencyLinkNotes || '',
-        isConflictOfInterest: contractValues?.isConflictOfInterest || false,
-        conflictOfInterestComment: contractValues?.conflictOfInterestComment || '',
-        //ccd
-        isHighRiskContract: ccdValues?.isHighRiskContract || false,
-        daCDDCompleted: ccdValues?.daCDDCompleted || null,
-        highRiskExplanation: ccdValues?.highRiskExplanation || '',
-        flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
-        additionalCDD: ccdValues?.additionalCDD || '',
       },
       valueDeliveriesCostSharings: {
         costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
@@ -1688,7 +1745,14 @@ export class Template3Component implements AfterViewInit {
         coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
         steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
       },
-      consultations: consultationsValue || [],
+      consultations: (consultationsValue || []).map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa || '',
+        technicalCorrect: consultation.technicalCorrect || null,
+        budgetStatement: consultation.budgetStatement || null,
+        jvReview: consultation.jvReview || null,
+        isJVReviewDone: consultation.jvAligned || false
+      })),
 
     }
 
