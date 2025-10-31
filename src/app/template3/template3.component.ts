@@ -499,7 +499,7 @@ export class Template3Component implements AfterViewInit {
       const contractJvApprovalsData = contractPaperDetails?.jvApprovals[0] || null;
       const contractCostAllocationJVApprovalData = contractPaperDetails?.costAllocationJVApproval || [];
 
-      // Map PSA/JV values
+      // Start with PSAs from contractGeneralInfo
       const selectedValuesPSAJV = contractGeneralInfo?.psajv
         ? contractGeneralInfo.psajv
           .split(',')
@@ -507,6 +507,26 @@ export class Template3Component implements AfterViewInit {
           .map((label: any) => this.psaJvOptions.find((option) => option.label === label)?.value)
           .filter((value: any) => value != null)
         : [];
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = contractCostAllocationJVApprovalData
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value != null);
+
+      // Merge and deduplicate
+      const allSelectedValuesPSAJV = [...new Set([...selectedValuesPSAJV, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValuesPSAJV.forEach((psaName: string) => {
+        this.addPSAJVFormControls(psaName);
+      });
 
       const selectedValuesProcurementTagUsers = contractGeneralInfo?.procurementSPAUsers
         ? contractGeneralInfo.procurementSPAUsers
@@ -565,7 +585,7 @@ export class Template3Component implements AfterViewInit {
           bltMember: contractGeneralInfo?.bltMemberId ? Number(contractGeneralInfo.bltMemberId) : null,
           subSector: contractGeneralInfo?.subSector || '',
           sourcingType: contractGeneralInfo?.sourcingType || '',
-          psajv: selectedValuesPSAJV,
+          psajv: allSelectedValuesPSAJV,
           isLTCC: contractGeneralInfo?.isLTCC || false,
           ltccNotes: contractGeneralInfo?.ltccNotes || '',
           isGovtReprAligned: contractGeneralInfo?.isGovtReprAligned || false,
@@ -618,7 +638,17 @@ export class Template3Component implements AfterViewInit {
       // Set PSA/JV values with delay to ensure proper initialization
       setTimeout(() => {
         this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-        this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV, { emitEvent: false });
+        this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValuesPSAJV, { emitEvent: false });
+        
+        // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+        allSelectedValuesPSAJV.forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
+        
+        // Re-patch costAllocation values to ensure they're set after controls exist
+        this.generalInfoForm.patchValue({
+          costAllocation: patchValues.costAllocation
+        }, { emitEvent: false });
       }, 500);
 
       // Setup PSA listeners after patching values

@@ -483,6 +483,7 @@ export class Template2Component implements AfterViewInit {
         }
       });
 
+      // Start with PSAs from contractAwardDetails
       const selectedValues = contractAwardDetails?.psajv
         ? contractAwardDetails.psajv
           .split(',')
@@ -490,6 +491,26 @@ export class Template2Component implements AfterViewInit {
           .map((label: any) => this.psaJvOptions.find(option => option.label === label)?.value)
           .filter((value: any) => value != null) // Use != null to filter both null and undefined
         : [];
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter(psa => psa.psaValue === true)
+        .map(psa => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value != null);
+
+      // Merge and deduplicate
+      const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValues.forEach((psaName: string) => {
+        this.addPSAJVFormControls(psaName);
+      });
 
       const selectedValuesProcurementTagUsers = contractAwardDetails?.procurementSPAUsers
         ? contractAwardDetails.procurementSPAUsers
@@ -544,7 +565,7 @@ export class Template2Component implements AfterViewInit {
             prePayAmount: contractAwardDetails?.prePayAmount || 0,
             workspaceNo: contractAwardDetails?.workspaceNo || '',
             isSplitAward: contractAwardDetails?.isSplitAward || false,
-            psajv: selectedValues,
+            psajv: allSelectedValues,
             isLTCC: contractAwardDetails?.isLTCC || false,
             ltccNotes: contractAwardDetails?.ltccNotes || '',
             isGovtReprAligned: contractAwardDetails?.isGovtReprAligned || false,
@@ -607,7 +628,18 @@ export class Template2Component implements AfterViewInit {
         },{ emitEvent: true })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
+          
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValues.forEach((psaName: string) => {
+            this.addPSAJVFormControls(psaName);
+          });
+          
+          // Re-patch costAllocation values to ensure they're set after controls exist
+          this.generalInfoForm.patchValue({
+            costAllocation: patchValues.costAllocation
+          }, { emitEvent: false });
+          
           // Ensure purposeRequired field state is correct based on isChangeinApproachMarket
           const isChangeinApproachMarket = this.generalInfoForm.get('generalInfo.isChangeinApproachMarket')?.value;
           const purposeRequiredControl = this.generalInfoForm.get('generalInfo.purposeRequired');

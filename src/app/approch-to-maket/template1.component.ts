@@ -616,6 +616,7 @@ export class Template1Component implements AfterViewInit  {
       costAllocationJVApprovalData.forEach(psa => {
         const checkboxKey = psaNameToCheckbox[psa.psaName?.toLowerCase() as keyof typeof psaNameToCheckbox];
         if (checkboxKey) {
+          console.log('checkboxKey', `percentage_${checkboxKey}`);
           patchValues.costAllocation[checkboxKey] = psa.psaValue;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
           patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
@@ -632,11 +633,36 @@ export class Template1Component implements AfterViewInit  {
         }
       });
 
+      console.log('patchValues.costAllocation', patchValues.costAllocation);
+
+      // Start with PSAs from paperDetailData
       const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
         .map(label => label.trim())
         .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
         .filter(value => value) : []
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter(psa => psa.psaValue === true)
+        .map(psa => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter(value => value);
+
+      // Merge and deduplicate
+      const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValues
+        .filter((psaName): psaName is string => !!psaName)
+        .forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
 
 
       const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
@@ -664,10 +690,10 @@ export class Template1Component implements AfterViewInit  {
             vP1UserId: paperDetailData?.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: paperDetailData?.pdManagerNameId || null,
-            contractValueUsd: paperDetailData?.totalAwardValueUSD || null,
+            contractValueUsd: paperDetailData?.contractValue || null,
             originalCurrency: paperDetailData?.currencyCode || '',
             exchangeRate: paperDetailData?.exchangeRate || 0,
-            contractValueOriginalCurrency: paperDetailData?.contractValue || 0,
+            contractValueOriginalCurrency: (paperDetailData?.contractValue || 0) * (paperDetailData?.exchangeRate || 0),
             contractStartDate: paperDetailData?.contractStartDate
               ? format(new Date(paperDetailData.contractStartDate), 'yyyy-MM-dd')
               : '',
@@ -677,7 +703,7 @@ export class Template1Component implements AfterViewInit  {
             isIFRS16: paperDetailData?.isIFRS16 || false,
             isGIAAPCheck: paperDetailData?.isGIAAPCheck || false,
             isPHCA: paperDetailData?.isPHCA || false,
-            psajv: selectedValues,
+            psajv: allSelectedValues,
             isLTCC: paperDetailData?.isLTCC || false,
             ltccNotes: paperDetailData?.ltccNotes || '',
             isGovtReprAligned: paperDetailData?.isGovtReprAligned || false,
@@ -728,7 +754,20 @@ export class Template1Component implements AfterViewInit  {
         },{ emitEvent: true })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
+          
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              this.addPSAJVFormControls(psaName);
+            });
+          
+          // Re-patch costAllocation values to ensure they're set after controls exist
+          this.generalInfoForm.patchValue({
+            costAllocation: patchValues.costAllocation
+          }, { emitEvent: false });
+          
           this.isInitialLoad = false;
         }, 500)
 
@@ -1835,7 +1874,7 @@ export class Template1Component implements AfterViewInit  {
         sourcingType: generalInfoValue?.sourcingType,
         isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
-        contractValue: generalInfoValue?.contractValueOriginalCurrency || 0,
+        contractValue: generalInfoValue?.contractValueUsd || 0,
         currencyCode: generalInfoValue?.originalCurrency || null,
         exchangeRate: generalInfoValue?.exchangeRate || 0,
         contractStartDate: generalInfoValue?.contractStartDate || null,

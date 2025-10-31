@@ -345,11 +345,34 @@ export class Template4Component  implements AfterViewInit{
         }
       });
 
+      // Start with PSAs from paperDetailData
       const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
         .map(label => label.trim())
         .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
         .filter(value => value) : []
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter(psa => psa.psaValue === true)
+        .map(psa => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter(value => value);
+
+      // Merge and deduplicate
+      const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValues
+        .filter((psaName): psaName is string => !!psaName)
+        .forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
 
 
       const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
@@ -376,7 +399,7 @@ export class Template4Component  implements AfterViewInit{
             pdManagerName: paperDetailData?.pdManagerNameId || null,
             saleDisposeValue: paperDetailData?.saleDisposeValue || 0,
             contractValueOriginalCurrency: paperDetailData?.contractValue || 0,
-            psajv: selectedValues,
+            psajv: allSelectedValues,
             isGovtReprAligned: paperDetailData?.isGovtReprAligned || false,
             govtReprAlignedComment: paperDetailData?.govtReprAlignedComment || '',
             isRetrospectiveApproval: paperDetailData?.isRetrospectiveApproval || false,
@@ -386,7 +409,20 @@ export class Template4Component  implements AfterViewInit{
         },{ emitEvent: true })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
+          
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              this.addPSAJVFormControls(psaName);
+            });
+          
+          // Re-patch costAllocation values to ensure they're set after controls exist
+          this.generalInfoForm.patchValue({
+            costAllocation: patchValues.costAllocation
+          }, { emitEvent: false });
+          
           this.isInitialLoad = false;
         }, 500)
 
