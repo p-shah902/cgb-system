@@ -88,6 +88,13 @@ export class EditorComponent implements OnInit,ControlValueAccessor {
     this.onChange(data);
   }
 
+  // Simple textarea fallback handler
+  onEditorTextInput(event: Event): void {
+    const val = (event.target as HTMLTextAreaElement)?.value || '';
+    this.value = val;
+    this.onChange(val);
+  }
+
   private _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {
     const {
       DecoupledEditor,

@@ -12,7 +12,7 @@
       </div>
       <div class="editor-container__editor">
         <div #editorElement>
-          <ckeditor (change)="onEditorChange($event)" [editor]="Editor" [config]="config" (ready)="onReady($event)" *ngIf="Editor && config"/>
+          <textarea class="form-control" (input)="onEditorTextInput($event)" style="min-height: 250px;"></textarea>
         </div>
       </div>
       <div class="editor-container__sidebar editor-container__sidebar3">

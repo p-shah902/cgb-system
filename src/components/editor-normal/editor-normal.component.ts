@@ -1,5 +1,6 @@
 import { Component, ViewEncapsulation, type OnInit, ElementRef, ViewChild, inject, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   loadCKEditorCloud,
   CKEditorModule,
@@ -26,7 +27,7 @@ const cloudConfig = {
 @Component({
   selector: 'app-editor-normal',
   standalone: true,
-  imports: [CommonModule, CKEditorModule],
+  imports: [CommonModule, FormsModule, CKEditorModule],
   templateUrl: './editor-normal.component.html',
   styleUrl: './editor-normal.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -70,6 +71,12 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
     const data = editor.getData();
     this.value = data;
     this.onChange(data);
+  }
+
+  // Simple textarea input handler for test mode
+  onTextareaInput(val: string): void {
+    this.value = val || '';
+    this.onChange(this.value);
   }
 
   private _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {

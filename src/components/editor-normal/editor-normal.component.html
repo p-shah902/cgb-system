@@ -8,7 +8,7 @@
     <div class="editor-container__editor-wrapper">
       <div class="editor-container__editor">
         <div #editorElement>
-          <ckeditor (change)="onEditorChange($event)" [editor]="Editor" [config]="config" (ready)="onReady($event)" *ngIf="Editor && config"/>
+          <textarea class="form-control" [ngModel]="value" (ngModelChange)="onTextareaInput($event)" style="min-height: 200px;"></textarea>
         </div>
       </div>
     </div>
