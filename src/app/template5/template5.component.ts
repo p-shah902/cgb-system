@@ -1371,43 +1371,53 @@ export class Template5Component  implements AfterViewInit{
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
-        paperProvision: generalInfoValue?.paperProvision,
-        purposeRequired: generalInfoValue?.purposeRequired,
+        paperProvision: generalInfoValue?.paperProvision || "",
+        purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
-        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
-      },
-      masterInfoNote: {
-        transactionType: generalInfoValue?.transactionType || null,
-        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason,
-        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
-        reasontoChangeRequired: generalInfoValue?.reasontoChangeRequired || "",
+        bltMember: generalInfoValue?.bltMember || null,
+        camUserId: generalInfoValue?.camUserId || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
+        pdManagerName: generalInfoValue?.pdManagerName || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
         cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
         cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        vendorId: generalInfoValue?.legalName || '',
-        contractNumber: generalInfoValue?.contractNumber || '',
-        operatingFunction: generalInfoValue?.operatingFunction,
-        bltMember: generalInfoValue?.bltMember,
-        previousCGBItemRefNo: generalInfoValue?.previousCGBItemRefNo || null,
-        contractValue: generalInfoValue?.contractValue || null,
-        subSector: generalInfoValue?.subSector,
-        sourcingType: generalInfoValue?.sourcingType,
-        cam: generalInfoValue?.camUserId || null, //TODO
-        vP1UserId: generalInfoValue?.vP1UserId || null,
+        subSector: generalInfoValue?.subSector || '',
+        operatingFunction: generalInfoValue?.operatingFunction || '',
+        sourcingType: generalInfoValue?.sourcingType || '',
+        psajv: generalInfoValue?.psajv?.join(',') || "",
         contractStartDate: generalInfoValue?.contractStartDate || null,
         contractEndDate: generalInfoValue?.contractEndDate || null,
-        variationStartDate: generalInfoValue?.variationStartDate || null,
-        variationEndDate: generalInfoValue?.variationEndDate || null,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
-        pdManagerName: generalInfoValue?.pdManagerName || null,
-        //ccd
+        isLTCC: false, // Not in form, defaulting to false
+        ltccNotes: '', // Not in form, defaulting to empty string
+        isIFRS16: false, // Not in form, defaulting to false
+        contractNo: generalInfoValue?.contractNumber || '',
+        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason || '',
+        isGIAAPCheck: false, // Not in form, defaulting to false
         isHighRiskContract: ccdValues?.isHighRiskContract || false,
-        daCDDCompleted: ccdValues?.daCDDCompleted || null,
+        cddCompleted: ccdValues?.cddCompleted || null,
         highRiskExplanation: ccdValues?.highRiskExplanation || '',
         flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
         additionalCDD: ccdValues?.additionalCDD || '',
+        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
-      consultations: consultationsValue || [],
+      masterInfoNote: {
+        transactionType: generalInfoValue?.transactionType || '',
+        reasontoChangeRequired: generalInfoValue?.reasontoChangeRequired || '',
+        vendorId: generalInfoValue?.legalName || null,
+        previousCGBItemRefNo: generalInfoValue?.previousCGBItemRefNo || '',
+        variationStartDate: generalInfoValue?.variationStartDate || null,
+        variationEndDate: generalInfoValue?.variationEndDate || null,
+        referenceNo: '', // Not in form, defaulting to empty string
+      },
+      consultations: (consultationsValue || []).map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa || '',
+        technicalCorrect: consultation.technicalCorrect || null,
+        budgetStatement: consultation.budgetStatement || null,
+        jvReview: consultation.jvReview || null,
+        isJVReviewDone: consultation.jvAligned || false
+      })),
       costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,

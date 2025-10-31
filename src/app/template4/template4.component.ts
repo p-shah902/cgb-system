@@ -1312,31 +1312,45 @@ export class Template4Component  implements AfterViewInit{
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
-        paperProvision: generalInfoValue?.paperProvision,
-        purposeRequired: generalInfoValue?.purposeRequired,
+        paperProvision: generalInfoValue?.paperProvision || "",
+        purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
+        bltMember: generalInfoValue?.bltMember || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
+        pdManagerName: generalInfoValue?.pdManagerName || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        cgbItemRefNo: generalInfoValue?.cgbItemRef || '',
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
+        operatingFunction: generalInfoValue?.operatingFunction || '',
+        psajv: generalInfoValue?.psajv?.join(',') || "",
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
+        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment || '',
+        isIFRS16: false, // Not in form, defaulting to false
+        isGIAAPCheck: false, // Not in form, defaulting to false
+        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason || '',
+        vendorId: null, // Not in form
+        cgbApprovalDate: null, // Not in form
+        camUserId: generalInfoValue?.technicalApprover || null, // Map technicalApprover to camUserId
+        globalCGB: '', // Not in form
+        contractNo: '', // Not in form
         ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
       approvalOfSale: {
-        transactionType: generalInfoValue?.transactionType || null,
-        cgbItemRef: generalInfoValue?.cgbItemRef || null,
-        referenceNo: generalInfoValue?.referenceNo || null,
-        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        technicalApprover: generalInfoValue?.technicalApprover || null,
-        vP1UserId: generalInfoValue?.vP1UserId || null,
-        operatingFunction: generalInfoValue?.operatingFunction,
-        bltMember: generalInfoValue?.bltMember,
-        purchaserName:generalInfoValue?.purchaserName || null,
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
-        pdManagerName: generalInfoValue?.pdManagerName || null,
+        transactionType: generalInfoValue?.transactionType || '',
+        technicalApprover: generalInfoValue?.technicalApprover?.toString() || '',
+        purchaserName: generalInfoValue?.purchaserName || '',
         saleDisposeValue: generalInfoValue?.saleDisposeValue || 0,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
-        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
-        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason,
-        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
+        referenceNo: generalInfoValue?.referenceNo || '',
       },
-      consultations: consultationsValue || [],
+      consultations: (consultationsValue || []).map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa || '',
+        technicalCorrect: consultation.technicalCorrect || null,
+        budgetStatement: consultation.budgetStatement || null,
+        jvReview: consultation.jvReview || null,
+        isJVReviewDone: consultation.jvAligned || false
+      })),
       costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
