@@ -1446,12 +1446,9 @@
                       <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
                         <td><select class="form-control" formControlName="psa">
                           <option [value]="''">Select</option>
-                          <option value="ACG">ACG</option>
-                          <option value="Shah Deniz">Shah Deniz</option>
-                          <option value="SCP">SCP</option>
-                          <option value="BTC">BTC</option>
-                          <option value="Sh-Asiman">Sh-Asiman</option>
-                          <option value="BP Group">BP Group</option>
+                          <option *ngFor="let psaOption of psaJvOptions" [value]="psaOption.value">
+                            {{ psaOption.label }}
+                          </option>
                         </select></td>
                         <td>
                           <select aria-readonly="true" [disabled]="true" class="form-control"

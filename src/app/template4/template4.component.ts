@@ -285,6 +285,9 @@ export class Template4Component  implements AfterViewInit{
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId, 'sale').subscribe((value) => {
       this.paperDetails = value.data;
+      // Store consultations data in paperDetails for addConsultationRow to access
+      const consultationsData = value.data?.consultationsDetails || [];
+      this.paperDetails.consultationsDetails = consultationsData;
       const paperDetailData = value.data?.paperDetails || null
       const jvApprovalsData = value.data?.jvApprovals[0] || null
       const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
@@ -427,7 +430,7 @@ export class Template4Component  implements AfterViewInit{
         }, 500)
 
 
-        this.addConsultationRow(true);
+        this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners()
         this.getUploadedDocs(paperId);
       }
@@ -1232,23 +1235,29 @@ export class Template4Component  implements AfterViewInit{
     return (index + 1).toString().padStart(3, '0');
   }
 
-  addConsultationRow(isFirst = false, isChangedCamUser = false) {
-    if (isFirst && this.paperDetails) {
-      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+  addConsultationRow(isFirst = false, isChangedCamUser = false, consultationsData?: any[]) {
+    if (isFirst) {
+      // Use provided consultationsData, or fall back to paperDetails.consultationsDetails
+      const riskMitigationsData = consultationsData || (this.paperDetails?.consultationsDetails as any[]) || []
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls
 
-      riskMitigationsData.forEach((item, index) => {
-        riskMitigationArray.push(
-          this.fb.group({
-            psa: [item.psa, Validators.required],
-            technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
-            budgetStatement: [item.budgetStatementId, Validators.required],
-            jvReview: [item.jvReviewId, Validators.required],
-            jvAligned: [{ value: (item as any).jvAligned || false, disabled: true }],
-            id: [item.id]
-          })
-        );
+      riskMitigationsData.forEach((item: any, index) => {
+        const formGroup = this.fb.group({
+          psa: [item.psa || item.psaValue || '', Validators.required],
+          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false }, Validators.required],
+          budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
+          jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
+          jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }],
+          id: [item.id || 0]
+        });
+        riskMitigationArray.push(formGroup);
+        
+        // Set JV Aligned checkbox state based on JV Review user
+        setTimeout(() => {
+          const jvReviewValue = item.jvReview || item.jvReviewId || null;
+          this.onJVReviewChange(index, jvReviewValue);
+        }, 0);
       });
     } else {
       const camUserId = this.generalInfoForm.get('generalInfo.technicalApprover')?.value || null;
