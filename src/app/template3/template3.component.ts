@@ -214,6 +214,11 @@ export class Template3Component implements AfterViewInit {
       this.updateContractValueOriginalCurrency();
     });
 
+    this.generalInfoForm.get('contractValues.thisVariationNote')?.valueChanges.subscribe(() => {
+      // Recalculate all "By value $" fields when "This Value" changes (like template1 does with contractValueUsd)
+      this.recalculateAllPSAValues();
+    });
+
     this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.valueChanges.subscribe((cgbAwardRefNo) => {
       this.updateCgbApprovalDate(Number(cgbAwardRefNo));
     });
@@ -966,6 +971,7 @@ export class Template3Component implements AfterViewInit {
       const generatlInfoData = this.paperDetails?.paperDetails || null
       const jvApprovalsData = value.data?.jvApprovals[0] || null
       const costAllocationsData = value.data?.costAllocations || []
+      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || [] // Get costAllocation data like template1
       const valueDeliveriesCostSharingData = value.data?.valueDeliveriesCostSharing[0] || null
 
       const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === generatlInfoData?.paperStatusId?.toString())
@@ -1086,19 +1092,36 @@ export class Template3Component implements AfterViewInit {
             costAvoidancePercent: valueDeliveriesCostSharingData?.costAvoidancePercent || null,
             costAvoidanceRemarks: valueDeliveriesCostSharingData?.costAvoidanceRemarks || '',
           },
-          costAllocation: {
-            contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
-            contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
-            contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
-            contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
-            contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
-            contractCommittee_CGB: jvApprovalsData?.contractCommittee_CGB || false,
-            coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
-            coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
-            coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
-            coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
-            steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
-          }
+          costAllocation: (() => {
+            const costAllocationPatch: any = {
+              contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
+              contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+              contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+              contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
+              contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+              contractCommittee_CGB: jvApprovalsData?.contractCommittee_CGB || false,
+              coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
+              coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
+              coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
+              coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
+              steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
+            };
+
+            // Patch PSA percentage and value fields from costAllocationJVApproval (like template1)
+            costAllocationJVApprovalData.forEach((psa: any) => {
+              const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+              const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+              const valueKey = this.getPSAValueControlName(psa.psaName);
+
+              if (checkboxKey && psa.psaValue === true) {
+                costAllocationPatch[checkboxKey] = true;
+                costAllocationPatch[percentageKey] = psa.percentage || '';
+                costAllocationPatch[valueKey] = psa.value || null;
+              }
+            });
+
+            return costAllocationPatch;
+          })()
         })
         // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
         selectedValuesPSAJV
@@ -1117,7 +1140,54 @@ export class Template3Component implements AfterViewInit {
 
         // Ensure cost allocation controls are set up and calculations are initialized
         setTimeout(() => {
+          // Re-patch costAllocation to ensure PSA percentage/value fields are set after controls exist
+          const costAllocationPatch: any = {
+            contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
+            contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+            contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+            contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
+            contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+            contractCommittee_CGB: jvApprovalsData?.contractCommittee_CGB || false,
+            coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
+            coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
+            coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
+            coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
+            steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
+          };
+
+          // Patch PSA percentage and value fields from costAllocationJVApproval
+          costAllocationJVApprovalData.forEach((psa: any) => {
+            const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+            const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+            const valueKey = this.getPSAValueControlName(psa.psaName);
+
+            if (checkboxKey && psa.psaValue === true) {
+              costAllocationPatch[checkboxKey] = true;
+              costAllocationPatch[percentageKey] = psa.percentage || '';
+              costAllocationPatch[valueKey] = psa.value || null;
+            }
+          });
+
+          this.generalInfoForm.patchValue({
+            costAllocation: costAllocationPatch
+          }, { emitEvent: false });
+
           this.ensureCostAllocationFormControls();
+          
+          // Trigger initial calculations for all selected PSAs after values are patched
+          const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+          selectedPSAJV.forEach((psaName: string) => {
+            const percentageControlName = this.getPSAPercentageControlName(psaName);
+            const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+            if (percentageControl && percentageControl.value !== null && percentageControl.value !== '') {
+              // Trigger calculation by setting value (this will trigger valueChanges)
+              const currentValue = percentageControl.value;
+              percentageControl.setValue(currentValue, { emitEvent: true });
+            }
+          });
+          
+          // Also calculate totals after patching
+          this.calculateTotalCostAllocation();
         }, 600);
 
 
@@ -1644,6 +1714,31 @@ export class Template3Component implements AfterViewInit {
         this.psaCalculationListenersSet.add(psaName);
       }
     });
+  }
+
+  private recalculateAllPSAValues(): void {
+    // Recalculate all "By value $" fields when "This Value" changes
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        const percentageValue = Number(percentageControl.value) || 0;
+        if (percentageValue >= 0 && percentageValue <= 100) {
+          const calculatedValue = (percentageValue / 100) * thisValue;
+          valueControl.setValue(calculatedValue, { emitEvent: false });
+        }
+      }
+    });
+
+    // Recalculate totals after updating all values
+    this.calculateTotalCostAllocation();
   }
 
   private calculateTotalCostAllocation() {
