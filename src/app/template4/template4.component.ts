@@ -284,13 +284,20 @@ export class Template4Component  implements AfterViewInit{
 
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId, 'sale').subscribe((value) => {
-      this.paperDetails = value.data;
+      // Handle both nested (approvalOfSale.paperDetails) and flat (paperDetails) structures
+      const data = value.data as any;
+      const approvalOfSaleData = data?.approvalOfSale || data;
+      this.paperDetails = approvalOfSaleData;
+      
       // Store consultations data in paperDetails for addConsultationRow to access
-      const consultationsData = value.data?.consultationsDetails || [];
-      this.paperDetails.consultationsDetails = consultationsData;
-      const paperDetailData = value.data?.paperDetails || null
-      const jvApprovalsData = value.data?.jvApprovals[0] || null
-      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
+      const consultationsData = approvalOfSaleData?.consultationsDetails || [];
+      if (this.paperDetails) {
+        this.paperDetails.consultationsDetails = consultationsData;
+      }
+      // Use paperDetails if it exists (nested structure), otherwise fall back to approvalOfSaleData (flat structure)
+      const paperDetailData = approvalOfSaleData?.paperDetails || approvalOfSaleData
+      const jvApprovalsData = approvalOfSaleData?.jvApprovals?.[0] || null
+      const costAllocationJVApprovalData = approvalOfSaleData?.costAllocationJVApproval || []
 
       const patchValues: any = { costAllocation: {} };
 
@@ -329,7 +336,7 @@ export class Template4Component  implements AfterViewInit{
       };
 
       // Assign PSA/JV values dynamically
-      costAllocationJVApprovalData.forEach(psa => {
+      costAllocationJVApprovalData.forEach((psa: any) => {
         const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
         if (checkboxKey) {
           patchValues.costAllocation[checkboxKey] = psa.psaValue;
@@ -351,21 +358,21 @@ export class Template4Component  implements AfterViewInit{
       // Start with PSAs from paperDetailData
       const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
-        .map(label => label.trim())
-        .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
-        .filter(value => value) : []
+        .map((label: string) => label.trim())
+        .map((label: string) => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
+        .filter((value: any) => value) : []
 
       // Also include PSAs from costAllocationJVApproval that have values
       const psasFromCostAllocation = costAllocationJVApprovalData
-        .filter(psa => psa.psaValue === true)
-        .map(psa => {
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
           // Find the PSA value from psaJvOptions by matching the psaName
           const psaOption = this.psaJvOptions.find(option => 
             option.label === psa.psaName || option.value === psa.psaName
           );
           return psaOption?.value;
         })
-        .filter(value => value);
+        .filter((value: any) => value);
 
       // Merge and deduplicate
       const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
@@ -380,15 +387,18 @@ export class Template4Component  implements AfterViewInit{
 
       const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
         .split(',')
-        .map(id => id.trim())
-        .map(id => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
-        .filter(value => value) : [];
+        .map((id: string) => id.trim())
+        .map((id: string) => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
+        .filter((value: any) => value) : [];
 
-      if (value.data) {
+      console.log("==patchValues.costAllocation", patchValues.costAllocation)
+      console.log("==paperDetailData", paperDetailData)
+
+      if (approvalOfSaleData) {
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: paperDetailData?.paperProvision || '',
-            cgbItemRef: paperDetailData?.cgbItemRef || '',
+            cgbItemRef: paperDetailData?.cgbItemRefNo || paperDetailData?.cgbItemRef || '',
             cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
             transactionType: paperDetailData?.transactionType || '',
             referenceNo: paperDetailData?.referenceNo || '',
