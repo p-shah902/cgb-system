@@ -670,30 +670,6 @@ export class Template3Component implements AfterViewInit {
     });
   }
 
-  getAllSelectedPsa(): any[] {
-    const result: any[] = [];
-
-    this.allowedGroups.forEach(group => {
-      const section = this.generalInfoForm.get(group.key) as FormGroup;
-      const values = section.value;
-
-      this.psaItems.forEach(psa => {
-        if (values[psa.control]) {
-          result.push({
-            id: 0,
-            valueType: group.label,
-            psaName: psa.psaName,
-            psaValue: true,
-            percentage: values[psa.percentage],
-            value: values[psa.value]
-          });
-        }
-      });
-    });
-
-    return result;
-  }
-
 
   private incrementAndCheck(increaseCount: number | null = null) {
     this.completedCount++;
@@ -1938,15 +1914,42 @@ export class Template3Component implements AfterViewInit {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
-    const costAllocationJVApproval = this.getAllSelectedPsa()
+
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
     const justificationSectionValue = this.generalInfoForm?.value?.justificationSection
     const contractInfoValue = this.generalInfoForm?.value?.contractInfo
     const contractValues = this.generalInfoForm?.value?.contractValues
     const ccdValues = this.generalInfoForm?.value?.ccd
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
-    const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+    const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
     const consultationsValue = this.generalInfoForm?.value?.consultation
+
+    // Build costAllocationJVApproval from costAllocation FormGroup (like template1)
+    // Mapping PSAs from the costAllocation object dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const psaMappings = selectedPSAJV.map((psaName: string) => ({
+      key: this.getPSACheckboxControlName(psaName),
+      name: psaName
+    }));
+
+    const costAllocationJVApproval = psaMappings
+      .map((psa: any, index: number) => {
+        const percentageKey = `percentage_${psa.key}`;
+        const valueKey = `value_${psa.key}`;
+
+        // Check if percentage exists (matching template1 logic)
+        if (costAllocationValues && costAllocationValues[percentageKey] !== undefined) {
+          return {
+            id: index,
+            psaName: psa.name,
+            psaValue: true, // Always true when percentage exists (matching template1)
+            percentage: costAllocationValues[percentageKey] || 0,
+            value: costAllocationValues[valueKey] || 0
+          };
+        }
+        return null;
+      })
+      .filter((item: any) => item !== null);
 
     const params = {
       papers: {
