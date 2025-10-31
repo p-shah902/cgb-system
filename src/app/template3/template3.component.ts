@@ -71,6 +71,7 @@ export class Template3Component implements AfterViewInit {
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
+  private psaCalculationListenersSet = new Set<string>(); // Track which PSAJV columns have calculation listeners
   generalInfoForm!: FormGroup;
   isExpanded: boolean = true; // Default expanded
   paperId: string | null = null;
@@ -373,6 +374,8 @@ export class Template3Component implements AfterViewInit {
         spendOnContract: [0],
         isCurrencyLinktoBaseCost: [null],
         noCurrencyLinkNotes: [{ value: '', disabled: true }],
+        isConflictOfInterest: [null],
+        conflictOfInterestComment: [{ value: '', disabled: true }],
       }),
       ccd: this.fb.group({
         isHighRiskContract: [null],
@@ -410,6 +413,8 @@ export class Template3Component implements AfterViewInit {
         // isBTC: [{value: false, disabled: true}],
         // isAsiman: [{value: false, disabled: true}],
         // isBPGroup: [{value: false, disabled: true}],
+        totalPercentage: [0],
+        totalValue: [0]
       }),
       consultation: this.fb.array([]),
       originalValue: this.createPsaFormGroup(),
@@ -418,6 +423,10 @@ export class Template3Component implements AfterViewInit {
       revisedValue: this.createPsaFormGroup(),
     });
 
+    // Initialize PSA controls if PSA data is already loaded
+    if (this.psaJvOptions.length > 0) {
+      this.initializeAllPSAControls();
+    }
   }
 
   createPsaFormGroup(): FormGroup {
@@ -861,6 +870,11 @@ export class Template3Component implements AfterViewInit {
                   value: `value_is${cleanName}`
                 };
               });
+              // Initialize costAllocation form controls for ALL PSAs (like template1)
+              // This ensures controls exist before HTML tries to bind to them
+              if (this.generalInfoForm) {
+                this.initializeAllPSAControls();
+              }
               break;
 
             case 'Remuneration Type':
@@ -1086,6 +1100,13 @@ export class Template3Component implements AfterViewInit {
             steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
           }
         })
+        // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+        selectedValuesPSAJV
+          .filter((psaName: string | undefined): psaName is string => !!psaName)
+          .forEach((psaName: string) => {
+            this.addPSAJVFormControls(psaName);
+          });
+
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV);
@@ -1093,6 +1114,11 @@ export class Template3Component implements AfterViewInit {
 
         this.addConsultationRow(true, false, consultationsData);
         this.patchPsaData(costAllocationsData);
+
+        // Ensure cost allocation controls are set up and calculations are initialized
+        setTimeout(() => {
+          this.ensureCostAllocationFormControls();
+        }, 600);
 
 
       }
@@ -1544,6 +1570,8 @@ export class Template3Component implements AfterViewInit {
         } else {
           // Remove consultation row
           this.removeConsultationRowByPSAJV(psaName);
+          // Remove from listeners set to allow re-subscription if PSA is added back
+          this.psaCalculationListenersSet.delete(psaName);
         }
       });
 
@@ -1588,6 +1616,11 @@ export class Template3Component implements AfterViewInit {
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
 
     selectedPSAJV.forEach((psaName: string) => {
+      // Skip if listener already set up for this PSAJV column
+      if (this.psaCalculationListenersSet.has(psaName)) {
+        return;
+      }
+
       const percentageControlName = this.getPSAPercentageControlName(psaName);
       const valueControlName = this.getPSAValueControlName(psaName);
 
@@ -1606,6 +1639,9 @@ export class Template3Component implements AfterViewInit {
             this.triggerCommitteeLogicForPSA(psaName);
           }
         });
+
+        // Mark this PSAJV column as having listeners set up
+        this.psaCalculationListenersSet.add(psaName);
       }
     });
   }
@@ -2143,6 +2179,49 @@ export class Template3Component implements AfterViewInit {
 
   toggleSection(section: string): void {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
+  }
+
+  initializeAllPSAControls(): void {
+    // Initialize controls for ALL possible PSAs from psaJvOptions (like template1 does)
+    // This ensures controls exist when HTML tries to bind to them
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (!costAllocationControl) return;
+
+    this.psaJvOptions.forEach(psaOption => {
+      const psaName = psaOption.value;
+      const newControls = this.createPSAJVFormControls(psaName);
+      
+      Object.keys(newControls).forEach(controlName => {
+        if (!costAllocationControl.get(controlName)) {
+          costAllocationControl.addControl(controlName, this.fb.control(newControls[controlName][0], newControls[controlName][1]));
+        }
+      });
+    });
+  }
+
+  ensureCostAllocationFormControls(): void {
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      this.addPSAJVFormControls(psaName);
+      // Set checkbox to checked and readonly
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+
+      if (costAllocationControl) {
+        if (costAllocationControl.get(checkboxControlName)) {
+          costAllocationControl.get(checkboxControlName)?.setValue(true);
+        }
+        // Ensure percentage field is enabled
+        if (costAllocationControl.get(percentageControlName)) {
+          costAllocationControl.get(percentageControlName)?.enable();
+        }
+      }
+    });
+
+    // Setup calculations after ensuring all controls are created
+    this.setupPSACalculations();
   }
 
   // Attachment methods
