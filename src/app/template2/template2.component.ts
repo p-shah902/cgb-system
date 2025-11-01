@@ -467,12 +467,13 @@ export class Template2Component implements AfterViewInit {
 
       // Assign PSA/JV values dynamically
       costAllocationJVApprovalData.forEach(psa => {
-        // Try exact match first
+        // Try exact match first, then case-insensitive match with trim
         let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
         
         // If no exact match, try case-insensitive match
         if (!checkboxKey && psa.psaName) {
-          const psaNameUpper = (psa.psaName || '').toString().trim().toUpperCase();
+          const psaNameTrimmed = (psa.psaName || '').toString().trim();
+          const psaNameUpper = psaNameTrimmed.toUpperCase();
           for (const [key, value] of Object.entries(psaNameToCheckbox)) {
             if (key.toUpperCase() === psaNameUpper) {
               checkboxKey = value;
@@ -481,10 +482,18 @@ export class Template2Component implements AfterViewInit {
           }
         }
         
-        if (checkboxKey && psa.psaValue === true) {
-          patchValues.costAllocation[checkboxKey] = true;
+        if (checkboxKey) {
+          console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
+          // Handle different types for psaValue (boolean, string, number)
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+                               Boolean(psa.psaValue);
+          patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage || '';
           patchValues.costAllocation[`value_${checkboxKey}`] = psa.value || 0;
+        } else {
+          console.warn('PSA not found in mapping:', psa.psaName, 'Available keys:', Object.keys(psaNameToCheckbox));
         }
       });
 
@@ -658,17 +667,21 @@ export class Template2Component implements AfterViewInit {
           }, { emitEvent: false });
           
           // IMPORTANT: Ensure percentage controls are enabled for all selected PSAs after patching
+          // Also ensure checkboxes are set to true (fixes Shah Deniz and other PSAs not getting checked)
           allSelectedValues.forEach((psaName: string) => {
-            const percentageControlName = this.getPSAPercentageControlName(psaName);
-            const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-            if (percentageControl) {
-              percentageControl.enable({ emitEvent: false });
-            }
-            // Also ensure checkbox is checked and readonly
             const checkboxControlName = this.getPSACheckboxControlName(psaName);
+            const percentageControlName = this.getPSAPercentageControlName(psaName);
             const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+            const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+            
+            // Ensure checkbox is true if PSA is selected
             if (checkboxControl) {
               checkboxControl.setValue(true, { emitEvent: false });
+            }
+            
+            // Enable percentage control for all selected PSAs (including BP Group)
+            if (percentageControl) {
+              percentageControl.enable({ emitEvent: false });
             }
           });
           

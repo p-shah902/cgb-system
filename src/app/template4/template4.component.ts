@@ -337,11 +337,33 @@ export class Template4Component  implements AfterViewInit{
 
       // Assign PSA/JV values dynamically
       costAllocationJVApprovalData.forEach((psa: any) => {
-        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+        // Try exact match first, then case-insensitive match with trim
+        let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+        
+        // If no exact match, try case-insensitive match
+        if (!checkboxKey && psa.psaName) {
+          const psaNameTrimmed = (psa.psaName || '').toString().trim();
+          const psaNameUpper = psaNameTrimmed.toUpperCase();
+          for (const [key, value] of Object.entries(psaNameToCheckbox)) {
+            if (key.toUpperCase() === psaNameUpper) {
+              checkboxKey = value;
+              break;
+            }
+          }
+        }
+        
         if (checkboxKey) {
-          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
+          // Handle different types for psaValue (boolean, string, number)
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+                               Boolean(psa.psaValue);
+          patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
           patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+        } else {
+          console.warn('PSA not found in mapping:', psa.psaName, 'Available keys:', Object.keys(psaNameToCheckbox));
         }
       });
 
@@ -435,6 +457,26 @@ export class Template4Component  implements AfterViewInit{
           this.generalInfoForm.patchValue({
             costAllocation: patchValues.costAllocation
           }, { emitEvent: false });
+          
+          // Enable percentage controls for all selected PSAs and ensure checkboxes are true
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              const checkboxControlName = this.getPSACheckboxControlName(psaName);
+              const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+              const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+              
+              // Ensure checkbox is true if PSA is selected
+              if (checkboxControl) {
+                checkboxControl.setValue(true, { emitEvent: false });
+              }
+              
+              // Enable percentage control for all selected PSAs (including BP Group)
+              if (percentageControl) {
+                percentageControl.enable({ emitEvent: false });
+              }
+            });
           
           this.isInitialLoad = false;
         }, 500)

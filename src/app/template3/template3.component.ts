@@ -1181,10 +1181,18 @@ export class Template3Component implements AfterViewInit {
             const percentageKey = this.getPSAPercentageControlName(psa.psaName);
             const valueKey = this.getPSAValueControlName(psa.psaName);
 
-            if (checkboxKey && psa.psaValue === true) {
-              costAllocationPatch[checkboxKey] = true;
-              costAllocationPatch[percentageKey] = psa.percentage || '';
-              costAllocationPatch[valueKey] = psa.value || null;
+            if (checkboxKey) {
+              // Handle different types for psaValue (boolean, string, number)
+              const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
+                                   typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
+                                   typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+                                   Boolean(psa.psaValue);
+              
+              if (psaValueBool) {
+                costAllocationPatch[checkboxKey] = true;
+                costAllocationPatch[percentageKey] = psa.percentage || '';
+                costAllocationPatch[valueKey] = psa.value || null;
+              }
             }
           });
 
@@ -1233,12 +1241,21 @@ export class Template3Component implements AfterViewInit {
         
         // Setup PSA listeners and calculations after data is loaded (like template1)
         setTimeout(() => {
-          // Ensure percentage controls are enabled for all selected PSAs
+          // Ensure percentage controls are enabled for all selected PSAs and checkboxes are true
           allSelectedValuesPSAJV
             .filter((psaName: string | undefined): psaName is string => !!psaName)
             .forEach((psaName: string) => {
+              const checkboxControlName = this.getPSACheckboxControlName(psaName);
               const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
               const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+              
+              // Ensure checkbox is true if PSA is selected
+              if (checkboxControl) {
+                checkboxControl.setValue(true, { emitEvent: false });
+              }
+              
+              // Enable percentage control for all selected PSAs (including BP Group)
               if (percentageControl) {
                 percentageControl.enable({ emitEvent: false });
               }
@@ -1944,7 +1961,8 @@ export class Template3Component implements AfterViewInit {
             psaName: psa.name,
             psaValue: true, // Always true when percentage exists (matching template1)
             percentage: costAllocationValues[percentageKey] || 0,
-            value: costAllocationValues[valueKey] || 0
+            value: costAllocationValues[valueKey] || 0,
+            valueType: 'Original Value'
           };
         }
         return null;
