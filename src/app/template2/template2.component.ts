@@ -415,10 +415,10 @@ export class Template2Component implements AfterViewInit {
         isFixOpex: [false],
         isVariableOpex: [false],
         isInventoryItems: [false],
-        capexMethodology: [{value: '', disabled: true}],
-        fixOpexMethodology: [{value: '', disabled: true}],
-        variableOpexMethodology: [{value: '', disabled: true}],
-        inventoryItemsMethodology: [{value: '', disabled: true}],
+        capexMethodology: [''],
+        fixOpexMethodology: [''],
+        variableOpexMethodology: [''],
+        inventoryItemsMethodology: [''],
         contractSpendCommitment: ['', Validators.required]
       }),
       consultation: this.fb.array([]),
@@ -1676,21 +1676,45 @@ export class Template2Component implements AfterViewInit {
 
   setupMethodologyListeners() {
     const controls = [
-      {checkbox: 'isCapex', methodology: 'capexMethodology'},
-      {checkbox: 'isFixOpex', methodology: 'fixOpexMethodology'},
-      {checkbox: 'isInventoryItems', methodology: 'inventoryItemsMethodology'},
-      {checkbox: 'isVariableOpex', methodology: 'variableOpexMethodology'}
+      { checkbox: 'isCapex', methodology: 'capexMethodology' },
+      { checkbox: 'isFixOpex', methodology: 'fixOpexMethodology' },
+      { checkbox: 'isInventoryItems', methodology: 'inventoryItemsMethodology' },
+      { checkbox: 'isVariableOpex', methodology: 'variableOpexMethodology' }
     ];
 
-    controls.forEach(({checkbox, methodology}) => {
-      this.generalInfoForm.get(`costSharing.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
-        const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
+    controls.forEach(({ checkbox, methodology }) => {
+      const checkboxControl = this.generalInfoForm.get(`costSharing.${checkbox}`);
+      const methodControl = this.generalInfoForm.get(`costSharing.${methodology}`);
 
-        if (isChecked) {
-          methodControl?.enable();
-        } else {
-          methodControl?.reset(); // Clears value and sets it to default (empty string in your case)
-          methodControl?.disable();
+      if (!checkboxControl || !methodControl) return;
+
+      const hasInitialValue = !!methodControl.value;
+
+      // Set initial checkbox state
+      checkboxControl.setValue(hasInitialValue, { emitEvent: false });
+
+      // Methodology fields should always be enabled so users can select radio buttons
+      methodControl.enable({ emitEvent: false });
+      
+      // Enable checkbox if method has value
+      if (hasInitialValue) {
+        checkboxControl.enable({ emitEvent: false });
+      }
+
+      // Watch methodology field changes - when radio button is selected, auto-check checkbox
+      methodControl.valueChanges.subscribe((value) => {
+        const hasValue = value !== null && value !== undefined && value !== '';
+        checkboxControl.setValue(hasValue, { emitEvent: false });
+
+        if (hasValue) {
+          checkboxControl.enable({ emitEvent: false });
+        }
+      });
+
+      // Watch checkbox changes (only uncheck allowed - clears methodology)
+      checkboxControl.valueChanges.subscribe((checked) => {
+        if (!checked && methodControl.value) {
+          methodControl.setValue(null, { emitEvent: false });
         }
       });
     });
