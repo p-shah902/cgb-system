@@ -395,7 +395,7 @@
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('totalAwardValueUSD')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
                     </div>
-                    <div *ngIf="!isContactDiffFromATM">
+                    <div *ngIf="generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value && !isContactDiffFromATM">
                       <small class="text-warning">Value is different from selected ATM paper.</small>
                     </div>
                     <div *ngIf="totalAwardValueMismatch" class="mt-2">
@@ -428,9 +428,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value (Original Currency)*</label>
-                    <input type="number" formControlName="contractValue" id="contractValue"
-                           class="form-control allow-comments" placeholder="0000.0" readonly/>
-                    <!-- <app-number-input id="contractValue" [readonly]="true" inputClass="allow-comments" formControlName="contractValue" placeholder="0.00"></app-number-input> -->
+                    <app-number-input id="contractValue" [readonly]="true" [showDollarSign]="false" inputClass="allow-comments" formControlName="contractValue" placeholder="0.00"></app-number-input>
 
                   </div>
                 </div>
@@ -665,7 +663,7 @@
                             <td>
 <!--                              <input min="0" type="number" formControlName="totalAwardValueUSD" class="form-control"-->
 <!--                                     placeholder="0.00"/>-->
-                              <app-number-input id="totalAwardValueUSD_legalEntitiesAwarded" formControlName="totalAwardValueUSD" placeholder="Value"></app-number-input>
+                              <app-number-input id="totalAwardValueUSD_legalEntitiesAwarded" formControlName="totalAwardValueUSD" placeholder="Value" (blur)="updateLegalEntityContractValue(i)"></app-number-input>
 
                             </td>
                             <td>
@@ -680,12 +678,10 @@
                             </td>
                             <td>
                               <input min="0" type="number" formControlName="exchangeRate" class="form-control"
-                                     placeholder="0.00"/>
+                                     placeholder="0.00" (input)="updateLegalEntityContractValue(i)"/>
                             </td>
                             <td>
-                             <input min="0" type="number" formControlName="contractValue" class="form-control"
-                                  placeholder="0.00"/>
-                              <!-- <app-number-input id="contractValue_legalEntitiesAwarded" inputClass="allow-comments" formControlName="contractValue" placeholder="Value"></app-number-input> -->
+                              <app-number-input id="contractValue_legalEntitiesAwarded" [readonly]="true" [showDollarSign]="false" inputClass="allow-comments" formControlName="contractValue" placeholder="0.00"></app-number-input>
 
                             </td>
                             <td>

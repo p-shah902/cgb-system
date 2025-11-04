@@ -237,6 +237,14 @@ export class Template2Component implements AfterViewInit {
 
     this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.valueChanges.subscribe((cgbAtmRefNo) => {
       this.updateCgbApprovalDate(Number(cgbAtmRefNo));
+      // Auto-populate Contract Value when ATM Ref No is selected
+      if (cgbAtmRefNo) {
+        const paperId = typeof cgbAtmRefNo === 'string' ? Number(cgbAtmRefNo) : cgbAtmRefNo;
+        this.fetchATMPaperDetails(paperId);
+      } else {
+        // Clear ATM contract value when ATM is deselected
+        this.atmPaperContactValueUSD = 0;
+      }
     });
 
     // Check for total award value mismatch
@@ -1802,6 +1810,17 @@ export class Template2Component implements AfterViewInit {
     this.generalInfoForm.get('generalInfo.contractValue')?.setValue(convertedValue);
   }
 
+  updateLegalEntityContractValue(index: number) {
+    const row = this.inviteToBid.at(index);
+    if (!row) return;
+
+    const totalAwardValueUSD = Number(row.get('totalAwardValueUSD')?.value) || 0;
+    const exchangeRate = Number(row.get('exchangeRate')?.value) || 0;
+
+    const contractValue = totalAwardValueUSD * exchangeRate;
+    row.get('contractValue')?.setValue(contractValue, { emitEvent: false });
+  }
+
   alignGovChange() {
     this.generalInfoForm.get('generalInfo.isGovtReprAligned')?.valueChanges.subscribe((value) => {
       if (value === true) {
@@ -2143,7 +2162,8 @@ export class Template2Component implements AfterViewInit {
         sourcingType: generalInfoValue?.sourcingType || "",
         isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
-        contractValue: generalInfoValue?.totalAwardValueUSD || 0,
+        totalAwardValueUSD: Number(generalInfoValue?.totalAwardValueUSD) || 0,
+        contractValue: Number(generalInfoValue?.totalAwardValueUSD) || 0,
         currencyCode: generalInfoValue?.currencyCode || "",
         exchangeRate: generalInfoValue?.exchangeRate || 0,
         isLTCC: generalInfoValue?.isLTCC || false,
@@ -2784,7 +2804,8 @@ export class Template2Component implements AfterViewInit {
       const atmCostAllocationJVApprovalData = atmPaperDetails?.costAllocationJVApproval || [];
 
       // Store ATM contract value for comparison
-      this.atmPaperContactValueUSD = atmGeneralInfo?.contractValueUsd || 0;
+      // In ATM paper, contractValue is the USD value, so use that
+      this.atmPaperContactValueUSD = atmGeneralInfo?.contractValue || atmGeneralInfo?.totalAwardValueUSD || atmGeneralInfo?.contractValueUsd || 0;
 
       // Map PSA/JV values
       const selectedValuesPSAJV = atmGeneralInfo?.psajv
@@ -2835,6 +2856,9 @@ export class Template2Component implements AfterViewInit {
         steeringCommittee_SC: atmJvApprovalsData?.steeringCommittee_SC || false,
       });
 
+      // Get Contract Value (USD) from ATM paper - contractValue is the USD value in ATM paper
+      const atmContractValueUSD = atmGeneralInfo?.contractValue || atmGeneralInfo?.totalAwardValueUSD || atmGeneralInfo?.contractValueUsd || 0;
+
       // Patch all matching fields from ATM paper to Contract template
       this.generalInfoForm.patchValue({
         generalInfo: {
@@ -2850,9 +2874,9 @@ export class Template2Component implements AfterViewInit {
           procurementSPAUsers: selectedValuesProcurementTagUsers,
           pdManagerName: atmGeneralInfo?.pdManagerNameId || null,
           currencyCode: atmGeneralInfo?.currencyCode || '',
-          totalAwardValueUSD: atmGeneralInfo?.contractValueUsd || 0,
+          totalAwardValueUSD: atmContractValueUSD, // Set Contract Value (USD) from ATM paper
           exchangeRate: atmGeneralInfo?.exchangeRate || 0,
-          contractValue: atmGeneralInfo?.contractValue || 0,
+          // Don't set contractValue directly - it will be calculated from totalAwardValueUSD * exchangeRate
           remunerationType: atmGeneralInfo?.remunerationType || '',
           workspaceNo: atmGeneralInfo?.workspaceNo || '',
           psajv: selectedValuesPSAJV,
@@ -2884,15 +2908,18 @@ export class Template2Component implements AfterViewInit {
         },
         costAllocation: patchValues.costAllocation,
       }, { emitEvent: true });
-
-      // Set PSA/JV values with delay to ensure proper initialization
+      
+      // Calculate contractValue (Original Currency) after setting totalAwardValueUSD and exchangeRate
       setTimeout(() => {
+        this.updateContractValueOriginalCurrency();
         this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
         this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV, { emitEvent: false });
-      }, 500);
+      }, 100);
 
       // Setup PSA listeners after patching values
-      this.setupPSAListeners();
+      setTimeout(() => {
+        this.setupPSAListeners();
+      }, 500);
     });
   }
 
@@ -2901,8 +2928,14 @@ export class Template2Component implements AfterViewInit {
   }
 
   get isContactDiffFromATM() {
+    const cgbAtmRefNo = this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.value;
+    // Only check if ATM is selected
+    if (!cgbAtmRefNo || !this.atmPaperContactValueUSD) {
+      return true; // Hide error when no ATM is selected
+    }
     const currentValue = +this.generalInfoForm.get('generalInfo.totalAwardValueUSD')?.value || 0;
-    return this.atmPaperContactValueUSD === currentValue;
+    // Return true if values match (to hide error), false if different (to show error)
+    return Math.abs(this.atmPaperContactValueUSD - currentValue) < 0.01; // Use small tolerance for floating point comparison
   }
 
 
@@ -2943,6 +2976,11 @@ export class Template2Component implements AfterViewInit {
 
           })
         );
+        // Calculate contractValue based on totalAwardValueUSD and exchangeRate
+        const rowIndex = this.inviteToBid.length - 1;
+        setTimeout(() => {
+          this.updateLegalEntityContractValue(rowIndex);
+        }, 0);
       });
       this.checkTotalAwardValueMismatch();
     } else {
