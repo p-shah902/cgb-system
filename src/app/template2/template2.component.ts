@@ -47,11 +47,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
 import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
 import { PermissionService } from '../shared/services/permission.service';
+import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 
 @Component({
   selector: 'app-template2',
   standalone: true,
-  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink, NgbTooltip],
+  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, TimeAgoPipe, EditorComponent, CommentableDirective, EditorNormalComponent, RouterLink, NgbTooltip, ActionBarComponent],
   templateUrl: './template2.component.html',
   styleUrl: './template2.component.scss'
 })

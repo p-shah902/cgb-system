@@ -731,91 +731,17 @@
 
 
             <div class="fb-form pt-3">
-              <div class="ff-btn-list d-flex gap-3 justify-content-end">
-                <ng-container *ngIf="!paperId || (paperId && isCopy)">
-                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)">
-                    Draft
-                  </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)">
-                    Register
-                  </button>
-                </ng-container>
-                <ng-container *ngIf="paperId && !isCopy">
-                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)"
-                          *ngIf="permission.canShowDraftRegisterInEdit(paperDetails?.paperDetails?.paperStatusName)">
-                    Draft
-                  </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                          *ngIf="permission.canShowDraftRegisterInEdit(paperDetails?.paperDetails?.paperStatusName)">
-                    Register
-                  </button>
-                  <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')"
-                          *ngIf="permission.canShowArchive(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName)">
-                    Archive
-                  </button>
-                  <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')"
-                          *ngIf="permission.canShowSendForPDM(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName)">
-                    Send For
-                    PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review' : 'Approval'}}
-                  </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                          *ngIf="permission.canShowUpdate(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName)">
-                    Update
-                  </button>
-
-                  <div
-                    class="d-flex align-items-center justify-content-between gap-3"
-                    *ngIf="
-                      loggedInUser?.roleName === 'PDM' &&
-                      paperDetails?.paperDetails?.paperStatusName === 'Waiting for PDM'
-                    "
-                  >
-                    <button
-                      class="btn normal-btn"
-                      (click)="open($event, content3, paperId)"
-                    >
-                      Return to Originator
-                    </button>
-                    <button
-                      class="btn update-btn"
-                      (click)="open($event, content2, paperId)"
-                    >
-                      Approve
-                    </button>
-                  </div>
-                  <div
-                    class="d-flex align-items-center justify-content-between gap-3"
-                    *ngIf="
-                      (loggedInUser?.roleName === 'CGB Chair' ||
-                        loggedInUser?.roleName === 'CPO' ||
-                        loggedInUser?.roleName === 'JV Admin' ||
-                        loggedInUser?.roleName === 'Legal VP-1' ||
-                        loggedInUser?.roleName === 'Performance Manager') &&
-                      paperDetails?.paperDetails?.paperStatusName === 'On Pre-CGB'
-                    "
-                  >
-                    <button
-                      class="btn update-btn"
-                      (click)="open($event, content4, paperId)"
-                    >
-                      Add Review
-                    </button>
-                  </div>
-                  <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
-                       *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && paperDetails?.paperDetails?.paperStatusName === 'On CGB'">
-                    <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
-                      Vote Now
-                    </button>
-                  </div>
-                  <div class="ic-btn-div d-flex justify-content-end"
-                       *ngIf="loggedInUser?.roleName === 'Procurement Tag' && paperDetails?.paperDetails?.paperStatusName === 'Action Required by CGB'">
-                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                            (click)="setPaperStatus('On CGB')">
-                      Return to requested
-                    </button>
-                  </div>
-                </ng-container>
-              </div>
+              <app-action-bar
+                [paperId]="paperId"
+                [isCopy]="isCopy"
+                [roleName]="loggedInUser?.roleName"
+                [statusName]="paperDetails?.paperDetails?.paperStatusName"
+                (setStatus)="setPaperStatus($event, false)"
+                (openReturn)="open($event, content3, paperId)"
+                (openApprove)="open($event, content2, paperId)"
+                (openAddReview)="open($event, content4, paperId)"
+                (returnToRequested)="setPaperStatus('On CGB')"
+              ></app-action-bar>
             </div>
           </form>
         </div>
