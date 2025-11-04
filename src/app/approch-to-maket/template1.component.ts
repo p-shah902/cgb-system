@@ -579,6 +579,7 @@ export class Template1Component implements AfterViewInit  {
   fetchPaperDetails(paperId: number) {
       this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
       this.paperDetails = value.data;
+      console.log('paperDetails from API:', this.paperDetails);
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = value.data?.consultationsDetails || [];
       console.log('consultationsData from API:', consultationsData);
@@ -1861,6 +1862,16 @@ export class Template1Component implements AfterViewInit  {
         console.log(result);
       }
     });
+  }
+
+  handleStatusChange(status: string): void {
+    // For "Waiting for PDM", always call the API to update status
+    if (status === 'Waiting for PDM') {
+      this.setPaperStatus(status, true);
+    } else {
+      // For other statuses, don't call API (form submission will handle it)
+      this.setPaperStatus(status, false);
+    }
   }
 
   setPaperStatus(status: string, callAPI: boolean = true): void {

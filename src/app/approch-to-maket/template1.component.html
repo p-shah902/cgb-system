@@ -1595,11 +1595,11 @@
                 [isCopy]="isCopy"
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.paperDetails?.paperStatusName"
-                (setStatus)="setPaperStatus($event, false)"
+                (setStatus)="handleStatusChange($event)"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"
-                (returnToRequested)="setPaperStatus('On CGB')"
+                (returnToRequested)="setPaperStatus('On CGB', true)"
               ></app-action-bar>
               </div>
             </div>

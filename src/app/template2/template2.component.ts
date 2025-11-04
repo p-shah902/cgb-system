@@ -431,6 +431,7 @@ export class Template2Component implements AfterViewInit {
   fetchPaperDetails(paperId: number) {
       this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
       this.paperDetails = value.data as any;
+      console.log("==this.paperDetails", this.paperDetails)
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = value.data?.consultations || [];
       this.paperDetails.consultationsDetails = consultationsData;
@@ -2060,20 +2061,41 @@ export class Template2Component implements AfterViewInit {
   }
 
 
+  handleStatusChange(status: string): void {
+    // For "Waiting for PDM", always call the API to update status
+    if (status === 'Waiting for PDM') {
+      this.setPaperStatus(status, true);
+    } else {
+      // For other statuses, don't call API (form submission will handle it)
+      this.setPaperStatus(status, false);
+    }
+  }
+
   setPaperStatus(status: string, callAPI: boolean = true): void {
     if (!this.paperStatusList?.length) return; // Check if list exists & is not empty
 
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
 
-    if (callAPI && this.paperId) {
+    if (callAPI && this.paperId && this.paperStatusId) {
+      // For template2, paperDetails structure is different - use contractAwardDetails
+      const existingStatusId = this.paperDetails?.contractAwardDetails?.paperStatusId || 
+                               this.paperDetails?.paperDetails?.paperStatusId || 
+                               null;
+      
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
-        existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
+        existingStatusId: existingStatusId,
         statusId: this.paperStatusId
-      }]).subscribe(value => {
-        this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/paperconfiguration'])
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/paperconfiguration']);
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        }
       });
     }
   }
