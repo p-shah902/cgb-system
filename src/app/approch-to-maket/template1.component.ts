@@ -320,7 +320,9 @@ export class Template1Component implements AfterViewInit  {
 
     this.generalInfoForm.get('generalInfo.contractValueUsd')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
-      this.setupPSACalculationsManually()
+      this.setupPSACalculationsManually();
+      // Re-evaluate committee checkboxes after PSA values are recalculated
+      this.reEvaluateAllCommitteeCheckboxes();
     });
 
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
@@ -549,6 +551,8 @@ export class Template1Component implements AfterViewInit  {
     this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe((value) => {
       const selectedType = this.sourcingTypeData.find(item => item.id === Number(value));
       this.isShowJustification = !selectedType || selectedType.itemValue !== "Competitive Bid";
+      // Re-evaluate committee checkboxes when sourcing type changes
+      this.reEvaluateAllCommitteeCheckboxes();
     });
   }
 
@@ -1257,7 +1261,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   // Common method to apply committee logic for a specific PSA
-  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean): void {
+  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean, reEvaluate: boolean = false): void {
     const valueControlName = this.getPSAValueControlName(psaName);
     const jvApprovalsData = this.paperDetails?.jvApprovals && (this.paperDetails.jvApprovals[0] || null);
     const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
@@ -1276,7 +1280,10 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          firstCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          firstCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
 
@@ -1291,7 +1298,10 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          secondCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          secondCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
     } else {
@@ -1319,7 +1329,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   // Trigger committee logic for a specific PSA when percentage/value changes
-  triggerCommitteeLogicForPSA(psaName: string): void {
+  triggerCommitteeLogicForPSA(psaName: string, reEvaluate: boolean = false): void {
     const checkboxControlName = this.getPSACheckboxControlName(psaName);
     const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
 
@@ -1329,10 +1339,26 @@ export class Template1Component implements AfterViewInit  {
       return;
     }
 
-    this.applyCommitteeLogicForPSA(psaName, isChecked);
+    this.applyCommitteeLogicForPSA(psaName, isChecked, reEvaluate);
 
     // Uncheck JV Aligned checkbox for the corresponding PSA in consultation rows
     this.uncheckJVAlignedForPSA(psaName);
+  }
+
+  // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
+  reEvaluateAllCommitteeCheckboxes(): void {
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    
+    selectedPSAJV.forEach((psaName: string) => {
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+      
+      // Only re-evaluate if PSA checkbox is checked
+      if (checkboxControl?.value === true) {
+        // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
+        this.triggerCommitteeLogicForPSA(psaName, true);
+      }
+    });
   }
 
   // Method to uncheck JV Aligned checkbox for a specific PSA

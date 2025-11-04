@@ -1429,7 +1429,7 @@
                     <td *ngFor="let psa of getSelectedPSAJVColumns()">
                       <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input [formControlName]="getFirstCommitteeControlName(psa)" type="checkbox">
+                          <input [formControlName]="getFirstCommitteeControlName(psa)" type="checkbox" readonly (click)="$event.preventDefault()">
                           <label>{{ getFirstCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
@@ -1443,7 +1443,7 @@
                     <td *ngFor="let psa of getSelectedPSAJVColumns()">
                       <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input [formControlName]="getSecondCommitteeControlName(psa)" type="checkbox">
+                          <input [formControlName]="getSecondCommitteeControlName(psa)" type="checkbox" readonly (click)="$event.preventDefault()">
                           <label>{{ getSecondCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
