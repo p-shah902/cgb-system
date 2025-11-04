@@ -586,14 +586,28 @@ export class Template5Component  implements AfterViewInit{
     const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
     const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
     if (costAllocationControl) {
-      selectedOptions.forEach((psaName: string) => {
-        this.addPSAJVFormControls(psaName);
-        const checkboxControlName = this.getPSACheckboxControlName(psaName);
-        costAllocationControl.get(checkboxControlName)?.setValue(true);
-        // Ensure As% (percentage) input is enabled like template1
-        const percentageControlName = this.getPSAPercentageControlName(psaName);
-        costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
-        this.addConsultationRowOnChangePSAJV(psaName);
+      // Get all possible PSAJV options
+      const allPSAJVOptions = this.psaJvOptions.map(option => option.value);
+
+      // Handle each PSAJV option
+      allPSAJVOptions.forEach((psaName) => {
+        const isSelected = selectedOptions.includes(psaName);
+
+        if (isSelected) {
+          // Add form controls if they don't exist
+          this.addPSAJVFormControls(psaName);
+          // Set checkbox to checked
+          const checkboxControlName = this.getPSACheckboxControlName(psaName);
+          costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
+          // Add consultation row
+          this.addConsultationRowOnChangePSAJV(psaName);
+        } else {
+          // Remove consultation row
+          this.removeConsultationRowByPSAJV(psaName);
+        }
       });
     }
     this.setupPSAListeners();
