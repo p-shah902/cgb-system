@@ -195,17 +195,6 @@
                          formControlName="cgbItemRefNo"/>
                 </div>
               </div>
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Reference Number</label>
-                    <input id="referenceNo" type="text" class="form-control allow-comments" placeholder="Ref Number"
-                           formControlName="referenceNo"/>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('referenceNo')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB Circulation Date</label>
@@ -219,9 +208,12 @@
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>Full Legal Name *</label>
-                  <input id="legalName" type="text" class="form-control allow-comments"
-                         placeholder="Full Legal Name"
-                         formControlName="legalName"/>
+                  <select class="form-control allow-comments" id="legalName" formControlName="legalName" (change)="onVendorSelectionChange()">
+                    <option [value]="null">Select vendor</option>
+                    <option *ngFor="let vendor of getVendorOptions()" [value]="vendor.value">
+                      {{ vendor.label }}
+                    </option>
+                  </select>
                   <div class="text-danger"
                        *ngIf="submitted && generalInfo?.get('legalName')?.hasError('required')">
                     <small class="text-danger">Please select value.</small>
@@ -238,66 +230,27 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Previous CGB Item Reference</label>
-                    <input type="text" formControlName="previousCGBItemRefNo" id="previousCGBItemRefNo"
-                           class="form-control allow-comments" placeholder="Enter Here"/>
+                    <ng-select2
+                      placeholder="Search by Ref# or Title..."
+                      displaySearchStatus="always"
+                      id="previousCGBItemRefNo"
+                      class="allow-comments"
+                      formControlName="previousCGBItemRefNo"
+                      [data]="previousCGBItemOptions"
+                      (update)="onPreviousCGBItemSelected($event)">
+                    </ng-select2>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('previousCGBItemRefNo')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
-
                 </div>
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function* </label>
-                    <select class="form-control allow-comments" id="operatingFunction"
-                            formControlName="operatingFunction">
-                      <option [value]="''">Select</option>
-                      <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>BLT Member* </label>
-                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
-                      <small class="text-danger">Please select value.</small>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
-                    <label>Subsector*</label>
-                    <select class="form-control allow-comments" formControlName="subSector" id="subSector">
-                      <option [value]="''">Select</option>
-                      <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
+                    <label>Contract Value</label>
+                    <input type="number" id="contractValue" formControlName="contractValue"
+                           class="form-control allow-comments" placeholder="0.00" step="0.01" min="0"/>
                   </div>
                 </div>
 
@@ -329,7 +282,43 @@
                   </div>
                 </div>
 
-                <div class="col-sm-6 col-md-6">
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Operating Function* </label>
+                    <select class="form-control allow-comments" id="operatingFunction"
+                            formControlName="operatingFunction">
+                      <option [value]="''">Select</option>
+                      <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger"
+                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Subsector*</label>
+                    <select class="form-control allow-comments" formControlName="subSector" id="subSector">
+                      <option [value]="''">Select</option>
+                      <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
+                        <option [value]="item.id.toString()">
+                          {{ item.itemValue }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
+                      <small class="text-danger">This field is required.</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>Contract Account Manager (CAM)*</label>
                   <select class="form-control allow-comments" formControlName="camUserId" id="camUserId">
@@ -392,6 +381,22 @@
                     </div>
                   </div>
                 </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>BLT Member* </label>
+                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
+                      <option [value]="null">Select</option>
+                      <ng-container *ngFor="let user of userDetails">
+                        <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
+                          {{ user.displayName }}
+                        </option>
+                      </ng-container>
+                    </select>
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('bltMember')?.hasError('required')">
+                      <small class="text-danger">Please select value.</small>
+                    </div>
+                  </div>
+                </div>
 
 
               <div class="col-sm-6 col-md-6">
@@ -450,31 +455,6 @@
                 </div>
               </div>
 
-                <div class="col-sm-6 col-md-6">
-                  <div class="form-group mb-3 allow-comments" id="isLTCC">
-                    <label>Long Term Commercial Commitment</label>
-                    <div class="form-radio d-flex gap-3">
-                      <div class="radio-box position-relative">
-                        <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
-                        <label>Yes</label>
-                      </div>
-                      <div class="radio-box position-relative">
-                        <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="false">
-                        <label>No</label>
-                      </div>
-                    </div>
-
-                  </div>
-                  <div class="form-group mb-3">
-                    <label>LTCC Note</label>
-                    <textarea type="text" id="ltccNotes" class="form-control allow-comments"
-                              placeholder="Write Description"
-                              formControlName="ltccNotes"></textarea>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('ltccNotes')?.hasError('required')">
-                      <small class="text-danger">This field is required.</small>
-                    </div>
-                  </div>
-                </div>
 
               </div>
 
@@ -560,53 +540,11 @@
                   <thead>
                   <tr>
                     <th>PSA</th>
-                    <th>
+                    <th *ngFor="let psa of getSelectedPSAJVColumns()">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input formControlName="isACG" type="checkbox">
-                          <label>ACG</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isShah" type="checkbox">
-                          <label>Shah
-                            Deniz</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isSCP" type="checkbox">
-                          <label>SCP</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isBTC" type="checkbox">
-                          <label>BTC</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isAsiman" type="checkbox">
-                          <label>Sh-Asiman</label>
-                        </div>
-                      </div>
-                    </th>
-                    <th>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="isBPGroup" type="checkbox">
-                          <label>BP
-                            Group</label>
+                          <input [formControlName]="getPSACheckboxControlName(psa)" type="checkbox" readonly>
+                          <label>{{ psa }}</label>
                         </div>
                       </div>
                     </th>
@@ -618,44 +556,11 @@
                   <tbody>
                   <tr>
                     <td><b>As%</b></td>
-                    <td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
                       <div class="input-group">
                         <span class="input-group-text">%</span>
                         <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
-                               max="100" type="number" placeholder="%" formControlName="percentage_isACG">
-                      </div>
-                    </td>
-                    <td>
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="percentage_isShah">
-                      </div>
-                    </td>
-                    <td>
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="percentage_isSCP"></div>
-                    </td>
-                    <td>
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBTC"></div>
-                    </td>
-                    <td>
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="percentage_isAsiman">
-                      </div>
-                    </td>
-                    <td>
-                      <div class="input-group">
-                        <span class="input-group-text">%</span>
-                        <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 "
-                               placeholder="%" min="0" max="100" type="number" formControlName="percentage_isBPGroup">
+                               max="100" type="number" placeholder="%" [formControlName]="getPSAPercentageControlName(psa)">
                       </div>
                     </td>
                     <td>
@@ -680,178 +585,42 @@
 
                   <tr>
                     <td><b>By value $</b></td>
-                    <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="value_isACG" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)" inputClass="p-1"
+                                        [formControlName]="getPSAValueControlName(psa)" placeholder="0.00"></app-number-input>
                     </td>
                     <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="value_isShah" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
-                    </td>
-                    <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="value_isSCP" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
-                    </td>
-                    <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="value_isBTC" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
-                    </td>
-                    <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="value_isAsiman" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
-                    </td>
-                    <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="value_isBPGroup" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
-                    </td>
-                    <td>
-<!--                      <div class="input-group">-->
-<!--                        <span class="input-group-text">$</span>-->
-<!--                        <input readonly formControlName="totalValue" min="0" type="number"-->
-<!--                               class="form-control p-1 " placeholder="0.00"></div>-->
-                    </td>
-
-                  </tr>
-
-                  <tr>
-                    <td><b>Contract Committee</b></td>
-                    <td>
-
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SDCC" type="checkbox">
-                          <label>SDCC</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SCP_Co_CC" type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_SCP_Co_CCInfoNote" type="checkbox">
-                          <label>SCP Co CC</label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_BTC_CC" type="checkbox">
-                          <label>BTC CC</label>
-                        </div>
-                        <div class="form-check-box position-relative">
-                          <input formControlName="contractCommittee_BTC_CCInfoNote" type="checkbox">
-                          <label>BTC CC </label>
-                        </div>
-                        <div class="info-label position-relative">
-                          <label>info note</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
+                      <app-number-input [readonly]="true" id="totalValue" inputClass="p-1" formControlName="totalValue" placeholder="0.00"></app-number-input>
                     </td>
                   </tr>
 
                   <tr>
-                    <td><b>Co-
-                      Venturers</b></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                    <td><b>1st Committee</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_CMC" type="checkbox">
-                          <label>CMC</label>
+                          <input [formControlName]="getFirstCommitteeControlName(psa)" type="checkbox">
+                          <label>{{ getFirstCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_SDMC" type="checkbox">
-                          <label>SDMC</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
-                        <div class="form-check-box position-relative">
-                          <input formControlName="coVenturers_SCP" type="checkbox">
-                          <label>SCP Board</label>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <!--                      <div class="form-check-list d-flex gap-3 flex-wrap">-->
-                      <!--                        <div class="form-check-box position-relative">-->
-                      <!--                          <input formControlName="coVenturers_SCP_Board" type="checkbox">-->
-                      <!--                          <label>SCP Board</label>-->
-                      <!--                        </div>-->
-                      <!--                      </div>-->
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
+                    <td></td>
                   </tr>
 
                   <tr>
-                    <td><b>Steering
-                      Committee</b></td>
-                    <td>
-                      <div class="form-check-list d-flex gap-3 flex-wrap">
+                    <td><b>2nd Committee</b></td>
+                    <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                      <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input formControlName="steeringCommittee_SC" type="checkbox">
-                          <label>SCP Board</label>
+                          <input [formControlName]="getSecondCommitteeControlName(psa)" type="checkbox">
+                          <label>{{ getSecondCommitteeLabel(psa) }}</label>
                         </div>
                       </div>
                     </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
-                    <td>
-
-                    </td>
+                    <td></td>
                   </tr>
+
+                  
                   </tbody>
                 </table>
                 <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
@@ -886,19 +655,16 @@
                       <th>Technically Correct</th>
                       <th>Budget Statement</th>
                       <th>JV Review</th>
-                      <th>Action</th>
+                      <th>JV Aligned</th>
                     </tr>
                     </thead>
                     <tbody formArrayName="consultation">
                     <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
                       <td><select class="form-control" formControlName="psa">
                         <option [value]="''">Select</option>
-                        <option value="ACG">ACG</option>
-                        <option value="Shah Deniz">Shah Deniz</option>
-                        <option value="SCP">SCP</option>
-                        <option value="BTC">BTC</option>
-                        <option value="Sh-Asiman">Sh-Asiman</option>
-                        <option value="BP Group">BP Group</option>
+                        <option *ngFor="let psaOption of psaJvOptions" [value]="psaOption.value">
+                          {{ psaOption.label }}
+                        </option>
                       </select></td>
                       <td>
                         <select aria-readonly="true" [disabled]="true" class="form-control"
@@ -922,7 +688,7 @@
                         </select>
                       </td>
                       <td>
-                        <select class="form-control" formControlName="jvReview">
+                        <select class="form-control" formControlName="jvReview" (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
                           <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
@@ -932,15 +698,11 @@
                         </select>
                       </td>
                       <td>
-                        <div class="krt-action">
-                          <button class="btn p-0" type="button" (click)="removeConsultationRow(i)">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
-                              <path
-                                d="M5.41659 2.66536V0.832031H14.5833V2.66536H19.1666V4.4987H17.3333V18.2487C17.3333 18.755 16.9229 19.1654 16.4166 19.1654H3.58325C3.077 19.1654 2.66659 18.755 2.66659 18.2487V4.4987H0.833252V2.66536H5.41659ZM4.49992 4.4987V17.332H15.4999V4.4987H4.49992ZM7.24992 7.2487H9.08325V14.582H7.24992V7.2487ZM10.9166 7.2487H12.7499V14.582H10.9166V7.2487Z"
-                                fill="#EC4747"/>
-                            </svg>
-                          </button>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" formControlName="jvAligned"
+                                 [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
+                                 (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
+                          <label class="form-check-label">JV Aligned</label>
                         </div>
                       </td>
                     </tr>
@@ -950,7 +712,7 @@
                 </div>
 
               </div>
-              <div class="add-row-btn-div">
+              <div class="add-row-btn-div d-none">
                 <button class="btn p-0" type="button" (click)="addConsultationRow()">
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9 3.75V14.25M3.75 9H14.25" stroke="#582AA2" stroke-width="2" stroke-linecap="round"
@@ -969,83 +731,17 @@
 
 
             <div class="fb-form pt-3">
-              <div class="ff-btn-list d-flex gap-3 justify-content-end">
-                <ng-container *ngIf="!paperId || (paperId && isCopy)">
-                  <button class="btn  btn-outline-dark" type="submit" (click)="setPaperStatus('Draft', false)">
-                    Draft
-                  </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)">
-                    Register
-                  </button>
-                </ng-container>
-                <ng-container *ngIf="paperId && !isCopy">
-                  <button class="btn btn-outline-dark" type="button" (click)="setPaperStatus('Archived')"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag'|| loggedInUser?.roleName === 'Secretary')">
-                    Archive
-                  </button>
-                  <button class="btn btn-primary" type="button" (click)="setPaperStatus('Waiting for PDM')"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
-                    Send For
-                    PDM {{paperDetails?.paperDetails?.paperStatusName === 'Action Required by Pre-CGB' ? 'Review' : 'Approval'}}
-                  </button>
-                  <button class="btn btn-dark" type="submit" (click)="setPaperStatus('Registered', false)"
-                          *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM')">
-                    Update
-                  </button>
-
-                  <div
-                    class="d-flex align-items-center justify-content-between gap-3"
-                    *ngIf="
-                      loggedInUser?.roleName === 'PDM' &&
-                      paperDetails?.paperDetails?.paperStatusName === 'Waiting for PDM'
-                    "
-                  >
-                    <button
-                      class="btn normal-btn"
-                      (click)="open($event, content3, paperId)"
-                    >
-                      Return to Originator
-                    </button>
-                    <button
-                      class="btn update-btn"
-                      (click)="open($event, content2, paperId)"
-                    >
-                      Approve
-                    </button>
-                  </div>
-                  <div
-                    class="d-flex align-items-center justify-content-between gap-3"
-                    *ngIf="
-                      (loggedInUser?.roleName === 'CGB Chair' ||
-                        loggedInUser?.roleName === 'CPO' ||
-                        loggedInUser?.roleName === 'JV Admin' ||
-                        loggedInUser?.roleName === 'Legal VP-1' ||
-                        loggedInUser?.roleName === 'Performance Manager') &&
-                      paperDetails?.paperDetails?.paperStatusName === 'On Pre-CGB'
-                    "
-                  >
-                    <button
-                      class="btn update-btn"
-                      (click)="open($event, content4, paperId)"
-                    >
-                      Add Review
-                    </button>
-                  </div>
-                  <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
-                       *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && paperDetails?.paperDetails?.paperStatusName === 'On CGB'">
-                    <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
-                      Vote Now
-                    </button>
-                  </div>
-                  <div class="ic-btn-div d-flex justify-content-end"
-                       *ngIf="loggedInUser?.roleName === 'Procurement Tag' && paperDetails?.paperDetails?.paperStatusName === 'Action Required by CGB'">
-                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                            (click)="setPaperStatus('On CGB')">
-                      Return to requested
-                    </button>
-                  </div>
-                </ng-container>
-              </div>
+              <app-action-bar
+                [paperId]="paperId"
+                [isCopy]="isCopy"
+                [roleName]="loggedInUser?.roleName"
+                [statusName]="paperDetails?.paperDetails?.paperStatusName"
+                (setStatus)="setPaperStatus($event, false)"
+                (openReturn)="open($event, content3, paperId)"
+                (openApprove)="open($event, content2, paperId)"
+                (openAddReview)="open($event, content4, paperId)"
+                (returnToRequested)="setPaperStatus('On CGB')"
+              ></app-action-bar>
             </div>
           </form>
         </div>

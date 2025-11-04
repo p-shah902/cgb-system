@@ -306,7 +306,7 @@
                       </th>
                       <th>Title</th>
                       <th>Paper Type</th>
-                      <th>Contract Value</th>
+                      <th>Contract Value (USD)</th>
                       <th>Status</th>
                       <th>Last Modify</th>
                       <th>Action</th>
@@ -345,7 +345,7 @@
                         <div class="paper-name">
                           <div class="paper-detail">
                             <p>
-                              {{ paper.totalContractValue > 0 ? paper.totalContractValue : '-' }}
+                              ${{ (paper.totalContractValue > 0 ? paper.totalContractValue : 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
                             </p>
                           </div>
                         </div>

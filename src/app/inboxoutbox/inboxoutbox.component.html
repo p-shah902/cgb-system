@@ -38,7 +38,7 @@
                               </p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
-                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager') && inbox.paperStatus === 'On CGB'">
+                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager' || loggedInUser?.roleName === 'Legal VP'  || loggedInUser?.roleName === 'PHCA'  || loggedInUser?.roleName === 'BLT') && inbox.paperStatus === 'On CGB'">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                                   Vote Now
                                 </button>

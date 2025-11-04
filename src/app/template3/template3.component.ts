@@ -1,6 +1,6 @@
-import {Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit} from '@angular/core';
-import {CKEditorModule, loadCKEditorCloud, CKEditorCloudResult} from '@ckeditor/ckeditor5-angular';
-import type {ClassicEditor, EditorConfig} from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
+import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit } from '@angular/core';
+import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
+import type { ClassicEditor, EditorConfig } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
 import {
   FormBuilder,
   FormArray,
@@ -10,52 +10,54 @@ import {
   AbstractControl,
   ValidationErrors, FormsModule
 } from '@angular/forms';
-import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
-import {CommonModule} from '@angular/common';
-import {environment} from '../../environments/environment';
-import {Select2} from 'ng-select2-component';
-import {DictionaryService} from '../../service/dictionary.service';
-import {Generalervice} from '../../service/general.service';
-import {UploadService} from '../../service/document.service';
-import {ToastService} from '../../service/toast.service';
-import {Router, ActivatedRoute, RouterLink} from '@angular/router';
-import {DictionaryDetail} from '../../models/dictionary';
-import {LoginUser, UserDetails} from '../../models/user';
-import {UserService} from '../../service/user.service';
-import {PaperService} from '../../service/paper.service';
-import {CountryDetail} from '../../models/general';
-import {PaperMappingType, PaperStatusType, PSAEntry} from '../../models/paper';
-import {VendorService} from '../../service/vendor.service';
-import {VendorDetail} from '../../models/vendor';
-import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
-import {EditorComponent} from '../../components/editor/editor.component';
-import {CommentableDirective} from '../../directives/commentable.directive';
-import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
-import {PaperConfigService} from '../../service/paper/paper-config.service';
-import {CommentService} from '../../service/comment.service';
-import {EditorService} from '../../service/editor.service';
-import {AuthService} from '../../service/auth.service';
-import {format} from 'date-fns';
-import {BehaviorSubject} from 'rxjs';
-import {DummyCompComponent} from '../dummy-comp/dummy-comp.component';
-import {cleanObject, base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
-import {ThresholdType} from '../../models/threshold';
-import {ThresholdService} from '../../service/threshold.service';
-import {ToggleService} from '../shared/services/toggle.service';
-import {CURRENCY_LIST} from '../../utils/constant';
+import { NgbModal, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
+import { environment } from '../../environments/environment';
+import { Select2 } from 'ng-select2-component';
+import { DictionaryService } from '../../service/dictionary.service';
+import { Generalervice } from '../../service/general.service';
+import { UploadService } from '../../service/document.service';
+import { ToastService } from '../../service/toast.service';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { DictionaryDetail } from '../../models/dictionary';
+import { LoginUser, UserDetails } from '../../models/user';
+import { UserService } from '../../service/user.service';
+import { PaperService } from '../../service/paper.service';
+import { CountryDetail } from '../../models/general';
+import { PaperMappingType, PaperStatusType, PSAEntry } from '../../models/paper';
+import { VendorService } from '../../service/vendor.service';
+import { VendorDetail } from '../../models/vendor';
+import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
+import { EditorComponent } from '../../components/editor/editor.component';
+import { CommentableDirective } from '../../directives/commentable.directive';
+import { EditorNormalComponent } from '../../components/editor-normal/editor-normal.component';
+import { PaperConfigService } from '../../service/paper/paper-config.service';
+import { CommentService } from '../../service/comment.service';
+import { EditorService } from '../../service/editor.service';
+import { AuthService } from '../../service/auth.service';
+import { format } from 'date-fns';
+import { BehaviorSubject } from 'rxjs';
+import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
+import { cleanObject, base64ToFile, getMimeTypeFromFileName } from '../../utils/index';
+import { ThresholdType } from '../../models/threshold';
+import { ThresholdService } from '../../service/threshold.service';
+import { ToggleService } from '../shared/services/toggle.service';
+import { PermissionService } from '../shared/services/permission.service';
+import { CURRENCY_LIST } from '../../utils/constant';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import {NumberInputComponent} from '../../components/number-input/number-input.component';
+import { NumberInputComponent } from '../../components/number-input/number-input.component';
 import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
+import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 
 @Component({
   selector: 'app-template3',
   standalone: true,
-  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip],
+  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, RouterLink, NgbTooltip, ActionBarComponent],
   templateUrl: './template3.component.html',
   styleUrl: './template3.component.scss'
 })
-export class Template3Component  implements AfterViewInit {
+export class Template3Component implements AfterViewInit {
   @ViewChild('sectionDropdown') sectionDropdown!: ElementRef<HTMLSelectElement>;
 
   private readonly userService = inject(UserService);
@@ -70,6 +72,7 @@ export class Template3Component  implements AfterViewInit {
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
+  private psaCalculationListenersSet = new Set<string>(); // Track which PSAJV columns have calculation listeners
   generalInfoForm!: FormGroup;
   isExpanded: boolean = true; // Default expanded
   paperId: string | null = null;
@@ -124,20 +127,21 @@ export class Template3Component  implements AfterViewInit {
   };
   paperMappingData: PaperMappingType[] = [];
 
-  psaItems: Array<{psaName: string, control: string, percentage: string, value: string}> = [];
+  psaItems: Array<{ psaName: string, control: string, percentage: string, value: string }> = [];
 
   allowedGroups = [
-    {key: 'originalValue', label: 'Original Value'},
-    {key: 'previousValue', label: 'Previous Value'},
-    {key: 'thisValue', label: 'This Value'},
-    {key: 'revisedValue', label: 'Revised Value'}
+    { key: 'originalValue', label: 'Original Value' },
+    { key: 'previousValue', label: 'Previous Value' },
+    { key: 'thisValue', label: 'This Value' },
+    { key: 'revisedValue', label: 'Revised Value' }
   ];
 
 
   public psaJvOptions: { value: string; label: string }[] = [];
 
-  constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
-              private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+  constructor(private router: Router, private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
+    private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+    public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -211,6 +215,23 @@ export class Template3Component  implements AfterViewInit {
       this.updateContractValueOriginalCurrency();
     });
 
+    this.generalInfoForm.get('contractValues.thisVariationNote')?.valueChanges.subscribe(() => {
+      // Recalculate all "By value $" fields when "This Value" changes (like template1 does with contractValueUsd)
+      this.recalculateAllPSAValues();
+      // Re-evaluate committee checkboxes after PSA values are recalculated
+      this.reEvaluateAllCommitteeCheckboxes();
+    });
+
+    // Re-evaluate committee checkboxes when sourcing type changes
+    this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe(() => {
+      this.reEvaluateAllCommitteeCheckboxes();
+    });
+
+    // Re-evaluate committee checkboxes when revised contract value changes
+    this.generalInfoForm.get('contractValues.revisedContractValue')?.valueChanges.subscribe(() => {
+      this.reEvaluateAllCommitteeCheckboxes();
+    });
+
     this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.valueChanges.subscribe((cgbAwardRefNo) => {
       this.updateCgbApprovalDate(Number(cgbAwardRefNo));
     });
@@ -219,8 +240,22 @@ export class Template3Component  implements AfterViewInit {
     this.onCurrencyLinktoBaseCostChange()
     this.onConflictofInterestChange()
     this.onApprovalChange()
+    this.setupJVAlignedAutoReset()
 
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   ngAfterViewInit() {
     const options = {
@@ -257,7 +292,7 @@ export class Template3Component  implements AfterViewInit {
       Link
     } = cloud.CKEditor;
 
-    const {FormatPainter} = cloud.CKEditorPremiumFeatures;
+    const { FormatPainter } = cloud.CKEditorPremiumFeatures;
 
     this.Editor = ClassicEditor;
     this.config = {
@@ -275,7 +310,7 @@ export class Template3Component  implements AfterViewInit {
         supportAllValues: true
       },
       ui: {
-        viewportOffset: {top: 50, bottom: 50}  // Adjust editor's viewport
+        viewportOffset: { top: 50, bottom: 50 }  // Adjust editor's viewport
       }
     };
   }
@@ -300,14 +335,15 @@ export class Template3Component  implements AfterViewInit {
         isIncreaseInValue: [false],
         isExtensionOfDuration: [false],
         isTEToCompleteBidding: [false],
+        teToCompleteBiddingJustification: [''],
         isChangeInRates: [false],
-        cgbItemRefNo: [{value: '', disabled: true}],
-        cgbCirculationDate: [{value: '', disabled: true}],
+        cgbItemRefNo: [{ value: '', disabled: true }],
+        cgbCirculationDate: [{ value: '', disabled: true }],
         cgbAwardRefNo: [null, Validators.required],
         cgbApprovalDate: [null],
+        otherRelatedCgbPapers: [''],
         fullLegalName: ['', Validators.required],
         contractNo: [''],
-        vendorId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         globalCGB: ['', Validators.required],
         camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -342,11 +378,13 @@ export class Template3Component  implements AfterViewInit {
         prePayAmount: [null],
         isRetrospectiveApproval: [null],
         retrospectiveApprovalReason: [{ value: '', disabled: true }],
+        isConflictOfInterest: [null],
+        conflictOfInterestComment: [{ value: '', disabled: true }],
       }),
       contractValues: this.fb.group({
         originalContractValue: [0],
         previousVariationTotal: [0],
-        thisVariationNote: ['', Validators.required],
+        thisVariationNote: [0, Validators.required],
         exchangeRate: [0],
         currencyCode: [''],
         contractValue: [0],
@@ -393,6 +431,8 @@ export class Template3Component  implements AfterViewInit {
         // isBTC: [{value: false, disabled: true}],
         // isAsiman: [{value: false, disabled: true}],
         // isBPGroup: [{value: false, disabled: true}],
+        totalPercentage: [0],
+        totalValue: [0]
       }),
       consultation: this.fb.array([]),
       originalValue: this.createPsaFormGroup(),
@@ -401,6 +441,10 @@ export class Template3Component  implements AfterViewInit {
       revisedValue: this.createPsaFormGroup(),
     });
 
+    // Initialize PSA controls if PSA data is already loaded
+    if (this.psaJvOptions.length > 0) {
+      this.initializeAllPSAControls();
+    }
   }
 
   createPsaFormGroup(): FormGroup {
@@ -429,7 +473,7 @@ export class Template3Component  implements AfterViewInit {
   }
 
 
-getGroupForm(key: string): FormGroup {
+  getGroupForm(key: string): FormGroup {
     return this.generalInfoForm.get(key) as FormGroup;
   }
 
@@ -453,15 +497,20 @@ getGroupForm(key: string): FormGroup {
 
   updateCgbApprovalDate(id: number | null) {
     const cgbAward = this.paperMappingData.find((item) => item.paperID == id)
-    if(!cgbAward || !id) {
+    if (!cgbAward || !id) {
       return
     }
-    const convertedValue =  cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
+    const convertedValue = cgbAward.entryDate ? format(new Date(cgbAward.entryDate), 'yyyy-MM-dd') : null
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(convertedValue);
   }
 
   onPopulateFromContract() {
+    const vendorSelected = this.generalInfoForm.get('generalInfo.fullLegalName')?.value;
     const cgbAwardRefNo = this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value;
+    if (!vendorSelected) {
+      this.toastService.show('Please select Legal Name (Vendor) first', 'warning');
+      return;
+    }
     if (!cgbAwardRefNo) {
       this.toastService.show('Please select CGB Award Ref No first', 'warning');
       return;
@@ -477,7 +526,7 @@ getGroupForm(key: string): FormGroup {
       const contractJvApprovalsData = contractPaperDetails?.jvApprovals[0] || null;
       const contractCostAllocationJVApprovalData = contractPaperDetails?.costAllocationJVApproval || [];
 
-      // Map PSA/JV values
+      // Start with PSAs from contractGeneralInfo
       const selectedValuesPSAJV = contractGeneralInfo?.psajv
         ? contractGeneralInfo.psajv
           .split(',')
@@ -485,6 +534,26 @@ getGroupForm(key: string): FormGroup {
           .map((label: any) => this.psaJvOptions.find((option) => option.label === label)?.value)
           .filter((value: any) => value != null)
         : [];
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = contractCostAllocationJVApprovalData
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option =>
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value != null);
+
+      // Merge and deduplicate
+      const allSelectedValuesPSAJV = [...new Set([...selectedValuesPSAJV, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValuesPSAJV.forEach((psaName: string) => {
+        this.addPSAJVFormControls(psaName);
+      });
 
       const selectedValuesProcurementTagUsers = contractGeneralInfo?.procurementSPAUsers
         ? contractGeneralInfo.procurementSPAUsers
@@ -531,9 +600,9 @@ getGroupForm(key: string): FormGroup {
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
           purposeRequired: contractGeneralInfo?.purposeRequired || '',
-          fullLegalName: contractGeneralInfo?.fullLegalName || '',
+          otherRelatedCgbPapers: contractGeneralInfo?.otherRelatedCgbPapers || '',
+          fullLegalName: contractGeneralInfo?.vendorId || null,
           contractNo: contractGeneralInfo?.contractNo || '',
-          vendorId: contractGeneralInfo?.vendorId || null,
           globalCGB: contractGeneralInfo?.globalCGB || '',
           camUserId: contractGeneralInfo?.camUserId || null,
           vP1UserId: contractGeneralInfo?.vP1UserId || null,
@@ -543,7 +612,7 @@ getGroupForm(key: string): FormGroup {
           bltMember: contractGeneralInfo?.bltMemberId ? Number(contractGeneralInfo.bltMemberId) : null,
           subSector: contractGeneralInfo?.subSector || '',
           sourcingType: contractGeneralInfo?.sourcingType || '',
-          psajv: selectedValuesPSAJV,
+          psajv: allSelectedValuesPSAJV,
           isLTCC: contractGeneralInfo?.isLTCC || false,
           ltccNotes: contractGeneralInfo?.ltccNotes || '',
           isGovtReprAligned: contractGeneralInfo?.isGovtReprAligned || false,
@@ -596,36 +665,22 @@ getGroupForm(key: string): FormGroup {
       // Set PSA/JV values with delay to ensure proper initialization
       setTimeout(() => {
         this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-        this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV, { emitEvent: false });
+        this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValuesPSAJV, { emitEvent: false });
+
+        // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+        allSelectedValuesPSAJV.forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
+
+        // Re-patch costAllocation values to ensure they're set after controls exist
+        this.generalInfoForm.patchValue({
+          costAllocation: patchValues.costAllocation
+        }, { emitEvent: false });
       }, 500);
 
       // Setup PSA listeners after patching values
       this.setupPSAListeners();
     });
-  }
-
-  getAllSelectedPsa(): PSAEntry[] {
-    const result: PSAEntry[] = [];
-
-    this.allowedGroups.forEach(group => {
-      const section = this.generalInfoForm.get(group.key) as FormGroup;
-      const values = section.value;
-
-      this.psaItems.forEach(psa => {
-        if (values[psa.control]) {
-          result.push({
-            id: 0,
-            paperType: group.label,
-            psaName: psa.psaName,
-            psaValue: true,
-            percentage: values[psa.percentage],
-            value: values[psa.value]
-          });
-        }
-      });
-    });
-
-    return result;
   }
 
 
@@ -660,7 +715,7 @@ getGroupForm(key: string): FormGroup {
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          this.vendorList = reponse.data;
+          this.vendorList = reponse.data.filter(vendor => vendor.isActive);
           this.incrementAndCheck();
         }
       },
@@ -668,6 +723,25 @@ getGroupForm(key: string): FormGroup {
         console.log('error', error);
       },
     });
+  }
+
+  getVendorOptions() {
+    return this.vendorList.map(vendor => ({
+      value: vendor.id,
+      label: vendor.legalName
+    }));
+  }
+
+  onVendorSelectionChange() {
+    // Reset dependent fields when vendor changes to enforce selection order
+    this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.setValue(null);
+    this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(null);
+  }
+
+  getVendorLegalName(vendorId: number | null): string {
+    if (!vendorId) return '';
+    const vendor = this.vendorList.find(v => v.id === vendorId);
+    return vendor?.legalName || '';
   }
 
   loadPaperStatusListData() {
@@ -707,7 +781,7 @@ getGroupForm(key: string): FormGroup {
     this.paperService.getApprovedPapersForMapping().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          if(response.data && response.data.length > 0) {
+          if (response.data && response.data.length > 0) {
             this.paperMappingData = response.data.filter((item) => item.paperType == "Contract Award")
           }
           this.incrementAndCheck();
@@ -790,6 +864,11 @@ getGroupForm(key: string): FormGroup {
                   value: `value_is${cleanName}`
                 };
               });
+              // Initialize costAllocation form controls for ALL PSAs (like template1)
+              // This ensures controls exist before HTML tries to bind to them
+              if (this.generalInfoForm) {
+                this.initializeAllPSAControls();
+              }
               break;
 
             case 'Remuneration Type':
@@ -871,13 +950,28 @@ getGroupForm(key: string): FormGroup {
   }
 
 
+  handleStatusChange(status: string): void {
+    // For "Waiting for PDM", always call the API to update status
+    if (status === 'Waiting for PDM') {
+      this.setPaperStatus(status, true);
+    } else {
+      // For other statuses, don't call API (form submission will handle it)
+      this.setPaperStatus(status, false);
+    }
+  }
+
   fetchPaperDetails(paperId: number) {
+    this.getUploadedDocs(paperId); // Load attachments
     this.paperService.getPaperDetails(paperId, 'variation').subscribe((value) => {
       this.paperDetails = value.data as any;
+      // Store consultations data in paperDetails for addConsultationRow to access
+      const consultationsData = value.data?.consultationsDetails || [];
+      this.paperDetails.consultationsDetails = consultationsData;
       console.log("==this.paperDetails", this.paperDetails)
       const generatlInfoData = this.paperDetails?.paperDetails || null
       const jvApprovalsData = value.data?.jvApprovals[0] || null
       const costAllocationsData = value.data?.costAllocations || []
+      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || [] // Get costAllocation data like template1
       const valueDeliveriesCostSharingData = value.data?.valueDeliveriesCostSharing[0] || null
 
       const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === generatlInfoData?.paperStatusId?.toString())
@@ -887,11 +981,53 @@ getGroupForm(key: string): FormGroup {
         this.commentService.loadPaper(paperId);
       }
 
+      console.log('costAllocationJVApprovalData:', costAllocationJVApprovalData);
+      console.log('psaJvOptions:', this.psaJvOptions);
+      console.log('generatlInfoData?.psajv:', generatlInfoData?.psajv);
+
+      // Start with PSAs from paperDetailData (like template1)
       const selectedValuesPSAJV = generatlInfoData?.psajv ? generatlInfoData.psajv
         .split(',')
         .map((label: any) => label.trim())
-        .map((label: any) => this.psaJvOptions.find((option) => option.label === label)?.value) // Convert label to value
+        .map((label: any) => {
+          const found = this.psaJvOptions.find((option) => option.label === label);
+          return found?.value;
+        }) // Convert label to value
         .filter((value: any) => value) : []
+
+      // Also include PSAs from costAllocationJVApproval that have values (like template1)
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
+          // Find the PSA value from psaJvOptions by matching the psaName (case-insensitive)
+          const psaOption = this.psaJvOptions.find(option =>
+            option.label?.toLowerCase() === psa.psaName?.toLowerCase() ||
+            option.value?.toLowerCase() === psa.psaName?.toLowerCase()
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value);
+
+      // Also extract PSAs from costAllocations array (template3 specific structure)
+      // costAllocations has structure: [{ psaName, paperType, psaValue, percentage, value }]
+      const psasFromCostAllocations = costAllocationsData
+        .filter((item: any) => item.psaValue === true)
+        .map((item: any) => {
+          const psaOption = this.psaJvOptions.find(option =>
+            option.label?.toLowerCase() === item.psaName?.toLowerCase() ||
+            option.value?.toLowerCase() === item.psaName?.toLowerCase()
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value);
+
+      // Merge and deduplicate (like template1) - include all sources
+      const allSelectedValuesPSAJV = [...new Set([...selectedValuesPSAJV, ...psasFromCostAllocation, ...psasFromCostAllocations])];
+
+      console.log('selectedValuesPSAJV:', selectedValuesPSAJV);
+      console.log('psasFromCostAllocation:', psasFromCostAllocation);
+      console.log('psasFromCostAllocations:', psasFromCostAllocations);
+      console.log('allSelectedValuesPSAJV:', allSelectedValuesPSAJV);
 
 
       const selectedValuesProcurementTagUsers = generatlInfoData?.procurementSPAUsers ? generatlInfoData.procurementSPAUsers
@@ -905,6 +1041,7 @@ getGroupForm(key: string): FormGroup {
           generalInfo: {
             paperProvision: generatlInfoData.paperProvision || "",
             purposeRequired: generatlInfoData.purposeRequired || "",
+            otherRelatedCgbPapers: generatlInfoData?.otherRelatedCgbPapers || '',
             isChangeinSOW: generatlInfoData.isChangeinSOW || false,
             isIncreaseInValue: generatlInfoData.isIncreaseInValue || false,
             isExtensionOfDuration: generatlInfoData.isExtensionOfDuration || false,
@@ -918,9 +1055,8 @@ getGroupForm(key: string): FormGroup {
             cgbApprovalDate: generatlInfoData.cgbApprovalDate
               ? format(new Date(generatlInfoData.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
-            fullLegalName: generatlInfoData.fullLegalName || '',
+            fullLegalName: generatlInfoData.vendorId || null,
             contractNo: generatlInfoData.contractNo || '',
-            vendorId: generatlInfoData.vendorId || null,
             globalCGB: generatlInfoData.globalCGB || null,
             camUserId: generatlInfoData.camUserId || null,
             vP1UserId: generatlInfoData.vP1UserId || null,
@@ -998,7 +1134,57 @@ getGroupForm(key: string): FormGroup {
             costAvoidancePercent: valueDeliveriesCostSharingData?.costAvoidancePercent || null,
             costAvoidanceRemarks: valueDeliveriesCostSharingData?.costAvoidanceRemarks || '',
           },
-          costAllocation: {
+          costAllocation: (() => {
+            const costAllocationPatch: any = {
+              contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
+              contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
+              contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
+              contractCommittee_BTC_CC: jvApprovalsData?.contractCommittee_BTC_CC || false,
+              contractCommittee_BTC_CCInfoNote: jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false,
+              contractCommittee_CGB: jvApprovalsData?.contractCommittee_CGB || false,
+              coVenturers_CMC: jvApprovalsData?.coVenturers_CMC || false,
+              coVenturers_SDMC: jvApprovalsData?.coVenturers_SDMC || false,
+              coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
+              coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
+              steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
+            };
+
+            // Patch PSA percentage and value fields from costAllocationJVApproval (like template1)
+            costAllocationJVApprovalData.forEach((psa: any) => {
+              const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+              const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+              const valueKey = this.getPSAValueControlName(psa.psaName);
+
+              if (checkboxKey && psa.psaValue === true) {
+                costAllocationPatch[checkboxKey] = true;
+                costAllocationPatch[percentageKey] = psa.percentage || '';
+                costAllocationPatch[valueKey] = psa.value || null;
+              }
+            });
+
+            return costAllocationPatch;
+          })()
+        })
+        // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost (like template1)
+        allSelectedValuesPSAJV
+          .filter((psaName: string | undefined): psaName is string => !!psaName)
+          .forEach((psaName: string) => {
+            this.addPSAJVFormControls(psaName);
+          });
+
+        setTimeout(() => {
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValuesPSAJV, { emitEvent: false });
+
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValuesPSAJV
+            .filter((psaName: string | undefined): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              this.addPSAJVFormControls(psaName);
+            });
+
+          // Re-patch costAllocation values to ensure they're set after controls exist (like template1)
+          const costAllocationPatch: any = {
             contractCommittee_SDCC: jvApprovalsData?.contractCommittee_SDCC || false,
             contractCommittee_SCP_Co_CC: jvApprovalsData?.contractCommittee_SCP_Co_CC || false,
             contractCommittee_SCP_Co_CCInfoNote: jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false,
@@ -1010,15 +1196,105 @@ getGroupForm(key: string): FormGroup {
             coVenturers_SCP: jvApprovalsData?.coVenturers_SCP || false,
             coVenturers_SCP_Board: jvApprovalsData?.coVenturers_SCP_Board || false,
             steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
-          }
-        })
-        setTimeout(() => {
-          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV);
+          };
+
+          // Patch PSA percentage and value fields from costAllocationJVApproval
+          costAllocationJVApprovalData.forEach((psa: any) => {
+            const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+            const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+            const valueKey = this.getPSAValueControlName(psa.psaName);
+
+            if (checkboxKey) {
+              // Handle different types for psaValue (boolean, string, number)
+              const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
+                typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
+                  typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
+                    Boolean(psa.psaValue);
+
+              if (psaValueBool) {
+                costAllocationPatch[checkboxKey] = true;
+                costAllocationPatch[percentageKey] = psa.percentage || '';
+                costAllocationPatch[valueKey] = psa.value || null;
+              }
+            }
+          });
+
+          // Also patch from costAllocations array (template3 specific) - extract "This Value" type
+          // costAllocations structure: [{ psaName, paperType: "This Value", psaValue, percentage, value }]
+          const thisValueCostAllocations = costAllocationsData.filter((item: any) => item.paperType === 'This Value' && item.psaValue === true);
+          thisValueCostAllocations.forEach((item: any) => {
+            const checkboxKey = this.getPSACheckboxControlName(item.psaName);
+            const percentageKey = this.getPSAPercentageControlName(item.psaName);
+            const valueKey = this.getPSAValueControlName(item.psaName);
+
+            if (checkboxKey && !costAllocationPatch[checkboxKey]) {
+              // Only set if not already set from costAllocationJVApproval
+              costAllocationPatch[checkboxKey] = true;
+              costAllocationPatch[percentageKey] = item.percentage || '';
+              costAllocationPatch[valueKey] = item.value || null;
+            }
+          });
+
+          // Ensure percentage controls are enabled before patching
+          allSelectedValuesPSAJV
+            .filter((psaName: string | undefined): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+              if (percentageControl && percentageControl.disabled) {
+                percentageControl.enable({ emitEvent: false });
+              }
+            });
+
+          this.generalInfoForm.patchValue({
+            costAllocation: costAllocationPatch
+          }, { emitEvent: false });
+
+          this.isInitialLoad = false;
+
+          // Call setupPSACalculationsManually to calculate initial values (like template1)
+          // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+          setTimeout(() => {
+            this.setupPSACalculationsManually();
+          }, 0);
         }, 500)
 
-        this.addConsultationRow(true);
+        this.addConsultationRow(true, false, consultationsData);
         this.patchPsaData(costAllocationsData);
+
+        // Setup PSA listeners and calculations after data is loaded (like template1)
+        setTimeout(() => {
+          // Ensure percentage controls are enabled for all selected PSAs and checkboxes are true
+          allSelectedValuesPSAJV
+            .filter((psaName: string | undefined): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              const checkboxControlName = this.getPSACheckboxControlName(psaName);
+              const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+              const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+
+              // Ensure checkbox is true if PSA is selected
+              if (checkboxControl) {
+                checkboxControl.setValue(true, { emitEvent: false });
+              }
+
+              // Enable percentage control for all selected PSAs (including BP Group)
+              if (percentageControl) {
+                percentageControl.enable({ emitEvent: false });
+              }
+            });
+
+          // Setup listeners for PSA calculations (critical for percentage input changes)
+          this.setupPSAListeners();
+          this.setupPSACalculations();
+        }, 600); // Slightly after the re-patch setTimeout to ensure controls exist
+
+        // Set consultation section visibility if there are rows (like template1 would)
+        if (consultationsData && consultationsData.length > 0) {
+          setTimeout(() => {
+            this.sectionVisibility['section8'] = true;
+          }, 100);
+        }
 
 
       }
@@ -1364,16 +1640,16 @@ getGroupForm(key: string): FormGroup {
   }
 
   // Common method to apply committee logic for a specific PSA
-  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean): void {
+  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean, reEvaluate: boolean = false): void {
     const valueControlName = this.getPSAValueControlName(psaName);
     const jvApprovalsData = this.paperDetails?.jvApprovals && (this.paperDetails.jvApprovals[0] || null);
     const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
 
-    // For variation, we need thisValue and revisedValue
-    const thisValue = this.generalInfoForm.get('thisValue')?.value || 0;
-    const revisedValue = this.generalInfoForm.get('revisedValue')?.value || 0;
+    // For variation, we need thisValue and revisedValue from contractValues (not from form groups)
+    const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+    const revisedValue = Number(this.generalInfoForm.get('contractValues.revisedContractValue')?.value) || 0;
     const byValue = valueControl?.value || 0;
-    const vendorId = Number(this.generalInfoForm.get('generalInfo.vendorId')?.value) || undefined;
+    const vendorId = Number(this.generalInfoForm.get('generalInfo.fullLegalName')?.value) || undefined;
 
     if (isChecked) {
       // Handle committee checkboxes based on PSA name
@@ -1388,7 +1664,10 @@ getGroupForm(key: string): FormGroup {
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, { thisValue, revisedValue, byValue }, vendorId);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          firstCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          firstCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
 
@@ -1403,7 +1682,10 @@ getGroupForm(key: string): FormGroup {
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, { thisValue, revisedValue, byValue }, vendorId);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          secondCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          secondCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
     } else {
@@ -1431,7 +1713,7 @@ getGroupForm(key: string): FormGroup {
   }
 
   // Trigger committee logic for a specific PSA when percentage/value changes
-  triggerCommitteeLogicForPSA(psaName: string): void {
+  triggerCommitteeLogicForPSA(psaName: string, reEvaluate: boolean = false): void {
     const checkboxControlName = this.getPSACheckboxControlName(psaName);
     const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
 
@@ -1441,7 +1723,23 @@ getGroupForm(key: string): FormGroup {
       return;
     }
 
-    this.applyCommitteeLogicForPSA(psaName, isChecked);
+    this.applyCommitteeLogicForPSA(psaName, isChecked, reEvaluate);
+  }
+
+  // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
+  reEvaluateAllCommitteeCheckboxes(): void {
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+
+      // Only re-evaluate if PSA checkbox is checked
+      if (checkboxControl?.value === true) {
+        // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
+        this.triggerCommitteeLogicForPSA(psaName, true);
+      }
+    });
   }
 
   onSelectChangePSAJV() {
@@ -1449,6 +1747,9 @@ getGroupForm(key: string): FormGroup {
     const costAllocationControl = this.generalInfoForm.get('costAllocation');
 
     if (costAllocationControl) {
+      // Clear listeners set when PSAs change (like template1) to allow fresh setup
+      this.psaCalculationListenersSet.clear();
+
       // Get all possible PSAJV options
       const allPSAJVOptions = this.psaJvOptions.map(option => option.value);
 
@@ -1462,21 +1763,28 @@ getGroupForm(key: string): FormGroup {
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          const percentageControl = costAllocationControl.get(percentageControlName);
+          if (percentageControl) {
+            percentageControl.enable({ emitEvent: false });
+          }
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
           // Remove consultation row
           this.removeConsultationRowByPSAJV(psaName);
+          // Remove from listeners set (already cleared above, but keeping for clarity)
+          this.psaCalculationListenersSet.delete(psaName);
         }
       });
 
       // After creating all form controls, setup listeners for selected PSAJV
-      this.setupPSAListeners();
-      this.setupPSACalculations();
-      // Only load docs if we're editing an existing paper
-      if (this.paperId) {
-        this.getUploadedDocs(Number(this.paperId));
-      }
+      // Use setTimeout to ensure controls are fully initialized
+      setTimeout(() => {
+        this.setupPSAListeners();
+        this.setupPSACalculations();
+      }, 0);
     }
   }
 
@@ -1506,9 +1814,139 @@ getGroupForm(key: string): FormGroup {
     }
   }
 
+  setupPSACalculationsManually() {
+    // Calculate By Value for costAllocation based on This Value (variation) - manual calculation without subscriptions
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        const percentageValue = percentageControl.value;
+        const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+        if (percentageValue >= 0 && percentageValue <= 100) {
+          const calculatedValue = (Number(percentageValue) / 100) * thisValue;
+          valueControl.setValue(calculatedValue, { emitEvent: false });
+          this.calculateTotalCostAllocation();
+        }
+      }
+    });
+  }
+
   setupPSACalculations() {
-    // Template 3 has different value groups, so calculation logic is handled per group
-    // This method can be extended if needed for specific PSA calculations
+    // Calculate By Value for costAllocation based on This Value (variation) and keep totals in sync
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    selectedPSAJV.forEach((psaName: string) => {
+      // Skip if listener already set up for this PSAJV column
+      if (this.psaCalculationListenersSet.has(psaName)) {
+        return;
+      }
+
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        // Ensure percentage control is enabled before subscribing
+        if (percentageControl.disabled) {
+          percentageControl.enable({ emitEvent: false });
+        }
+
+        percentageControl.valueChanges.subscribe((percentageValue) => {
+          const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+          // Handle empty string, null, or undefined values
+          const percentageNum = percentageValue === '' || percentageValue === null || percentageValue === undefined ? 0 : Number(percentageValue);
+
+          if (!isNaN(percentageNum) && percentageNum >= 0 && percentageNum <= 100) {
+            const calculatedValue = (percentageNum / 100) * thisValue;
+            valueControl.setValue(calculatedValue, { emitEvent: false });
+            this.calculateTotalCostAllocation();
+            // Trigger committee logic after value is updated
+            this.triggerCommitteeLogicForPSA(psaName);
+          } else if (percentageNum === 0 || percentageValue === '' || percentageValue === null) {
+            // Handle clearing/resetting
+            valueControl.setValue(0, { emitEvent: false });
+            this.calculateTotalCostAllocation();
+          }
+        });
+
+        // Mark this PSAJV column as having listeners set up
+        this.psaCalculationListenersSet.add(psaName);
+      }
+    });
+  }
+
+  private recalculateAllPSAValues(): void {
+    // Recalculate all "By value $" fields when "This Value" changes
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const thisValue = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        const percentageValue = Number(percentageControl.value) || 0;
+        if (percentageValue >= 0 && percentageValue <= 100) {
+          const calculatedValue = (percentageValue / 100) * thisValue;
+          valueControl.setValue(calculatedValue, { emitEvent: false });
+        }
+      }
+    });
+
+    // Recalculate totals after updating all values
+    this.calculateTotalCostAllocation();
+  }
+
+  private calculateTotalCostAllocation() {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    let totalPercentage = 0;
+    let totalValue = 0;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = costAllocation.get(percentageControlName);
+      const valueControl = costAllocation.get(valueControlName);
+
+      if (percentageControl) {
+        const percentageValue = percentageControl.value;
+        if (!isNaN(percentageValue) && percentageValue !== null && percentageValue !== '') {
+          totalPercentage += Number(percentageValue);
+        }
+      }
+
+      if (valueControl) {
+        const valueValue = valueControl.value;
+        if (!isNaN(valueValue) && valueValue !== null && valueValue !== '') {
+          totalValue += Number(valueValue);
+        }
+      }
+    });
+
+    costAllocation.get('totalPercentage')?.setValue(totalPercentage, { emitEvent: false });
+    costAllocation.get('totalValue')?.setValue(totalValue, { emitEvent: false });
+
+    if (totalPercentage !== 100) {
+      costAllocation.get('totalPercentage')?.setErrors({ notExactly100: true });
+    } else {
+      costAllocation.get('totalPercentage')?.setErrors(null);
+    }
   }
 
   requireAllIfAny(group: AbstractControl): ValidationErrors | null {
@@ -1517,7 +1955,7 @@ getGroupForm(key: string): FormGroup {
       const hasValue = values.some(val => val);  // If at least one field has a value
       const allFilled = values.every(val => val); // If all fields are filled
 
-      return hasValue && !allFilled ? {requireAllFields: true} : null;
+      return hasValue && !allFilled ? { requireAllFields: true } : null;
     };
 
     // Apply validation for each group separately
@@ -1538,15 +1976,43 @@ getGroupForm(key: string): FormGroup {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
-    const costAllocationJVApproval = this.getAllSelectedPsa()
+
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
     const justificationSectionValue = this.generalInfoForm?.value?.justificationSection
     const contractInfoValue = this.generalInfoForm?.value?.contractInfo
     const contractValues = this.generalInfoForm?.value?.contractValues
     const ccdValues = this.generalInfoForm?.value?.ccd
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
-    const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+    const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
     const consultationsValue = this.generalInfoForm?.value?.consultation
+
+    // Build costAllocationJVApproval from costAllocation FormGroup (like template1)
+    // Mapping PSAs from the costAllocation object dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const psaMappings = selectedPSAJV.map((psaName: string) => ({
+      key: this.getPSACheckboxControlName(psaName),
+      name: psaName
+    }));
+
+    const costAllocationJVApproval = psaMappings
+      .map((psa: any, index: number) => {
+        const percentageKey = `percentage_${psa.key}`;
+        const valueKey = `value_${psa.key}`;
+
+        // Check if percentage exists (matching template1 logic)
+        if (costAllocationValues && costAllocationValues[percentageKey] !== undefined) {
+          return {
+            id: index,
+            psaName: psa.name,
+            psaValue: true, // Always true when percentage exists (matching template1)
+            percentage: costAllocationValues[percentageKey] || 0,
+            value: costAllocationValues[valueKey] || 0,
+            valueType: 'Original Value'
+          };
+        }
+        return null;
+      })
+      .filter((item: any) => item !== null);
 
     const params = {
       papers: {
@@ -1554,73 +2020,66 @@ getGroupForm(key: string): FormGroup {
         paperProvision: generalInfoValue?.paperProvision || "",
         purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
-        ...(this.paperId && !this.isCopy ? {id: Number(this.paperId)} : {})
+        bltMember: generalInfoValue?.bltMember || null,
+        camUserId: generalInfoValue?.camUserId || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
+        pdManagerName: generalInfoValue?.pdManagerName || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
+        globalCGB: generalInfoValue?.globalCGB || '',
+        subSector: generalInfoValue?.subSector || '',
+        operatingFunction: generalInfoValue?.operatingFunction || '',
+        sourcingType: generalInfoValue?.sourcingType || '',
+        isPHCA: contractInfoValue?.isPHCA || false,
+        psajv: generalInfoValue?.psajv?.join(',') || "",
+        currencyCode: contractValues?.currencyCode || '',
+        exchangeRate: contractValues?.exchangeRate || 0,
+        contractStartDate: generalInfoValue?.contractStartDate || null,
+        contractEndDate: generalInfoValue?.contractEndDate || null,
+        isLTCC: generalInfoValue?.isLTCC || false,
+        ltccNotes: generalInfoValue?.ltccNotes || '',
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
+        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment || '',
+        isIFRS16: generalInfoValue?.isIFRS16 || false,
+        isConflictOfInterest: contractInfoValue?.isConflictOfInterest || false,
+        conflictOfInterestComment: contractInfoValue?.conflictOfInterestComment || '',
+        remunerationType: contractInfoValue?.remunerationType || '',
+        contractNo: generalInfoValue?.contractNo || '',
+        isRetrospectiveApproval: contractInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: contractInfoValue?.retrospectiveApprovalReason || '',
+        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
+        cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
+        isHighRiskContract: ccdValues?.isHighRiskContract || false,
+        cddCompleted: ccdValues?.daCDDCompleted || null,
+        highRiskExplanation: ccdValues?.highRiskExplanation || '',
+        flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
+        additionalCDD: ccdValues?.additionalCDD || '',
+        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
       variationPaper: {
+        cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
+        variationStartDate: generalInfoValue?.variationStartDate || null,
+        variationEndDate: generalInfoValue?.variationEndDate || null,
+        whyChangeRequired: justificationSectionValue?.whyChangeRequired || '',
+        longTermStrategy: justificationSectionValue?.longTermStrategy || '',
+        workspaceNo: contractInfoValue?.workspaceNo || '',
+        previousCGBRefNo: contractInfoValue?.previousCGBRefNo || '',
+        isPaymentRequired: contractInfoValue?.isPaymentRequired || false,
+        prePayAmount: contractInfoValue?.prePayAmount || 0,
+        originalContractValue: contractValues?.originalContractValue || 0,
+        previousVariationTotal: contractValues?.previousVariationTotal || 0,
+        thisVariationNote: contractValues?.thisVariationNote?.toString() || '',
+        revisedContractValue: contractValues?.revisedContractValue || 0,
+        spendOnContract: contractValues?.spendOnContract || 0,
+        isCurrencyLinktoBaseCost: contractValues?.isCurrencyLinktoBaseCost || false,
         isChangeinSOW: generalInfoValue?.isChangeinSOW || false,
         isIncreaseInValue: generalInfoValue?.isIncreaseInValue || false,
         isExtensionOfDuration: generalInfoValue?.isExtensionOfDuration || false,
         isTEToCompleteBidding: generalInfoValue?.isTEToCompleteBidding || false,
         isChangeInRates: generalInfoValue?.isChangeInRates || false,
-        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        cgbApprovalDate: generalInfoValue?.cgbApprovalDate || null,
-        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
-        cgbAwardRefNo: generalInfoValue?.cgbAwardRefNo || '',
-        fullLegalName: generalInfoValue?.fullLegalName || '',
-        contractNo: generalInfoValue?.contractNo || '',
-        vendorId: generalInfoValue?.vendorId || null,
-        globalCGB: generalInfoValue?.globalCGB,
-        camUserId: generalInfoValue?.camUserId || null,
-        vP1UserId: generalInfoValue?.vP1UserId || null,
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
-        pdManagerName: generalInfoValue?.pdManagerName || null,
-        operatingFunction: generalInfoValue?.operatingFunction,
-        bltMember: generalInfoValue?.bltMember,
-        subSector: generalInfoValue?.subSector,
-        sourcingType: generalInfoValue?.sourcingType,
-        contractStartDate: generalInfoValue?.contractStartDate || null,
-        contractEndDate: generalInfoValue?.contractEndDate || null,
-        variationStartDate: generalInfoValue?.variationStartDate || null,
-        variationEndDate: generalInfoValue?.variationEndDate || null,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        isLTCC: generalInfoValue?.isLTCC || false,
-        ltccNotes: generalInfoValue?.ltccNotes,
-        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
-        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
-        isIFRS16: generalInfoValue?.isIFRS16 || false,
-        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
-        //justificationSection
-        whyChangeRequired: justificationSectionValue?.whyChangeRequired || '',
-        longTermStrategy: justificationSectionValue?.longTermStrategy || '',
-        //contractInfo
-
-        isPHCA: contractInfoValue?.isPHCA || false,
-        workspaceNo: contractInfoValue?.workspaceNo || '',
-        remunerationType: contractInfoValue?.remunerationType || '',
-        previousCGBRefNo: contractInfoValue?.previousCGBRefNo || null,
-        isPaymentRequired: contractInfoValue?.isPaymentRequired || false,
-        prePayAmount: contractInfoValue?.prePayAmount || 0,
-        isRetrospectiveApproval: contractInfoValue?.isRetrospectiveApproval || false,
-        retrospectiveApprovalReason: contractInfoValue?.retrospectiveApprovalReason || '',
-        //contractValues
-        originalContractValue: contractValues?.originalContractValue || 0,
-        previousVariationTotal: contractValues?.previousVariationTotal || 0,
-        exchangeRate: contractValues?.exchangeRate || 0,
-        currencyCode: contractValues?.currencyCode || null,
-        contractValue: contractValues?.contractValue || 0,
-        revisedContractValue: contractValues?.revisedContractValue || 0,
-        spendOnContract: contractValues?.spendOnContract || 0,
-        thisVariationNote: contractValues?.thisVariationNote || '',
-        isCurrencyLinktoBaseCost: contractValues?.isCurrencyLinktoBaseCost || false,
+        fullLegalName: generalInfoValue?.fullLegalName || null,
         noCurrencyLinkNotes: contractValues?.noCurrencyLinkNotes || '',
-        isConflictOfInterest: contractValues?.isConflictOfInterest || false,
-        conflictOfInterestComment: contractValues?.conflictOfInterestComment || '',
-        //ccd
-        isHighRiskContract: ccdValues?.isHighRiskContract || false,
-        daCDDCompleted: ccdValues?.daCDDCompleted || null,
-        highRiskExplanation: ccdValues?.highRiskExplanation || '',
-        flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
-        additionalCDD: ccdValues?.additionalCDD || '',
       },
       valueDeliveriesCostSharings: {
         costReductionPercent: valueDeliveryValues?.costReductionPercent || 0,
@@ -1647,7 +2106,14 @@ getGroupForm(key: string): FormGroup {
         coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
         steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false,
       },
-      consultations: consultationsValue || [],
+      consultations: (consultationsValue || []).map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa || '',
+        technicalCorrect: consultation.technicalCorrect || null,
+        budgetStatement: consultation.budgetStatement || null,
+        jvReview: consultation.jvReview || null,
+        isJVReviewDone: consultation.jvAligned || false
+      })),
 
     }
 
@@ -1762,7 +2228,7 @@ getGroupForm(key: string): FormGroup {
         this.renderer.addClass(matchingLabel, this.highlightClass);
 
         // Scroll into view
-        matchingLabel.scrollIntoView({behavior: 'smooth', block: 'center'});
+        matchingLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 500); // Adjust delay as needed
   }
@@ -1772,12 +2238,12 @@ getGroupForm(key: string): FormGroup {
     const section = document.getElementById(selectedValue);
 
     if (section) {
-      section.scrollIntoView({behavior: 'smooth', block: 'start'});
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
   scrollToTop(): void {
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   get generalInfo() {
@@ -1814,6 +2280,7 @@ getGroupForm(key: string): FormGroup {
         ],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
+        jvAligned: [{ value: false, disabled: true }], // JV Aligned checkbox - disabled by default (like template1)
         id: [0]
       })
     );
@@ -1837,22 +2304,29 @@ getGroupForm(key: string): FormGroup {
     });
   }
 
-  addConsultationRow(isFirst = false, isChangedCamUser = false) {
-    if (isFirst && this.paperDetails) {
-      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+  addConsultationRow(isFirst = false, isChangedCamUser = false, consultationsData?: any[]) {
+    if (isFirst) {
+      // Use provided consultationsData, or fall back to paperDetails.consultationsDetails
+      const riskMitigationsData = consultationsData || (this.paperDetails?.consultationsDetails as any[]) || []
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item: any, index: number) => {
-        riskMitigationArray.push(
-          this.fb.group({
-            psa: [item.psa, Validators.required],
-            technicalCorrect: [{value: item.technicalCorrectId, disabled: false}, Validators.required],
-            budgetStatement: [item.budgetStatementId, Validators.required],
-            jvReview: [item.jvReviewId, Validators.required],
-            id: [item.id]
-          })
-        );
+        const formGroup = this.fb.group({
+          psa: [item.psa || item.psaValue || '', Validators.required],
+          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false }, Validators.required],
+          budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
+          jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
+          jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }],
+          id: [item.id || 0]
+        });
+        riskMitigationArray.push(formGroup);
+
+        // Set JV Aligned checkbox state based on JV Review user
+        setTimeout(() => {
+          const jvReviewValue = item.jvReview || item.jvReviewId || null;
+          this.onJVReviewChange(index, jvReviewValue);
+        }, 0);
       });
     } else {
       const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
@@ -1862,12 +2336,33 @@ getGroupForm(key: string): FormGroup {
       this.consultationRows.push(
         this.fb.group({
           psa: ['', Validators.required],
-          technicalCorrect: [{value: camUserId ? Number(camUserId) : null, disabled: false}, Validators.required],
+          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
+          jvAligned: [{ value: false, disabled: true }],
           id: [0]
         })
       );
+    }
+  }
+
+  canEditJVAligned(jvReviewUserId: number | null): boolean {
+    if (!this.loggedInUser || !jvReviewUserId) {
+      return false;
+    }
+    return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+    const row = this.consultationRows.at(rowIndex);
+    const jvAlignedControl = row.get('jvAligned');
+    if (jvAlignedControl) {
+      if (this.canEditJVAligned(jvReviewUserId)) {
+        jvAlignedControl.enable();
+      } else {
+        jvAlignedControl.disable();
+        jvAlignedControl.setValue(false);
+      }
     }
   }
 
@@ -1888,13 +2383,13 @@ getGroupForm(key: string): FormGroup {
         size: 'lg', // Adjust size as needed (sm, lg, xl)
       })
       .result.then(
-      (result) => {
-        // Handle modal close
-      },
-      (reason) => {
-        // Handle modal dismiss
-      }
-    );
+        (result) => {
+          // Handle modal close
+        },
+        (reason) => {
+          // Handle modal dismiss
+        }
+      );
 
     if (paperId) {
       this.selectedPaper = paperId;
@@ -1979,6 +2474,49 @@ getGroupForm(key: string): FormGroup {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
   }
 
+  initializeAllPSAControls(): void {
+    // Initialize controls for ALL possible PSAs from psaJvOptions (like template1 does)
+    // This ensures controls exist when HTML tries to bind to them
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (!costAllocationControl) return;
+
+    this.psaJvOptions.forEach(psaOption => {
+      const psaName = psaOption.value;
+      const newControls = this.createPSAJVFormControls(psaName);
+
+      Object.keys(newControls).forEach(controlName => {
+        if (!costAllocationControl.get(controlName)) {
+          costAllocationControl.addControl(controlName, this.fb.control(newControls[controlName][0], newControls[controlName][1]));
+        }
+      });
+    });
+  }
+
+  ensureCostAllocationFormControls(): void {
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
+
+    selectedPSAJV.forEach((psaName: string) => {
+      this.addPSAJVFormControls(psaName);
+      // Set checkbox to checked and readonly
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+
+      if (costAllocationControl) {
+        if (costAllocationControl.get(checkboxControlName)) {
+          costAllocationControl.get(checkboxControlName)?.setValue(true);
+        }
+        // Ensure percentage field is enabled
+        if (costAllocationControl.get(percentageControlName)) {
+          costAllocationControl.get(percentageControlName)?.enable();
+        }
+      }
+    });
+
+    // Setup calculations after ensuring all controls are created
+    this.setupPSACalculations();
+  }
+
   // Attachment methods
   getUploadedDocs(paperId: number): void {
     this.uploadService.getDocItemsListByPaperId(paperId).subscribe(value => {
@@ -2008,7 +2546,7 @@ getGroupForm(key: string): FormGroup {
         const reader = new FileReader();
         reader.onload = (e) => {
           const fileType = getMimeTypeFromFileName(file.name);
-          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'),id: null });
+          this.selectedFiles.push({ file, name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
         };
         reader.readAsDataURL(file);
       });
@@ -2035,7 +2573,7 @@ getGroupForm(key: string): FormGroup {
         reader.onload = (e) => {
           const fileType = getMimeTypeFromFileName(file.name);
 
-          this.selectedFiles.push({ file,name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
+          this.selectedFiles.push({ file, name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
         };
         reader.readAsDataURL(file);
       });
@@ -2045,7 +2583,7 @@ getGroupForm(key: string): FormGroup {
   // Remove a selected file
   removeFile(index: number, file: any = null) {
     this.selectedFiles.splice(index, 1);
-    if(file.id && !this.isCopy) {
+    if (file.id && !this.isCopy) {
       this.deletedFiles.push(Number(file.id))
     }
   }

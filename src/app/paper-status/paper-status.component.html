@@ -141,6 +141,9 @@
 <!--        <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="open($event, content, 'pre')" *ngIf="showPreCGBButton">-->
 <!--          Initiate Pre CGB Cycle-->
 <!--        </button>-->
+        <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="addToCurrentCycle()" *ngIf="showAddToCurrentCycleButton">
+          Add to Current Cycle
+        </button>
         <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="open($event, content, 'cgb')" *ngIf="showCGBButton">
           Initiate CGB Cycle
         </button>
@@ -241,7 +244,7 @@
 </div>
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title">Initiate {{openType ? 'Pre' : ''}} CGB Cycle</h4>
+    <h4 class="modal-title">Initiate CGB Cycle</h4>
     <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
   </div>
   <div class="modal-body">

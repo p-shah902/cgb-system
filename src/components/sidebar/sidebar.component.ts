@@ -21,12 +21,23 @@ export class SidebarComponent {
 
   expandedMenus: { [key: string]: boolean } = {};
   protected menuItems: Menu[] = [];
+  private loggedInUserRole: string | null = null;
 
   constructor(private toggleService: ToggleService,private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateCurrentPath();
+    });
+
+    // Get logged in user's role
+    this.authService.userDetails$.subscribe(user => {
+      if (user) {
+        this.loggedInUserRole = user.roleName || null;
+        // Re-filter menu items when role changes
+        const accessList = this.authService.userRoleAccess || [];
+        this.menuItems = this.filterMenuItemsByPermissions(menuItems, accessList);
+      }
     });
 
     this.authService.userRoleAccess$.subscribe(value => {
@@ -42,7 +53,20 @@ export class SidebarComponent {
   filterMenuItemsByPermissions(items: any[], accessList: any[]): any[] {
     const result: any[] = [];
 
+    // Roles allowed to see "Create" and "My Drafts" menu items
+    const allowedRolesForCreateAndDrafts = ['Secretary', 'Procurement Tag', 'CAM', "Super Admin"];
+
     for (const item of items) {
+      // Check if this is "Create" or "My Drafts" menu item
+      const isCreateOrMyDrafts = item.title === 'Create' || item.title === 'My Drafts';
+      
+      if (isCreateOrMyDrafts) {
+        // Only show if user has one of the allowed roles
+        if (!this.loggedInUserRole || !allowedRolesForCreateAndDrafts.includes(this.loggedInUserRole)) {
+          continue; // Skip this menu item
+        }
+      }
+
       const hasPermission = (key: string) =>
         accessList.some(f =>
           (f.typeName === key || f.particularsName === key) &&
@@ -57,13 +81,21 @@ export class SidebarComponent {
 
       if (!item.checkPermission) {
         // No permission check needed — include as-is
-        result.push({ ...item });
+        const filteredChildren = this.filterMenuItemsByPermissions(item.children || [], accessList);
+        result.push({
+          ...item,
+          children: filteredChildren.length > 0 ? filteredChildren : undefined
+        });
         continue;
       }
 
       if (hasAllAccess) {
         // Parent has full access — include everything under it
-        result.push({ ...item });
+        const filteredChildren = this.filterMenuItemsByPermissions(item.children || [], accessList);
+        result.push({
+          ...item,
+          children: filteredChildren.length > 0 ? filteredChildren : undefined
+        });
         continue;
       }
 

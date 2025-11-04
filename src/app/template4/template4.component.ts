@@ -45,11 +45,13 @@ import {cleanObject, base64ToFile, getMimeTypeFromFileName} from '../../utils/in
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
+import { PermissionService } from '../shared/services/permission.service';
+import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 
 @Component({
   selector: 'app-template4',
   standalone: true,
-  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
+  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, ActionBarComponent],
   templateUrl: './template4.component.html',
   styleUrl: './template4.component.scss'
 })
@@ -111,6 +113,7 @@ export class Template4Component  implements AfterViewInit{
   };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
+              public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -178,8 +181,6 @@ export class Template4Component  implements AfterViewInit{
         pdManagerName: [null, Validators.required],
         saleDisposeValue: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         psajv: [[], Validators.required],
-        isIFRS16: [null],
-        isGIAAPCheck: [null],
         isGovtReprAligned: [null],
         govtReprAlignedComment: [''],
         retrospectiveApprovalReason: [{ value: '', disabled: true }],
@@ -239,12 +240,37 @@ export class Template4Component  implements AfterViewInit{
     this.generalInfoForm.get('generalInfo.technicalApprover')?.valueChanges.subscribe((newCamUserId) => {
       this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
+    
+    // Re-evaluate committee checkboxes when sourcing type changes
+    this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe(() => {
+      this.reEvaluateAllCommitteeCheckboxes();
+    });
+    
+    // Re-evaluate committee checkboxes when sale/dispose value changes
+    this.generalInfoForm.get('generalInfo.saleDisposeValue')?.valueChanges.subscribe(() => {
+      this.setupPSACalculationsManually();
+    });
+    
     this.setupPSAListeners()
     this.setupPSACalculations()
     this.onLTCCChange()
+    this.setupJVAlignedAutoReset()
     // this.alignGovChange()
 
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   ngAfterViewInit() {
     const options = {
@@ -270,10 +296,20 @@ export class Template4Component  implements AfterViewInit{
 
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId, 'sale').subscribe((value) => {
-      this.paperDetails = value.data;
-      const paperDetailData = value.data?.paperDetails || null
-      const jvApprovalsData = value.data?.jvApprovals[0] || null
-      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
+      // Handle both nested (approvalOfSale.paperDetails) and flat (paperDetails) structures
+      const data = value.data as any;
+      const approvalOfSaleData = data?.approvalOfSale || data;
+      this.paperDetails = approvalOfSaleData;
+      
+      // Store consultations data in paperDetails for addConsultationRow to access
+      const consultationsData = approvalOfSaleData?.consultationsDetails || [];
+      if (this.paperDetails) {
+        this.paperDetails.consultationsDetails = consultationsData;
+      }
+      // Use paperDetails if it exists (nested structure), otherwise fall back to approvalOfSaleData (flat structure)
+      const paperDetailData = approvalOfSaleData?.paperDetails || approvalOfSaleData
+      const jvApprovalsData = approvalOfSaleData?.jvApprovals?.[0] || null
+      const costAllocationJVApprovalData = approvalOfSaleData?.costAllocationJVApproval || []
 
       const patchValues: any = { costAllocation: {} };
 
@@ -312,12 +348,34 @@ export class Template4Component  implements AfterViewInit{
       };
 
       // Assign PSA/JV values dynamically
-      costAllocationJVApprovalData.forEach(psa => {
-        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      costAllocationJVApprovalData.forEach((psa: any) => {
+        // Try exact match first, then case-insensitive match with trim
+        let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+        
+        // If no exact match, try case-insensitive match
+        if (!checkboxKey && psa.psaName) {
+          const psaNameTrimmed = (psa.psaName || '').toString().trim();
+          const psaNameUpper = psaNameTrimmed.toUpperCase();
+          for (const [key, value] of Object.entries(psaNameToCheckbox)) {
+            if (key.toUpperCase() === psaNameUpper) {
+              checkboxKey = value;
+              break;
+            }
+          }
+        }
+        
         if (checkboxKey) {
-          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
+          // Handle different types for psaValue (boolean, string, number)
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+                               Boolean(psa.psaValue);
+          patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
           patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+        } else {
+          console.warn('PSA not found in mapping:', psa.psaName, 'Available keys:', Object.keys(psaNameToCheckbox));
         }
       });
 
@@ -331,24 +389,50 @@ export class Template4Component  implements AfterViewInit{
         }
       });
 
+      // Start with PSAs from paperDetailData
       const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
-        .map(label => label.trim())
-        .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
-        .filter(value => value) : []
+        .map((label: string) => label.trim())
+        .map((label: string) => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
+        .filter((value: any) => value) : []
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value);
+
+      // Merge and deduplicate
+      const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValues
+        .filter((psaName): psaName is string => !!psaName)
+        .forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
 
 
       const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
         .split(',')
-        .map(id => id.trim())
-        .map(id => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
-        .filter(value => value) : [];
+        .map((id: string) => id.trim())
+        .map((id: string) => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
+        .filter((value: any) => value) : [];
 
-      if (value.data) {
+      console.log("==patchValues.costAllocation", patchValues.costAllocation)
+      console.log("==paperDetailData", paperDetailData)
+
+      if (approvalOfSaleData) {
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: paperDetailData?.paperProvision || '',
-            cgbItemRef: paperDetailData?.cgbItemRef || '',
+            cgbItemRef: paperDetailData?.cgbItemRefNo || paperDetailData?.cgbItemRef || '',
             cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
             transactionType: paperDetailData?.transactionType || '',
             referenceNo: paperDetailData?.referenceNo || '',
@@ -362,9 +446,7 @@ export class Template4Component  implements AfterViewInit{
             pdManagerName: paperDetailData?.pdManagerNameId || null,
             saleDisposeValue: paperDetailData?.saleDisposeValue || 0,
             contractValueOriginalCurrency: paperDetailData?.contractValue || 0,
-            psajv: selectedValues,
-            isIFRS16: paperDetailData?.isIFRS16 || false,
-            isGIAAPCheck: paperDetailData?.isGIAAPCheck || false,
+            psajv: allSelectedValues,
             isGovtReprAligned: paperDetailData?.isGovtReprAligned || false,
             govtReprAlignedComment: paperDetailData?.govtReprAlignedComment || '',
             isRetrospectiveApproval: paperDetailData?.isRetrospectiveApproval || false,
@@ -374,12 +456,45 @@ export class Template4Component  implements AfterViewInit{
         },{ emitEvent: true })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
+          
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              this.addPSAJVFormControls(psaName);
+            });
+          
+          // Re-patch costAllocation values to ensure they're set after controls exist
+          this.generalInfoForm.patchValue({
+            costAllocation: patchValues.costAllocation
+          }, { emitEvent: false });
+          
+          // Enable percentage controls for all selected PSAs and ensure checkboxes are true
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              const checkboxControlName = this.getPSACheckboxControlName(psaName);
+              const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+              const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+              
+              // Ensure checkbox is true if PSA is selected
+              if (checkboxControl) {
+                checkboxControl.setValue(true, { emitEvent: false });
+              }
+              
+              // Enable percentage control for all selected PSAs (including BP Group)
+              if (percentageControl) {
+                percentageControl.enable({ emitEvent: false });
+              }
+            });
+          
           this.isInitialLoad = false;
         }, 500)
 
 
-        this.addConsultationRow(true);
+        this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners()
         this.getUploadedDocs(paperId);
       }
@@ -550,7 +665,7 @@ export class Template4Component  implements AfterViewInit{
   }
 
   // Common method to apply committee logic for a specific PSA
-  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean): void {
+  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean, reEvaluate: boolean = false): void {
     const valueControlName = this.getPSAValueControlName(psaName);
     const jvApprovalsData = this.paperDetails?.jvApprovals && (this.paperDetails.jvApprovals[0] || null);
     const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
@@ -569,7 +684,10 @@ export class Template4Component  implements AfterViewInit{
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          firstCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          firstCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
 
@@ -584,7 +702,10 @@ export class Template4Component  implements AfterViewInit{
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          secondCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          secondCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
     } else {
@@ -612,7 +733,7 @@ export class Template4Component  implements AfterViewInit{
   }
 
   // Trigger committee logic for a specific PSA when percentage/value changes
-  triggerCommitteeLogicForPSA(psaName: string): void {
+  triggerCommitteeLogicForPSA(psaName: string, reEvaluate: boolean = false): void {
     const checkboxControlName = this.getPSACheckboxControlName(psaName);
     const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
 
@@ -622,7 +743,23 @@ export class Template4Component  implements AfterViewInit{
       return;
     }
 
-    this.applyCommitteeLogicForPSA(psaName, isChecked);
+    this.applyCommitteeLogicForPSA(psaName, isChecked, reEvaluate);
+  }
+
+  // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
+  reEvaluateAllCommitteeCheckboxes(): void {
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    
+    selectedPSAJV.forEach((psaName: string) => {
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+      
+      // Only re-evaluate if PSA checkbox is checked
+      if (checkboxControl?.value === true) {
+        // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
+        this.triggerCommitteeLogicForPSA(psaName, true);
+      }
+    });
   }
 
   setupPSACalculationsManually() {
@@ -639,7 +776,9 @@ export class Template4Component  implements AfterViewInit{
       if (percentageValue >= 0 && percentageValue <= 100) {
         const calculatedValue = (percentageValue / 100) * contractValue;
         this.generalInfoForm.get(`costAllocation.${valueControlName}`)?.setValue(calculatedValue, { emitEvent: false });
-        this.calculateTotal()
+        this.calculateTotal();
+        // Re-evaluate committee checkboxes after PSA values are recalculated
+        this.reEvaluateAllCommitteeCheckboxes();
       }
     });
   }
@@ -959,6 +1098,9 @@ export class Template4Component  implements AfterViewInit{
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
@@ -1181,22 +1323,29 @@ export class Template4Component  implements AfterViewInit{
     return (index + 1).toString().padStart(3, '0');
   }
 
-  addConsultationRow(isFirst = false, isChangedCamUser = false) {
-    if (isFirst && this.paperDetails) {
-      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+  addConsultationRow(isFirst = false, isChangedCamUser = false, consultationsData?: any[]) {
+    if (isFirst) {
+      // Use provided consultationsData, or fall back to paperDetails.consultationsDetails
+      const riskMitigationsData = consultationsData || (this.paperDetails?.consultationsDetails as any[]) || []
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls
 
-      riskMitigationsData.forEach((item, index) => {
-        riskMitigationArray.push(
-          this.fb.group({
-            psa: [item.psa, Validators.required],
-            technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
-            budgetStatement: [item.budgetStatementId, Validators.required],
-            jvReview: [item.jvReviewId, Validators.required],
-            id: [item.id]
-          })
-        );
+      riskMitigationsData.forEach((item: any, index) => {
+        const formGroup = this.fb.group({
+          psa: [item.psa || item.psaValue || '', Validators.required],
+          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false }, Validators.required],
+          budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
+          jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
+          jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }],
+          id: [item.id || 0]
+        });
+        riskMitigationArray.push(formGroup);
+        
+        // Set JV Aligned checkbox state based on JV Review user
+        setTimeout(() => {
+          const jvReviewValue = item.jvReview || item.jvReviewId || null;
+          this.onJVReviewChange(index, jvReviewValue);
+        }, 0);
       });
     } else {
       const camUserId = this.generalInfoForm.get('generalInfo.technicalApprover')?.value || null;
@@ -1209,9 +1358,30 @@ export class Template4Component  implements AfterViewInit{
           technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
+          jvAligned: [{ value: false, disabled: true }],
           id: [0]
         })
       );
+    }
+  }
+
+  canEditJVAligned(jvReviewUserId: number | null): boolean {
+    if (!this.loggedInUser || !jvReviewUserId) {
+      return false;
+    }
+    return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+    const row = this.consultationRows.at(rowIndex);
+    const jvAlignedControl = row.get('jvAligned');
+    if (jvAlignedControl) {
+      if (this.canEditJVAligned(jvReviewUserId)) {
+        jvAlignedControl.enable();
+      } else {
+        jvAlignedControl.disable();
+        jvAlignedControl.setValue(false);
+      }
     }
   }
 
@@ -1277,33 +1447,45 @@ export class Template4Component  implements AfterViewInit{
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
-        paperProvision: generalInfoValue?.paperProvision,
-        purposeRequired: generalInfoValue?.purposeRequired,
+        paperProvision: generalInfoValue?.paperProvision || "",
+        purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
+        bltMember: generalInfoValue?.bltMember || null,
+        vP1UserId: generalInfoValue?.vP1UserId || null,
+        pdManagerName: generalInfoValue?.pdManagerName || null,
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        cgbItemRefNo: generalInfoValue?.cgbItemRef || '',
+        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
+        operatingFunction: generalInfoValue?.operatingFunction || '',
+        psajv: generalInfoValue?.psajv?.join(',') || "",
+        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
+        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment || '',
+        isIFRS16: false, // Not in form, defaulting to false
+        isGIAAPCheck: false, // Not in form, defaulting to false
+        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason || '',
+        vendorId: null, // Not in form
+        cgbApprovalDate: null, // Not in form
+        camUserId: generalInfoValue?.technicalApprover || null, // Map technicalApprover to camUserId
+        globalCGB: '', // Not in form
+        contractNo: '', // Not in form
         ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
       approvalOfSale: {
-        transactionType: generalInfoValue?.transactionType || null,
-        cgbItemRef: generalInfoValue?.cgbItemRef || null,
-        referenceNo: generalInfoValue?.referenceNo || null,
-        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        technicalApprover: generalInfoValue?.technicalApprover || null,
-        vP1UserId: generalInfoValue?.vP1UserId || null,
-        operatingFunction: generalInfoValue?.operatingFunction,
-        bltMember: generalInfoValue?.bltMember,
-        purchaserName:generalInfoValue?.purchaserName || null,
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
-        pdManagerName: generalInfoValue?.pdManagerName || null,
+        transactionType: generalInfoValue?.transactionType || '',
+        technicalApprover: generalInfoValue?.technicalApprover?.toString() || '',
+        purchaserName: generalInfoValue?.purchaserName || '',
         saleDisposeValue: generalInfoValue?.saleDisposeValue || 0,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        isIFRS16: generalInfoValue?.isIFRS16 || false,
-        isGIAAPCheck: generalInfoValue?.isGIAAPCheck || false,
-        isGovtReprAligned: generalInfoValue?.isGovtReprAligned || false,
-        govtReprAlignedComment: generalInfoValue?.govtReprAlignedComment,
-        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason,
-        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
+        referenceNo: generalInfoValue?.referenceNo || '',
       },
-      consultations: consultationsValue || [],
+      consultations: (consultationsValue || []).map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa || '',
+        technicalCorrect: consultation.technicalCorrect || null,
+        budgetStatement: consultation.budgetStatement || null,
+        jvReview: consultation.jvReview || null,
+        isJVReviewDone: consultation.jvAligned || false
+      })),
       costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,

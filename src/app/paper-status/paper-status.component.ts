@@ -37,6 +37,7 @@ export class PaperStatusComponent implements OnInit {
   filter: PaperFilter;
   showPreCGBButton = false;
   showCGBButton = false;
+  showAddToCurrentCycleButton = false;
   openType: string = '';
   approvalRemark = "";
   deadlineDate: string = "";
@@ -81,6 +82,7 @@ export class PaperStatusComponent implements OnInit {
   onCheckboxChange() {
     this.showPreCGBButton = this.groupedPaper['On Pre-CGB'].some(item => item.checked);
     this.showCGBButton = this.groupedPaper['On CGB'].some(item => item.checked);
+    this.showAddToCurrentCycleButton = this.groupedPaper['On CGB'].some(item => item.checked);
   }
 
   getData(key: string) {
@@ -273,5 +275,77 @@ export class PaperStatusComponent implements OnInit {
   resetModalFields() {
     this.approvalRemark = "";
     this.deadlineDate = "";
+  }
+
+  addToCurrentCycle() {
+    const selectedPapers = this.groupedPaper['On CGB'].filter(item => item.checked);
+    
+    if (selectedPapers.length === 0) {
+      this.toastService.show('Please select papers from On CGB column', 'warning');
+      return;
+    }
+
+    // First, get the current CGB cycle to get votingCycleId and deadlineDate
+    this.votingService.getCgbCycle().subscribe({
+      next: (cycleResponse) => {
+        if (cycleResponse.status && cycleResponse.data) {
+          const votingCycleId = cycleResponse.data.voteCycleId || cycleResponse.data.id;
+          const deadlineDate = cycleResponse.data.deadlineDate;
+          
+          if (!votingCycleId) {
+            this.toastService.show('No active CGB cycle found', 'danger');
+            return;
+          }
+
+          // Get the next serial number from the last paper in the cycle
+          let nextSerialNumber = 1;
+          if (cycleResponse.data.papers && cycleResponse.data.papers.length > 0) {
+            const lastPaper = cycleResponse.data.papers[cycleResponse.data.papers.length - 1];
+            nextSerialNumber = (lastPaper.serialNumber || 0) + 1;
+          }
+
+          // Prepare the payload
+          const payload = {
+            votingCycleId: votingCycleId,
+            paperData: selectedPapers.map((paper, index) => ({
+              paperId: paper.paperID,
+              deadlineDate: deadlineDate,
+              serialNumber: nextSerialNumber + index
+            }))
+          };
+
+          // Call addPaperToCgbCycle
+          this.votingService.addPaperToCgbCycle(payload).subscribe({
+            next: (response) => {
+              if (response.status) {
+                this.toastService.show('Papers added to current cycle successfully', 'success');
+                
+                // Uncheck the selected papers
+                this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
+                  d.checked = false;
+                  return d;
+                });
+                this.showAddToCurrentCycleButton = false;
+                
+                // Reload the paper list to reflect changes
+                this.loadPaperConfigList();
+              } else {
+                this.toastService.show('Failed to add papers to current cycle', 'danger');
+              }
+            },
+            error: (error) => {
+              console.log('Error adding papers to current cycle', error);
+              this.toastService.show('Error adding papers to current cycle', 'danger');
+            }
+          });
+        } else {
+          this.toastService.show('No active CGB cycle found', 'danger');
+        }
+      },
+      error: (error) => {
+        console.log('Error getting CGB cycle', error);
+        this.toastService.show('Error getting CGB cycle information', 'danger');
+      }
+    });
   }
 }

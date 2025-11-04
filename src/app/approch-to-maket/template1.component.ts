@@ -41,11 +41,13 @@ import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 import { EditorService } from '../../service/editor.service';
 import { CommentService } from '../../service/comment.service';
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 import { AuthService } from '../../service/auth.service';
 import { ThresholdService } from '../../service/threshold.service';
 import { ThresholdType } from '../../models/threshold';
 import { cleanObject } from '../../utils';
 import {ToggleService} from '../shared/services/toggle.service';
+import { PermissionService } from '../shared/services/permission.service';
 import {base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 import {NumberInputComponent} from '../../components/number-input/number-input.component';
 import {BatchService} from '../../service/batch.service';
@@ -56,7 +58,7 @@ import { VendorDetail } from '../../models/vendor';
 @Component({
   selector: 'app-template1',
   standalone: true,
-  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule],
+  imports: [CommonModule,NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, NgbCollapseModule, ActionBarComponent],
   templateUrl: './template1.component.html',
   styleUrls: ['./template1.component.scss'],
 })
@@ -131,7 +133,8 @@ export class Template1Component implements AfterViewInit  {
 
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
-              private batchPaperService: BatchService
+              private batchPaperService: BatchService,
+              public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -186,6 +189,7 @@ export class Template1Component implements AfterViewInit  {
     this.loadThresholdData()
     this.loadBatchPapersList();
     this.loadVendorData();
+    this.setupJVAlignedAutoReset();
 
     let camId = null
 
@@ -316,7 +320,9 @@ export class Template1Component implements AfterViewInit  {
 
     this.generalInfoForm.get('generalInfo.contractValueUsd')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
-      this.setupPSACalculationsManually()
+      this.setupPSACalculationsManually();
+      // Re-evaluate committee checkboxes after PSA values are recalculated
+      this.reEvaluateAllCommitteeCheckboxes();
     });
 
     this.generalInfoForm.get('generalInfo.psajv')?.valueChanges
@@ -351,6 +357,19 @@ export class Template1Component implements AfterViewInit  {
       }, 1000)
     }
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   loadBatchPapersList() {
     this.batchPaperService.getBatchPapersList().subscribe({
@@ -532,6 +551,8 @@ export class Template1Component implements AfterViewInit  {
     this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe((value) => {
       const selectedType = this.sourcingTypeData.find(item => item.id === Number(value));
       this.isShowJustification = !selectedType || selectedType.itemValue !== "Competitive Bid";
+      // Re-evaluate committee checkboxes when sourcing type changes
+      this.reEvaluateAllCommitteeCheckboxes();
     });
   }
 
@@ -556,8 +577,16 @@ export class Template1Component implements AfterViewInit  {
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
+      this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
       this.paperDetails = value.data;
+      console.log('paperDetails from API:', this.paperDetails);
+      // Store consultations data in paperDetails for addConsultationRow to access
+      const consultationsData = value.data?.consultationsDetails || [];
+      console.log('consultationsData from API:', consultationsData);
+      if (!this.paperDetails.consultationsDetails) {
+        this.paperDetails.consultationsDetails = [];
+      }
+      this.paperDetails.consultationsDetails = consultationsData;
       const paperDetailData = value.data?.paperDetails || null
       const bidInvitesData = value.data?.bidInvites || []
       const valueData = value.data?.valueDeliveriesCostsharing && (value.data?.valueDeliveriesCostsharing[0] || null)
@@ -597,11 +626,22 @@ export class Template1Component implements AfterViewInit  {
 
       // Assign PSA/JV values dynamically
       costAllocationJVApprovalData.forEach(psa => {
-        const checkboxKey = psaNameToCheckbox[psa.psaName?.toLowerCase() as keyof typeof psaNameToCheckbox];
+        // Try exact match first, then lowercase match
+        const psaNameLower = psa.psaName?.toLowerCase().trim();
+        const checkboxKey = psaNameToCheckbox[psaNameLower as keyof typeof psaNameToCheckbox];
+        
         if (checkboxKey) {
-          patchValues.costAllocation[checkboxKey] = psa.psaValue;
+          console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
+          // Handle different types for psaValue (boolean, string, number)
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+                               Boolean(psa.psaValue);
+          patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
           patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+        } else {
+          console.warn('PSA not found in mapping:', psa.psaName, 'Available keys:', Object.keys(psaNameToCheckbox));
         }
       });
 
@@ -615,11 +655,36 @@ export class Template1Component implements AfterViewInit  {
         }
       });
 
+      console.log('patchValues.costAllocation', patchValues.costAllocation);
+
+      // Start with PSAs from paperDetailData
       const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
         .split(',')
         .map(label => label.trim())
         .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
         .filter(value => value) : []
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter(psa => psa.psaValue === true)
+        .map(psa => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter(value => value);
+
+      // Merge and deduplicate
+      const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValues
+        .filter((psaName): psaName is string => !!psaName)
+        .forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
 
 
       const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
@@ -647,10 +712,10 @@ export class Template1Component implements AfterViewInit  {
             vP1UserId: paperDetailData?.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: paperDetailData?.pdManagerNameId || null,
-            contractValueUsd: paperDetailData?.totalAwardValueUSD || null,
+            contractValueUsd: paperDetailData?.contractValue || null,
             originalCurrency: paperDetailData?.currencyCode || '',
             exchangeRate: paperDetailData?.exchangeRate || 0,
-            contractValueOriginalCurrency: paperDetailData?.contractValue || 0,
+            contractValueOriginalCurrency: (paperDetailData?.contractValue || 0) * (paperDetailData?.exchangeRate || 0),
             contractStartDate: paperDetailData?.contractStartDate
               ? format(new Date(paperDetailData.contractStartDate), 'yyyy-MM-dd')
               : '',
@@ -660,7 +725,7 @@ export class Template1Component implements AfterViewInit  {
             isIFRS16: paperDetailData?.isIFRS16 || false,
             isGIAAPCheck: paperDetailData?.isGIAAPCheck || false,
             isPHCA: paperDetailData?.isPHCA || false,
-            psajv: selectedValues,
+            psajv: allSelectedValues,
             isLTCC: paperDetailData?.isLTCC || false,
             ltccNotes: paperDetailData?.ltccNotes || '',
             isGovtReprAligned: paperDetailData?.isGovtReprAligned || false,
@@ -711,13 +776,46 @@ export class Template1Component implements AfterViewInit  {
         },{ emitEvent: true })
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
+          
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              this.addPSAJVFormControls(psaName);
+            });
+          
+          // Re-patch costAllocation values to ensure they're set after controls exist
+          this.generalInfoForm.patchValue({
+            costAllocation: patchValues.costAllocation
+          }, { emitEvent: false });
+          
+          // Enable percentage controls for all selected PSAs and ensure checkboxes are true
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              const checkboxControlName = this.getPSACheckboxControlName(psaName);
+              const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+              const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+              
+              // Ensure checkbox is true if PSA is selected
+              if (checkboxControl) {
+                checkboxControl.setValue(true, { emitEvent: false });
+              }
+              
+              // Enable percentage control for all selected PSAs (including BP Group)
+              if (percentageControl) {
+                percentageControl.enable({ emitEvent: false });
+              }
+            });
+          
           this.isInitialLoad = false;
         }, 500)
 
         this.addRow(true);
         this.addBidRow(true);
-        this.addConsultationRow(true);
+        this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners()
       }
     })
@@ -930,6 +1028,9 @@ export class Template1Component implements AfterViewInit  {
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Enable percentage control (for all PSAs including BP Group)
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
@@ -1161,7 +1262,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   // Common method to apply committee logic for a specific PSA
-  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean): void {
+  applyCommitteeLogicForPSA(psaName: string, isChecked: boolean, reEvaluate: boolean = false): void {
     const valueControlName = this.getPSAValueControlName(psaName);
     const jvApprovalsData = this.paperDetails?.jvApprovals && (this.paperDetails.jvApprovals[0] || null);
     const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
@@ -1180,7 +1281,10 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          firstCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          firstCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
 
@@ -1195,7 +1299,10 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          secondCommitteeControl.setValue(shouldCheck || initialValue, { emitEvent: false });
+          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // use only the threshold evaluation result, not the initial saved value
+          const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
+          secondCommitteeControl.setValue(finalValue, { emitEvent: false });
         }
       }
     } else {
@@ -1223,7 +1330,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   // Trigger committee logic for a specific PSA when percentage/value changes
-  triggerCommitteeLogicForPSA(psaName: string): void {
+  triggerCommitteeLogicForPSA(psaName: string, reEvaluate: boolean = false): void {
     const checkboxControlName = this.getPSACheckboxControlName(psaName);
     const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
 
@@ -1233,10 +1340,26 @@ export class Template1Component implements AfterViewInit  {
       return;
     }
 
-    this.applyCommitteeLogicForPSA(psaName, isChecked);
+    this.applyCommitteeLogicForPSA(psaName, isChecked, reEvaluate);
 
     // Uncheck JV Aligned checkbox for the corresponding PSA in consultation rows
     this.uncheckJVAlignedForPSA(psaName);
+  }
+
+  // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
+  reEvaluateAllCommitteeCheckboxes(): void {
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    
+    selectedPSAJV.forEach((psaName: string) => {
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+      
+      // Only re-evaluate if PSA checkbox is checked
+      if (checkboxControl?.value === true) {
+        // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
+        this.triggerCommitteeLogicForPSA(psaName, true);
+      }
+    });
   }
 
   // Method to uncheck JV Aligned checkbox for a specific PSA
@@ -1675,23 +1798,35 @@ export class Template1Component implements AfterViewInit  {
 
 
 
-  addConsultationRow(isFirst = false, isChangedCamUser = false) {
-    if (isFirst && this.paperDetails) {
-      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+  addConsultationRow(isFirst = false, isChangedCamUser = false, consultationsData?: any[]) {
+    if (isFirst) {
+      // Use provided consultationsData, or fall back to paperDetails.consultationsDetails
+      const riskMitigationsData = consultationsData || (this.paperDetails?.consultationsDetails as any[]) || []
+      console.log('addConsultationRow - isFirst:', isFirst, 'paperDetails:', !!this.paperDetails);
+      console.log('addConsultationRow - consultationsData param:', consultationsData);
+      console.log('addConsultationRow - consultationsDetails from paperDetails:', this.paperDetails?.consultationsDetails);
+      console.log('addConsultationRow - using riskMitigationsData:', riskMitigationsData);
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls
 
-      riskMitigationsData.forEach((item, index) => {
-        riskMitigationArray.push(
-          this.fb.group({
-            psa: [item.psa, Validators.required],
-            technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
-            budgetStatement: [item.budgetStatementId, Validators.required],
-            jvReview: [item.jvReviewId, Validators.required],
-            jvAligned: [{ value: (item as any).jvAligned || false, disabled: true }], // JV Aligned checkbox - disabled by default
-            id: [item.id]
-          })
-        );
+      riskMitigationsData.forEach((item: any, index) => {
+        console.log('Creating consultation row:', index, item);
+        const formGroup = this.fb.group({
+          psa: [item.psa || item.psaValue || '', Validators.required],
+          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false }, Validators.required],
+          budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
+          jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
+          jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }], // JV Aligned checkbox - disabled by default
+          id: [item.id || 0]
+        });
+        riskMitigationArray.push(formGroup);
+        console.log('Consultation row created, total rows:', riskMitigationArray.length);
+        
+        // Set JV Aligned checkbox state based on JV Review user
+        setTimeout(() => {
+          const jvReviewValue = item.jvReview || item.jvReviewId || null;
+          this.onJVReviewChange(index, jvReviewValue);
+        }, 0);
       });
     } else {
       const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
@@ -1727,6 +1862,16 @@ export class Template1Component implements AfterViewInit  {
         console.log(result);
       }
     });
+  }
+
+  handleStatusChange(status: string): void {
+    // For "Waiting for PDM", always call the API to update status
+    if (status === 'Waiting for PDM') {
+      this.setPaperStatus(status, true);
+    } else {
+      // For other statuses, don't call API (form submission will handle it)
+      this.setPaperStatus(status, false);
+    }
   }
 
   setPaperStatus(status: string, callAPI: boolean = true): void {
@@ -1818,7 +1963,7 @@ export class Template1Component implements AfterViewInit  {
         sourcingType: generalInfoValue?.sourcingType,
         isPHCA: generalInfoValue?.isPHCA || false,
         psajv: generalInfoValue?.psajv?.join(',') || "",
-        contractValue: generalInfoValue?.contractValueOriginalCurrency || 0,
+        contractValue: generalInfoValue?.contractValueUsd || 0,
         currencyCode: generalInfoValue?.originalCurrency || null,
         exchangeRate: generalInfoValue?.exchangeRate || 0,
         contractStartDate: generalInfoValue?.contractStartDate || null,

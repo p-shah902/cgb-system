@@ -32,9 +32,12 @@ import {CostAllocationJVApproval, Paper, PaperDetails, PaperStatusType} from '..
 import {DictionaryDetail} from '../../models/dictionary';
 import {ThresholdType} from '../../models/threshold';
 import {DictionaryService} from '../../service/dictionary.service';
+import {VendorService} from '../../service/vendor.service';
+import {VendorDetail} from '../../models/vendor';
 import {BehaviorSubject} from 'rxjs';
 import {Router, ActivatedRoute, RouterLink} from '@angular/router';
 import {EditorComponent} from '../../components/editor/editor.component';
+import {NumberInputComponent} from '../../components/number-input/number-input.component';
 import {CommentableDirective} from '../../directives/commentable.directive';
 import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
@@ -43,11 +46,13 @@ import {cleanObject} from '../../utils/index';
 import {format} from 'date-fns';
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { PermissionService } from '../shared/services/permission.service';
+import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 
 @Component({
   selector: 'app-template5',
   standalone: true,
-  imports: [CommonModule, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink],
+  imports: [CommonModule, NumberInputComponent, CKEditorModule, FormsModule, ReactiveFormsModule, Select2, NgbToastModule, EditorComponent, CommentableDirective, EditorNormalComponent, TimeAgoPipe, NgbTooltip, RouterLink, ActionBarComponent],
   templateUrl: './template5.component.html',
   styleUrl: './template5.component.scss'
 })
@@ -57,6 +62,7 @@ export class Template5Component  implements AfterViewInit{
   generalInfoForm!: FormGroup;
   private readonly userService = inject(UserService);
   private readonly paperService = inject(PaperService);
+  private readonly vendorService = inject(VendorService);
   private paperConfigService = inject(PaperConfigService);
   private editorService = inject(EditorService);
   private commentService = inject(CommentService);
@@ -74,6 +80,9 @@ export class Template5Component  implements AfterViewInit{
   paperStatusList: PaperStatusType[] = [];
   paperDetails: any = null
   isRegisterPaper: boolean = false
+  vendorList: VendorDetail[] = []
+  previousCGBItemOptions: any[] = []
+  paperMappingData: any[] = []
 
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -92,7 +101,7 @@ export class Template5Component  implements AfterViewInit{
   isDragging = false;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
-  private totalCalls = 2;
+  private totalCalls = 3;
   logs: any[] = [];
   comment: string = '';
   loggedInUser: LoginUser | null = null;
@@ -110,6 +119,7 @@ export class Template5Component  implements AfterViewInit{
   };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
+              public permission: PermissionService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -121,14 +131,7 @@ export class Template5Component  implements AfterViewInit{
 
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
-  public psaJvOptions = [
-    {value: 'ACG', label: 'ACG'},
-    {value: 'Shah Deniz', label: 'Shah Deniz'},
-    {value: 'SCP', label: 'SCP'},
-    {value: 'BTC', label: 'BTC'},
-    {value: 'Sh-Asiman', label: 'Sh-Asiman'},
-    {value: 'BP Group', label: 'BP Group'}
-  ];
+  public psaJvOptions: { value: string; label: string }[] = [];
 
 
   public ngOnInit(): void {
@@ -165,12 +168,13 @@ export class Template5Component  implements AfterViewInit{
     this.loadUserDetails();
     this.loadDictionaryItems();
     this.loadPaperStatusListData();
+    this.loadVendorDetails();
     // this.loadThresholdData()
 
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
-        purposeRequired: ['qw', Validators.required],
+        purposeRequired: ['', Validators.required],
         transactionType: ['', Validators.required],
         isRetrospectiveApproval: [null],
         retrospectiveApprovalReason: [{ value: '', disabled: true }],
@@ -179,7 +183,6 @@ export class Template5Component  implements AfterViewInit{
         cgbCirculationDate: [{value: '', disabled: true}],
         legalName: ['', Validators.required],
         contractNumber: [''],
-        referenceNo: [''],
         operatingFunction: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         previousCGBItemRefNo: ['', Validators.required],
@@ -193,9 +196,8 @@ export class Template5Component  implements AfterViewInit{
         contractEndDate: [null, Validators.required],
         variationStartDate: [null, Validators.required],
         variationEndDate: [null, Validators.required],
+        contractValue: [null],
         psajv: [[], Validators.required],
-        isLTCC: [null],
-        ltccNotes: [{ value: '', disabled: true }],
       }),
       ccd: this.fb.group({
         isHighRiskContract: [null],
@@ -258,13 +260,40 @@ export class Template5Component  implements AfterViewInit{
     this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe((newCamUserId) => {
       this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
+    
+    // Subscribe to Previous CGB Item Reference changes to auto-populate contract value
+    this.generalInfoForm.get('generalInfo.previousCGBItemRefNo')?.valueChanges.subscribe((previousCGBItemRefNo) => {
+      if (previousCGBItemRefNo) {
+        console.log('Previous CGB Item Reference changed via valueChanges:', previousCGBItemRefNo);
+        this.populateContractValueFromLinkedPaper(Number(previousCGBItemRefNo));
+      } else {
+        // Clear contract value if no paper is selected
+        console.log('Previous CGB Item Reference cleared via valueChanges');
+        this.generalInfoForm.get('generalInfo.contractValue')?.setValue(null);
+      }
+    });
+    
     this.setupPSAListeners()
     this.setupPSACalculations()
-    this.onLTCCChange()
     this.onRTOhange()
     this.alignGovChange()
+    this.setupPreviousCGBItemReference()
+    this.setupJVAlignedAutoReset()
 
   }
+  private setupJVAlignedAutoReset() {
+    if (!this.generalInfoForm) { return; }
+    this.generalInfoForm.valueChanges.subscribe(() => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && ctrl.value === true) {
+          ctrl.setValue(false, { emitEvent: false });
+        }
+      });
+    });
+  }
+
 
   ngAfterViewInit() {
     const options = {
@@ -290,16 +319,23 @@ export class Template5Component  implements AfterViewInit{
 
   fetchPaperDetails(paperId: number) {
     this.paperService.getPaperDetails(paperId, 'info').subscribe((value) => {
-      this.paperDetails = value.data as any;
-      const paperDetailData = value.data?.paperDetails || null
-      const generatlInfoData = this.paperDetails?.paperDetails || null
+      // Handle both nested (infoNote.paperDetails) and flat (paperDetails) structures
+      const data = value.data as any;
+      const infoNoteData = data?.infoNote || data;
+      this.paperDetails = infoNoteData;
+      
+      // Store consultations data in paperDetails for addConsultationRow to access
+      const consultationsData = infoNoteData?.consultationsDetails || [];
+      this.paperDetails.consultationsDetails = consultationsData;
+      // Use paperDetails if it exists (nested structure), otherwise fall back to infoNoteData (flat structure)
+      const generatlInfoData = infoNoteData?.paperDetails || infoNoteData
 
-      const jvApprovalsData = value.data?.jvApprovals[0] || null
-      const costAllocationJVApprovalData = value.data?.costAllocationJVApproval || []
+      const jvApprovalsData = infoNoteData?.jvApprovals?.[0] || null
+      const costAllocationJVApprovalData = infoNoteData?.costAllocationJVApproval || []
 
       const patchValues: any = { costAllocation: {} };
 
-      const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === paperDetailData?.paperStatusId?.toString())
+      const selectedPaperStatus = this.paperStatusList.find((item) => item.id.toString() === generatlInfoData?.paperStatusId?.toString())
 
       if (selectedPaperStatus?.paperStatus !== "Draft") {
         this.isRegisterPaper = true
@@ -323,52 +359,58 @@ export class Template5Component  implements AfterViewInit{
         steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
       });
 
-      // PSA/JV mappings
-      const psaNameToCheckbox: Record<string, string> = {
-        "ACG": "isACG",
-        "Shah Deniz": "isShah",
-        "SCP": "isSCP",
-        "BTC": "isBTC",
-        "Asiman": "isAsiman",
-        "BP Group": "isBPGroup"
-      };
-
-      // Assign PSA/JV values dynamically
-      costAllocationJVApprovalData.forEach(psa => {
-        const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      // Assign PSA/JV values dynamically using helper names
+      costAllocationJVApprovalData.forEach((psa: any) => {
+        const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+        const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+        const valueKey = this.getPSAValueControlName(psa.psaName);
         if (checkboxKey) {
           patchValues.costAllocation[checkboxKey] = psa.psaValue;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
-          patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+          patchValues.costAllocation[percentageKey] = psa.percentage;
+          patchValues.costAllocation[valueKey] = psa.value;
         }
       });
 
-      // Assign default values for all PSA/JV fields if not in API data
-      Object.keys(psaNameToCheckbox).forEach(key => {
-        const checkboxKey = psaNameToCheckbox[key];
-        if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
-          patchValues.costAllocation[checkboxKey] = false;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
-          patchValues.costAllocation[`value_${checkboxKey}`] = '';
-        }
-      });
-
-      const selectedValues = paperDetailData?.psajv ? paperDetailData.psajv
+      // Start with PSAs from generatlInfoData
+      const selectedValues = generatlInfoData?.psajv ? generatlInfoData.psajv
         .split(',')
-        .map(label => label.trim())
-        .map(label => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
-        .filter(value => value) : []
+        .map((label: string) => label.trim())
+        .map((label: string) => this.psaJvOptions.find(option => option.label === label)?.value) // Convert label to value
+        .filter((value: any) => value) : []
+
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = costAllocationJVApprovalData
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option => 
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value);
+
+      // Merge and deduplicate
+      const allSelectedValues = [...new Set([...selectedValues, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValues
+        .filter((psaName): psaName is string => !!psaName)
+        .forEach((psaName: string) => {
+          this.addPSAJVFormControls(psaName);
+        });
 
 
-      const selectedValuesProcurementTagUsers = paperDetailData?.procurementSPAUsers ? paperDetailData.procurementSPAUsers
+      const selectedValuesProcurementTagUsers = generatlInfoData?.procurementSPAUsers ? generatlInfoData.procurementSPAUsers
         .split(',')
-        .map(id => id.trim())
-        .map(id => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
-        .filter(value => value) : [];
+        .map((id: string) => id.trim())
+        .map((id: string) => this.procurementTagUsers.find(option => option.value === Number(id))?.value) // Convert label to value
+        .filter((value: any) => value) : [];
 
       console.log("==patchValues.costAllocation", patchValues.costAllocation)
+      console.log("==generatlInfoData", generatlInfoData)
 
-      if (value.data) {
+      if (infoNoteData) {
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: generatlInfoData?.paperProvision || '',
@@ -377,14 +419,14 @@ export class Template5Component  implements AfterViewInit{
             isRetrospectiveApproval: generatlInfoData?.isRetrospectiveApproval || false,
             retrospectiveApprovalReason: generatlInfoData?.retrospectiveApprovalReason || '',
             reasontoChangeRequired: generatlInfoData?.reasontoChangeRequired || '',
-            cgbItemRefNo: generatlInfoData?.cgbItemRef || '',
+            cgbItemRefNo: generatlInfoData?.cgbItemRefNo || '',
             cgbCirculationDate: generatlInfoData?.cgbCirculationDate || '',
-            legalName: generatlInfoData?.legalName || '',
+            legalName: generatlInfoData?.vendorId || null,
             contractNumber: generatlInfoData?.contractNumber || '',
             operatingFunction: generatlInfoData?.operatingFunction || '',
             bltMember: generatlInfoData?.bltMemberId || null,
-            referenceNo: generatlInfoData?.referenceNo || '',
-            previousCGBItemRefNo: generatlInfoData?.previousCGBItemRefNo || '',
+            previousCGBItemRefNo: generatlInfoData?.previousCGBItemRefNo ? generatlInfoData.previousCGBItemRefNo.toString() : '',
+            contractValue: generatlInfoData?.contractValue || null,
             subSector: generatlInfoData?.subSector || '',
             sourcingType: generatlInfoData?.sourcingType || '',
             camUserId: generatlInfoData?.camUserId ? Number(generatlInfoData?.camUserId) : null,
@@ -402,31 +444,62 @@ export class Template5Component  implements AfterViewInit{
             variationEndDate: generatlInfoData.variationEndDate
               ? format(new Date(generatlInfoData.variationEndDate), 'yyyy-MM-dd')
               : '',
-            psajv: selectedValues,
-            isLTCC: generatlInfoData?.isLTCC || false,
-            ltccNotes: generatlInfoData?.ltccNotes || '',
+            psajv: allSelectedValues,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: generatlInfoData?.pdManagerNameId || null,
           },
           ccd: {
             isHighRiskContract: generatlInfoData?.isHighRiskContract || false,
-            daCDDCompleted: generatlInfoData?.daCDDCompleted
-              ? format(new Date(generatlInfoData.daCDDCompleted), 'yyyy-MM-dd')
+            cddCompleted: generatlInfoData?.cddCompleted
+              ? format(new Date(generatlInfoData.cddCompleted), 'yyyy-MM-dd')
               : '',
             highRiskExplanation: generatlInfoData?.highRiskExplanation || '',
-            flagRaisedCDD: generatlInfoData?.highRiskExplanation || '',
-            additionalCDD: generatlInfoData?.highRiskExplanation || '',
+            flagRaisedCDD: generatlInfoData?.flagRaisedCDD || '',
+            additionalCDD: generatlInfoData?.additionalCDD || '',
           },
           costAllocation: patchValues.costAllocation,
         })
         setTimeout(() => {
-          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers);
-          this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValues);
+          this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
+          this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
+          
+          // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              this.addPSAJVFormControls(psaName);
+            });
+          
+          // Re-patch costAllocation values to ensure they're set after controls exist
+          this.generalInfoForm.patchValue({
+            costAllocation: patchValues.costAllocation
+          }, { emitEvent: false });
+          
+          // Enable percentage controls for all selected PSAs and ensure checkboxes are true
+          allSelectedValues
+            .filter((psaName): psaName is string => !!psaName)
+            .forEach((psaName: string) => {
+              const checkboxControlName = this.getPSACheckboxControlName(psaName);
+              const percentageControlName = this.getPSAPercentageControlName(psaName);
+              const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
+              const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+              
+              // Ensure checkbox is true if PSA is selected
+              if (checkboxControl) {
+                checkboxControl.setValue(true, { emitEvent: false });
+              }
+              
+              // Enable percentage control for all selected PSAs (including BP Group)
+              if (percentageControl) {
+                percentageControl.enable({ emitEvent: false });
+              }
+            });
+          
           this.isInitialLoad = false;
         }, 500)
 
 
-        this.addConsultationRow(true);
+        this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners()
       }
     })
@@ -512,30 +585,34 @@ export class Template5Component  implements AfterViewInit{
 
   onSelectChangePSAJV() {
     const selectedOptions = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-
-    const costAllocationControl = this.generalInfoForm.get('costAllocation');
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
     if (costAllocationControl) {
-      const mapping: { [key: string]: string } = {
-        "ACG": "isACG",
-        "Shah Deniz": "isShah",
-        "SCP": "isSCP",
-        "BTC": "isBTC",
-        "Sh-Asiman": "isAsiman",
-        "BP Group": "isBPGroup"
-      };
+      // Get all possible PSAJV options
+      const allPSAJVOptions = this.psaJvOptions.map(option => option.value);
 
-      Object.keys(mapping).forEach((key) => {
-        const controlName = mapping[key];
-        const isSelected = selectedOptions.includes(key);
-        costAllocationControl.get(controlName)?.setValue(isSelected);
+      // Handle each PSAJV option
+      allPSAJVOptions.forEach((psaName) => {
+        const isSelected = selectedOptions.includes(psaName);
+
         if (isSelected) {
-          this.addConsultationRowOnChangePSAJV(key);
+          // Add form controls if they don't exist
+          this.addPSAJVFormControls(psaName);
+          // Set checkbox to checked
+          const checkboxControlName = this.getPSACheckboxControlName(psaName);
+          costAllocationControl.get(checkboxControlName)?.setValue(true);
+          // Ensure As% (percentage) input is enabled like template1
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
+          // Add consultation row
+          this.addConsultationRowOnChangePSAJV(psaName);
         } else {
-          this.removeConsultationRowByPSAJV(key);
+          // Remove consultation row
+          this.removeConsultationRowByPSAJV(psaName);
         }
       });
     }
-
+    this.setupPSAListeners();
+    this.setupPSACalculations();
   }
 
   addConsultationRowOnChangePSAJV(jvValue: string) {
@@ -606,11 +683,33 @@ export class Template5Component  implements AfterViewInit{
 
     // Assign PSA/JV values dynamically
     costAllocationJVApprovalData.forEach((psa: any) => {
-      const checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      // Try exact match first, then case-insensitive match with trim
+      let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+      
+      // If no exact match, try case-insensitive match
+      if (!checkboxKey && psa.psaName) {
+        const psaNameTrimmed = (psa.psaName || '').toString().trim();
+        const psaNameUpper = psaNameTrimmed.toUpperCase();
+        for (const [key, value] of Object.entries(psaNameToCheckbox)) {
+          if (key.toUpperCase() === psaNameUpper) {
+            checkboxKey = value;
+            break;
+          }
+        }
+      }
+      
       if (checkboxKey) {
-        patchValues.costAllocation[checkboxKey] = psa.psaValue;
+        console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
+        // Handle different types for psaValue (boolean, string, number)
+        const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
+                             typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
+                             typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+                             Boolean(psa.psaValue);
+        patchValues.costAllocation[checkboxKey] = psaValueBool;
         patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
         patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
+      } else {
+        console.warn('PSA not found in mapping:', psa.psaName, 'Available keys:', Object.keys(psaNameToCheckbox));
       }
     });
 
@@ -780,22 +879,6 @@ export class Template5Component  implements AfterViewInit{
 
   }
 
-  onLTCCChange() {
-    this.generalInfoForm.get('generalInfo.isLTCC')?.valueChanges.subscribe((value) => {
-      const ltccNotesControl = this.generalInfoForm.get('generalInfo.ltccNotes');
-
-      if (value === true) {
-        ltccNotesControl?.setValidators([Validators.required]);
-        ltccNotesControl?.enable();
-      } else {
-        ltccNotesControl?.clearValidators();
-        ltccNotesControl?.disable(); // <- disables the field
-      }
-
-      ltccNotesControl?.updateValueAndValidity();
-    });
-  }
-
   onRTOhange() {
     this.generalInfoForm.get('generalInfo.isRetrospectiveApproval')?.valueChanges.subscribe((value) => {
       const ltccNotesControl = this.generalInfoForm.get('generalInfo.retrospectiveApprovalReason');
@@ -866,6 +949,7 @@ export class Template5Component  implements AfterViewInit{
 
             case 'PSA':
               this.psaData = (response.data || []).filter(item => item.isActive);
+              this.psaJvOptions = this.psaData.map(item => ({ value: item.itemValue, label: item.itemValue }));
               break;
 
             case 'Sourcing Type':
@@ -886,6 +970,106 @@ export class Template5Component  implements AfterViewInit{
         console.log('Error:', error);
       }
     });
+  }
+
+  // Dynamic PSA helpers (mirroring template1/template2)
+  getSelectedPSAJVColumns(): string[] {
+    if (!this.generalInfoForm || !this.generalInfoForm.get('generalInfo.psajv')) {
+      return [];
+    }
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    return selectedPSAJV;
+  }
+
+  getPSACheckboxControlName(psa: string): string {
+    if (!psa) return '';
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `is${cleanName}`;
+  }
+
+  getPSAPercentageControlName(psa: string): string {
+    if (!psa) return '';
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `percentage_is${cleanName}`;
+  }
+
+  getPSAValueControlName(psa: string): string {
+    if (!psa) return '';
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `value_is${cleanName}`;
+  }
+
+  getPSAControlSuffix(psa: string): string {
+    const cleanName = psa.replace(/[^a-zA-Z0-9]/g, '');
+    return `is${cleanName}`;
+  }
+
+  hasFirstCommitteeCheckbox(psa: string): boolean {
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp', 'btc'].includes(psaLower);
+  }
+
+  hasSecondCommitteeCheckbox(psa: string): boolean {
+    const psaLower = psa.toLowerCase();
+    return ['acg', 'shah deniz', 'scp'].includes(psaLower);
+  }
+
+  getFirstCommitteeControlName(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'coVenturers_CMC',
+      'shah deniz': 'contractCommittee_SDCC',
+      'scp': 'contractCommittee_SCP_Co_CC',
+      'btc': 'contractCommittee_BTC_CC'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  getFirstCommitteeLabel(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'CMC',
+      'shah deniz': 'SDCC',
+      'scp': 'SCP Co CC',
+      'btc': 'BTC CC'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  getSecondCommitteeControlName(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'steeringCommittee_SC',
+      'shah deniz': 'coVenturers_SDMC',
+      'scp': 'coVenturers_SCP'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  getSecondCommitteeLabel(psa: string): string {
+    const mapping: { [key: string]: string } = {
+      'acg': 'SC',
+      'shah deniz': 'SDMC',
+      'scp': 'SCP Board'
+    };
+    return mapping[psa.toLowerCase()] || '';
+  }
+
+  // Add PSA controls dynamically into costAllocation group
+  addPSAJVFormControls(psaName: string): void {
+    const costAllocationControl = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (costAllocationControl) {
+      const checkboxControlName = this.getPSACheckboxControlName(psaName);
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      if (!costAllocationControl.get(checkboxControlName)) {
+        costAllocationControl.addControl(checkboxControlName, this.fb.control({ value: true, disabled: true }));
+      }
+      if (!costAllocationControl.get(percentageControlName)) {
+        costAllocationControl.addControl(percentageControlName, this.fb.control({ value: '', disabled: false }, [Validators.min(0), Validators.max(100)]));
+      }
+      if (!costAllocationControl.get(valueControlName)) {
+        costAllocationControl.addControl(valueControlName, this.fb.control(null));
+      }
+    }
   }
 
 
@@ -912,6 +1096,244 @@ export class Template5Component  implements AfterViewInit{
         console.log('error', error);
       },
     });
+  }
+
+  loadVendorDetails() {
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (reponse) => {
+        if (reponse.status && reponse.data) {
+          this.vendorList = reponse.data.filter(vendor => vendor.isActive);
+          this.incrementAndCheck();
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  getVendorOptions() {
+    return this.vendorList.map(vendor => ({
+      value: vendor.id,
+      label: vendor.legalName
+    }));
+  }
+
+  onVendorSelectionChange() {
+    // If a linked paper is selected and it's a Contract Award with split award,
+    // recalculate the contract value based on the new vendor selection
+    const previousCGBItemRefNo = this.generalInfoForm.get('generalInfo.previousCGBItemRefNo')?.value;
+    if (previousCGBItemRefNo) {
+      const linkedPaper = this.paperMappingData.find((p: any) => p.paperID?.toString() === previousCGBItemRefNo.toString());
+      if (linkedPaper && linkedPaper.paperType === 'Contract Award') {
+        // Re-populate contract value for split award scenario
+        this.populateContractValueFromLinkedPaper(Number(previousCGBItemRefNo));
+      }
+    }
+  }
+
+  setupPreviousCGBItemReference() {
+    // Initialize with empty array
+    this.previousCGBItemOptions = [];
+    
+    // Fetch all papers for mapping - similar to template2/template3
+    this.paperService.getApprovedPapersForMapping().subscribe({
+      next: (response) => {
+        console.log('getApprovedPapersForMapping response:', response);
+        if (response && response.status && response.data) {
+          if (response.data && response.data.length > 0) {
+            // Filter papers: exclude Draft/Withdrawn and current paper if editing
+            const filteredPapers = response.data.filter((item: any) => {
+              // Exclude current paper if editing
+              if (this.paperId && item.paperID?.toString() === this.paperId) {
+                return false;
+              }
+              
+              // Exclude Draft and Withdrawn status
+              if (item.paperStatusName === "Draft" || item.paperStatusName === "Withdrawn") {
+                return false;
+              }
+              
+              // Show all approved paper types for Previous CGB Item Reference
+              // This allows referencing any previous approved paper
+              return true;
+            });
+            
+            console.log('Filtered papers for Previous CGB Item Reference:', filteredPapers);
+            console.log('Total filtered papers:', filteredPapers.length);
+            this.paperMappingData = filteredPapers;
+            
+            // Create formatted options for Select2 - similar to template2 format
+            // Format: "Ref#, Paper Type, Title (first 50 chars), Date"
+            this.previousCGBItemOptions = this.paperMappingData.map((item: any) => {
+              const refNo = item.paperID?.toString() || '';
+              const paperType = item.paperType || '';
+              const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
+              const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
+              
+              // Format label to include Ref#, Paper Type, Title, Date for dropdown display
+              const label = `${refNo}, ${paperType}, ${title}, ${date}`;
+              
+              return {
+                value: refNo,
+                label: label
+              };
+            });
+            
+            console.log('previousCGBItemOptions created:', this.previousCGBItemOptions.length, 'items');
+            console.log('Sample options:', this.previousCGBItemOptions.slice(0, 3));
+            
+            // Force change detection
+            if (this.previousCGBItemOptions.length > 0) {
+              console.log('Options populated successfully');
+            } else {
+              console.warn('No options were created from the filtered papers');
+            }
+          } else {
+            console.log('No papers found in response data array');
+            this.previousCGBItemOptions = [];
+          }
+        } else {
+          console.log('Response status is false or no data. Response:', response);
+          this.previousCGBItemOptions = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching papers for mapping:', error);
+        this.previousCGBItemOptions = [];
+        this.toastService?.show('Failed to load previous CGB item references', 'danger');
+      }
+    });
+  }
+
+  onPreviousCGBItemSelected(event: any) {
+    // The form control already has the value set (Ref. No as string)
+    const selectedPaperId = event;
+    console.log('Previous CGB Item Reference selected:', selectedPaperId);
+    
+    if (selectedPaperId) {
+      // Automatically populate contract value based on selected paper
+      this.populateContractValueFromLinkedPaper(Number(selectedPaperId));
+    } else {
+      // Clear contract value if no paper is selected
+      console.log('Previous CGB Item Reference cleared - clearing contract value');
+      this.generalInfoForm.get('generalInfo.contractValue')?.setValue(null);
+    }
+  }
+
+  populateContractValueFromLinkedPaper(paperId: number) {
+    // Find the paper from mapping data to determine its type
+    const linkedPaper = this.paperMappingData.find((p: any) => p.paperID?.toString() === paperId.toString());
+    
+    if (!linkedPaper) {
+      console.log('Linked paper not found in mapping data for ID:', paperId);
+      return;
+    }
+
+    const paperType = linkedPaper.paperType;
+    const contractValueControl = this.generalInfoForm.get('generalInfo.contractValue');
+
+    console.log('Populating contract value from linked paper:', paperId, 'Type:', paperType);
+
+    // Handle Info Note type - Info Notes don't typically have contract values to inherit
+    if (paperType === 'Info Note') {
+      console.log('Info Note selected - contract value not automatically populated');
+      // For Info Note, we don't auto-populate contract value as per requirements
+      return;
+    }
+
+    // Fetch paper details based on type
+    let apiType = '';
+    if (paperType === 'Approach to Market') {
+      apiType = 'approch';
+    } else if (paperType === 'Contract Award') {
+      apiType = 'contract';
+    } else if (paperType === 'Variation') {
+      apiType = 'variation';
+    } else {
+      console.log('Unknown paper type:', paperType);
+      return;
+    }
+
+    this.paperService.getPaperDetails(paperId, apiType).subscribe({
+      next: (response) => {
+        console.log('Paper details API response:', response);
+        if (response.status && response.data) {
+          const paperData = response.data as any;
+          let contractValue = null;
+
+          if (paperType === 'Approach to Market') {
+            // Linked AtM: Take Contract Value
+            // Data structure: response.data.paperDetails or response.data.approachToMarket.paperDetails
+            const generalInfo = paperData?.paperDetails || paperData?.approachToMarket?.paperDetails || null;
+            contractValue = generalInfo?.contractValue || null;
+            console.log('AtM - GeneralInfo:', generalInfo);
+            console.log('AtM Contract Value:', contractValue);
+          } else if (paperType === 'Contract Award') {
+            // Linked Award: Take Award Value or Award Value for selected Vendor (if Split Award)
+            // Data structure: response.data.paperDetails or response.data.contractAward?.paperDetails
+            const generalInfo = paperData?.paperDetails || paperData?.contractAward?.paperDetails || paperData?.contractAwardDetails || null;
+            const isSplitAward = generalInfo?.isSplitAward || false;
+            const selectedVendorId = this.generalInfoForm.get('generalInfo.legalName')?.value;
+
+            console.log('Contract Award - GeneralInfo:', generalInfo);
+            console.log('Contract Award - Split Award:', isSplitAward, 'Selected Vendor:', selectedVendorId);
+
+            if (isSplitAward && selectedVendorId) {
+              // For split award, get vendor-specific award value
+              const legalEntitiesAwarded = paperData?.legalEntitiesAwarded || paperData?.contractAward?.legalEntitiesAwarded || [];
+              console.log('Legal Entities Awarded:', legalEntitiesAwarded);
+              const vendorEntity = legalEntitiesAwarded.find((entity: any) => 
+                entity.vendorId === Number(selectedVendorId)
+              );
+              contractValue = vendorEntity?.totalAwardValueUSD || vendorEntity?.awardValue || null;
+              console.log('Split Award - Vendor Entity:', vendorEntity);
+              console.log('Split Award - Vendor-specific value:', contractValue);
+            } else {
+              // Use total award value
+              contractValue = generalInfo?.totalAwardValueUSD || generalInfo?.awardValue || null;
+              console.log('Regular Award - Total value:', contractValue);
+            }
+          } else if (paperType === 'Variation') {
+            // Linked Variation: Take Total Revised Value
+            // Data structure: response.data.contractValues or response.data.variationPaper?.contractValues
+            const contractValues = paperData?.contractValues || paperData?.variationPaper?.contractValues || null;
+            contractValue = contractValues?.revisedContractValue || contractValues?.totalRevisedValue || null;
+            console.log('Variation - Contract Values:', contractValues);
+            console.log('Variation - Revised Contract Value:', contractValue);
+          }
+
+          if (contractValue !== null && contractValue !== undefined) {
+            const numericValue = Number(contractValue);
+            if (!isNaN(numericValue)) {
+              contractValueControl?.setValue(numericValue, { emitEvent: false });
+              console.log('Contract value populated successfully:', numericValue);
+              this.toastService?.show(`Contract value populated: ${numericValue}`, 'success');
+            } else {
+              console.warn('Contract value is not a valid number:', contractValue);
+              contractValueControl?.setValue(null);
+            }
+          } else {
+            console.log('No contract value found for linked paper');
+            contractValueControl?.setValue(null);
+            this.toastService?.show('No contract value available for the selected paper', 'warning');
+          }
+        } else {
+          console.log('Failed to fetch paper details - response status:', response.status, 'Response:', response);
+          this.toastService?.show('Failed to fetch paper details', 'danger');
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching linked paper details:', error);
+        this.toastService?.show('Failed to load contract value from linked paper', 'danger');
+      }
+    });
+  }
+
+  getVendorLegalName(vendorId: number | null): string {
+    if (!vendorId) return '';
+    const vendor = this.vendorList.find(v => v.id === vendorId);
+    return vendor?.legalName || '';
   }
 
   scrollToSection(event: Event) {
@@ -982,22 +1404,29 @@ export class Template5Component  implements AfterViewInit{
     return (index + 1).toString().padStart(3, '0');
   }
 
-  addConsultationRow(isFirst = false, isChangedCamUser = false) {
-    if (isFirst && this.paperDetails) {
-      const riskMitigationsData = this.paperDetails.consultationsDetails || []
+  addConsultationRow(isFirst = false, isChangedCamUser = false, consultationsData?: any[]) {
+    if (isFirst) {
+      // Use provided consultationsData, or fall back to paperDetails.consultationsDetails
+      const riskMitigationsData = consultationsData || (this.paperDetails?.consultationsDetails as any[]) || []
       const riskMitigationArray = this.consultationRows;
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item: any, index: number) => {
-        riskMitigationArray.push(
-          this.fb.group({
-            psa: [item.psa, Validators.required],
-            technicalCorrect: [{ value: item.technicalCorrectId, disabled: false }, Validators.required],
-            budgetStatement: [item.budgetStatementId, Validators.required],
-            jvReview: [item.jvReviewId, Validators.required],
-            id: [item.id]
-          })
-        );
+        const formGroup = this.fb.group({
+          psa: [item.psa || item.psaValue || '', Validators.required],
+          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false }, Validators.required],
+          budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
+          jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
+          jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }],
+          id: [item.id || 0]
+        });
+        riskMitigationArray.push(formGroup);
+        
+        // Set JV Aligned checkbox state based on JV Review user
+        setTimeout(() => {
+          const jvReviewValue = item.jvReview || item.jvReviewId || null;
+          this.onJVReviewChange(index, jvReviewValue);
+        }, 0);
       });
     } else {
       const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value || null;
@@ -1010,9 +1439,30 @@ export class Template5Component  implements AfterViewInit{
           technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
+          jvAligned: [{ value: false, disabled: true }],
           id: [0]
         })
       );
+    }
+  }
+
+  canEditJVAligned(jvReviewUserId: number | null): boolean {
+    if (!this.loggedInUser || !jvReviewUserId) {
+      return false;
+    }
+    return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+    const row = this.consultationRows.at(rowIndex);
+    const jvAlignedControl = row.get('jvAligned');
+    if (jvAlignedControl) {
+      if (this.canEditJVAligned(jvReviewUserId)) {
+        jvAlignedControl.enable();
+      } else {
+        jvAlignedControl.disable();
+        jvAlignedControl.setValue(false);
+      }
     }
   }
 
@@ -1046,6 +1496,7 @@ export class Template5Component  implements AfterViewInit{
     const consultationsValue = this.generalInfoForm?.value?.consultation
     const costAllocationValues = this.generalInfoForm?.value?.costAllocation
     const ccdValues = this.generalInfoForm?.value?.ccd
+    const toIsoOrNull = (v: any) => v ? new Date(v).toISOString() : null;
 
     // Mapping PSAs from the costAllocation object
     const psaMappings = [
@@ -1079,45 +1530,53 @@ export class Template5Component  implements AfterViewInit{
     const params = {
       papers: {
         paperStatusId: this.paperStatusId,
-        paperProvision: generalInfoValue?.paperProvision,
-        purposeRequired: generalInfoValue?.purposeRequired,
+        paperProvision: generalInfoValue?.paperProvision || "",
+        purposeRequired: generalInfoValue?.purposeRequired || "",
         isActive: true,
-        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
-      },
-      masterInfoNote: {
-        transactionType: generalInfoValue?.transactionType || null,
-        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason,
-        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
-        reasontoChangeRequired: generalInfoValue?.reasontoChangeRequired || "",
-        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
-        cgbCirculationDate: generalInfoValue?.cgbCirculationDate || null,
-        legalName: generalInfoValue?.legalName || '',
-        contractNumber: generalInfoValue?.contractNumber || '',
-        operatingFunction: generalInfoValue?.operatingFunction,
-        bltMember: generalInfoValue?.bltMember,
-        referenceNo: generalInfoValue?.referenceNo || null,
-        previousCGBItemRefNo: generalInfoValue?.previousCGBItemRefNo || null,
-        subSector: generalInfoValue?.subSector,
-        sourcingType: generalInfoValue?.sourcingType,
-        cam: generalInfoValue?.camUserId || null, //TODO
+        bltMember: generalInfoValue?.bltMember || null,
+        camUserId: generalInfoValue?.camUserId || null,
         vP1UserId: generalInfoValue?.vP1UserId || null,
-        contractStartDate: generalInfoValue?.contractStartDate || null,
-        contractEndDate: generalInfoValue?.contractEndDate || null,
-        variationStartDate: generalInfoValue?.variationStartDate || null,
-        variationEndDate: generalInfoValue?.variationEndDate || null,
-        psajv: generalInfoValue?.psajv?.join(',') || "",
-        isLTCC: generalInfoValue?.isLTCC || false,
-        ltccNotes: generalInfoValue?.ltccNotes,
-        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
         pdManagerName: generalInfoValue?.pdManagerName || null,
-        //ccd
+        procurementSPAUsers: generalInfoValue?.procurementSPAUsers?.join(',') || "",
+        cgbItemRefNo: generalInfoValue?.cgbItemRefNo || '',
+        cgbCirculationDate: toIsoOrNull(generalInfoValue?.cgbCirculationDate),
+        subSector: generalInfoValue?.subSector || '',
+        operatingFunction: generalInfoValue?.operatingFunction || '',
+        sourcingType: generalInfoValue?.sourcingType || '',
+        psajv: generalInfoValue?.psajv?.join(',') || "",
+        contractStartDate: toIsoOrNull(generalInfoValue?.contractStartDate),
+        contractEndDate: toIsoOrNull(generalInfoValue?.contractEndDate),
+        isLTCC: false, // Not in form, defaulting to false
+        ltccNotes: '', // Not in form, defaulting to empty string
+        isIFRS16: false, // Not in form, defaulting to false
+        contractNo: generalInfoValue?.contractNumber || '',
+        isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
+        retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason || '',
+        isGIAAPCheck: false, // Not in form, defaulting to false
         isHighRiskContract: ccdValues?.isHighRiskContract || false,
-        daCDDCompleted: ccdValues?.daCDDCompleted || null,
+        cddCompleted: toIsoOrNull(ccdValues?.cddCompleted),
         highRiskExplanation: ccdValues?.highRiskExplanation || '',
         flagRaisedCDD: ccdValues?.flagRaisedCDD || '',
         additionalCDD: ccdValues?.additionalCDD || '',
+        ...(this.paperId && !this.isCopy ? { id: Number(this.paperId) } : {})
       },
-      consultations: consultationsValue || [],
+      masterInfoNote: {
+        transactionType: generalInfoValue?.transactionType || '',
+        reasontoChangeRequired: generalInfoValue?.reasontoChangeRequired || '',
+        vendorId: generalInfoValue?.legalName || null,
+        previousCGBItemRefNo: generalInfoValue?.previousCGBItemRefNo || '',
+        variationStartDate: toIsoOrNull(generalInfoValue?.variationStartDate),
+        variationEndDate: toIsoOrNull(generalInfoValue?.variationEndDate),
+        referenceNo: '', // Not in form, defaulting to empty string
+      },
+      consultations: (consultationsValue || []).map((consultation: any) => ({
+        id: consultation.id || 0,
+        psa: consultation.psa || '',
+        technicalCorrect: consultation.technicalCorrect || null,
+        budgetStatement: consultation.budgetStatement || null,
+        jvReview: consultation.jvReview || null,
+        isJVReviewDone: consultation.jvAligned || false
+      })),
       costAllocationJVApproval: costAllocationJVApproval || [],
       jvApproval: {
         contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
