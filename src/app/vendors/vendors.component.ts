@@ -46,8 +46,8 @@ export class VendorsComponent implements OnInit {
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          
-          this.vendorDetails = reponse.data;
+
+          this.vendorDetails = reponse.data.filter(f => f.isActive);
           this.sortByDate();
           console.log('vendor:', this.vendorDetails);
         }
@@ -58,7 +58,7 @@ export class VendorsComponent implements OnInit {
         this.isLoading=false;
       }
     });
-    
+
   }
 
   nevigate(){
@@ -81,7 +81,7 @@ export class VendorsComponent implements OnInit {
 
     // Show confirmation dialog
     const confirmed = window.confirm(`Are you sure you want to delete the vendor "${vendor.legalName}"? This action cannot be undone.`);
-    
+
     if (!confirmed) {
       return;
     }

@@ -217,15 +217,15 @@ export class BatchPaperListComponent implements OnInit {
 
   addBatchPaper(modal: any) {
     if (!this.form.name) {
-      this.toastService.show("Please enter batch paper name", "warning");
+      this.toastService.show("Please enter batch paper name", "danger");
       return;
     }
     if (!this.form.pdm) {
-      this.toastService.show("Please select batch paper PDM", "warning");
+      this.toastService.show("Please select batch paper PDM", "danger");
       return;
     }
     if (this.form.papers.length <= 0) {
-      this.toastService.show("Please select papers to create batch paper", "warning");
+      this.toastService.show("Please select papers to create batch paper", "danger");
       return;
     }
     this.isCreating = true;

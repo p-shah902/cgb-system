@@ -392,7 +392,7 @@ a {
     border: 1px solid #DCDCDC;
     border-radius: 12px;
     padding: 15px;
-    max-height: 300px;
+    max-height: 100vh !important;
     overflow: auto;
 
     .visitor-box {
@@ -923,6 +923,11 @@ body .form-control {
     &:hover {
       background-color: #582AA2;
       color: #fff;
+    }
+
+    &:active, &:focus-visible {
+      background-color: #582AA2 !important;
+      color: #fff !important;
     }
 
   }

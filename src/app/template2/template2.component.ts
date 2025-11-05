@@ -168,6 +168,7 @@ export class Template2Component implements AfterViewInit {
               this.isLoadingDetails = true; // Set loading if not already set
             }
             this.fetchPaperDetails(Number(this.paperId))
+            this.getPaperCommentLogs(Number(this.paperId));
           } else {
             this.isExpanded = false;
           }
