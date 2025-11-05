@@ -11,16 +11,22 @@ import {UserDetails} from '../../models/user';
 import {DictionaryDetail} from '../../models/dictionary';
 import {DictionaryService} from '../../service/dictionary.service';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
+import {SafeHtmlPipe} from '../../pipes/safe-html.pipe';
+import {SafeHtmlDirective} from '../../directives/safe-html.directive';
+import {VendorService} from '../../service/vendor.service';
+import {VendorDetail} from '../../models/vendor';
+import {UploadService} from '../../service/document.service';
 
 @Component({
   selector: 'app-preview5',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe],
+  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe, SafeHtmlPipe, SafeHtmlDirective],
   templateUrl: './preview5.component.html',
   styleUrl: './preview5.component.scss'
 })
 export class Preview5Component implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly vendorService = inject(VendorService);
   paperDetails: PaperData | null = null;
   comment: string = '';
   logs: any[] = [];
@@ -36,6 +42,7 @@ export class Preview5Component implements OnInit {
   totalPercentage: number = 0;
   totalValue: number = 0
   userDetails: UserDetails[] = [];
+  vendorList: VendorDetail[] = [];
   selectedFiles: any[] = [];
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -47,7 +54,7 @@ export class Preview5Component implements OnInit {
   sourcingRigorData: DictionaryDetail[] = [];
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
-  constructor(private activatedRoutes: ActivatedRoute,private dictionaryService: DictionaryService, private paperService: PaperService,public toastService:ToastService) {
+  constructor(private activatedRoutes: ActivatedRoute,private dictionaryService: DictionaryService, private paperService: PaperService,public toastService:ToastService, private uploadService: UploadService) {
   }
 
   ngOnInit() {
@@ -170,44 +177,113 @@ export class Preview5Component implements OnInit {
         console.log('paperTimelineDetails', this.paperTimelineDetails)
       }
 
-      if (this.paperDetails?.paperDetails?.riskMitigations) {
-        this.riskMitigation = this.paperDetails.paperDetails.riskMitigations.filter(item => item.risks && item.risks.trim() !== '');
+      // API structure: data.paperDetails.paperDetails (paper info), data.paperDetails.consultationsDetails, etc.
+      // They are nested under paperDetails
+      const paperData = this.paperDetails?.paperDetails as any;
+      
+      if (paperData?.riskMitigations) {
+        this.riskMitigation = paperData.riskMitigations.filter((item: any) => item.risks && item.risks.trim() !== '');
         console.log('Risk Mitigation', this.riskMitigation)
       }
 
-      if (this.paperDetails?.paperDetails?.bidInvites) {
-        this.bidInvites = this.paperDetails.paperDetails.bidInvites;
+      if (paperData?.bidInvites) {
+        this.bidInvites = paperData.bidInvites;
         console.log('Bid Invites', this.bidInvites);
       }
 
-      if (this.paperDetails?.paperDetails?.valueDeliveriesCostsharing) {
-        this.valueDeliveriesCostsharing = this.paperDetails.paperDetails.valueDeliveriesCostsharing;
+      if (paperData?.valueDeliveriesCostsharing) {
+        this.valueDeliveriesCostsharing = paperData.valueDeliveriesCostsharing;
         console.log('Value Delivery', this.valueDeliveriesCostsharing);
       }
 
-      if (this.paperDetails?.paperDetails?.jvApprovals) {
-        this.jvApprovals = this.paperDetails.paperDetails.jvApprovals;
+      if (paperData?.jvApprovals) {
+        this.jvApprovals = paperData.jvApprovals;
         console.log('jvApprovals ', this.jvApprovals);
       }
 
-      if (this.paperDetails?.paperDetails?.costAllocationJVApproval) {
-        this.costAllocationJVApproval = this.paperDetails.paperDetails.costAllocationJVApproval;
+      // API returns costAllocationJVApproval (not costAllocations for Info Note)
+      if (paperData?.costAllocationJVApproval) {
+        this.costAllocationJVApproval = paperData.costAllocationJVApproval;
         console.log('costAllocationJVApproval ', this.costAllocationJVApproval);
         this.populateTableData();
         this.calculateTotals();
       }
-      if (this.paperDetails?.paperDetails?.consultationsDetails) {
-        this.consultationsDetails = this.paperDetails.paperDetails.consultationsDetails;
+      
+      // consultationsDetails is under paperDetails.paperDetails
+      if (paperData?.consultationsDetails) {
+        this.consultationsDetails = paperData.consultationsDetails.map((consultation: any) => ({
+          ...consultation,
+          jvAligned: consultation.jvAligned !== undefined ? consultation.jvAligned : consultation.isJVReviewDone
+        }));
         console.log('consultationsDetails ', this.consultationsDetails);
       }
 
-      if (this.paperDetails?.paperDetails?.paperDetails) {
-        this.paperInfo = this.paperDetails.paperDetails.paperDetails;
+      // For Info Note, paperDetails is nested under paperDetails.paperDetails
+      if (paperData?.paperDetails) {
+        this.paperInfo = paperData.paperDetails;
         console.log('paper Info ', this.paperInfo);
+      } else if (paperData) {
+        // If paperDetails is directly the paper info
+        this.paperInfo = paperData as any;
+        console.log('paper Info (direct)', this.paperInfo);
       }
-this.loadUserDetails()
+      
+      this.loadUserDetails()
       this.loadDictionaryItems()
+      this.loadVendorDetails()
+      this.loadSelectedFiles()
     })
+  }
+
+  loadVendorDetails() {
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.vendorList = response.data;
+          
+          // Resolve vendorId to vendor name
+          if (this.paperInfo && (this.paperInfo as any)?.vendorId) {
+            const vendorId = Number((this.paperInfo as any).vendorId);
+            const vendor = this.vendorList.find(v => v.id === vendorId);
+            if (vendor) {
+              this.paperInfo = {
+                ...this.paperInfo,
+                legalName: vendor.vendorName
+              } as any;
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.log('error loading vendors', error);
+      }
+    });
+  }
+
+  loadSelectedFiles() {
+    const paperId = this.activatedRoutes.snapshot.params['id'];
+    if (paperId) {
+      this.uploadService.getDocItemsListByPaperId(Number(paperId)).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            this.selectedFiles = response.data.map((file: any) => ({
+              name: file.fileName || file.name,
+              preview: file.fileUrl || file.preview,
+              isImage: file.fileType?.startsWith('image/') || /\.(jpg|jpeg|png|gif)$/i.test(file.fileName || file.name || ''),
+              fileUrl: file.fileUrl
+            }));
+          }
+        },
+        error: (error) => {
+          console.log('error loading files', error);
+        }
+      });
+    }
+  }
+
+  // Helper method to safely access info note-specific properties
+  getInfoNoteProperty(property: string): any {
+    return (this.paperInfo as any)?.[property];
   }
 
   getPaperCommentLogs(paperId: number) {
