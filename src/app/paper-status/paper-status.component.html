@@ -204,6 +204,9 @@
           Low
         </div>
         <h4 class="cursor-pointer paper-title" (click)="goToApproachToMarket(paper)">{{ paper.description }}</h4>
+        <div class="paper-type mb-2">
+          <span class="paper-type-badge">{{ paper.paperType }}</span>
+        </div>
         <p [safeHtml]="paper.purposeTitle">
         </p>
         <div class="paper-action-div d-flex gap-3 flex-wrap">

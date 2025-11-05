@@ -983,17 +983,26 @@
                           oninput="if (this.value > 100) this.value = 100"
                           min="0"
                           max="100"
+                          [class.is-invalid]="submitted && generalInfoForm.get('valueDelivery.costReductionPercent')?.invalid && generalInfoForm.get('valueDelivery.costReductionPercent')?.touched"
                           class="form-control allow-comments"
                           placeholder="%"
                           formControlName="costReductionPercent"
                         />
                       </div>
+                      <div class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery.costReductionPercent')?.invalid && generalInfoForm.get('valueDelivery.costReductionPercent')?.touched">
+                        <small>Percentage is required when $ is entered.</small>
+                      </div>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-5">
                     <div class="form-group mb-3">
-                      <input id="costReductionRemarks" type="text" class="form-control allow-comments"
+                      <input id="costReductionRemarks" type="text" 
+                             [class.is-invalid]="submitted && generalInfoForm.get('valueDelivery.costReductionRemarks')?.invalid && generalInfoForm.get('valueDelivery.costReductionRemarks')?.touched"
+                             class="form-control allow-comments"
                              placeholder="Remark" formControlName="costReductionRemarks"/>
+                      <div class="text-danger" *ngIf="submitted && generalInfoForm.get('valueDelivery.costReductionRemarks')?.invalid && generalInfoForm.get('valueDelivery.costReductionRemarks')?.touched">
+                        <small>Remark is required when $ is entered.</small>
+                      </div>
                     </div>
                   </div>
                 </div>

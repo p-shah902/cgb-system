@@ -1000,16 +1000,15 @@ export class Template2Component implements AfterViewInit {
             // Create formatted options for Select2
             // Format: "CGB ref number, Value, Title (first 50 symbols), Date"
             this.cgbAtmRefOptions = this.paperMappingData.map((item) => {
-              const refNo = item.paperID.toString();
+              const refNo = item.cgbItemRefNo.toString();
               const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
               const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
               // Note: Value field might not be available in PaperMappingType, using placeholder for now
               // This can be updated when API provides contractValue/totalContractValue field
-              const value = 'N/A'; // Could be extended if API provides contractValue or similar
               
               // Format label to include Ref#, Value, Title, Date for dropdown display
               // Select2 will automatically search through the label text
-              const label = `${refNo}, ${value}, ${title}, ${date}`;
+              const label = `${refNo}, ${title}, ${date}`;
               
               return {
                 value: refNo,
@@ -1768,19 +1767,23 @@ export class Template2Component implements AfterViewInit {
     if (!valueDeliveryGroup) return;
 
     // Setup validation for Cost Reduction
-    const checkCostReductionRemarks = () => {
-      const percent = valueDeliveryGroup.get('costReductionPercent')?.value;
+    const checkCostReductionValidation = () => {
       const value = valueDeliveryGroup.get('costReductionValue')?.value;
+      const percentControl = valueDeliveryGroup.get('costReductionPercent');
       const remarksControl = valueDeliveryGroup.get('costReductionRemarks');
       
-      const hasValue = (percent !== null && percent !== undefined && percent !== '') || 
-                      (value !== null && value !== undefined && value !== '');
+      const hasValue = value !== null && value !== undefined && value !== '' && value !== 0;
       
       if (hasValue) {
+        // If $ is entered, both % and Remark are required
+        percentControl?.setValidators([Validators.required]);
         remarksControl?.setValidators([Validators.required]);
       } else {
+        // If $ is not entered, clear validators
+        percentControl?.clearValidators();
         remarksControl?.clearValidators();
       }
+      percentControl?.updateValueAndValidity();
       remarksControl?.updateValueAndValidity();
     };
 
@@ -1819,11 +1822,8 @@ export class Template2Component implements AfterViewInit {
     };
 
     // Subscribe to changes for Cost Reduction
-    valueDeliveryGroup.get('costReductionPercent')?.valueChanges.subscribe(() => {
-      checkCostReductionRemarks();
-    });
     valueDeliveryGroup.get('costReductionValue')?.valueChanges.subscribe(() => {
-      checkCostReductionRemarks();
+      checkCostReductionValidation();
     });
 
     // Subscribe to changes for Operating Efficiency
@@ -1843,7 +1843,7 @@ export class Template2Component implements AfterViewInit {
     });
 
     // Check initial state
-    checkCostReductionRemarks();
+    checkCostReductionValidation();
     checkOperatingEfficiencyRemarks();
     checkCostAvoidanceRemarks();
   }
@@ -2131,6 +2131,51 @@ export class Template2Component implements AfterViewInit {
     this.submitted = true;
     if (this.isSubmitting) return;
     console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
+    
+    // Trigger validation checks for value delivery remarks before marking as touched
+    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+    if (valueDeliveryGroup) {
+      // Check Cost Reduction - if $ is entered, both % and Remark are required
+      const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
+      const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
+      const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
+      const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
+      if (hasCostReductionValue) {
+        costReductionPercent?.setValidators([Validators.required]);
+        costReductionRemarks?.setValidators([Validators.required]);
+      } else {
+        costReductionPercent?.clearValidators();
+        costReductionRemarks?.clearValidators();
+      }
+      costReductionPercent?.updateValueAndValidity();
+      costReductionRemarks?.updateValueAndValidity();
+      
+      // Check Operating Efficiency
+      const operatingEfficiencyPercent = valueDeliveryGroup.get('operatingEfficiencyPercent')?.value;
+      const operatingEfficiencyValue = valueDeliveryGroup.get('operatingEfficiencyValue')?.value;
+      const operatingEfficiencyRemarks = valueDeliveryGroup.get('operatingEfficiencyRemarks');
+      const hasOperatingEfficiencyValue = (operatingEfficiencyPercent !== null && operatingEfficiencyPercent !== undefined && operatingEfficiencyPercent !== '') || 
+                                         (operatingEfficiencyValue !== null && operatingEfficiencyValue !== undefined && operatingEfficiencyValue !== '');
+      if (hasOperatingEfficiencyValue) {
+        operatingEfficiencyRemarks?.setValidators([Validators.required]);
+      } else {
+        operatingEfficiencyRemarks?.clearValidators();
+      }
+      operatingEfficiencyRemarks?.updateValueAndValidity();
+      
+      // Check Cost Avoidance
+      const costAvoidancePercent = valueDeliveryGroup.get('costAvoidancePercent')?.value;
+      const costAvoidanceValue = valueDeliveryGroup.get('costAvoidanceValue')?.value;
+      const costAvoidanceRemarks = valueDeliveryGroup.get('costAvoidanceRemarks');
+      const hasCostAvoidanceValue = (costAvoidancePercent !== null && costAvoidancePercent !== undefined && costAvoidancePercent !== '') || 
+                                   (costAvoidanceValue !== null && costAvoidanceValue !== undefined && costAvoidanceValue !== '');
+      if (hasCostAvoidanceValue) {
+        costAvoidanceRemarks?.setValidators([Validators.required]);
+      } else {
+        costAvoidanceRemarks?.clearValidators();
+      }
+      costAvoidanceRemarks?.updateValueAndValidity();
+    }
     
     // Mark all invalid form controls as touched to show validation errors
     this.markFormGroupTouched(this.generalInfoForm);

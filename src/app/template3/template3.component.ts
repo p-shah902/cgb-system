@@ -278,6 +278,40 @@ export class Template3Component implements AfterViewInit {
     this.setupJVAlignedAutoReset()
 
   }
+  
+  setupValueDeliveryRemarksValidation() {
+    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+    if (!valueDeliveryGroup) return;
+
+    // Setup validation for Cost Reduction
+    const checkCostReductionValidation = () => {
+      const value = valueDeliveryGroup.get('costReductionValue')?.value;
+      const percentControl = valueDeliveryGroup.get('costReductionPercent');
+      const remarksControl = valueDeliveryGroup.get('costReductionRemarks');
+      
+      const hasValue = value !== null && value !== undefined && value !== '' && value !== 0;
+      
+      if (hasValue) {
+        // If $ is entered, both % and Remark are required
+        percentControl?.setValidators([Validators.required]);
+        remarksControl?.setValidators([Validators.required]);
+      } else {
+        // If $ is not entered, clear validators
+        percentControl?.clearValidators();
+        remarksControl?.clearValidators();
+      }
+      percentControl?.updateValueAndValidity();
+      remarksControl?.updateValueAndValidity();
+    };
+
+    // Subscribe to changes for Cost Reduction
+    valueDeliveryGroup.get('costReductionValue')?.valueChanges.subscribe(() => {
+      checkCostReductionValidation();
+    });
+
+    // Check initial state
+    checkCostReductionValidation();
+  }
   private setupJVAlignedAutoReset() {
     if (!this.generalInfoForm) { return; }
     this.generalInfoForm.valueChanges.subscribe(() => {
@@ -859,6 +893,7 @@ export class Template3Component implements AfterViewInit {
 
       // Setup PSA listeners after patching values
       this.setupPSAListeners();
+      this.setupValueDeliveryRemarksValidation();
       },
       error: (error) => {
         console.error('Error fetching contract paper details:', error);
@@ -1494,6 +1529,7 @@ export class Template3Component implements AfterViewInit {
           // Setup listeners for PSA calculations (critical for percentage input changes)
           this.setupPSAListeners();
           this.setupPSACalculations();
+          this.setupValueDeliveryRemarksValidation();
         }, 600); // Slightly after the re-patch setTimeout to ensure controls exist
 
         // Set consultation section visibility if there are rows (like template1 would)
@@ -2234,6 +2270,25 @@ export class Template3Component implements AfterViewInit {
     this.submitted = true;
     if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
+
+    // Trigger validation checks for value delivery remarks before marking as touched
+    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+    if (valueDeliveryGroup) {
+      // Check Cost Reduction - if $ is entered, both % and Remark are required
+      const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
+      const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
+      const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
+      const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
+      if (hasCostReductionValue) {
+        costReductionPercent?.setValidators([Validators.required]);
+        costReductionRemarks?.setValidators([Validators.required]);
+      } else {
+        costReductionPercent?.clearValidators();
+        costReductionRemarks?.clearValidators();
+      }
+      costReductionPercent?.updateValueAndValidity();
+      costReductionRemarks?.updateValueAndValidity();
+    }
 
     // Mark all invalid form controls as touched to show validation errors
     this.markFormGroupTouched(this.generalInfoForm);
