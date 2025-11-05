@@ -506,4 +506,14 @@ this.loadUserDetails()
     this.showComments = !this.showComments;
   }
 
+  calculateContractValue(): string {
+    if (this.paperInfo?.contractValue && this.paperInfo?.exchangeRate) {
+      const contractValue = Number(this.paperInfo.contractValue);
+      const exchangeRate = Number(this.paperInfo.exchangeRate);
+      const calculatedValue = contractValue * exchangeRate;
+      return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return `${this.paperInfo?.contractValue || 0} * ${this.paperInfo?.exchangeRate || 0}`;
+  }
+
 }
