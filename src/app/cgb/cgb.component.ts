@@ -50,6 +50,7 @@ export class CgbComponent implements OnInit {
   }
   approvalRemark = "";
   status = "";
+  isLoading: boolean = false;
 
   private readonly _mdlSvc = inject(NgbModal);
 
@@ -80,15 +81,22 @@ export class CgbComponent implements OnInit {
     this.getCgbCycle();
   }
 
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with dashes
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+  }
+
   gotoPaper(paperId: any, type: string) {
-    let route = 'preview/approach-to-market';
-    if (type === 'Contract Award') {
-      route = 'preview/contract-award';
-    }
-    this.router.navigate([route, paperId])
+    const routePath = this.slugify(type);
+    this.router.navigate([`/${routePath}`, paperId]);
   }
 
   getCgbCycle() {
+    this.isLoading = true;
     this.cycleObject = {};
     this.votingService.getCgbCycle().subscribe({
       next: response => {
@@ -140,6 +148,10 @@ export class CgbComponent implements OnInit {
         }
       }, error: err => {
         console.log('ERROR', err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
       }
     })
   }

@@ -43,12 +43,18 @@ export class InboxoutboxComponent implements OnInit {
     this.getInboxOutBox()
   }
 
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with dashes
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+  }
+
   gotoPaper(paperId: any, type: string) {
-    let route = 'preview/approach-to-market';
-    if (type === 'Contract Award') {
-      route = 'preview/contract-award';
-    }
-    this.router.navigate([route, paperId])
+    const routePath = this.slugify(type);
+    this.router.navigate([`/${routePath}`, paperId]);
   }
 
   getInboxOutBox() {

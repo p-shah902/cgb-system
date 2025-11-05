@@ -30,6 +30,7 @@
                         </div>
                       </th>
                       <th>Paper Name</th>
+                      <th>Paper Type</th>
                       <th>Status</th>
                       <th>Last Modify</th>
                       <th>Action</th>
@@ -49,8 +50,18 @@
                       <td>
                         <div class="paper-name">
                           <div class="paper-detail">
-                            <p class="cursor-pointer" (click)="goToPreview(paper)">
+                            <p [class]="paper.paperType === 'Batch Paper' ? '' : 'cursor-pointer paper-title'" 
+                               (click)="paper.paperType !== 'Batch Paper' ? goToApproachToMarket(paper) : null">
                               {{ paper.description }}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="paper-name">
+                          <div class="paper-detail">
+                            <p>
+                              {{ paper.paperType || 'N/A' }}
                             </p>
                           </div>
                         </div>
@@ -76,24 +87,46 @@
                             </svg>
                           </button>
                           <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                            <p class="links cursor-pointer" href="/vendor-detail" ngbDropdownItem
+                            <a class="links cursor-pointer" ngbDropdownItem
                               (click)="goToPreview(paper)">
+                              <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_view)">
+                                  <path d="M7.87505 0.875C5.66567 0.875 3.89653 1.88125 2.60864 3.07891C1.32896 4.26562 0.473096 5.6875 0.0684082 6.66367C-0.0218262 6.87969 -0.0218262 7.12031 0.0684082 7.33633C0.473096 8.3125 1.32896 9.73438 2.60864 10.9211C3.89653 12.1187 5.66567 13.125 7.87505 13.125C10.0844 13.125 11.8536 12.1187 13.1415 10.9211C14.4211 9.73164 15.277 8.3125 15.6844 7.33633C15.7747 7.12031 15.7747 6.87969 15.6844 6.66367C15.277 5.6875 14.4211 4.26562 13.1415 3.07891C11.8536 1.88125 10.0844 0.875 7.87505 0.875ZM3.93755 7C3.93755 5.95571 4.35239 4.95419 5.09082 4.21577C5.82924 3.47734 6.83076 3.0625 7.87505 3.0625C8.91934 3.0625 9.92086 3.47734 10.6593 4.21577C11.3977 4.95419 11.8125 5.95571 11.8125 7C11.8125 8.04429 11.3977 9.04581 10.6593 9.78423C9.92086 10.5227 8.91934 10.9375 7.87505 10.9375C6.83076 10.9375 5.82924 10.5227 5.09082 9.78423C4.35239 9.04581 3.93755 8.04429 3.93755 7ZM7.87505 5.25C7.87505 6.21523 7.09028 7 6.12505 7C5.93091 7 5.74497 6.96719 5.56997 6.90977C5.41958 6.86055 5.24458 6.95352 5.25005 7.11211C5.25825 7.30078 5.2856 7.48945 5.33755 7.67812C5.71216 9.07812 7.15317 9.90938 8.55317 9.53477C9.95317 9.16016 10.7844 7.71914 10.4098 6.31914C10.1063 5.18438 9.10278 4.42148 7.98716 4.375C7.82856 4.36953 7.7356 4.5418 7.78481 4.69492C7.84224 4.86992 7.87505 5.05586 7.87505 5.25Z" fill="#626262"/>
+                                </g>
+                                <defs>
+                                  <clipPath id="clip0_view">
+                                    <rect width="15.75" height="14" fill="white"/>
+                                  </clipPath>
+                                </defs>
+                              </svg>
                               View
-                            </p>
-                            <p class="links cursor-pointer" href="/vendor-detail" ngbDropdownItem
+                            </a>
+                            <a class="links cursor-pointer" ngbDropdownItem
                                (click)="goToApproachToMarket(paper)">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.9174 1.5127L9.59395 2.83613L13.1486 6.39082L14.4721 5.06738C15.1557 4.38379 15.1557 3.27637 14.4721 2.59277L13.3947 1.5127C12.7111 0.829102 11.6037 0.829102 10.9201 1.5127H10.9174ZM8.97598 3.4541L2.60215 9.83066C2.31778 10.115 2.10997 10.4678 1.99512 10.8533L1.02715 14.1428C0.958795 14.3752 1.02169 14.624 1.19122 14.7936C1.36075 14.9631 1.60958 15.026 1.83926 14.9604L5.12872 13.9924C5.51426 13.8775 5.867 13.6697 6.15137 13.3854L12.5307 7.00879L8.97598 3.4541Z" stroke="#626262" stroke-width="1.2"/>
+                              </svg>
                               Edit
-                            </p>
+                            </a>
                             <a class="links cursor-pointer" (click)="open($event, content, paper, 'approve')"
                               ngbDropdownItem>
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM11.7071 6.29289C12.0976 6.68342 12.0976 7.31658 11.7071 7.70711L7.70711 11.7071C7.31658 12.0976 6.68342 12.0976 6.29289 11.7071L4.29289 9.70711C3.90237 9.31658 3.90237 8.68342 4.29289 8.29289C4.68342 7.90237 5.31658 7.90237 5.70711 8.29289L7 9.58579L10.2929 6.29289C10.6834 5.90237 11.3166 5.90237 11.7071 6.29289Z" fill="#007007"/>
+                              </svg>
                               Approve
                             </a>
                             <a class="links cursor-pointer" (click)="open($event, content, paper, 'widthdraw')"
                               ngbDropdownItem>
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM11 9.5C11 9.77614 10.7761 10 10.5 10H5.5C5.22386 10 5 9.77614 5 9.5V6.5C5 6.22386 5.22386 6 5.5 6H10.5C10.7761 6 11 6.22386 11 6.5V9.5Z" fill="#EC4747"/>
+                              </svg>
                               Withdraw
                             </a>
                             <a class="links cursor-pointer" (click)="open($event, content, paper, 'action')"
                               ngbDropdownItem>
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM8.8 11.2H7.2V9.6H8.8V11.2ZM8.8 8.8H7.2V4.8H8.8V8.8Z" fill="#F59E0B"/>
+                              </svg>
                               Action Required
                             </a>
                           </div>
