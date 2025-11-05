@@ -26,12 +26,19 @@ export class InboxoutboxComponent implements OnInit {
   active = 1;
   inboxData: InboxOutbox[] = [];
   outboxData: InboxOutbox[] = [];
+  filteredInboxData: InboxOutbox[] = [];
+  filteredOutboxData: InboxOutbox[] = [];
   loggedInUser: LoginUser | null = null
   approvalRemark: string = '';
   selectedPaper: number = 0;
   reviewBy: string = '';
   isLoading: boolean = false;
   downloadingPapers: Set<number> = new Set();
+  searchTerm: string = '';
+  filterStatus: string = '';
+  filterPaperType: string = '';
+  isFilterOpen: boolean = false;
+  isDesc: boolean = false;
 
   private readonly _mdlSvc = inject(NgbModal);
 
@@ -64,6 +71,7 @@ export class InboxoutboxComponent implements OnInit {
         if (response.status && response.data) {
           this.inboxData = response.data.inbox;
           this.outboxData = response.data.outbox;
+          this.applyFilters();
         }
       },
       error: err => {
@@ -74,6 +82,110 @@ export class InboxoutboxComponent implements OnInit {
         this.isLoading = false;
       }
     })
+  }
+
+  applyFilters(): void {
+    // Filter inbox data
+    let filteredInbox = [...this.inboxData];
+    let filteredOutbox = [...this.outboxData];
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      filteredInbox = filteredInbox.filter(item => 
+        item.paperProvision?.toLowerCase().includes(searchLower) ||
+        item.paperType?.toLowerCase().includes(searchLower) ||
+        item.paperStatus?.toLowerCase().includes(searchLower) ||
+        item.purposeRequired?.toLowerCase().includes(searchLower)
+      );
+      filteredOutbox = filteredOutbox.filter(item => 
+        item.paperProvision?.toLowerCase().includes(searchLower) ||
+        item.paperType?.toLowerCase().includes(searchLower) ||
+        item.paperStatus?.toLowerCase().includes(searchLower) ||
+        item.purposeRequired?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply status filter
+    if (this.filterStatus) {
+      filteredInbox = filteredInbox.filter(item => item.paperStatus === this.filterStatus);
+      filteredOutbox = filteredOutbox.filter(item => item.paperStatus === this.filterStatus);
+    }
+
+    // Apply paper type filter
+    if (this.filterPaperType) {
+      filteredInbox = filteredInbox.filter(item => item.paperType === this.filterPaperType);
+      filteredOutbox = filteredOutbox.filter(item => item.paperType === this.filterPaperType);
+    }
+
+    // Apply sorting
+    if (this.isDesc) {
+      filteredInbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+      filteredOutbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+    } else {
+      filteredInbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      filteredOutbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    this.filteredInboxData = filteredInbox;
+    this.filteredOutboxData = filteredOutbox;
+  }
+
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.filterStatus = '';
+    this.filterPaperType = '';
+    this.applyFilters();
+  }
+
+  toggleSort(): void {
+    this.isDesc = !this.isDesc;
+    this.applyFilters();
+  }
+
+  getUniqueStatuses(): string[] {
+    const allStatuses = [
+      ...this.inboxData.map(item => item.paperStatus),
+      ...this.outboxData.map(item => item.paperStatus)
+    ];
+    return [...new Set(allStatuses)].filter(s => s).sort();
+  }
+
+  getUniquePaperTypes(): string[] {
+    const allTypes = [
+      ...this.inboxData.map(item => item.paperType),
+      ...this.outboxData.map(item => item.paperType)
+    ];
+    return [...new Set(allTypes)].filter(t => t).sort();
+  }
+
+  goToPreview(paper: InboxOutbox): void {
+    const routePath = this.slugify(paper.paperType);
+    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
   }
 
   approvePaper(modal: any, type: string) {

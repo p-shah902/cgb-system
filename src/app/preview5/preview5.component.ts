@@ -44,6 +44,7 @@ export class Preview5Component implements OnInit {
   userDetails: UserDetails[] = [];
   vendorList: VendorDetail[] = [];
   selectedFiles: any[] = [];
+  paperMappingData: any[] = [];
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
   globalCGBData: DictionaryDetail[] = [];
@@ -60,6 +61,7 @@ export class Preview5Component implements OnInit {
   ngOnInit() {
     this.fetchPaperDetails(this.activatedRoutes.snapshot.params['id']);
     this.getPaperCommentLogs(this.activatedRoutes.snapshot.params['id']);
+    this.loadPaperMappingData();
   }
 
   loadDictionaryItems() {
@@ -180,7 +182,7 @@ export class Preview5Component implements OnInit {
       // API structure: data.paperDetails.paperDetails (paper info), data.paperDetails.consultationsDetails, etc.
       // They are nested under paperDetails
       const paperData = this.paperDetails?.paperDetails as any;
-      
+
       if (paperData?.riskMitigations) {
         this.riskMitigation = paperData.riskMitigations.filter((item: any) => item.risks && item.risks.trim() !== '');
         console.log('Risk Mitigation', this.riskMitigation)
@@ -208,7 +210,7 @@ export class Preview5Component implements OnInit {
         this.populateTableData();
         this.calculateTotals();
       }
-      
+
       // consultationsDetails is under paperDetails.paperDetails
       if (paperData?.consultationsDetails) {
         this.consultationsDetails = paperData.consultationsDetails.map((consultation: any) => ({
@@ -222,12 +224,16 @@ export class Preview5Component implements OnInit {
       if (paperData?.paperDetails) {
         this.paperInfo = paperData.paperDetails;
         console.log('paper Info ', this.paperInfo);
-      } else if (paperData) {
-        // If paperDetails is directly the paper info
-        this.paperInfo = paperData as any;
-        console.log('paper Info (direct)', this.paperInfo);
+
+        // Fetch contract value from linked paper if previousCGBItemRefNo exists
+        if ((this.paperInfo as any)?.previousCGBItemRefNo) {
+          const previousCGBItemRefNo = (this.paperInfo as any).previousCGBItemRefNo;
+          if (previousCGBItemRefNo) {
+            this.populateContractValueFromLinkedPaper(Number(previousCGBItemRefNo));
+          }
+        }
       }
-      
+
       this.loadUserDetails()
       this.loadDictionaryItems()
       this.loadVendorDetails()
@@ -240,7 +246,7 @@ export class Preview5Component implements OnInit {
       next: (response) => {
         if (response.status && response.data) {
           this.vendorList = response.data;
-          
+
           // Resolve vendorId to vendor name
           if (this.paperInfo && (this.paperInfo as any)?.vendorId) {
             const vendorId = Number((this.paperInfo as any).vendorId);
@@ -248,7 +254,7 @@ export class Preview5Component implements OnInit {
             if (vendor) {
               this.paperInfo = {
                 ...this.paperInfo,
-                legalName: vendor.vendorName
+                legalName: vendor.legalName || vendor.vendorName || 'N/A'
               } as any;
             }
           }
@@ -279,6 +285,31 @@ export class Preview5Component implements OnInit {
         }
       });
     }
+  }
+
+  loadPaperMappingData() {
+    this.paperService.getApprovedPapersForMapping().subscribe({
+      next: (response) => {
+        console.log('getApprovedPapersForMapping response:', response);
+        if (response && response.status && response.data) {
+          if (response.data && response.data.length > 0) {
+            // Filter papers: exclude Draft/Withdrawn
+            const filteredPapers = response.data.filter((item: any) => {
+              // Exclude Draft and Withdrawn status
+              if (item.paperStatusName === "Draft" || item.paperStatusName === "Withdrawn") {
+                return false;
+              }
+              return true;
+            });
+            this.paperMappingData = filteredPapers;
+            console.log('Paper mapping data loaded:', this.paperMappingData.length, 'items');
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching papers for mapping:', error);
+      }
+    });
   }
 
   // Helper method to safely access info note-specific properties
@@ -349,6 +380,13 @@ export class Preview5Component implements OnInit {
   ];
 
   populateTableData(): void {
+    // Reset all PSA columns first to avoid stale data
+    this.psaColumns.forEach(column => {
+      column.value = false;
+      column.percentage = null;
+      column.amount = null;
+    });
+
     // Process PSA columns from costAllocationJVApproval
     this.costAllocationJVApproval.forEach(item => {
       const psaColumn = this.psaColumns.find(col => col.name === item.psaName);
@@ -360,6 +398,10 @@ export class Preview5Component implements OnInit {
     });
   }
   calculateTotals(): void {
+    // Reset totals before calculating
+    this.totalPercentage = 0;
+    this.totalValue = 0;
+
     // Calculate total percentage and values
     this.psaColumns.forEach(column => {
       if (column.percentage) {
@@ -582,6 +624,114 @@ export class Preview5Component implements OnInit {
     this.showComments = !this.showComments;
   }
 
+  populateContractValueFromLinkedPaper(paperId: number) {
+    // Find the paper from mapping data to determine its type
+    const linkedPaper = this.paperMappingData.find((p: any) => p.paperID?.toString() === paperId.toString());
+
+    if (!linkedPaper) {
+      console.log('Linked paper not found in mapping data for ID:', paperId);
+      return;
+    }
+
+    const paperType = linkedPaper.paperType;
+
+    console.log('Populating contract value from linked paper:', paperId, 'Type:', paperType);
+
+    // Handle Info Note type - Info Notes don't typically have contract values to inherit
+    if (paperType === 'Info Note') {
+      console.log('Info Note selected - contract value not automatically populated');
+      // For Info Note, we don't auto-populate contract value as per requirements
+      return;
+    }
+
+    // Fetch paper details based on type
+    let apiType = '';
+    if (paperType === 'Approach to Market') {
+      apiType = 'approch';
+    } else if (paperType === 'Contract Award') {
+      apiType = 'contract';
+    } else if (paperType === 'Variation') {
+      apiType = 'variation';
+    } else {
+      console.log('Unknown paper type:', paperType);
+      return;
+    }
+
+    this.paperService.getPaperDetails(paperId, apiType).subscribe({
+      next: (response) => {
+        console.log('Paper details API response:', response);
+        if (response.status && response.data) {
+          const paperData = response.data as any;
+          let contractValue = null;
+
+          if (paperType === 'Approach to Market') {
+            // Linked AtM: Take Contract Value
+            // Data structure: response.data.paperDetails or response.data.approachToMarket.paperDetails
+            const generalInfo = paperData?.paperDetails || paperData?.approachToMarket?.paperDetails || null;
+            contractValue = generalInfo?.contractValue || null;
+            console.log('AtM - GeneralInfo:', generalInfo);
+            console.log('AtM Contract Value:', contractValue);
+          } else if (paperType === 'Contract Award') {
+            // Linked Award: Take Award Value or Award Value for selected Vendor (if Split Award)
+            // Data structure: response.data.paperDetails or response.data.contractAward?.paperDetails
+            const generalInfo = paperData?.paperDetails || paperData?.contractAward?.paperDetails || paperData?.contractAwardDetails || null;
+            const isSplitAward = generalInfo?.isSplitAward || false;
+            const selectedVendorId = (this.paperInfo as any)?.vendorId;
+
+            console.log('Contract Award - GeneralInfo:', generalInfo);
+            console.log('Contract Award - Split Award:', isSplitAward, 'Selected Vendor:', selectedVendorId);
+
+            if (isSplitAward && selectedVendorId) {
+              // For split award, get vendor-specific award value
+              const legalEntitiesAwarded = paperData?.legalEntitiesAwarded || paperData?.contractAward?.legalEntitiesAwarded || [];
+              console.log('Legal Entities Awarded:', legalEntitiesAwarded);
+              const vendorEntity = legalEntitiesAwarded.find((entity: any) =>
+                entity.vendorId === Number(selectedVendorId)
+              );
+              contractValue = vendorEntity?.totalAwardValueUSD || vendorEntity?.awardValue || null;
+              console.log('Split Award - Vendor Entity:', vendorEntity);
+              console.log('Split Award - Vendor-specific value:', contractValue);
+            } else {
+              // Use total award value
+              contractValue = generalInfo?.totalAwardValueUSD || generalInfo?.awardValue || null;
+              console.log('Regular Award - Total value:', contractValue);
+            }
+          } else if (paperType === 'Variation') {
+            // Linked Variation: Take Total Revised Value
+            // Data structure: response.data.contractValues or response.data.variationPaper?.contractValues
+            const contractValues = paperData?.contractValues || paperData?.variationPaper?.contractValues || null;
+            contractValue = contractValues?.revisedContractValue || contractValues?.totalRevisedValue || null;
+            console.log('Variation - Contract Values:', contractValues);
+            console.log('Variation - Revised Contract Value:', contractValue);
+          }
+
+          if (contractValue !== null && contractValue !== undefined) {
+            const numericValue = Number(contractValue);
+            if (!isNaN(numericValue)) {
+              // Update paperInfo with the fetched contract value
+              if (this.paperInfo) {
+                this.paperInfo = {
+                  ...this.paperInfo,
+                  contractValue: numericValue
+                } as any;
+              }
+              console.log('Contract value populated successfully:', numericValue);
+            } else {
+              console.warn('Contract value is not a valid number:', contractValue);
+            }
+          } else {
+            console.log('No contract value found for linked paper');
+          }
+        } else {
+          console.log('Failed to fetch paper details - response status:', response.status, 'Response:', response);
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching linked paper details:', error);
+      }
+    });
+  }
+
   calculateContractValue(): string {
     if (this.paperInfo?.contractValue && this.paperInfo?.exchangeRate) {
       const contractValue = Number(this.paperInfo.contractValue);
@@ -589,7 +739,10 @@ export class Preview5Component implements OnInit {
       const calculatedValue = contractValue * exchangeRate;
       return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-    return `${this.paperInfo?.contractValue || 0} * ${this.paperInfo?.exchangeRate || 0}`;
+    if (this.paperInfo?.contractValue) {
+      return `${Number(this.paperInfo.contractValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return 'N/A';
   }
 
 }
