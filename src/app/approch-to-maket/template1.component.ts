@@ -379,9 +379,9 @@ export class Template1Component implements AfterViewInit  {
       const value = valueDeliveryGroup.get('costReductionValue')?.value;
       const percentControl = valueDeliveryGroup.get('costReductionPercent');
       const remarksControl = valueDeliveryGroup.get('costReductionRemarks');
-      
+
       const hasValue = value !== null && value !== undefined && value !== '' && value !== 0;
-      
+
       if (hasValue) {
         // If $ is entered, both % and Remark are required
         percentControl?.setValidators([Validators.required]);
@@ -678,13 +678,13 @@ export class Template1Component implements AfterViewInit  {
         // Try exact match first, then lowercase match
         const psaNameLower = psa.psaName?.toLowerCase().trim();
         const checkboxKey = psaNameToCheckbox[psaNameLower as keyof typeof psaNameToCheckbox];
-        
+
         if (checkboxKey) {
           console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
           // Handle different types for psaValue (boolean, string, number)
-          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
-                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
-                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
                                Boolean(psa.psaValue);
           patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
@@ -718,7 +718,7 @@ export class Template1Component implements AfterViewInit  {
         .filter(psa => psa.psaValue === true)
         .map(psa => {
           // Find the PSA value from psaJvOptions by matching the psaName
-          const psaOption = this.psaJvOptions.find(option => 
+          const psaOption = this.psaJvOptions.find(option =>
             option.label === psa.psaName || option.value === psa.psaName
           );
           return psaOption?.value;
@@ -743,7 +743,7 @@ export class Template1Component implements AfterViewInit  {
         .filter(value => value) : [];
 
       if (value.data) {
-        console.log('v', this.paperDetails);
+        console.log('v', paperDetailData?.procurementSPAUsers, selectedValuesProcurementTagUsers, this.procurementTagUsers);
         this.generalInfoForm.patchValue({
           batchPaper: paperDetailData?.batchPaperId || null,
           generalInfo: {
@@ -826,19 +826,19 @@ export class Template1Component implements AfterViewInit  {
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
-          
+
           // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
             .forEach((psaName: string) => {
               this.addPSAJVFormControls(psaName);
             });
-          
+
           // Re-patch costAllocation values to ensure they're set after controls exist
           this.generalInfoForm.patchValue({
             costAllocation: patchValues.costAllocation
           }, { emitEvent: false });
-          
+
           // Enable percentage controls for all selected PSAs and ensure checkboxes are true
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
@@ -847,18 +847,18 @@ export class Template1Component implements AfterViewInit  {
               const percentageControlName = this.getPSAPercentageControlName(psaName);
               const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
               const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-              
+
               // Ensure checkbox is true if PSA is selected
               if (checkboxControl) {
                 checkboxControl.setValue(true, { emitEvent: false });
               }
-              
+
               // Enable percentage control for all selected PSAs (including BP Group)
               if (percentageControl) {
                 percentageControl.enable({ emitEvent: false });
               }
             });
-          
+
           this.isInitialLoad = false;
         }, 500)
 
@@ -1338,7 +1338,7 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           firstCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -1356,7 +1356,7 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           secondCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -1406,11 +1406,11 @@ export class Template1Component implements AfterViewInit  {
   // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
   reEvaluateAllCommitteeCheckboxes(): void {
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-    
+
     selectedPSAJV.forEach((psaName: string) => {
       const checkboxControlName = this.getPSACheckboxControlName(psaName);
       const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
-      
+
       // Only re-evaluate if PSA checkbox is checked
       if (checkboxControl?.value === true) {
         // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
@@ -1528,10 +1528,10 @@ export class Template1Component implements AfterViewInit  {
   onVendorSelectionChange(rowIndex: number) {
     const row = this.inviteToBid.at(rowIndex);
     const parentCompanyNameControl = row.get('parentCompanyName');
-    
+
     // Get the value from the form control instead of the event
     const selectedValue = row.get('legalName')?.value;
-    
+
     const vendorIdNum = Number(selectedValue);
     if (vendorIdNum && !isNaN(vendorIdNum) && parentCompanyNameControl) {
       const selectedVendor = this.vendorData.find(vendor => vendor.id === vendorIdNum);
@@ -1909,7 +1909,7 @@ export class Template1Component implements AfterViewInit  {
         });
         riskMitigationArray.push(formGroup);
         console.log('Consultation row created, total rows:', riskMitigationArray.length);
-        
+
         // Set JV Aligned checkbox state based on JV Review user
         setTimeout(() => {
           const jvReviewValue = item.jvReview || item.jvReviewId || null;
@@ -1996,7 +1996,7 @@ export class Template1Component implements AfterViewInit  {
     this.submitted = true;
     if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
-    
+
     // Trigger validation checks for value delivery remarks before marking as touched
     const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
     if (valueDeliveryGroup) {
@@ -2015,10 +2015,10 @@ export class Template1Component implements AfterViewInit  {
       costReductionPercent?.updateValueAndValidity();
       costReductionRemarks?.updateValueAndValidity();
     }
-    
+
     // Mark all invalid form controls as touched to show validation errors
     this.markFormGroupTouched(this.generalInfoForm);
-    
+
     // Mark all form arrays as touched
     if (this.riskMitigation) {
       this.markFormArrayTouched(this.riskMitigation);
@@ -2030,12 +2030,12 @@ export class Template1Component implements AfterViewInit  {
     if (consultationArray) {
       this.markFormArrayTouched(consultationArray);
     }
-    
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
-    
+
     // Check if form is valid
     if (this.generalInfoForm.invalid) {
       this.toastService.show("Please fill all required fields", "danger");

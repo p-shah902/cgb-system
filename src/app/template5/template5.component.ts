@@ -284,6 +284,11 @@ export class Template5Component  implements AfterViewInit{
         this.generalInfoForm.get('generalInfo.contractValue')?.setValue(null);
       }
     });
+
+    // Recalculate PSA values when contract value changes
+    this.generalInfoForm.get('generalInfo.contractValue')?.valueChanges.subscribe(() => {
+      this.setupPSACalculationsManually();
+    });
     
     this.setupPSAListeners()
     this.setupPSACalculations()
@@ -821,7 +826,7 @@ export class Template5Component  implements AfterViewInit{
 
       if (percentageControl && valueControl) {
         percentageControl.valueChanges.subscribe((percentageValue) => {
-          const contractValue = this.generalInfoForm.get('generalInfo.saleDisposeValue')?.value || 0;
+          const contractValue = this.generalInfoForm.get('generalInfo.contractValue')?.value || 0;
 
           if (percentageValue >= 0 && percentageValue <= 100) {
             const calculatedValue = (percentageValue / 100) * contractValue;
@@ -829,6 +834,30 @@ export class Template5Component  implements AfterViewInit{
             this.calculateTotal();
           }
         });
+      }
+    });
+  }
+
+  setupPSACalculationsManually() {
+    // Get selected PSAJV columns dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
+
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        const percentageValue = percentageControl.value;
+        const contractValue = this.generalInfoForm.get('generalInfo.contractValue')?.value || 0;
+
+        if (percentageValue >= 0 && percentageValue <= 100) {
+          const calculatedValue = (percentageValue / 100) * contractValue;
+          valueControl.setValue(calculatedValue, {emitEvent: false});
+          this.calculateTotal();
+        }
       }
     });
   }
