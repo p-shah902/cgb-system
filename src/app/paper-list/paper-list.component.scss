@@ -16,25 +16,15 @@
     }
     tbody {
       tr {
-        transition: all 0.2s ease;
-        cursor: default;
         td {
           padding: 10px 15px;
           vertical-align: middle;
           font-size: 14px;
         }
-        &:hover {
-          background-color: #F0F4FF;
-          box-shadow: 0 2px 4px rgba(88, 42, 162, 0.08);
-          transform: translateX(2px);
-        }
       }
       tr:nth-child(even) {
         td {
           background-color: #F8F9FB;
-        }
-        &:hover {
-          background-color: #F0F4FF;
         }
       }
     }
