@@ -19,6 +19,7 @@ export class ThresholdComponent implements OnInit {
   active = 1;
   internalThresholds: any[] = [];
   partnerThresholds: any[] = [];
+  isLoading: boolean = false;
 
   constructor(private http: HttpClient, private router: Router, private thresholdService: ThresholdService) { }
 
@@ -28,6 +29,7 @@ export class ThresholdComponent implements OnInit {
 
   // Load internal and partner thresholds from the API
   loadThresholds(): void {
+    this.isLoading = true;
     this.thresholdService.getThresholdList().subscribe(
       (response: any) => {
         if (response && response.data) {
@@ -38,7 +40,13 @@ export class ThresholdComponent implements OnInit {
           console.error('No data found in the response');
         }
       },
-
+      (error) => {
+        console.error('Error loading thresholds:', error);
+        this.isLoading = false;
+      },
+      () => {
+        this.isLoading = false;
+      }
     );
   }
 
