@@ -140,12 +140,20 @@ export class BatchPaperListComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    if (status.toLowerCase().includes('approved')) {
+    if (!status) return '';
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) {
       return 'p-approved';
-    } else if (status.toLowerCase().includes('waiting')) {
+    } else if (statusLower.includes('waiting') || statusLower.includes('on cgb') || statusLower.includes('on pre-cgb')) {
       return 'p-waiting';
-    } else {
+    } else if (statusLower.includes('draft')) {
+      return 'p-draft';
+    } else if (statusLower.includes('registered')) {
+      return 'p-registered';
+    } else if (statusLower.includes('archive')) {
       return 'p-archive';
+    } else {
+      return 'p-waiting';
     }
   }
 
