@@ -242,8 +242,19 @@ export class Template3Component implements AfterViewInit {
     this.generalInfoForm.get('contractValues.thisVariationNote')?.valueChanges.subscribe(() => {
       // Recalculate all "By value $" fields when "This Value" changes (like template1 does with contractValueUsd)
       this.recalculateAllPSAValues();
+      // Auto-calculate revised contract value
+      this.calculateRevisedContractValue();
       // Re-evaluate committee checkboxes after PSA values are recalculated
       this.reEvaluateAllCommitteeCheckboxes();
+    });
+
+    // Auto-calculate revised contract value when original or previous variation changes
+    this.generalInfoForm.get('contractValues.originalContractValue')?.valueChanges.subscribe(() => {
+      this.calculateRevisedContractValue();
+    });
+
+    this.generalInfoForm.get('contractValues.previousVariationTotal')?.valueChanges.subscribe(() => {
+      this.calculateRevisedContractValue();
     });
 
     // Re-evaluate committee checkboxes when sourcing type changes
@@ -519,6 +530,19 @@ export class Template3Component implements AfterViewInit {
     this.generalInfoForm.get('contractValues.contractValue')?.setValue(convertedValue);
   }
 
+  calculateRevisedContractValue() {
+    // Revised Contract Value = Original Contract Value + Previous Variation Total + This Value
+    const originalContractValue = Number(this.generalInfoForm.get('contractValues.originalContractValue')?.value) || 0;
+    const previousVariationTotal = Number(this.generalInfoForm.get('contractValues.previousVariationTotal')?.value) || 0;
+    const thisVariationNote = Number(this.generalInfoForm.get('contractValues.thisVariationNote')?.value) || 0;
+
+    const revisedContractValue = originalContractValue + previousVariationTotal + thisVariationNote;
+    this.generalInfoForm.get('contractValues.revisedContractValue')?.setValue(revisedContractValue, { emitEvent: false });
+
+    // Update Value in Original Currency when Revised Contract Value changes
+    this.updateContractValueOriginalCurrency();
+  }
+
   updateCgbApprovalDate(id: number | null) {
     const cgbAward = this.paperMappingData.find((item) => item.paperID == id)
     if (!cgbAward || !id) {
@@ -543,7 +567,14 @@ export class Template3Component implements AfterViewInit {
       return;
     }
 
-    this.paperService.getPaperDetailsWithPreview(paperId, 'contract').subscribe({
+    // Detect paper type from paperMappingData
+    const selectedPaper = this.paperMappingData.find(item => item.paperID === paperId);
+    const paperType = selectedPaper?.paperType || 'Contract Award';
+    const apiType = paperType === 'Variation Paper' ? 'variation' : 'contract';
+
+    console.log(`Populating from ${paperType} (paperId: ${paperId}, apiType: ${apiType})`);
+
+    this.paperService.getPaperDetailsWithPreview(paperId, apiType).subscribe({
       next: (value) => {
         if (!value || !value.data) {
           this.toastService.show('No data received from the selected paper.', 'warning');
@@ -551,14 +582,35 @@ export class Template3Component implements AfterViewInit {
         }
 
         const contractPaperDetails = value.data as any;
-        console.log('Contract Paper Details:', contractPaperDetails);
-        const contractGeneralInfo = contractPaperDetails?.paperDetails?.contractAwardDetails || null;
-        const contractValueData = contractPaperDetails?.paperDetails?.valueDeliveries?.[0] || null;
-        const contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || null;
-        const contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || [];
+        console.log('Paper Details:', contractPaperDetails);
+
+        // Extract data based on paper type
+        let contractGeneralInfo: any = null;
+        let contractValueData: any = null;
+        let contractJvApprovalsData: any = null;
+        let contractCostAllocationJVApprovalData: any[] = [];
+        let variationContractValues: any = null;
+
+        if (paperType === 'Variation Paper') {
+          // For Variation Papers, data is in paperDetails.paperDetails
+          contractGeneralInfo = contractPaperDetails?.paperDetails?.paperDetails || null;
+          contractValueData = contractPaperDetails?.paperDetails?.valueDeliveriesCostsharing?.[0] || null;
+          contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || null;
+          contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || [];
+          // Contract values are in the same paperDetails object
+          variationContractValues = contractPaperDetails?.paperDetails?.paperDetails || null;
+
+          console.log('Variation Paper contract values:', variationContractValues);
+        } else {
+          // For Contract Award Papers, use existing structure
+          contractGeneralInfo = contractPaperDetails?.paperDetails?.contractAwardDetails || null;
+          contractValueData = contractPaperDetails?.paperDetails?.valueDeliveries?.[0] || null;
+          contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || null;
+          contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || [];
+        }
 
         if (!contractGeneralInfo) {
-          this.toastService.show('Contract award details not found in the selected paper.', 'warning');
+          this.toastService.show(`${paperType} details not found in the selected paper.`, 'warning');
           return;
         }
 
@@ -704,16 +756,60 @@ export class Template3Component implements AfterViewInit {
           isRetrospectiveApproval: contractGeneralInfo?.isRetrospectiveApproval || false,
           retrospectiveApprovalReason: contractGeneralInfo?.retrospectiveApprovalReason || '',
         },
-        contractValues: {
-          // Map Contract value to Previous Variation Total in Variation template
-          previousVariationTotal: contractGeneralInfo?.totalAwardValueUSD || 0,
-          originalContractValue: contractGeneralInfo?.totalAwardValueUSD || 0,
-          currencyCode: contractGeneralInfo?.currencyCode ? contractGeneralInfo.currencyCode.toString() : '',
-          exchangeRate: contractGeneralInfo?.exchangeRate || 0,
-          contractValue: contractGeneralInfo?.contractValue || 0,
-          isCurrencyLinktoBaseCost: contractGeneralInfo?.contractCurrencyLinktoBaseCost || false,
-          noCurrencyLinkNotes: contractGeneralInfo?.explanationsforBaseCost || '',
-        },
+        contractValues: (() => {
+          if (paperType === 'Variation Paper') {
+            // For Variation Paper: Different calculation logic
+            const currentPreviousVariationTotal = Number(this.generalInfoForm.get('contractValues.previousVariationTotal')?.value) || 0;
+            const linkedVariationThisValue = Number(variationContractValues?.contractValue) || 0;
+            const linkedVariationOriginal = Number(variationContractValues?.originalContractValue) || 0;
+
+            // Previous Variation Total = Current Prev + This Value from linked Variation
+            const newPreviousVariationTotal = currentPreviousVariationTotal + linkedVariationThisValue;
+
+            // Original Contract Value = Contract Value from linked Variation
+            const originalContractValue = linkedVariationOriginal;
+
+            // This Value = leave empty (user input)
+            const thisVariationNote = 0;
+
+            // Revised Contract Value = Original + Prev + This (will be auto-calculated)
+            const revisedContractValue = originalContractValue + newPreviousVariationTotal + thisVariationNote;
+
+            console.log('Variation Paper populate values:', {
+              originalContractValue,
+              newPreviousVariationTotal,
+              thisVariationNote,
+              revisedContractValue,
+              currentPreviousVariationTotal,
+              linkedVariationThisValue
+            });
+
+            return {
+              originalContractValue: originalContractValue,
+              previousVariationTotal: newPreviousVariationTotal,
+              thisVariationNote: thisVariationNote,
+              currencyCode: variationContractValues?.currencyCode ? variationContractValues.currencyCode.toString() : '',
+              exchangeRate: variationContractValues?.exchangeRate || 0,
+              contractValue: 0,
+              revisedContractValue: revisedContractValue,
+              spendOnContract: variationContractValues?.spendOnContract || 0,
+              isCurrencyLinktoBaseCost: variationContractValues?.isCurrencyLinktoBaseCost || false,
+              noCurrencyLinkNotes: variationContractValues?.noCurrencyLinkNotes || '',
+            };
+          } else {
+            // For Contract Award: Use existing logic
+            return {
+              // Map Contract value to Previous Variation Total in Variation template
+              previousVariationTotal: contractGeneralInfo?.totalAwardValueUSD || 0,
+              originalContractValue: contractGeneralInfo?.contractValue || 0,
+              currencyCode: contractGeneralInfo?.currencyCode ? contractGeneralInfo.currencyCode.toString() : '',
+              exchangeRate: contractGeneralInfo?.exchangeRate || 0,
+              contractValue: 0,
+              isCurrencyLinktoBaseCost: contractGeneralInfo?.contractCurrencyLinktoBaseCost || false,
+              noCurrencyLinkNotes: contractGeneralInfo?.explanationsforBaseCost || '',
+            };
+          }
+        })(),
         ccd: {
           isHighRiskContract: contractGeneralInfo?.isHighRiskContract || false,
           daCDDCompleted: contractGeneralInfo?.cddCompleted
@@ -751,6 +847,14 @@ export class Template3Component implements AfterViewInit {
         this.generalInfoForm.patchValue({
           costAllocation: patchValues.costAllocation
         }, { emitEvent: false });
+
+        // Auto-calculate revised contract value after populating (especially important for Variation Papers)
+        this.calculateRevisedContractValue();
+
+        // Calculate totals after populating cost allocation values (with a small delay to ensure all controls are ready)
+        setTimeout(() => {
+          this.calculateTotalCostAllocation();
+        }, 100);
       }, 500);
 
       // Setup PSA listeners after patching values
@@ -861,7 +965,7 @@ export class Template3Component implements AfterViewInit {
       next: (response) => {
         if (response.status && response.data) {
           if (response.data && response.data.length > 0) {
-            this.paperMappingData = response.data.filter((item) => item.paperType == "Contract Award")
+            this.paperMappingData = response.data.filter((item) => item.paperType == "Contract Award" || item.paperType == "Variation Paper")
           }
           this.incrementAndCheck();
         }
@@ -1063,6 +1167,7 @@ export class Template3Component implements AfterViewInit {
       }
 
       console.log('costAllocationJVApprovalData:', costAllocationJVApprovalData);
+      console.log('costAllocationsData:', costAllocationsData);
       console.log('psaJvOptions:', this.psaJvOptions);
       console.log('generatlInfoData?.psajv:', generatlInfoData?.psajv);
 
@@ -1136,7 +1241,7 @@ export class Template3Component implements AfterViewInit {
             cgbApprovalDate: generatlInfoData.cgbApprovalDate
               ? format(new Date(generatlInfoData.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
-            fullLegalName: generatlInfoData.vendorId || null,
+            fullLegalName: generatlInfoData.fullLegalName || null,
             contractNo: generatlInfoData.contractNo || '',
             globalCGB: generatlInfoData.globalCGB || null,
             camUserId: generatlInfoData.camUserId || null,
@@ -1300,21 +1405,42 @@ export class Template3Component implements AfterViewInit {
             }
           });
 
-          // Also patch from costAllocations array (template3 specific) - extract "This Value" type
-          // costAllocations structure: [{ psaName, paperType: "This Value", psaValue, percentage, value }]
-          const thisValueCostAllocations = costAllocationsData.filter((item: any) => item.paperType === 'This Value' && item.psaValue === true);
-          thisValueCostAllocations.forEach((item: any) => {
-            const checkboxKey = this.getPSACheckboxControlName(item.psaName);
-            const percentageKey = this.getPSAPercentageControlName(item.psaName);
-            const valueKey = this.getPSAValueControlName(item.psaName);
+          // Also patch from costAllocations array (template3 specific)
+          // costAllocations structure: [{ id, psaName, psaValue, percentage, value }]
+          // If costAllocationJVApprovalData is empty, use costAllocationsData instead
+          if (costAllocationJVApprovalData.length === 0 && costAllocationsData.length > 0) {
+            // Use costAllocationsData as primary source if costAllocationJVApprovalData is empty
+            costAllocationsData.forEach((item: any) => {
+              const checkboxKey = this.getPSACheckboxControlName(item.psaName);
+              const percentageKey = this.getPSAPercentageControlName(item.psaName);
+              const valueKey = this.getPSAValueControlName(item.psaName);
 
-            if (checkboxKey && !costAllocationPatch[checkboxKey]) {
-              // Only set if not already set from costAllocationJVApproval
-              costAllocationPatch[checkboxKey] = true;
-              costAllocationPatch[percentageKey] = item.percentage || '';
-              costAllocationPatch[valueKey] = item.value || null;
-            }
-          });
+              if (checkboxKey && item.psaValue === true) {
+                costAllocationPatch[checkboxKey] = true;
+                costAllocationPatch[percentageKey] = item.percentage || null;
+                costAllocationPatch[valueKey] = item.value || null;
+              }
+            });
+          } else {
+            // If costAllocationJVApprovalData exists, only patch costAllocations that aren't already set
+            const thisValueCostAllocations = costAllocationsData.filter((item: any) => {
+              // Filter by psaValue === true, and optionally check paperType if it exists
+              return item.psaValue === true && (!item.paperType || item.paperType === 'This Value');
+            });
+
+            thisValueCostAllocations.forEach((item: any) => {
+              const checkboxKey = this.getPSACheckboxControlName(item.psaName);
+              const percentageKey = this.getPSAPercentageControlName(item.psaName);
+              const valueKey = this.getPSAValueControlName(item.psaName);
+
+              if (checkboxKey && !costAllocationPatch[checkboxKey]) {
+                // Only set if not already set from costAllocationJVApproval
+                costAllocationPatch[checkboxKey] = true;
+                costAllocationPatch[percentageKey] = item.percentage || null;
+                costAllocationPatch[valueKey] = item.value || null;
+              }
+            });
+          }
 
           // Ensure percentage controls are enabled before patching
           allSelectedValuesPSAJV
@@ -1530,7 +1656,7 @@ export class Template3Component implements AfterViewInit {
 
       case 'contractCommittee_SCP_Co_CC': // SCP CC - Hardcoded 10% ratio rule
         // Only check if both values are valid
-        if (values.revisedValue && values.thisValue && 
+        if (values.revisedValue && values.thisValue &&
             !isNaN(values.revisedValue) && !isNaN(values.thisValue) &&
             values.revisedValue > values.thisValue) {
           const denominator = values.revisedValue - values.thisValue;

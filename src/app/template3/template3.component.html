@@ -1170,7 +1170,7 @@
               </div>
             </div>
 
-            
+
 
             <div id="section9" data-section="section9" (click)="toggleSection('section9')" class="fb-title-div cursor-pointer ft-bg3 d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">9. Consultation</h4>
@@ -1339,7 +1339,7 @@
                 [paperId]="paperId"
                 [isCopy]="isCopy"
                 [roleName]="loggedInUser?.roleName"
-                [statusName]="paperDetails?.variationDetails?.paperStatusName"
+                [statusName]="paperDetails?.paperDetails?.paperStatusName"
                 [isLoading]="isSubmitting"
                 (setStatus)="handleStatusChange($event)"
                 (openReturn)="open($event, content3, paperId)"
