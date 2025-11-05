@@ -1,5 +1,5 @@
 import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ChangeDetectorRef} from '@angular/core';
 import {Menu, menuItems} from '../../models/menu';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {ActivatedRoute, Router, NavigationEnd, RouterLink, RouterLinkActive} from '@angular/router';
@@ -23,11 +23,12 @@ export class SidebarComponent {
   protected menuItems: Menu[] = [];
   private loggedInUserRole: string | null = null;
 
-  constructor(private toggleService: ToggleService,private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
+  constructor(private toggleService: ToggleService, private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService, private cdr: ChangeDetectorRef) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateCurrentPath();
+      this.cdr.detectChanges();
     });
 
     // Get logged in user's role
@@ -175,5 +176,32 @@ export class SidebarComponent {
 
   toggleSubmenu(menu: string) {
     this.expandedMenus[menu] = !this.expandedMenus[menu];
+  }
+
+  isMenuItemActive(item: Menu): boolean {
+    if (!item.path || item.path === '#') {
+      return false;
+    }
+    const currentUrl = this.router.url.split('?')[0].split('#')[0];
+    const normalizedPath = item.path.split('?')[0].split('#')[0];
+    
+    // Check if current URL matches or starts with item path
+    if (currentUrl === normalizedPath || currentUrl.startsWith(normalizedPath + '/')) {
+      return true;
+    }
+    
+    // Check if any child is active
+    if (item.children && item.children.length > 0) {
+      return item.children.some(child => this.isMenuItemActive(child));
+    }
+    
+    return false;
+  }
+
+  hasActiveChild(item: Menu): boolean {
+    if (!item.children || item.children.length === 0) {
+      return false;
+    }
+    return item.children.some(child => this.isMenuItemActive(child));
   }
 }

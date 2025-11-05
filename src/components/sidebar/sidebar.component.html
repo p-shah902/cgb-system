@@ -28,8 +28,8 @@
     </ng-container>
 
     <ng-template #recursiveMenu let-item>
-      <div *ngIf="item.children?.length > 0; else singleMenu" class="link with-children">
-        <div class="content" (click)="toggleSubmenu(item.title)">
+      <div *ngIf="item.children?.length > 0; else singleMenu" class="link with-children" [ngClass]="{ 'active': hasActiveChild(item) || isMenuItemActive(item) }">
+        <div class="content" [ngClass]="{ 'active': hasActiveChild(item) || isMenuItemActive(item) }" (click)="toggleSubmenu(item.title)">
           <div class="icon" *ngIf="item.icon" [safeHtml]="item.icon"></div>
           <div class="icon icon-placeholder" *ngIf="!item.icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,8 +58,8 @@
       </div>
 
       <ng-template #singleMenu>
-        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="link" (click)="$event.stopPropagation()">
-          <div class="content">
+        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="link" [ngClass]="{ 'active': isMenuItemActive(item) }" (click)="$event.stopPropagation()">
+          <div class="content" [ngClass]="{ 'active': isMenuItemActive(item) }">
             <div class="icon" *ngIf="item.icon" [safeHtml]="item.icon"></div>
             <div class="icon icon-placeholder" *ngIf="!item.icon">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
