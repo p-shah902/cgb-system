@@ -654,6 +654,7 @@ export class Template4Component  implements AfterViewInit{
         ],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
+        jvAligned: [{ value: false, disabled: true }], // JV Aligned checkbox - disabled by default
         id: [0]
       })
     );
