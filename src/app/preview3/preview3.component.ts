@@ -597,13 +597,20 @@ export class Preview3Component implements OnInit {
   }
 
   calculateContractValue(): string {
-    if (this.paperInfo?.contractValue && this.paperInfo?.exchangeRate) {
-      const contractValue = Number(this.paperInfo.contractValue);
-      const exchangeRate = Number(this.paperInfo.exchangeRate);
-      const calculatedValue = contractValue * exchangeRate;
-      return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    // Value in Original Currency = Revised Contract Value * Exchange Rate
+    // This matches the logic in template3's updateContractValueOriginalCurrency()
+    const revisedContractValue = Number(this.getVariationProperty('revisedContractValue')) || 0;
+    const exchangeRate = Number(this.getVariationProperty('exchangeRate')) || 0;
+    
+    // If contractValue is already provided in API response, use it directly
+    const contractValueFromAPI = this.getVariationProperty('contractValue');
+    if (contractValueFromAPI && Number(contractValueFromAPI) > 0) {
+      return `${Number(contractValueFromAPI).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-    return `${this.paperInfo?.contractValue || 0} * ${this.paperInfo?.exchangeRate || 0}`;
+    
+    // Otherwise calculate: revisedContractValue * exchangeRate
+    const calculatedValue = revisedContractValue * exchangeRate;
+    return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
 }
