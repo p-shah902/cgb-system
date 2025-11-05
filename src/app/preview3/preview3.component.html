@@ -1,14 +1,13 @@
 <!-- Toasts Container -->
 <div class="toast-container position-fixed top-0 end-0 p-3">
-  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type" [autohide]="true" [delay]="5000"
-             (hidden)="toastService.remove(toast)">
+  <ngb-toast *ngFor="let toast of toastService.toasts" [class]="'bg-' + toast.type +' text-white'" [autohide]="true"
+             [delay]="5000" (hidden)="toastService.remove(toast)">
     {{ toast.message }}
   </ngb-toast>
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid" *ngIf="paperDetails">
   <div class="timeline-main-div mb-5">
-
     <div *ngFor="let activity of paperTimelineDetails; let i = index" [class]="getStatusClass(i)">
       <div class="tb-head d-flex gap-2">
         <div>
@@ -23,6 +22,7 @@
       </div>
     </div>
   </div>
+
   <div class="row">
     <div [class]="showComments ? 'col-md-8' : 'col-md-12'">
       <div class="form-main-div">
@@ -58,123 +58,425 @@
             </div>
 
             <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-12 col-md-12">
-                <div class="form-group mb-3">
-                  <label>Title of Variation*</label>
+              <div class="row">
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Title of Variation<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.paperProvision || 'N/A' }}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-12 col-md-12">
-                <div class="form-group mb-3">
-                  <label>What is the variation for?*</label>
-                    <h6 [innerHTML]="paperInfo?.purposeRequired || 'N/A'"></h6>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Change Types</label>
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="form-check-box position-relative" *ngIf="getVariationProperty('isChangeinSOW')">
+                        <input type="checkbox" [checked]="getVariationProperty('isChangeinSOW')" disabled>
+                        <label>Change in SOW</label>
+                      </div>
+                      <div class="form-check-box position-relative" *ngIf="getVariationProperty('isIncreaseInValue')">
+                        <input type="checkbox" [checked]="getVariationProperty('isIncreaseInValue')" disabled>
+                        <label>Increase in Value</label>
+                      </div>
+                      <div class="form-check-box position-relative" *ngIf="getVariationProperty('isExtensionOfDuration')">
+                        <input type="checkbox" [checked]="getVariationProperty('isExtensionOfDuration')" disabled>
+                        <label>Extension of Duration</label>
+                      </div>
+                      <div class="form-check-box position-relative" *ngIf="getVariationProperty('isTEToCompleteBidding')">
+                        <input type="checkbox" [checked]="getVariationProperty('isTEToCompleteBidding')" disabled>
+                        <label>Time Ext. to Complete Bidding</label>
+                      </div>
+                      <div class="form-check-box position-relative" *ngIf="getVariationProperty('isChangeInRates')">
+                        <input type="checkbox" [checked]="getVariationProperty('isChangeInRates')" disabled>
+                        <label>Change in Rates</label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-4">
-                <div class="form-group mb-3">
-                  <label>CGB Item Ref</label>
+                <div class="col-sm-12 col-md-12" *ngIf="getVariationProperty('isTEToCompleteBidding')">
+                  <div class="form-group mb-3">
+                    <label>Justification for "Time extension to complete bidding"</label>
+                    <p [safeHtml]="getVariationProperty('teToCompleteBiddingJustification') || 'N/A'"></p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>CGB Item Ref</label>
                     <h6>{{ paperInfo?.cgbItemRefNo || 'N/A' }}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-4">
-                <div class="form-group mb-3">
-                  <label>Reference Number*</label>
-                    <h6>{{ paperInfo?.referenceNo || 'N/A' }}</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>CGB Circulation Date</label>
+                    <h6>{{ paperInfo?.cgbCirculationDate ? (paperInfo?.cgbCirculationDate | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-4">
-                <div class="form-group mb-3">
-                  <label>CGB Circulation Date</label>
-                    <h6>{{ paperInfo?.cgbCirculationDate || 'N/A' }}</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Previous CGB Ref No<span class="danger">*</span></label>
+                    <h6>{{ getVariationProperty('cgbAwardRefNo') || 'N/A' }}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-12">
-                <div class="form-group mb-3">
-                  <label>PSA/JV*</label>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Previous CGB Approval Date</label>
+                    <h6>{{ getVariationProperty('cgbApprovalDate') ? (getVariationProperty('cgbApprovalDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Other Related CGB Papers</label>
+                    <h6>{{ getVariationProperty('otherRelatedCgbPapers') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>What is the variation for?<span class="danger">*</span></label>
+                    <p [safeHtml]="paperInfo?.purposeRequired || 'N/A'"></p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Full Legal Name<span class="danger">*</span></label>
+                    <h6>{{ getVariationProperty('fullLegalName') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Contract Number</label>
+                    <h6>{{ getVariationProperty('contractNo') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PSA/JV<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.psajv || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Global CGB<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.globalCGB || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Sourcing Type<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.sourcingType || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Operating Function<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.operatingFunction || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Subsector<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.subSector || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Contract Accountable Manager (CAM)<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.camUserName || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Procurement SPA<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.procurementSPAUsers || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PDM (Project Delivery Manager)</label>
+                    <h6>{{ paperInfo?.pdManagerName || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>VP-1<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.vP1UserName || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>BLT Member<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.bltMemberName || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <label class="mb-2">Contract Duration</label>
+                  <div class="row">
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Start Date</label>
+                        <h6>{{ paperInfo?.contractStartDate ? (paperInfo?.contractStartDate | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                      </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>End Date</label>
+                        <h6>{{ paperInfo?.contractEndDate ? (paperInfo?.contractEndDate | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <label class="mb-2">Variation Date</label>
+                  <div class="row">
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>Start Date</label>
+                        <h6>{{ getVariationProperty('variationStartDate') ? (getVariationProperty('variationStartDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                      </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                      <div class="form-group mb-3">
+                        <label>End Date</label>
+                        <h6>{{ getVariationProperty('variationEndDate') ? (getVariationProperty('variationEndDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Long-Term Commercial Commitment (LTCC)</label>
+                    <h6>{{ paperInfo?.isLTCC ? 'Yes' : 'No' }}</h6>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label>LTCC Note</label>
+                    <h6>{{ paperInfo?.ltccNotes || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Aligned with Government Representative</label>
+                    <h6>{{ paperInfo?.isGovtReprAligned ? 'Yes' : 'No' }}</h6>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label>Government Representative Comment</label>
+                    <h6>{{ paperInfo?.govtReprAlignedComment || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <div class="form-check-list d-flex gap-3 flex-wrap">
+                      <div class="position-relative">
+                        <label>IFRS16 Impact Compliance</label>
+                        <h6>{{ paperInfo?.isIFRS16 ? 'Yes' : 'No' }}</h6>
+                      </div>
+                      <div class="position-relative">
+                        <label>GIAAP Compliance Check</label>
+                        <h6>{{ paperInfo?.isGIAAPCheck ? 'Yes' : 'No' }}</h6>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>2. Justification Section</h4>
             </div>
 
             <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-12 col-md-12">
-                <div class="form-group mb-3">
-                  <label>Justification for Variation*</label>
-                  <h6>N/A</h6>
+              <div class="row">
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Why is the change required?<span class="danger">*</span></label>
+                    <p [safeHtml]="getVariationProperty('whyChangeRequired') || 'N/A'"></p>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Long-Term Strategy<span class="danger">*</span></label>
+                    <p [safeHtml]="getVariationProperty('longTermStrategy') || 'N/A'"></p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>3. Contract Information</h4>
             </div>
 
             <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-6 col-md-6">
-                <div class="form-group mb-3">
-                  <label>CGB Award Ref No*</label>
-                  <h6>N/A</h6>
+              <div class="row">
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>PHCA</label>
+                    <h6>{{ paperInfo?.isPHCA ? 'Yes' : 'No' }}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-6">
-                <div class="form-group mb-3">
-                  <label>Contract Title</label>
-                  <h6>N/A</h6>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Remuneration Type<span class="danger">*</span></label>
+                    <h6>{{ paperInfo?.remunerationType || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Workspace Number</label>
+                    <h6>{{ getVariationProperty('workspaceNo') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                  <div class="form-group mb-3">
+                    <label>Prepayment Required?</label>
+                    <h6>{{ getVariationProperty('isPaymentRequired') ? 'Yes' : 'No' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-4" *ngIf="getVariationProperty('isPaymentRequired')">
+                  <div class="form-group mb-3">
+                    <label>Prepayment Amount ($)</label>
+                    <h6>{{ getVariationProperty('prePayAmount') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Conflict of Interest</label>
+                    <h6>{{ paperInfo?.isConflictOfInterest ? 'Yes' : 'No' }}</h6>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label>If "Yes" Add comments</label>
+                    <p [safeHtml]="paperInfo?.conflictOfInterestComment || 'N/A'"></p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Retrospective Approval</label>
+                    <h6>{{ paperInfo?.isRetrospectiveApproval ? 'Yes' : 'No' }}</h6>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label>If Yes, Provide Reason</label>
+                    <p [safeHtml]="paperInfo?.retrospectiveApprovalReason || 'N/A'"></p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>4. Contract Values ($)</h4>
             </div>
 
             <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-6 col-md-6">
-                <div class="form-group mb-3">
-                  <label>Original Contract Value</label>
-                  <h6>N/A</h6>
+              <div class="row">
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Original Contract Value</label>
+                    <h6>{{ getVariationProperty('originalContractValue') || 'N/A' }}</h6>
+                  </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-6">
-                <div class="form-group mb-3">
-                  <label>Previous Variation(s) Total</label>
-                  <h6>N/A</h6>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Previous Variation(s) Total</label>
+                    <h6>{{ getVariationProperty('previousVariationTotal') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>This Value<span class="danger">*</span></label>
+                    <h6>{{ getVariationProperty('thisVariationNote') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Original Currency</label>
+                    <h6>{{ paperInfo?.currencyCode || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Exchange Rate</label>
+                    <h6>{{ paperInfo?.exchangeRate || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Value in Original Currency</label>
+                    <h6>{{ calculateContractValue() }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Total Revised Contract Value</label>
+                    <h6>{{ getVariationProperty('revisedContractValue') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                  <div class="form-group mb-3">
+                    <label>Spend on the Contract up to date</label>
+                    <h6>{{ getVariationProperty('spendOnContract') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Currency linked to base cost</label>
+                    <h6>{{ getVariationProperty('isCurrencyLinktoBaseCost') ? 'Yes' : 'No' }}</h6>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label>Explanation if "No"</label>
+                    <p [safeHtml]="getVariationProperty('noCurrencyLinkNotes') || 'N/A'"></p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>5. CDD (Counterparty Due Diligence)</h4>
             </div>
 
             <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-12 col-md-12">
-                <div class="form-group mb-3">
-                  <label>CDD Status*</label>
-                  <h6>N/A</h6>
+              <div class="row">
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>High Risk Contract</label>
+                    <h6>{{ getVariationProperty('isHighRiskContract') ? 'Yes' : 'No' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>CDD Completed / Refreshed</label>
+                    <h6>{{ getVariationProperty('daCDDCompleted') ? (getVariationProperty('daCDDCompleted') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-12 col-md-12">
+                  <div class="form-group mb-3">
+                    <label>Explanation for High Risk</label>
+                    <h6>{{ getVariationProperty('highRiskExplanation') || 'N/A' }}</h6>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Flags raised during initial CDD / CDD refresh</label>
+                    <p [safeHtml]="getVariationProperty('flagRaisedCDD') || 'N/A'"></p>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <div class="form-group mb-3">
+                    <label>Additional CDD Controls for High Risk Contracts</label>
+                    <p [safeHtml]="getVariationProperty('additionalCDD') || 'N/A'"></p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
               <h4>6. Value Delivery</h4>
             </div>
 
-            <div class="fb-form">
             <div class="overflow-auto">
               <div class="cost-table-div custom-table table-responsive">
                 <table class="table table-bordered">
@@ -211,141 +513,134 @@
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>7. JV Approval</h4>
+              <h4>7. Cost Allocation and PSA Approval</h4>
             </div>
 
             <div class="fb-form">
-            <div class="row">
-              <div class="col-sm-12 col-md-12">
-                <div class="form-group mb-3">
-                  <label>JV Approval Status</label>
-                  <h6>N/A</h6>
+              <div class="overflow-auto">
+                <div class="cost-table-div custom-table table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>PSA</th>
+                        <th *ngFor="let psa of getSelectedPSAJVColumns()">
+                          <div class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="getPSACheckboxValue(psa)" disabled>
+                              <label>{{ psa }}</label>
+                            </div>
+                          </div>
+                        </th>
+                        <th>
+                          <b>Total</b>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><b>As%</b></td>
+                        <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                          <label>{{ getPSAPercentageValue(psa) !== null ? (getPSAPercentageValue(psa) | number:'1.2-2') + '%' : '' }}</label>
+                        </td>
+                        <td>
+                          <label>{{ getTotalPercentage() > 0 ? (getTotalPercentage() | number:'1.2-2') + '%' : '' }}</label>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td><b>By value $</b></td>
+                        <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                          <label>{{ getPSAValueValue(psa) !== null ? (getPSAValueValue(psa) | number:'1.2-2') : '' }}</label>
+                        </td>
+                        <td>
+                          <label>{{ getTotalValue() > 0 ? (getTotalValue() | number:'1.2-2') : '' }}</label>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td><b>1st Committee</b></td>
+                        <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                          <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="getFirstCommitteeValue(psa)" disabled>
+                              <label>{{ getFirstCommitteeLabel(psa) }}</label>
+                            </div>
+                          </div>
+                        </td>
+                        <td></td>
+                      </tr>
+
+                      <tr>
+                        <td><b>2nd Committee</b></td>
+                        <td *ngFor="let psa of getSelectedPSAJVColumns()">
+                          <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
+                            <div class="form-check-box position-relative">
+                              <input type="checkbox" [checked]="getSecondCommitteeValue(psa)" disabled>
+                              <label>{{ getSecondCommitteeLabel(psa) }}</label>
+                            </div>
+                          </div>
+                        </td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>8. APPENDIX: Cost Allocation and PSA Approval</h4>
+              <h4>8. Consultation</h4>
             </div>
 
-            <div class="fb-form">
-            <div class="cost-table-div custom-table table-responsive">
-              <table class="table table-bordered">
-                <thead>
-                <tr>
-                  <th>PSA</th>
-                  <th *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <div class="form-check-list d-flex gap-3 flex-wrap">
-                      <div class="form-check-box position-relative">
-                        <input type="checkbox" [checked]="getPSACheckboxValue(psa)" disabled>
-                        <label>{{ psa }}</label>
-                      </div>
-                    </div>
-                  </th>
-                  <th>
-                    <b>Total</b>
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                  <td><b>As%</b></td>
-                  <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <label>{{ (getPSAPercentageValue(psa) | number:'1.2-2') || '0.00' }}%</label>
-                  </td>
-                  <td>
-                    <label>{{ (getTotalPercentage() | number:'1.2-2') || '0.00' }}%</label>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><b>By value $</b></td>
-                  <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <label>{{ (getPSAValueValue(psa) | number:'1.2-2') || '0.00' }}</label>
-                  </td>
-                  <td>
-                    <label>{{ (getTotalValue() | number:'1.2-2') || '0.00' }}</label>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td><b>1st Committee</b></td>
-                  <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <div *ngIf="hasFirstCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
-                      <div class="form-check-box position-relative">
-                        <input type="checkbox" [checked]="getFirstCommitteeValue(psa)" disabled>
-                        <label>{{ getFirstCommitteeLabel(psa) }}</label>
-                      </div>
-                    </div>
-                  </td>
-                  <td></td>
-                </tr>
-
-                <tr>
-                  <td><b>2nd Committee</b></td>
-                  <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <div *ngIf="hasSecondCommitteeCheckbox(psa)" class="form-check-list d-flex gap-3 flex-wrap">
-                      <div class="form-check-box position-relative">
-                        <input type="checkbox" [checked]="getSecondCommitteeValue(psa)" disabled>
-                        <label>{{ getSecondCommitteeLabel(psa) }}</label>
-                      </div>
-                    </div>
-                  </td>
-                  <td></td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-            <div class="fb-title-div mb-3">
-              <h4>9. Consultation</h4>
-            </div>
-
-            <div class="fb-form">
             <div class="overflow-auto">
               <div class="key-risks-table custom-table">
                 <table class="table">
                   <thead>
-                  <tr>
-                    <th>PSA</th>
-                    <th>Technically Correct</th>
-                    <th>Budget Statement</th>
-                    <th>JV Review</th>
-                  </tr>
+                    <tr>
+                      <th>PSA</th>
+                      <th>Technically Correct</th>
+                      <th>Budget Statement</th>
+                      <th>JV Review</th>
+                      <th>JV Aligned</th>
+                    </tr>
                   </thead>
                   <tbody>
-                  <tr *ngFor="let consultation of consultationsDetails">
-                    <td>{{ consultation.psa || 'N/A' }}</td>
-                    <td>{{ getDisplayName(consultation.technicalCorrectId) || 'N/A' }}</td>
-                    <td>{{ getDisplayName(consultation.budgetStatementId) || 'N/A' }}</td>
-                    <td>{{ getDisplayName(consultation.jvReviewId) || 'N/A' }}</td>
-                  </tr>
+                    <tr *ngFor="let consultation of consultationsDetails">
+                      <td>{{ consultation.psa || 'N/A' }}</td>
+                      <td>{{ consultation.technicalCorrectName || 'N/A' }}</td>
+                      <td>{{ consultation.budgetStatementName || 'N/A' }}</td>
+                      <td>{{ consultation.jvReviewName || 'N/A' }}</td>
+                      <td>{{ consultation.jvAligned ? 'Yes' : 'No' }}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
 
+          <div class="fb-form">
             <div class="fb-title-div mb-3">
-              <h4>10. Attachments</h4>
+              <h4>9. Attachments</h4>
             </div>
 
             <div class="fb-form">
-            <div class="form-group mb-3">
-              <div class="mb-2">
-                <label>Supporting Documents:</label>
-              </div>
-              <div class="document-attachment">
-                <div class="image-slider">
-                  <div class="slider-container">
-                    <div class="attach-thumb bg-white slider-item" *ngFor="let file of selectedFiles">
-                      <img *ngIf="file.preview && file.isImage" [src]="file.preview" alt="Document Image" class="uploaded-image"/>
-                      <img *ngIf="file.preview && !file.isImage" [src]="'/img/bill.png'" alt="Document Image" class="uploaded-image"/>
-                      <div class="file-info d-flex justify-content-between align-items-center">
-                        <p class="m-0 file-name">{{ file.name }}</p>
+              <div class="form-group mb-3">
+                <div class="mb-2">
+                  <label>Supporting Documents:</label>
+                </div>
+                <div class="document-attachment">
+                  <div class="image-slider">
+                    <div class="slider-container">
+                      <div class="attach-thumb bg-white slider-item" *ngFor="let file of selectedFiles">
+                        <img *ngIf="file.preview && file.isImage" [src]="file.preview" alt="Document Image" class="uploaded-image"/>
+                        <img *ngIf="file.preview && !file.isImage" [src]="'/img/bill.png'" alt="Document Image" class="uploaded-image"/>
+                        <div class="file-info d-flex justify-content-between align-items-center">
+                          <p class="m-0 file-name">{{ file.name }}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -356,7 +651,6 @@
         </div>
       </div>
     </div>
-  </div>
 
     <div class="col-md-4">
       <div class="form-main-div">
@@ -393,3 +687,4 @@
       </div>
     </div>
   </div>
+</div>

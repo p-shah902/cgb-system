@@ -85,6 +85,14 @@
         font-size: 18px;
         line-height: 22px;
         color: #0D062D;
+        
+        &.paper-title {
+          transition: all 0.2s ease;
+          &:hover {
+            color: #582AA2;
+            text-decoration: underline;
+          }
+        }
       }
       p {
         font-style: normal;
@@ -92,6 +100,27 @@
         font-size: 12px;
         line-height: 15px;
         color: #787486;
+      }
+      
+      .paper-type {
+        margin-top: 8px;
+        
+        .paper-type-badge {
+          display: inline-block;
+          padding: 4px 12px;
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 16px;
+          color: #582AA2;
+          background-color: transparent;
+          border: 2px solid #582AA2;
+          border-radius: 16px;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background-color: rgba(88, 42, 162, 0.05);
+          }
+        }
       }
     }
 

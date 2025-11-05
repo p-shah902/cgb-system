@@ -327,4 +327,5 @@ export interface PaperMappingType {
   paperStatusName: string;
   paperType: string;
   entryDate: string; // ISO date string
+  cgbItemRefNo:string
 }

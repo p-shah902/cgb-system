@@ -43,8 +43,17 @@
 
   <div class="row">
     <div class="col-md-12">
-      <div class="cbp-main-div">
-        <div class="cgb-table-div custom-table table-responsive">
+      <div class="cbp-main-div position-relative">
+        <!-- Loading Overlay -->
+        <div *ngIf="isLoading" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px; border-radius: 12px;">
+          <div class="table-loader">
+            <div class="spinner"></div>
+            <p>Loading CGB voting data...</p>
+          </div>
+        </div>
+        <!-- Content -->
+        <div [style.display]="isLoading ? 'none' : 'block'">
+          <div class="cgb-table-div custom-table table-responsive">
           <table class="table table-bordered">
             <thead>
             <tr>
@@ -62,7 +71,9 @@
                 <tr>
                   <td>
                     <div class="paper-id">
-                      <p class="cursor-pointer" (click)="gotoPaper(paper.value.paperInfo.paperID, paper.value.paperInfo.paperType)"><b class="cursor-pointer" (click)="gotoPaper(paper.value.paperInfo.paperID, paper.value.paperInfo.paperType)">#{{ paper.value.paperInfo.cgbRef }} </b> - {{ paper.value.paperInfo.paperTitle }}</p>
+                      <p class="cursor-pointer paper-title" (click)="gotoPaper(paper.value.paperInfo.paperID, paper.value.paperInfo.paperType)">
+                        <b class="cursor-pointer paper-title" (click)="gotoPaper(paper.value.paperInfo.paperID, paper.value.paperInfo.paperType)">#{{ paper.value.paperInfo.cgbRef }} </b> - {{ paper.value.paperInfo.paperTitle }}
+                      </p>
                     </div>
                   </td>
                   @for (user of paper.value.users; track user.userID) {
@@ -114,6 +125,7 @@
             </tbody>
           </table>
 
+          </div>
         </div>
       </div>
     </div>

@@ -63,9 +63,9 @@
                         <tr *ngFor="let detail of dictionaryDetail">
                          <td>{{detail.itemValue}}</td>
                          <td>
-                           <div class="vendore-status">
-                            <label [class.active]="detail.isActive">{{ detail.isActive ? 'Active' : 'Inactive' }}</label>
-                           </div>
+                           <span [ngClass]="detail.isActive ? 'p-active' : 'p-inactive'">
+                             {{ detail.isActive ? 'Active' : 'Inactive' }}
+                           </span>
                          </td>
                          <td>{{ (detail.modifiedDate || detail.createdDate) | date: 'dd MMMM yyyy' }}</td>
                          <td>

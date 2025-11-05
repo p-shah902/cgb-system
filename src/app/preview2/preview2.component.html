@@ -210,8 +210,8 @@
 
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Total Award Value (USD) </label>
-                      <h6>{{contractAwardDetails?.totalAwardValueUSD}}</h6>
+                      <label>Contract Value (USD) </label>
+                      <h6>{{contractAwardDetails?.contractValue}}</h6>
 
                     </div>
                   </div>
@@ -230,8 +230,8 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Contract Value</label>
-                      <h6>{{contractAwardDetails?.contractValue}}</h6>
+                      <label>Contract Value (Original Currency)</label>
+                      <h6>{{ calculateContractValue() }}</h6>
                     </div>
                   </div>
 

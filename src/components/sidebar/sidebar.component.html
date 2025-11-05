@@ -28,9 +28,16 @@
     </ng-container>
 
     <ng-template #recursiveMenu let-item>
-      <div *ngIf="item.children?.length > 0; else singleMenu" class="link with-children">
-        <div class="content" (click)="toggleSubmenu(item.title)">
-          <div class="icon" [safeHtml]="item.icon"></div>
+      <div *ngIf="item.children?.length > 0; else singleMenu" class="link with-children" [ngClass]="{ 'active': hasActiveChild(item) || isMenuItemActive(item) }">
+        <div class="content" [ngClass]="{ 'active': hasActiveChild(item) || isMenuItemActive(item) }" (click)="toggleSubmenu(item.title)">
+          <div class="icon" *ngIf="item.icon" [safeHtml]="item.icon"></div>
+          <div class="icon icon-placeholder" *ngIf="!item.icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3.33333 2.66667H8L10.6667 5.33333V13.3333C10.6667 13.7015 10.3682 14 10 14H3.33333C2.96514 14 2.66667 13.7015 2.66667 13.3333V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#626262" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 2.66667V5.33333H10.6667" stroke="#626262" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5.33333 8.66667H10.6667M5.33333 11.3333H8" stroke="#626262" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="title">{{ item.title }}</div>
           <span class="arrow" [ngClass]="{ 'open': expandedMenus[item.title] }">
         <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -40,7 +47,7 @@
       </span>
         </div>
 
-        <div class="children" *ngIf="expandedMenus[item.title]">
+        <div class="children" *ngIf="expandedMenus[item.title]" (click)="$event.stopPropagation()">
           <ng-container *ngFor="let child of item.children">
             <ng-template
               [ngTemplateOutlet]="recursiveMenu"
@@ -51,9 +58,16 @@
       </div>
 
       <ng-template #singleMenu>
-        <a [href]="item.path" class="link">
-          <div class="content">
-            <div class="icon" [safeHtml]="item.icon"></div>
+        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="link" [ngClass]="{ 'active': isMenuItemActive(item) }" (click)="$event.stopPropagation()">
+          <div class="content" [ngClass]="{ 'active': isMenuItemActive(item) }">
+            <div class="icon" *ngIf="item.icon" [safeHtml]="item.icon"></div>
+            <div class="icon icon-placeholder" *ngIf="!item.icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.33333 2.66667H8L10.6667 5.33333V13.3333C10.6667 13.7015 10.3682 14 10 14H3.33333C2.96514 14 2.66667 13.7015 2.66667 13.3333V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#626262" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 2.66667V5.33333H10.6667" stroke="#626262" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5.33333 8.66667H10.6667M5.33333 11.3333H8" stroke="#626262" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <div class="title">{{ item.title }}</div>
           </div>
         </a>

@@ -35,28 +35,57 @@
     }
   }
   .role-access-table {
+    overflow-x: auto;
     .table {
+      width: 100%;
+      table-layout: auto;
+      border-collapse: collapse;
       thead {
-       th {
-         small {
-           font-weight: 600;
-           font-size: 14px;
-           line-height: 17px;
-           color: #787878;
-           display: block;
-         }
-         font-weight: 500;
-         font-size: 14px;
-         line-height: 17px;
-         color: #1B202B;
-         &:first-child {
-           small {
-             width: 290px;
-             font-size: 14px;
-             word-break: break-word;
-           }
-         }
-       }
+        tr {
+          display: table-row;
+          th {
+            padding: 12px 15px;
+            text-align: center;
+            vertical-align: middle;
+            border-bottom: 2px solid #E8E8E8;
+            background-color: #F8F9FB;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            small {
+              font-weight: 600;
+              font-size: 14px;
+              line-height: 17px;
+              color: #787878;
+              display: block;
+              margin-bottom: 4px;
+            }
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 17px;
+            color: #1B202B;
+            overflow: visible;
+            &:first-child {
+              text-align: left;
+              width: 300px;
+              min-width: 300px;
+              position: sticky;
+              left: 0;
+              z-index: 11;
+              background-color: #F8F9FB;
+              white-space: normal;
+              small {
+                width: 100%;
+                font-size: 14px;
+                word-break: break-word;
+              }
+            }
+            &:not(:first-child) {
+              min-width: 150px;
+            }
+          }
+        }
       }
       .custom-accordion {
         .accordion-item {
@@ -70,6 +99,8 @@
               border-radius: 0!important;
               display: flex;
               gap: 10px;
+              font-weight: 600;
+              font-size: 16px;
             }
 
             .btn-edit {
@@ -87,89 +118,83 @@
             }
           }
           .accordion-body {
-            padding-left: 0;
+            padding: 0;
+            overflow-x: visible;
             .table {
+              margin: 0;
+              width: 100%;
+              table-layout: auto;
+              border-collapse: collapse;
               tr {
+                display: table-row;
                 td {
+                  padding: 12px 15px;
+                  text-align: center;
+                  vertical-align: middle;
+                  border-bottom: 1px solid #F0F0F0;
+                  white-space: nowrap;
                   .ps-5 {
                     padding-left: 40px!important;
                     font-size: 14px;
                     color: #626262;
                   }
-                  .table-title-div {
+                  &:first-child {
+                    text-align: left;
                     width: 300px;
+                    min-width: 300px;
+                    position: sticky;
+                    left: 0;
+                    z-index: 5;
+                    background-color: #ffffff;
+                    white-space: normal;
+                    .table-title-div {
+                      width: 100%;
+                      text-align: left;
+                      font-size: 14px;
+                      word-break: break-word;
+                      padding: 0;
+                    }
+                  }
+                  &:not(:first-child) {
+                    min-width: 150px;
+                  }
+                  .table-title-div {
+                    width: 100%;
+                    text-align: left;
                     font-size: 14px;
                     word-break: break-word;
+                    padding: 0;
                   }
-                 /* &:nth-child(2) {
-                    width: 54px;
-                  }
-
-                  &:nth-child(3) {
-                    width: 200px;
-                  }*/
                 }
-
               }
             }
             .form-check-list {
-              padding-left: 20px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding: 0;
+              width: 100%;
+              .form-check-box {
+                margin: 0 auto;
+              }
             }
           }
         }
-
       }
     }
   }
   .table-width-set {
+    width: 100%;
+    overflow-x: auto;
     tr {
-      display: flex;
       .col-17-td {
-        flex: 0 0 100%;
-      }
-    }
-    .accordion-body {
-      table {
-        tr {
-          display: flex;
-
-          td:nth-child(2) {
-            width: 50px;
-          }
-          td:nth-child(3) {
-            width: 210px;
-            div {
-              padding-left: 80px;
-            }
-          }
-          td:nth-child(9) {
-            width: 190px;
-            div {
-              padding-left: 70px;
-            }
-          }
-          td:nth-child(10) {
-            width: 100px;
-          }
-          td:nth-child(11) {
-            width: 100px;
-          }
-          td:nth-child(12) {
-            width: 95px;
-          }
-          td:nth-child(14) {
-            width: 130px;
-          }
-          td:nth-child(16) {
-            width: 110px;
-          }
-        }
+        padding: 0;
       }
     }
   }
   .roll-small {
     display: block;
-    width: 100px;
+    width: 100%;
   }
   @media screen and (max-width: 991px) {
     .approach-table {
@@ -222,17 +247,6 @@
     font-size: 14px;
     color: #787878;
     font-weight: 500;
-  }
-}
-.role-access-table {
-  thead {
-    tr {
-      th {
-        width: auto;
-        white-space:pre;
-
-      }
-    }
   }
 }
 @keyframes spin {

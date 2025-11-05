@@ -37,6 +37,7 @@ export class AddNewRoleComponent implements OnInit {
   selectedParticulars: any[] = [];
   selectedSectionValue: any[] = [];
   showSectionDropdown: boolean = false;
+  isSubmitting = false;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -138,6 +139,8 @@ export class AddNewRoleComponent implements OnInit {
 
   save() {
     if (this.roleForm.valid) {
+      if (this.isSubmitting) return;
+
       const formValues = this.roleForm.value;
       const payload: UpsertUserRolesPaylod = {
         roleName: formValues.roleName,
@@ -150,6 +153,7 @@ export class AddNewRoleComponent implements OnInit {
         }))
       };
 
+      this.isSubmitting = true;
       this.roleService.createUserRoles(payload).subscribe({
         next: (response) => {
           if (response.success === false) {
@@ -159,15 +163,17 @@ export class AddNewRoleComponent implements OnInit {
           this.roleForm.patchValue({
             action: 'Read'
           });
+          this.passEntry.emit(formValues);
+          this.activeModal.close(formValues);
         },
         error: (error) => {
           console.error(' error:', error);
+          this.toastService.show('Error occurred while saving role', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
-
-
-      this.passEntry.emit(formValues);
-      this.activeModal.close(formValues);
     } else {
       Object.keys(this.roleForm.controls).forEach(key => {
         this.roleForm.get(key)?.markAsTouched();

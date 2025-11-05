@@ -161,7 +161,7 @@ export class Preview4Component implements OnInit {
 
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'disposal').subscribe(value => {
+    this.paperService.getPaperDetailsWithPreview(paperId, 'sale').subscribe(value => {
       this.paperDetails = value.data as any;
       console.log('Paper Detail', this.paperDetails);
 
@@ -197,12 +197,28 @@ export class Preview4Component implements OnInit {
         this.calculateTotals();
       }
       if (this.paperDetails?.paperDetails?.consultationsDetails) {
-        this.consultationsDetails = this.paperDetails.paperDetails.consultationsDetails;
+        // Map consultation fields to match HTML expectations
+        this.consultationsDetails = this.paperDetails.paperDetails.consultationsDetails.map((item: any) => ({
+          ...item,
+          technicalCorrectId: item.technicalCorrect || item.technicalCorrectId,
+          budgetStatementId: item.budgetStatement || item.budgetStatementId,
+          jvReviewId: item.jvReview || item.jvReviewId,
+          // Ensure names are available
+          technicalCorrectName: item.technicalCorrectName,
+          budgetStatementName: item.budgetStatementName,
+          jvReviewName: item.jvReviewName
+        }));
         console.log('consultationsDetails ', this.consultationsDetails);
       }
 
       if (this.paperDetails?.paperDetails?.paperDetails) {
-        this.paperInfo = this.paperDetails.paperDetails.paperDetails;
+        const paperInfoData = this.paperDetails.paperDetails.paperDetails as any;
+        // Map property names to match HTML expectations
+        this.paperInfo = {
+          ...paperInfoData,
+          cgbItemRefNo: paperInfoData.cgbItemRef || paperInfoData.cgbItemRefNo || '',
+          cgbCirculationDate: paperInfoData.cgbCirculationDate || null
+        };
         console.log('paper Info ', this.paperInfo);
       }
 this.loadUserDetails()
@@ -273,6 +289,17 @@ this.loadUserDetails()
   ];
 
   populateTableData(): void {
+    // Reset totals before recalculating
+    this.totalPercentage = 0;
+    this.totalValue = 0;
+    
+    // Reset all PSA columns
+    this.psaColumns.forEach(col => {
+      col.value = false;
+      col.percentage = null;
+      col.amount = null;
+    });
+    
     // Process PSA columns from costAllocationJVApproval
     this.costAllocationJVApproval.forEach(item => {
       const psaColumn = this.psaColumns.find(col => col.name === item.psaName);
@@ -280,19 +307,21 @@ this.loadUserDetails()
         psaColumn.value = item.psaValue;
         psaColumn.percentage = item.percentage;
         psaColumn.amount = item.value;
+        
+        // Add to totals
+        if (item.percentage) {
+          this.totalPercentage += item.percentage;
+        }
+        if (item.value) {
+          this.totalValue += item.value;
+        }
       }
     });
   }
+  
   calculateTotals(): void {
-    // Calculate total percentage and values
-    this.psaColumns.forEach(column => {
-      if (column.percentage) {
-        this.totalPercentage += column.percentage;
-      }
-      if (column.amount) {
-        this.totalValue += column.amount;
-      }
-    });
+    // Totals are now calculated in populateTableData
+    // This method is kept for backward compatibility
   }
 
   getStatusClass(index: number): string {
@@ -346,12 +375,12 @@ this.loadUserDetails()
 
   getPSAPercentageValue(psa: string): number | null {
     const psaEntry = this.costAllocationJVApproval.find(entry => entry.psaName === psa);
-    return psaEntry?.percentage || null;
+    return psaEntry?.percentage ?? null;
   }
 
   getPSAValueValue(psa: string): number | null {
     const psaEntry = this.costAllocationJVApproval.find(entry => entry.psaName === psa);
-    return psaEntry?.value || null;
+    return psaEntry?.value ?? null;
   }
 
   getTotalPercentage(): number {
@@ -431,8 +460,9 @@ this.loadUserDetails()
     return mapping[psaLower] || '';
   }
 
-  getDisplayName(userId: number): string {
-    const user = this.userDetails.find(u => u.id === userId);
+  getDisplayName(userId: number | null | undefined): string {
+    if (!userId) return 'N/A';
+    const user = this.userDetails.find(u => u.id === Number(userId));
     return user ? user.displayName : 'N/A';
   }
 
@@ -465,7 +495,7 @@ this.loadUserDetails()
     try {
       // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
       const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
-      
+
       // Convert base64 to blob
       const byteCharacters = atob(base64Content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -474,17 +504,17 @@ this.loadUserDetails()
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
@@ -504,6 +534,16 @@ this.loadUserDetails()
 
   toggleComments(): void {
     this.showComments = !this.showComments;
+  }
+
+  calculateContractValue(): string {
+    if (this.paperInfo?.contractValue && this.paperInfo?.exchangeRate) {
+      const contractValue = Number(this.paperInfo.contractValue);
+      const exchangeRate = Number(this.paperInfo.exchangeRate);
+      const calculatedValue = contractValue * exchangeRate;
+      return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return `${this.paperInfo?.contractValue || 0} * ${this.paperInfo?.exchangeRate || 0}`;
   }
 
 }

@@ -3,7 +3,7 @@ import { VendorDetail, VendorInfo } from '../models/vendor';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '../models/role';
-import { getVendorDetailsByIdUri, getVendorListUri, upsertVendorsUri } from '../utils/api/api';
+import { deleteVendorsUri, getVendorDetailsByIdUri, getVendorListUri, upsertVendorsUri } from '../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +58,20 @@ export class VendorService {
               })
             );
       }
+
+    deleteVendor(id: number): Observable<ApiResponse<any>> {
+      return this.http.delete<ApiResponse<any>>(`${deleteVendorsUri}?id=${id}`).pipe(
+        tap(response => {
+          console.log('Delete Vendor Response:', response);
+          if (response && response.status) {
+            // Update the vendor list by removing the deleted vendor
+            const currentList = this.vendorListSubject.value;
+            const updatedList = currentList.filter(vendor => vendor.id !== id);
+            this.vendorListSubject.next(updatedList);
+          }
+        })
+      );
+    }
 
     private createFormData(vendor: VendorDetail, file: File|null): FormData {
       const formData = new FormData();

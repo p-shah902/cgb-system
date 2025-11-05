@@ -11,16 +11,22 @@ import {UserDetails} from '../../models/user';
 import {DictionaryDetail} from '../../models/dictionary';
 import {DictionaryService} from '../../service/dictionary.service';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
+import {SafeHtmlPipe} from '../../pipes/safe-html.pipe';
+import {SafeHtmlDirective} from '../../directives/safe-html.directive';
+import {VendorService} from '../../service/vendor.service';
+import {VendorDetail} from '../../models/vendor';
+import {UploadService} from '../../service/document.service';
 
 @Component({
   selector: 'app-preview3',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe],
+  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe, SafeHtmlPipe, SafeHtmlDirective],
   templateUrl: './preview3.component.html',
   styleUrl: './preview3.component.scss'
 })
 export class Preview3Component implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly vendorService = inject(VendorService);
   paperDetails: PaperData | null = null;
   comment: string = '';
   logs: any[] = [];
@@ -36,6 +42,7 @@ export class Preview3Component implements OnInit {
   totalPercentage: number = 0;
   totalValue: number = 0
   userDetails: UserDetails[] = [];
+  vendorList: VendorDetail[] = [];
   selectedFiles: any[] = [];
   // Global variables for dropdown selections
   currenciesData: DictionaryDetail[] = [];
@@ -47,7 +54,7 @@ export class Preview3Component implements OnInit {
   sourcingRigorData: DictionaryDetail[] = [];
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
-  constructor(private activatedRoutes: ActivatedRoute,private dictionaryService: DictionaryService, private paperService: PaperService,public toastService:ToastService) {
+  constructor(private activatedRoutes: ActivatedRoute,private dictionaryService: DictionaryService, private paperService: PaperService,public toastService:ToastService, private uploadService: UploadService) {
   }
 
   ngOnInit() {
@@ -180,34 +187,112 @@ export class Preview3Component implements OnInit {
         console.log('Bid Invites', this.bidInvites);
       }
 
-      if (this.paperDetails?.paperDetails?.valueDeliveriesCostsharing) {
-        this.valueDeliveriesCostsharing = this.paperDetails.paperDetails.valueDeliveriesCostsharing;
+      // API structure: data.paperDetails (paper info), data.consultationsDetails, data.valueDeliveriesCostSharing, etc.
+      // They are at the same level, not nested
+      
+      // For variation paper, paperDetails is directly in the response
+      if (this.paperDetails?.paperDetails) {
+        this.paperInfo = this.paperDetails.paperDetails as any;
+        console.log('paper Info ', this.paperInfo);
+      }
+
+      // API returns valueDeliveriesCostSharing (capital S) at same level as paperDetails
+      const paperData = this.paperDetails as any;
+      if (paperData?.valueDeliveriesCostSharing) {
+        this.valueDeliveriesCostsharing = paperData.valueDeliveriesCostSharing;
+        console.log('Value Delivery', this.valueDeliveriesCostsharing);
+      } else if (paperData?.valueDeliveriesCostsharing) {
+        this.valueDeliveriesCostsharing = paperData.valueDeliveriesCostsharing;
         console.log('Value Delivery', this.valueDeliveriesCostsharing);
       }
 
-      if (this.paperDetails?.paperDetails?.jvApprovals) {
-        this.jvApprovals = this.paperDetails.paperDetails.jvApprovals;
+      if (paperData?.jvApprovals) {
+        this.jvApprovals = paperData.jvApprovals;
         console.log('jvApprovals ', this.jvApprovals);
       }
 
-      if (this.paperDetails?.paperDetails?.costAllocationJVApproval) {
-        this.costAllocationJVApproval = this.paperDetails.paperDetails.costAllocationJVApproval;
+      // API returns costAllocations (not costAllocationJVApproval) at same level as paperDetails
+      if (paperData?.costAllocations) {
+        this.costAllocationJVApproval = paperData.costAllocations;
+        console.log('costAllocations ', this.costAllocationJVApproval);
+        this.populateTableData();
+        this.calculateTotals();
+      } else if (paperData?.costAllocationJVApproval) {
+        this.costAllocationJVApproval = paperData.costAllocationJVApproval;
         console.log('costAllocationJVApproval ', this.costAllocationJVApproval);
         this.populateTableData();
         this.calculateTotals();
       }
-      if (this.paperDetails?.paperDetails?.consultationsDetails) {
-        this.consultationsDetails = this.paperDetails.paperDetails.consultationsDetails;
+      
+      // consultationsDetails is at same level as paperDetails
+      if (paperData?.consultationsDetails) {
+        this.consultationsDetails = paperData.consultationsDetails.map((consultation: any) => ({
+          ...consultation,
+          jvAligned: consultation.jvAligned !== undefined ? consultation.jvAligned : consultation.isJVReviewDone
+        }));
         console.log('consultationsDetails ', this.consultationsDetails);
       }
-
-      if (this.paperDetails?.paperDetails?.paperDetails) {
-        this.paperInfo = this.paperDetails.paperDetails.paperDetails;
-        console.log('paper Info ', this.paperInfo);
-      }
-this.loadUserDetails()
+      
+      this.loadUserDetails()
       this.loadDictionaryItems()
+      this.loadVendorDetails()
+      this.loadSelectedFiles()
     })
+  }
+
+  loadVendorDetails() {
+    this.vendorService.getVendorDetailsList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.vendorList = response.data;
+          
+          // Resolve fullLegalName (vendor ID) to vendor name
+          if (this.paperInfo && (this.paperInfo as any)?.fullLegalName) {
+            // Prefer legalName from API if available
+            if ((this.paperInfo as any)?.legalName) {
+              this.paperInfo = {
+                ...this.paperInfo,
+                fullLegalName: (this.paperInfo as any).legalName
+              } as any;
+            } else {
+              // Otherwise resolve vendor ID to vendor name
+              const vendorId = Number((this.paperInfo as any).fullLegalName);
+              const vendor = this.vendorList.find(v => v.id === vendorId);
+              if (vendor) {
+                this.paperInfo = {
+                  ...this.paperInfo,
+                  fullLegalName: vendor.vendorName
+                } as any;
+              }
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.log('error loading vendors', error);
+      }
+    });
+  }
+
+  loadSelectedFiles() {
+    const paperId = this.activatedRoutes.snapshot.params['id'];
+    if (paperId) {
+      this.uploadService.getDocItemsListByPaperId(Number(paperId)).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            this.selectedFiles = response.data.map((file: any) => ({
+              name: file.fileName || file.name,
+              preview: file.fileUrl || file.preview,
+              isImage: file.fileType?.startsWith('image/') || /\.(jpg|jpeg|png|gif)$/i.test(file.fileName || file.name || ''),
+              fileUrl: file.fileUrl
+            }));
+          }
+        },
+        error: (error) => {
+          console.log('error loading files', error);
+        }
+      });
+    }
   }
 
   getPaperCommentLogs(paperId: number) {
@@ -494,6 +579,11 @@ this.loadUserDetails()
     return user ? user.displayName : 'N/A';
   }
 
+  // Helper method to safely access variation-specific properties
+  getVariationProperty(property: string): any {
+    return (this.paperInfo as any)?.[property];
+  }
+
   scrollToSection(event: any) {
     // Implementation for scroll to section
   }
@@ -504,6 +594,23 @@ this.loadUserDetails()
 
   toggleComments(): void {
     this.showComments = !this.showComments;
+  }
+
+  calculateContractValue(): string {
+    // Value in Original Currency = Revised Contract Value * Exchange Rate
+    // This matches the logic in template3's updateContractValueOriginalCurrency()
+    const revisedContractValue = Number(this.getVariationProperty('revisedContractValue')) || 0;
+    const exchangeRate = Number(this.getVariationProperty('exchangeRate')) || 0;
+    
+    // If contractValue is already provided in API response, use it directly
+    const contractValueFromAPI = this.getVariationProperty('contractValue');
+    if (contractValueFromAPI && Number(contractValueFromAPI) > 0) {
+      return `${Number(contractValueFromAPI).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    
+    // Otherwise calculate: revisedContractValue * exchangeRate
+    const calculatedValue = revisedContractValue * exchangeRate;
+    return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
 }

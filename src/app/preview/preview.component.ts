@@ -1,26 +1,47 @@
-import {Component, OnInit, inject} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, OnInit, inject, ViewChild, TemplateRef} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {PaperService} from '../../service/paper.service';
-import {BidInvites, ConsultationsDetails, CostAllocationJVApproval, JvApprovals, Paper, PaperData, PaperDetails, PaperTimelineDetails, RiskMitigations, ValueDeliveriesCostsharing} from '../../models/paper';
+import {BidInvites, ConsultationsDetails, CostAllocationJVApproval, JvApprovals, Paper, PaperData, PaperDetails, PaperTimelineDetails, RiskMitigations, ValueDeliveriesCostsharing, PaperStatusType} from '../../models/paper';
 import {CommonModule, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbToastModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../service/toast.service';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import {UserService} from '../../service/user.service';
-import {UserDetails} from '../../models/user';
+import {UserDetails, LoginUser} from '../../models/user';
 import {DictionaryDetail} from '../../models/dictionary';
 import {DictionaryService} from '../../service/dictionary.service';
+import {AuthService} from '../../service/auth.service';
+import {PaperConfigService} from '../../service/paper/paper-config.service';
+import {ActionBarComponent} from '../shared/components/action-bar/action-bar.component';
 
 @Component({
   selector: 'app-preview',
   standalone: true,
-  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe],
+  imports: [NgIf, CommonModule, FormsModule, NgbToastModule, TimeAgoPipe, ActionBarComponent],
   templateUrl: './preview.component.html',
   styleUrl: './preview.component.scss'
 })
 export class PreviewComponent implements OnInit {
+  @ViewChild('content2') content2!: TemplateRef<any>;
+  @ViewChild('content3') content3!: TemplateRef<any>;
+  @ViewChild('content4') content4!: TemplateRef<any>;
+  
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly paperConfigService = inject(PaperConfigService);
+  private readonly _mdlSvc = inject(NgbModal);
+  private readonly router = inject(Router);
+  
+  loggedInUser: LoginUser | null = null;
+  paperId: string | null = null;
+  isSubmitting: boolean = false;
+  approvalRemark: string = '';
+  reviewBy: string = '';
+  selectedPaper: number = 0;
+  paperStatusList: PaperStatusType[] = [];
+  paperStatusId: number | null = null;
+  
   paperDetails: PaperData | null = null;
   comment: string = '';
   logs: any[] = [];
@@ -50,8 +71,21 @@ export class PreviewComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fetchPaperDetails(this.activatedRoutes.snapshot.params['id']);
-    this.getPaperCommentLogs(this.activatedRoutes.snapshot.params['id']);
+    this.paperId = this.activatedRoutes.snapshot.params['id'];
+    this.authService.userDetails$.subscribe((user: LoginUser | null) => {
+      this.loggedInUser = user;
+    });
+    this.paperService.getPaperStatusList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.paperStatusList = response.data;
+        }
+      }
+    });
+    if (this.paperId) {
+      this.fetchPaperDetails(Number(this.paperId));
+      this.getPaperCommentLogs(Number(this.paperId));
+    }
   }
 
   loadDictionaryItems() {
@@ -257,7 +291,9 @@ this.loadUserDetails()
       isActive: true
     }).subscribe(value => {
       this.comment = '';
-      this.getPaperCommentLogs(this.activatedRoutes.snapshot.params['id']);
+      if (this.paperId) {
+        this.getPaperCommentLogs(Number(this.paperId));
+      }
     })
   }
 
@@ -490,6 +526,122 @@ this.loadUserDetails()
 
   toggleComments(): void {
     this.showComments = !this.showComments;
+  }
+
+  calculateContractValue(): string {
+    if (this.paperInfo?.contractValue && this.paperInfo?.exchangeRate) {
+      const contractValue = Number(this.paperInfo.contractValue);
+      const exchangeRate = Number(this.paperInfo.exchangeRate);
+      const calculatedValue = contractValue * exchangeRate;
+      return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return `${this.paperInfo?.contractValue || 0} * ${this.paperInfo?.exchangeRate || 0}`;
+  }
+
+  handleStatusChange(status: string): void {
+    if (status === 'Waiting for PDM') {
+      this.setPaperStatus(status, true);
+    } else {
+      this.setPaperStatus(status, false);
+    }
+  }
+
+  setPaperStatus(status: string, callAPI: boolean = true): void {
+    if (!this.paperStatusList?.length) return;
+
+    this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
+    if (callAPI && this.paperId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
+      this.paperConfigService.updateMultiplePaperStatus([{
+        paperId: Number(this.paperId),
+        existingStatusId: (this.paperDetails?.paperDetails as any)?.paperStatusId,
+        statusId: this.paperStatusId
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/all-papers'])
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
+    }
+  }
+
+  open(event: Event, content: TemplateRef<any>, paperId?: any) {
+    event.preventDefault();
+    this._mdlSvc.open(content, {
+      ariaLabelledBy: 'modal-basic-title',
+      centered: true,
+      size: 'lg',
+    }).result.then(
+      (result) => {},
+      (reason) => {}
+    );
+
+    if (paperId) {
+      this.selectedPaper = Number(paperId);
+    } else if (this.paperId) {
+      this.selectedPaper = Number(this.paperId);
+    }
+  }
+
+  addReview(modal: any) {
+    if (this.selectedPaper > 0) {
+      this.paperService.addPaperCommentLogs({
+        paperId: this.selectedPaper,
+        logType: 'Other',
+        remarks: this.approvalRemark,
+        description: this.approvalRemark,
+        columnName: '',
+        isActive: true,
+      }).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            modal.close('Save click');
+            this.approvalRemark = '';
+            if (this.paperId) {
+              this.getPaperCommentLogs(Number(this.paperId));
+            }
+          }
+        },
+        error: (error) => {
+          console.log('error', error);
+        },
+      });
+    }
+  }
+
+  approvePaper(modal: any, type: string) {
+    if (this.selectedPaper > 0) {
+      this.paperConfigService.approveRejectPaper({
+        paperId: this.selectedPaper,
+        remarks: this.reviewBy || '',
+        description: this.approvalRemark,
+        type: this.loggedInUser?.roleName === 'PDM' ? 'PDM Approval' : 'Pre-CGB Approval',
+        check: type,
+      }).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            modal.close('Save click');
+            this.router.navigate(['/all-papers'])
+            this.toastService.show('Paper Status updated successfully');
+          }
+        },
+        error: (error) => {
+          console.log('error', error);
+        },
+      });
+    }
+  }
+
+  getPaperStatusName(): string | null | undefined {
+    return (this.paperDetails?.paperDetails as any)?.paperStatusName;
   }
 
 }

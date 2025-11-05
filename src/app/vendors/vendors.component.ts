@@ -46,8 +46,8 @@ export class VendorsComponent implements OnInit {
     this.vendorService.getVendorDetailsList().subscribe({
       next: (reponse) => {
         if (reponse.status && reponse.data) {
-          
-          this.vendorDetails = reponse.data;
+
+          this.vendorDetails = reponse.data.filter(f => f.isActive);
           this.sortByDate();
           console.log('vendor:', this.vendorDetails);
         }
@@ -58,7 +58,7 @@ export class VendorsComponent implements OnInit {
         this.isLoading=false;
       }
     });
-    
+
   }
 
   nevigate(){
@@ -71,6 +71,39 @@ export class VendorsComponent implements OnInit {
       const dateB = new Date(b.modifiedDate || b.createdDate).getTime();
       return dateB - dateA;
     })
+  }
+
+  deleteVendor(vendor: VendorDetail, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // Show confirmation dialog
+    const confirmed = window.confirm(`Are you sure you want to delete the vendor "${vendor.legalName}"? This action cannot be undone.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.vendorService.deleteVendor(vendor.id).subscribe({
+      next: (response) => {
+        if (response && response.status) {
+          this.toastService.show('Vendor deleted successfully', 'success');
+          // Refresh the vendor list
+          this.loadVendoreDetails();
+        } else {
+          this.toastService.show(response?.message || 'Failed to delete vendor', 'danger');
+          this.isLoading = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error deleting vendor:', error);
+        this.toastService.show('An error occurred while deleting the vendor', 'danger');
+        this.isLoading = false;
+      }
+    });
   }
 
 }

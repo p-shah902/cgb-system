@@ -489,4 +489,14 @@ export class Preview2Component implements OnInit {
     this.showComments = !this.showComments;
   }
 
+  calculateContractValue(): string {
+    if (this.contractAwardDetails?.contractValue && this.contractAwardDetails?.exchangeRate) {
+      const contractValue = Number(this.contractAwardDetails.contractValue);
+      const exchangeRate = Number(this.contractAwardDetails.exchangeRate);
+      const calculatedValue = contractValue * exchangeRate;
+      return `${calculatedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return `${this.contractAwardDetails?.contractValue || 0} * ${this.contractAwardDetails?.exchangeRate || 0}`;
+  }
+
 }

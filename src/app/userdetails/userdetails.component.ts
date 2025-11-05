@@ -49,7 +49,7 @@ export class UserdetailsComponent implements OnInit {
       password: ['', [Validators.minLength(4)]],
       roleId: [0, Validators.min(1)],
       departmentId: [0, Validators.min(1)],
-      phone: ['', [Validators.required]],
+      phone: ['', [Validators.required, Validators.pattern(/^[\d\s\-\+\(\)]{7,15}$/)]],
       displayName: ['', Validators.required],
       isActive: [true],
       // isViewPaper: [false],
@@ -123,7 +123,8 @@ export class UserdetailsComponent implements OnInit {
       });
     } else {
       console.log('Form is invalid');
-      this.toastService.show('Please Fill All Required Fields', 'danger');
+      const errorMessage = this.getValidationErrorMessage();
+      this.toastService.show(errorMessage, 'danger');
       Object.keys(this.userForm.controls).forEach((key) => {
         const control = this.userForm.get(key);
         if (control && control.invalid) {
@@ -227,5 +228,59 @@ export class UserdetailsComponent implements OnInit {
     })
   }
 
+  private getValidationErrorMessage(): string {
+    const controls = this.userForm.controls;
+    
+    // Check email field
+    if (controls['email'].invalid) {
+      if (controls['email'].errors?.['required']) {
+        return 'Email address is required';
+      }
+      if (controls['email'].errors?.['email']) {
+        return 'Please enter a valid email address';
+      }
+    }
+    
+    // Check phone field
+    if (controls['phone'].invalid) {
+      if (controls['phone'].errors?.['required']) {
+        return 'Phone number is required';
+      }
+      if (controls['phone'].errors?.['pattern']) {
+        return 'Please enter a valid phone number';
+      }
+    }
+    
+    // Check displayName field
+    if (controls['displayName'].invalid) {
+      if (controls['displayName'].errors?.['required']) {
+        return 'Full name is required';
+      }
+    }
+    
+    // Check password field
+    if (controls['password'].invalid) {
+      if (controls['password'].errors?.['minlength']) {
+        return 'Password must be at least 4 characters long';
+      }
+    }
+    
+    // Check roleId field
+    if (controls['roleId'].invalid) {
+      if (controls['roleId'].errors?.['min']) {
+        return 'Please select a role';
+      }
+    }
+    
+    // Check departmentId field
+    if (controls['departmentId'].invalid) {
+      if (controls['departmentId'].errors?.['min']) {
+        return 'Please select a department';
+      }
+    }
+    
+    // Default fallback message
+    return 'Please fill all required fields correctly';
+  }
 
 }

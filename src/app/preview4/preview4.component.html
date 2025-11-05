@@ -61,7 +61,7 @@
             <div class="row">
               <div class="col-sm-12 col-md-8">
                 <div class="form-group mb-3">
-                  <label>Title of Sale/Disposal*</label>
+                  <label>Title of Sale/Disposal<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.paperProvision || 'N/A' }}</h6>
                 </div>
               </div>
@@ -73,115 +73,115 @@
               </div>
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
-                  <label>What is being sold/disposed?*</label>
+                  <label>What is being sold/disposed?<span class="danger">*</span></label>
                   <h6 [innerHTML]="paperInfo?.purposeRequired || 'N/A'"></h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB Item Ref</label>
-                  <h6>{{ paperInfo?.cgbItemRefNo || 'N/A' }}</h6>
+                  <h6>{{ paperInfo?.cgbItemRef || paperInfo?.cgbItemRefNo || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
-                  <label>Reference Number*</label>
+                  <label>Reference Number<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.referenceNo || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB Circulation Date</label>
-                  <h6>{{ paperInfo?.cgbCirculationDate || 'N/A' }}</h6>
+                  <h6>{{ paperInfo?.cgbCirculationDate ? (paperInfo?.cgbCirculationDate | date: 'dd-MMM-yyyy') : 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-12">
                 <div class="form-group mb-3">
-                  <label>PSA/JV*</label>
+                  <label>PSA/JV<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.psajv || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Technical Approver*</label>
-                  <h6>N/A</h6>
+                  <label>Technical Approver<span class="danger">*</span></label>
+                  <h6>{{ paperInfo?.camUserName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Procurement SPA*</label>
+                  <label>Procurement SPA<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.procurementSPAUsers || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>VP-1*</label>
-                  <h6>N/A</h6>
+                  <label>VP-1<span class="danger">*</span></label>
+                  <h6>{{ paperInfo?.vP1UserName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>PDM*</label>
-                  <h6>N/A</h6>
+                  <label>PDM<span class="danger">*</span></label>
+                  <h6>{{ paperInfo?.pdManagerName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Operating Function*</label>
+                  <label>Operating Function<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.operatingFunction || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>BLT Member*</label>
-                  <h6>N/A</h6>
+                  <label>BLT Member<span class="danger">*</span></label>
+                  <h6>{{ paperInfo?.bltMemberName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Purchaser Name*</label>
+                  <label>Purchaser Name<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.purchaserName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Sale/Disposal Value ($)*</label>
-                  <h6>N/A</h6>
+                  <label>Sale/Disposal Value ($)<span class="danger">*</span></label>
+                  <h6>{{ paperInfo?.saleDisposeValue ? (paperInfo?.saleDisposeValue | number:'1.2-2') : 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
                   <label>Retrospective Approval Required?</label>
-                  <h6>N/A</h6>
+                  <h6>{{ paperInfo?.isRetrospectiveApproval === true ? 'Yes' : (paperInfo?.isRetrospectiveApproval === false ? 'No' : 'N/A') }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
                   <label>Aligned with Government Representative</label>
-                  <h6>N/A</h6>
+                  <h6>{{ paperInfo?.isGovtReprAligned === true ? 'Yes' : (paperInfo?.isGovtReprAligned === false ? 'No' : 'N/A') }}</h6>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>If Yes, Provide Reason</label>
-                  <h6>N/A</h6>
+                  <h6>{{ paperInfo?.retrospectiveApprovalReason || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group mb-3">
                   <label>Government Representative Comment</label>
-                  <h6>N/A</h6>
+                  <h6>{{ paperInfo?.govtReprAlignedComment || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-group mb-3">
                   <div class="form-check-list d-flex gap-3 flex-wrap">
                     <div class="form-check-box position-relative">
-                      <input type="checkbox" disabled>
+                      <input type="checkbox" [checked]="paperInfo?.isIFRS16" disabled>
                       <label>IFRS16 Impact Compliance</label>
                     </div>
                     <div class="form-check-box position-relative">
-                      <input type="checkbox" disabled>
+                      <input type="checkbox" [checked]="paperInfo?.isGIAAPCheck" disabled>
                       <label>GIAAP Compliance Check</label>
                     </div>
                   </div>
@@ -217,20 +217,20 @@
                 <tr>
                   <td><b>As%</b></td>
                   <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <label>{{ getPSAPercentageValue(psa) | number:'1.2-2' || '0.00' }}%</label>
+                    <label>{{ (getPSAPercentageValue(psa) ?? 0) | number:'1.2-2' }}%</label>
                   </td>
                   <td>
-                    <label>{{ getTotalPercentage() | number:'1.2-2' || '0.00' }}%</label>
+                    <label><b>{{ getTotalPercentage() | number:'1.2-2' }}%</b></label>
                   </td>
                 </tr>
 
                 <tr>
                   <td><b>By value $</b></td>
                   <td *ngFor="let psa of getSelectedPSAJVColumns()">
-                    <label>{{ getPSAValueValue(psa) | number:'1.2-2' || '0.00' }}</label>
+                    <label>{{ (getPSAValueValue(psa) ?? 0) | number:'1.2-2' }}</label>
                   </td>
                   <td>
-                    <label>{{ getTotalValue() | number:'1.2-2' || '0.00' }}</label>
+                    <label><b>${{ getTotalValue() | number:'1.2-2' }}</b></label>
                   </td>
                 </tr>
 
@@ -283,9 +283,9 @@
                   <tbody>
                   <tr *ngFor="let consultation of consultationsDetails">
                     <td>{{ consultation.psa || 'N/A' }}</td>
-                    <td>{{ getDisplayName(consultation.technicalCorrectId) || 'N/A' }}</td>
-                    <td>{{ getDisplayName(consultation.budgetStatementId) || 'N/A' }}</td>
-                    <td>{{ getDisplayName(consultation.jvReviewId) || 'N/A' }}</td>
+                    <td>{{ consultation.technicalCorrectName || (consultation.technicalCorrectId ? getDisplayName(consultation.technicalCorrectId) : 'N/A') || 'N/A' }}</td>
+                    <td>{{ consultation.budgetStatementName || (consultation.budgetStatementId ? getDisplayName(consultation.budgetStatementId) : 'N/A') || 'N/A' }}</td>
+                    <td>{{ consultation.jvReviewName || (consultation.jvReviewId ? getDisplayName(consultation.jvReviewId) : 'N/A') || 'N/A' }}</td>
                   </tr>
                   </tbody>
                 </table>

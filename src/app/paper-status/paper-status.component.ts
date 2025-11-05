@@ -9,6 +9,7 @@ import {ToastService} from '../../service/toast.service';
 import {VotingService} from '../../service/voting.service';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-paper-status',
@@ -63,6 +64,21 @@ export class PaperStatusComponent implements OnInit {
     {label: 'Approved', value: 19},
   ];
   private readonly _mdlSvc = inject(NgbModal);
+  private router = inject(Router);
+
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with dashes
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+  }
+
+  goToApproachToMarket(paper: any): void {
+    const routePath = this.slugify(paper.paperType);
+    this.router.navigate([`/${routePath}`, paper.paperID]);
+  }
 
   constructor(public toastService: ToastService) {
     this.filter = {

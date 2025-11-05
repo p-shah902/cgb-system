@@ -1,8 +1,8 @@
 import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from '@angular/common';
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ChangeDetectorRef} from '@angular/core';
 import {Menu, menuItems} from '../../models/menu';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
-import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
+import {ActivatedRoute, Router, NavigationEnd, RouterLink, RouterLinkActive} from '@angular/router';
 import {filter} from 'rxjs/operators';
 import {AuthService} from '../../service/auth.service';
 import {ToggleService} from '../../app/shared/services/toggle.service';
@@ -10,7 +10,7 @@ import {ToggleService} from '../../app/shared/services/toggle.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [NgClass, NgIf, NgForOf, SafeHtmlDirective, NgTemplateOutlet],
+  imports: [NgClass, NgIf, NgForOf, SafeHtmlDirective, NgTemplateOutlet, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
@@ -23,11 +23,15 @@ export class SidebarComponent {
   protected menuItems: Menu[] = [];
   private loggedInUserRole: string | null = null;
 
-  constructor(private toggleService: ToggleService,private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService) {
+  constructor(private toggleService: ToggleService, private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService, private cdr: ChangeDetectorRef) {
+    // Initialize active state on component load
+    this.updateCurrentPath();
+    
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateCurrentPath();
+      this.cdr.detectChanges();
     });
 
     // Get logged in user's role
@@ -119,7 +123,11 @@ export class SidebarComponent {
     for (const item of items) {
       const newTrail = [...trail, item];
 
-      if (item.path === path) {
+      // Normalize paths for comparison
+      const normalizedPath = path.split('?')[0].split('#')[0];
+      const normalizedItemPath = item.path?.split('?')[0].split('#')[0];
+
+      if (normalizedItemPath && (normalizedPath === normalizedItemPath || normalizedPath.startsWith(normalizedItemPath + '/'))) {
         return newTrail;
       }
 
@@ -135,13 +143,14 @@ export class SidebarComponent {
   }
 
   updateCurrentPath(): void {
-    const fullPath = this.getFullPath(this.activatedRoute);
-    const itemTrail = this.findMenuItemPath(this.menuItems, fullPath);
+    const currentUrl = this.router.url.split('?')[0]; // Remove query params
+    const itemTrail = this.findMenuItemPath(this.menuItems, currentUrl);
 
     if (itemTrail) {
       for (const item of itemTrail) {
-        if (item.title) {
-          this.toggleSubmenu(item.title);
+        if (item.title && item.children && item.children.length > 0) {
+          // Only expand parent menus, don't toggle them
+          this.expandedMenus[item.title] = true;
         }
       }
     }
@@ -170,5 +179,37 @@ export class SidebarComponent {
 
   toggleSubmenu(menu: string) {
     this.expandedMenus[menu] = !this.expandedMenus[menu];
+  }
+
+  isMenuItemActive(item: Menu): boolean {
+    if (!item.path || item.path === '#') {
+      // For items without path, check if any child is active
+      if (item.children && item.children.length > 0) {
+        return item.children.some(child => this.isMenuItemActive(child));
+      }
+      return false;
+    }
+    
+    const currentUrl = this.router.url.split('?')[0].split('#')[0];
+    const normalizedPath = item.path.split('?')[0].split('#')[0];
+    
+    // Check if current URL matches or starts with item path
+    if (normalizedPath && (currentUrl === normalizedPath || currentUrl.startsWith(normalizedPath + '/'))) {
+      return true;
+    }
+    
+    // Check if any child is active (recursive)
+    if (item.children && item.children.length > 0) {
+      return item.children.some(child => this.isMenuItemActive(child));
+    }
+    
+    return false;
+  }
+
+  hasActiveChild(item: Menu): boolean {
+    if (!item.children || item.children.length === 0) {
+      return false;
+    }
+    return item.children.some(child => this.isMenuItemActive(child));
   }
 }

@@ -26,10 +26,19 @@ export class InboxoutboxComponent implements OnInit {
   active = 1;
   inboxData: InboxOutbox[] = [];
   outboxData: InboxOutbox[] = [];
+  filteredInboxData: InboxOutbox[] = [];
+  filteredOutboxData: InboxOutbox[] = [];
   loggedInUser: LoginUser | null = null
   approvalRemark: string = '';
   selectedPaper: number = 0;
   reviewBy: string = '';
+  isLoading: boolean = false;
+  downloadingPapers: Set<number> = new Set();
+  searchTerm: string = '';
+  filterStatus: string = '';
+  filterPaperType: string = '';
+  isFilterOpen: boolean = false;
+  isDesc: boolean = false;
 
   private readonly _mdlSvc = inject(NgbModal);
 
@@ -41,26 +50,142 @@ export class InboxoutboxComponent implements OnInit {
     this.getInboxOutBox()
   }
 
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with dashes
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+  }
+
   gotoPaper(paperId: any, type: string) {
-    let route = 'preview/approach-to-market';
-    if (type === 'Contract Award') {
-      route = 'preview/contract-award';
-    }
-    this.router.navigate([route, paperId])
+    const routePath = this.slugify(type);
+    this.router.navigate([`/${routePath}`, paperId]);
   }
 
   getInboxOutBox() {
+    this.isLoading = true;
     this.inboxOutboxService.getPaperInboxOutbox().subscribe({
       next: response => {
         if (response.status && response.data) {
           this.inboxData = response.data.inbox;
           this.outboxData = response.data.outbox;
+          this.applyFilters();
         }
       },
       error: err => {
         console.log('ERROR', err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
       }
     })
+  }
+
+  applyFilters(): void {
+    // Filter inbox data
+    let filteredInbox = [...this.inboxData];
+    let filteredOutbox = [...this.outboxData];
+
+    // Apply search filter
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      filteredInbox = filteredInbox.filter(item => 
+        item.paperProvision?.toLowerCase().includes(searchLower) ||
+        item.paperType?.toLowerCase().includes(searchLower) ||
+        item.paperStatus?.toLowerCase().includes(searchLower) ||
+        item.purposeRequired?.toLowerCase().includes(searchLower)
+      );
+      filteredOutbox = filteredOutbox.filter(item => 
+        item.paperProvision?.toLowerCase().includes(searchLower) ||
+        item.paperType?.toLowerCase().includes(searchLower) ||
+        item.paperStatus?.toLowerCase().includes(searchLower) ||
+        item.purposeRequired?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply status filter
+    if (this.filterStatus) {
+      filteredInbox = filteredInbox.filter(item => item.paperStatus === this.filterStatus);
+      filteredOutbox = filteredOutbox.filter(item => item.paperStatus === this.filterStatus);
+    }
+
+    // Apply paper type filter
+    if (this.filterPaperType) {
+      filteredInbox = filteredInbox.filter(item => item.paperType === this.filterPaperType);
+      filteredOutbox = filteredOutbox.filter(item => item.paperType === this.filterPaperType);
+    }
+
+    // Apply sorting
+    if (this.isDesc) {
+      filteredInbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+      filteredOutbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameB.localeCompare(nameA);
+      });
+    } else {
+      filteredInbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      filteredOutbox.sort((a, b) => {
+        const nameA = (a.paperProvision || '').toLowerCase();
+        const nameB = (b.paperProvision || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    this.filteredInboxData = filteredInbox;
+    this.filteredOutboxData = filteredOutbox;
+  }
+
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.filterStatus = '';
+    this.filterPaperType = '';
+    this.applyFilters();
+  }
+
+  toggleSort(): void {
+    this.isDesc = !this.isDesc;
+    this.applyFilters();
+  }
+
+  getUniqueStatuses(): string[] {
+    const allStatuses = [
+      ...this.inboxData.map(item => item.paperStatus),
+      ...this.outboxData.map(item => item.paperStatus)
+    ];
+    return [...new Set(allStatuses)].filter(s => s).sort();
+  }
+
+  getUniquePaperTypes(): string[] {
+    const allTypes = [
+      ...this.inboxData.map(item => item.paperType),
+      ...this.outboxData.map(item => item.paperType)
+    ];
+    return [...new Set(allTypes)].filter(t => t).sort();
+  }
+
+  goToPreview(paper: InboxOutbox): void {
+    const routePath = this.slugify(paper.paperType);
+    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
   }
 
   approvePaper(modal: any, type: string) {
@@ -143,6 +268,138 @@ export class InboxoutboxComponent implements OnInit {
 
     if (paperId) {
       this.selectedPaper = paperId;
+    }
+  }
+
+  exportToPDF(paperId: number, event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+
+    if (paperId) {
+      // Add paperId to downloading set
+      this.downloadingPapers.add(paperId);
+
+      this.paperService.generatePaperPDf(paperId).subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            this.toastService.show('PDF generated successfully!', 'success');
+            // Handle PDF download from base64 data
+            if (response.data && response.data.fileName && response.data.pdfBytes) {
+              this.downloadPDFFromBase64(response.data.fileName, response.data.pdfBytes);
+            }
+          } else {
+            this.toastService.show(response?.message || 'Failed to generate PDF', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error generating PDF:', error);
+          this.toastService.show('Error generating PDF. Please try again.', 'danger');
+          // Remove paperId from downloading set on error
+          this.downloadingPapers.delete(paperId);
+        },
+        complete: () => {
+          // Remove paperId from downloading set when complete
+          this.downloadingPapers.delete(paperId);
+        }
+      });
+    } else {
+      this.toastService.show('Paper ID not found', 'danger');
+    }
+  }
+
+  isDownloading(paperId: number): boolean {
+    return this.downloadingPapers.has(paperId);
+  }
+
+  private downloadPDFFromBase64(fileName: string, base64Data: string) {
+    try {
+      // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
+      const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
+
+      // Convert base64 to blob
+      const byteCharacters = atob(base64Content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error processing PDF download:', error);
+      this.toastService.show('Error processing PDF download', 'danger');
+    }
+  }
+
+  hasActionButtons(inbox: InboxOutbox): boolean {
+    const roleName = this.loggedInUser?.roleName;
+    const status = inbox.paperStatus;
+
+    // Vote Now button
+    if ((roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' ||
+         roleName === 'Legal VP-1' || roleName === 'Performance Manager' ||
+         roleName === 'Legal VP' || roleName === 'PHCA' || roleName === 'BLT') &&
+        status === 'On CGB') {
+      return true;
+    }
+
+    // Send For PDM button
+    if ((roleName === 'Procurement Tag' || roleName === 'CAM') &&
+        (status === 'Waiting for PDM' || status === 'Action Required by Pre-CGB')) {
+      return true;
+    }
+
+    // Return to Originator button
+    if (roleName === 'PDM' && (status === 'Waiting for PDM' || status === 'Action Required by Pre-CGB')) {
+      return true;
+    }
+
+    // Approve button
+    if (roleName === 'PDM' && (status === 'Waiting for PDM' || status === 'Action Required by Pre-CGB')) {
+      return true;
+    }
+
+    // Add Review button
+    if ((roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' ||
+         roleName === 'Legal VP-1' || roleName === 'Performance Manager') &&
+        status === 'On Pre-CGB') {
+      return true;
+    }
+
+    // Return to requested button
+    if (roleName === 'Procurement Tag' && status === 'Action Required by CGB') {
+      return true;
+    }
+
+    return false;
+  }
+
+  getStatusClass(status: string): string {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) {
+      return 'p-approved';
+    } else if (statusLower.includes('draft')) {
+      return 'p-draft';
+    } else if (statusLower.includes('registered')) {
+      return 'p-registered';
+    } else if (statusLower.includes('waiting') || statusLower.includes('on pre-cgb') || statusLower.includes('on cgb') || statusLower.includes('action required')) {
+      return 'p-waiting';
+    } else {
+      return 'p-archive';
     }
   }
 }

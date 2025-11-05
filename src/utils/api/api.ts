@@ -63,10 +63,10 @@ export const getPaperVariationByPaperId = baseUri + '/PaperConfiguration/GetPape
 export const getPaperApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperApprovalOfSalesByPaperId';
 export const getPaperInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperInfoNoteByPaperId';
 export const getPaperPreviewByApproachToMarketId = baseUri + '/PaperConfiguration/GetPaperPreviewByApproachToMarket';
-export const getPaperPreviewContractAwardByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewContractAwardByPaper';
-export const getPaperPreviewVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewVariationByPaper';
-export const getPaperPreviewApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewApprovalOfSalesByPaper';
-export const getPaperPreviewInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewInfoNoteByPaper';
+export const getPaperPreviewContractAwardByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByContractAward';
+export const getPaperPreviewVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByVariation';
+export const getPaperPreviewApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByApprovalOfSales';
+export const getPaperPreviewInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByInfoNote';
 
 // Role Management
 export const getUserRolesUri = baseUri + '/RoleManagement/GetUserRolesList';
@@ -96,10 +96,11 @@ export const getAllUserPassChange = baseUri + '/UserMaster/AllUserPassChange';
 export const getVendorListUri = baseUri + '/VendorMaster/GetVendorsList';
 export const getVendorDetailsByIdUri = baseUri + '/VendorMaster/GetVendorDetailsById';
 export const upsertVendorsUri = baseUri + '/VendorMaster/UpsertVendors';
+export const deleteVendorsUri = baseUri + '/VendorMaster/DeleteVendors';
 
 // Visitor Log
 export const addPaperVisitorLogs = baseUri + '/VisitorLog/VisitorLogs';
-export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisiterLogById';
+export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisitorLogById';
 
 // Voting
 export const getCGBVotingCountByPaper = baseUri + '/Voting/GetCGBVotingCountByPaper';

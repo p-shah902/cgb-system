@@ -70,6 +70,9 @@ export class Template4Component  implements AfterViewInit{
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
+  isSubmitting = false;
+  isLoadingDetails = false;
+  isExporting = false;
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
   paperId: string | null = null;
@@ -96,7 +99,7 @@ export class Template4Component  implements AfterViewInit{
   isDragging = false;
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
-  private totalCalls = 2;
+  private totalCalls = 3;
   logs: any[] = [];
   comment: string = '';
   loggedInUser: LoginUser | null = null;
@@ -135,11 +138,21 @@ export class Template4Component  implements AfterViewInit{
     }).then(this._setupEditor.bind(this));
     this.editorService.getEditorToken().subscribe();
 
+    // Check for paperId immediately from route snapshot to set loading state early
+    const paperIdFromSnapshot = this.route.snapshot.paramMap.get('id');
+    if (paperIdFromSnapshot) {
+      this.paperId = paperIdFromSnapshot;
+      this.isLoadingDetails = true; // Set loading immediately if paperId exists
+    }
+
     this.allApisDone$.subscribe((done) => {
       if (done) {
         this.route.paramMap.subscribe(params => {
           this.paperId = params.get('id');
           if (this.paperId) {
+            if (!this.isLoadingDetails) {
+              this.isLoadingDetails = true; // Set loading if not already set
+            }
             this.fetchPaperDetails(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
           } else {
@@ -162,7 +175,7 @@ export class Template4Component  implements AfterViewInit{
     this.loadUserDetails();
     this.loadDictionaryItems();
     this.loadPaperStatusListData();
-    // this.loadThresholdData()
+    this.loadThresholdData();
 
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
@@ -240,17 +253,17 @@ export class Template4Component  implements AfterViewInit{
     this.generalInfoForm.get('generalInfo.technicalApprover')?.valueChanges.subscribe((newCamUserId) => {
       this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
-    
+
     // Re-evaluate committee checkboxes when sourcing type changes
     this.generalInfoForm.get('generalInfo.sourcingType')?.valueChanges.subscribe(() => {
       this.reEvaluateAllCommitteeCheckboxes();
     });
-    
+
     // Re-evaluate committee checkboxes when sale/dispose value changes
     this.generalInfoForm.get('generalInfo.saleDisposeValue')?.valueChanges.subscribe(() => {
       this.setupPSACalculationsManually();
     });
-    
+
     this.setupPSAListeners()
     this.setupPSACalculations()
     this.onLTCCChange()
@@ -268,6 +281,37 @@ export class Template4Component  implements AfterViewInit{
           ctrl.setValue(false, { emitEvent: false });
         }
       });
+    });
+  }
+
+  // Helper method to mark all controls in a form group as touched
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
+  }
+
+  // Helper method to mark all controls in a form array as touched
+  markFormArrayTouched(formArray: FormArray) {
+    formArray.controls.forEach((control) => {
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
     });
   }
 
@@ -295,12 +339,14 @@ export class Template4Component  implements AfterViewInit{
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'sale').subscribe((value) => {
-      // Handle both nested (approvalOfSale.paperDetails) and flat (paperDetails) structures
-      const data = value.data as any;
+    // isLoadingDetails is already set to true when paperId is detected
+    this.paperService.getPaperDetails(paperId, 'sale').subscribe({
+      next: (value) => {
+        // Handle both nested (approvalOfSale.paperDetails) and flat (paperDetails) structures
+        const data = value.data as any;
       const approvalOfSaleData = data?.approvalOfSale || data;
       this.paperDetails = approvalOfSaleData;
-      
+
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = approvalOfSaleData?.consultationsDetails || [];
       if (this.paperDetails) {
@@ -351,7 +397,7 @@ export class Template4Component  implements AfterViewInit{
       costAllocationJVApprovalData.forEach((psa: any) => {
         // Try exact match first, then case-insensitive match with trim
         let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
-        
+
         // If no exact match, try case-insensitive match
         if (!checkboxKey && psa.psaName) {
           const psaNameTrimmed = (psa.psaName || '').toString().trim();
@@ -363,13 +409,13 @@ export class Template4Component  implements AfterViewInit{
             }
           }
         }
-        
+
         if (checkboxKey) {
           console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
           // Handle different types for psaValue (boolean, string, number)
-          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
-                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
-                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
                                Boolean(psa.psaValue);
           patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
@@ -401,7 +447,7 @@ export class Template4Component  implements AfterViewInit{
         .filter((psa: any) => psa.psaValue === true)
         .map((psa: any) => {
           // Find the PSA value from psaJvOptions by matching the psaName
-          const psaOption = this.psaJvOptions.find(option => 
+          const psaOption = this.psaJvOptions.find(option =>
             option.label === psa.psaName || option.value === psa.psaName
           );
           return psaOption?.value;
@@ -457,19 +503,19 @@ export class Template4Component  implements AfterViewInit{
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
-          
+
           // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
             .forEach((psaName: string) => {
               this.addPSAJVFormControls(psaName);
             });
-          
+
           // Re-patch costAllocation values to ensure they're set after controls exist
           this.generalInfoForm.patchValue({
             costAllocation: patchValues.costAllocation
           }, { emitEvent: false });
-          
+
           // Enable percentage controls for all selected PSAs and ensure checkboxes are true
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
@@ -478,18 +524,18 @@ export class Template4Component  implements AfterViewInit{
               const percentageControlName = this.getPSAPercentageControlName(psaName);
               const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
               const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-              
+
               // Ensure checkbox is true if PSA is selected
               if (checkboxControl) {
                 checkboxControl.setValue(true, { emitEvent: false });
               }
-              
+
               // Enable percentage control for all selected PSAs (including BP Group)
               if (percentageControl) {
                 percentageControl.enable({ emitEvent: false });
               }
             });
-          
+
           this.isInitialLoad = false;
         }, 500)
 
@@ -498,7 +544,15 @@ export class Template4Component  implements AfterViewInit{
         this.setupPSAListeners()
         this.getUploadedDocs(paperId);
       }
-    })
+      },
+      error: (error) => {
+        console.error('Error loading paper details:', error);
+        this.toastService.show('Error loading paper details', 'danger');
+      },
+      complete: () => {
+        this.isLoadingDetails = false;
+      }
+    });
   }
 
 
@@ -601,6 +655,7 @@ export class Template4Component  implements AfterViewInit{
         ],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
+        jvAligned: [{ value: false, disabled: true }], // JV Aligned checkbox - disabled by default
         id: [0]
       })
     );
@@ -684,7 +739,7 @@ export class Template4Component  implements AfterViewInit{
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           firstCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -702,7 +757,7 @@ export class Template4Component  implements AfterViewInit{
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           secondCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -749,11 +804,11 @@ export class Template4Component  implements AfterViewInit{
   // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
   reEvaluateAllCommitteeCheckboxes(): void {
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-    
+
     selectedPSAJV.forEach((psaName: string) => {
       const checkboxControlName = this.getPSACheckboxControlName(psaName);
       const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
-      
+
       // Only re-evaluate if PSA checkbox is checked
       if (checkboxControl?.value === true) {
         // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
@@ -861,7 +916,7 @@ export class Template4Component  implements AfterViewInit{
   evaluateThreshold(psaName: string, checkboxType: string, byValue: number): boolean {
     const sourcingTypeId = Number(this.generalInfoForm.get('generalInfo.sourcingType')?.value) || 0;
     const psaAgreementId = this.getPSAAgreementId(psaName);
-    const paperType = 'Disposal'; // For Template 4
+    const paperType = 'Approval of Sale / Disposal Form'; // For Template 4
 
     // Filter relevant thresholds based on global conditions (PSA Agreement and Threshold Type only)
     const relevantThresholds = this.thresholdData.filter(t => {
@@ -871,6 +926,8 @@ export class Template4Component  implements AfterViewInit{
 
       return true;
     });
+
+    console.log('relevantThresholds', relevantThresholds, this.thresholdData);
 
     if (relevantThresholds.length === 0) {
       console.log(`No relevant thresholds found for PSA: ${psaName}, checkbox: ${checkboxType}`);
@@ -1255,6 +1312,19 @@ export class Template4Component  implements AfterViewInit{
     });
   }
 
+  loadThresholdData() {
+    this.thresholdService.getThresholdList().subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.thresholdData = response.data;
+          this.incrementAndCheck();
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
   scrollToSection(event: Event) {
     const selectedValue = (event.target as HTMLSelectElement).value;
     const section = document.getElementById(selectedValue);
@@ -1340,7 +1410,7 @@ export class Template4Component  implements AfterViewInit{
           id: [item.id || 0]
         });
         riskMitigationArray.push(formGroup);
-        
+
         // Set JV Aligned checkbox state based on JV Review user
         setTimeout(() => {
           const jvReviewValue = item.jvReview || item.jvReviewId || null;
@@ -1403,12 +1473,96 @@ export class Template4Component  implements AfterViewInit{
     });
   }
 
+  goToPreview(): void {
+    if (this.paperId) {
+      this.router.navigate(['/preview/approval-of-sale-disposal-form', this.paperId]);
+    }
+  }
+
+  exportToPDF(): void {
+    if (this.paperId) {
+      this.isExporting = true;
+      const paperId = Number(this.paperId);
+      this.paperService.generatePaperPDf(paperId).subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            this.toastService.show('PDF generated successfully!', 'success');
+            // Handle PDF download from base64 data
+            if (response.data && response.data.fileName && response.data.pdfBytes) {
+              this.downloadPDFFromBase64(response.data.fileName, response.data.pdfBytes);
+            }
+          } else {
+            this.toastService.show(response?.message || 'Failed to generate PDF', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error generating PDF:', error);
+          this.toastService.show('Error generating PDF. Please try again.', 'danger');
+        },
+        complete: () => {
+          this.isExporting = false;
+        }
+      });
+    } else {
+      this.toastService.show('Paper ID not found', 'danger');
+    }
+  }
+
+  private downloadPDFFromBase64(fileName: string, base64Data: string): void {
+    try {
+      // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
+      const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
+      
+      // Convert base64 to blob
+      const byteCharacters = atob(base64Content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error processing PDF download:', error);
+      this.toastService.show('Error processing PDF download', 'danger');
+    }
+  }
+
   onSubmit(): void {
     this.submitted = true;
     console.log("==this.generalInfoForm", this.generalInfoForm)
+
+    // Mark all invalid form controls as touched to show validation errors
+    this.markFormGroupTouched(this.generalInfoForm);
+
+    // Mark all form arrays as touched
+    const consultationArray = this.generalInfoForm.get('consultation') as FormArray;
+    if (consultationArray) {
+      this.markFormArrayTouched(consultationArray);
+    }
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
+    }
+
+    // Check if form is valid
+    if (this.generalInfoForm.invalid) {
+      this.toastService.show("Please fill all required fields", "danger");
+      return;
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
@@ -1566,13 +1720,24 @@ export class Template4Component  implements AfterViewInit{
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
         statusId: this.paperStatusId
-      }]).subscribe(value => {
-        this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/all-papers'])
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/all-papers'])
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
     }
 

@@ -79,6 +79,9 @@ export class Template1Component implements AfterViewInit  {
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
+  isSubmitting = false;
+  isLoadingDetails = false;
+  isExporting = false;
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
   paperId: string | null = null;
@@ -158,11 +161,21 @@ export class Template1Component implements AfterViewInit  {
 
     this.editorService.getEditorToken().subscribe();
 
+    // Check for paperId immediately from route snapshot to set loading state early
+    const paperIdFromSnapshot = this.route.snapshot.paramMap.get('id');
+    if (paperIdFromSnapshot) {
+      this.paperId = paperIdFromSnapshot;
+      this.isLoadingDetails = true; // Set loading immediately if paperId exists
+    }
+
     this.allApisDone$.subscribe((done) => {
       if (done) {
         this.route.paramMap.subscribe(params => {
           this.paperId = params.get('id');
           if (this.paperId) {
+            if (!this.isLoadingDetails) {
+              this.isLoadingDetails = true; // Set loading if not already set
+            }
             this.fetchPaperDetails(Number(this.paperId))
             this.getUploadedDocs(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
@@ -348,6 +361,7 @@ export class Template1Component implements AfterViewInit  {
     this.setupMethodologyListeners()
     this.setupPSACalculations()
     this.onLTCCChange()
+    this.setupValueDeliveryRemarksValidation()
     // this.alignGovChange()
     this.onSourcingTypeChange()
     this.conflictIntrestChanges()
@@ -357,6 +371,40 @@ export class Template1Component implements AfterViewInit  {
       }, 1000)
     }
   }
+  setupValueDeliveryRemarksValidation() {
+    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+    if (!valueDeliveryGroup) return;
+
+    // Setup validation for Cost Reduction
+    const checkCostReductionValidation = () => {
+      const value = valueDeliveryGroup.get('costReductionValue')?.value;
+      const percentControl = valueDeliveryGroup.get('costReductionPercent');
+      const remarksControl = valueDeliveryGroup.get('costReductionRemarks');
+
+      const hasValue = value !== null && value !== undefined && value !== '' && value !== 0;
+
+      if (hasValue) {
+        // If $ is entered, both % and Remark are required
+        percentControl?.setValidators([Validators.required]);
+        remarksControl?.setValidators([Validators.required]);
+      } else {
+        // If $ is not entered, clear validators
+        percentControl?.clearValidators();
+        remarksControl?.clearValidators();
+      }
+      percentControl?.updateValueAndValidity();
+      remarksControl?.updateValueAndValidity();
+    };
+
+    // Subscribe to changes for Cost Reduction
+    valueDeliveryGroup.get('costReductionValue')?.valueChanges.subscribe(() => {
+      checkCostReductionValidation();
+    });
+
+    // Check initial state
+    checkCostReductionValidation();
+  }
+
   private setupJVAlignedAutoReset() {
     if (!this.generalInfoForm) { return; }
     this.generalInfoForm.valueChanges.subscribe(() => {
@@ -577,8 +625,10 @@ export class Template1Component implements AfterViewInit  {
   }
 
   fetchPaperDetails(paperId: number) {
-      this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
-      this.paperDetails = value.data;
+    // isLoadingDetails is already set to true when paperId is detected
+    this.paperService.getPaperDetails(paperId, 'approch').subscribe({
+      next: (value) => {
+        this.paperDetails = value.data;
       console.log('paperDetails from API:', this.paperDetails);
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = value.data?.consultationsDetails || [];
@@ -629,13 +679,13 @@ export class Template1Component implements AfterViewInit  {
         // Try exact match first, then lowercase match
         const psaNameLower = psa.psaName?.toLowerCase().trim();
         const checkboxKey = psaNameToCheckbox[psaNameLower as keyof typeof psaNameToCheckbox];
-        
+
         if (checkboxKey) {
           console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
           // Handle different types for psaValue (boolean, string, number)
-          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
-                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
-                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
+                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
+                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
                                Boolean(psa.psaValue);
           patchValues.costAllocation[checkboxKey] = psaValueBool;
           patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
@@ -669,7 +719,7 @@ export class Template1Component implements AfterViewInit  {
         .filter(psa => psa.psaValue === true)
         .map(psa => {
           // Find the PSA value from psaJvOptions by matching the psaName
-          const psaOption = this.psaJvOptions.find(option => 
+          const psaOption = this.psaJvOptions.find(option =>
             option.label === psa.psaName || option.value === psa.psaName
           );
           return psaOption?.value;
@@ -694,7 +744,7 @@ export class Template1Component implements AfterViewInit  {
         .filter(value => value) : [];
 
       if (value.data) {
-        console.log('v', this.paperDetails);
+        console.log('v', paperDetailData?.procurementSPAUsers, selectedValuesProcurementTagUsers, this.procurementTagUsers);
         this.generalInfoForm.patchValue({
           batchPaper: paperDetailData?.batchPaperId || null,
           generalInfo: {
@@ -777,19 +827,19 @@ export class Template1Component implements AfterViewInit  {
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
-          
+
           // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
             .forEach((psaName: string) => {
               this.addPSAJVFormControls(psaName);
             });
-          
+
           // Re-patch costAllocation values to ensure they're set after controls exist
           this.generalInfoForm.patchValue({
             costAllocation: patchValues.costAllocation
           }, { emitEvent: false });
-          
+
           // Enable percentage controls for all selected PSAs and ensure checkboxes are true
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
@@ -798,18 +848,18 @@ export class Template1Component implements AfterViewInit  {
               const percentageControlName = this.getPSAPercentageControlName(psaName);
               const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
               const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-              
+
               // Ensure checkbox is true if PSA is selected
               if (checkboxControl) {
                 checkboxControl.setValue(true, { emitEvent: false });
               }
-              
+
               // Enable percentage control for all selected PSAs (including BP Group)
               if (percentageControl) {
                 percentageControl.enable({ emitEvent: false });
               }
             });
-          
+
           this.isInitialLoad = false;
         }, 500)
 
@@ -818,7 +868,15 @@ export class Template1Component implements AfterViewInit  {
         this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners()
       }
-    })
+      },
+      error: (error) => {
+        console.error('Error loading paper details:', error);
+        this.toastService.show('Error loading paper details', 'danger');
+      },
+      complete: () => {
+        this.isLoadingDetails = false;
+      }
+    });
   }
 
   loadDictionaryDetails(itemName: string) {
@@ -1281,7 +1339,7 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           firstCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -1299,7 +1357,7 @@ export class Template1Component implements AfterViewInit  {
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, byValue);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           secondCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -1349,11 +1407,11 @@ export class Template1Component implements AfterViewInit  {
   // Re-evaluate committee checkboxes for all checked PSAs when Sourcing Type or Contract Value changes
   reEvaluateAllCommitteeCheckboxes(): void {
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-    
+
     selectedPSAJV.forEach((psaName: string) => {
       const checkboxControlName = this.getPSACheckboxControlName(psaName);
       const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
-      
+
       // Only re-evaluate if PSA checkbox is checked
       if (checkboxControl?.value === true) {
         // Pass reEvaluate=true to ensure we use only threshold evaluation, not initial saved values
@@ -1471,10 +1529,10 @@ export class Template1Component implements AfterViewInit  {
   onVendorSelectionChange(rowIndex: number) {
     const row = this.inviteToBid.at(rowIndex);
     const parentCompanyNameControl = row.get('parentCompanyName');
-    
+
     // Get the value from the form control instead of the event
     const selectedValue = row.get('legalName')?.value;
-    
+
     const vendorIdNum = Number(selectedValue);
     if (vendorIdNum && !isNaN(vendorIdNum) && parentCompanyNameControl) {
       const selectedVendor = this.vendorData.find(vendor => vendor.id === vendorIdNum);
@@ -1623,6 +1681,37 @@ export class Template1Component implements AfterViewInit  {
   // Getter for inviteToBid FormArray
   get inviteToBid(): FormArray {
     return this.generalInfoForm.get('procurementDetails.inviteToBid') as FormArray;
+  }
+
+  // Helper method to mark all controls in a form group as touched
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
+  }
+
+  // Helper method to mark all controls in a form array as touched
+  markFormArrayTouched(formArray: FormArray) {
+    formArray.controls.forEach((control) => {
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
   }
 
 
@@ -1821,7 +1910,7 @@ export class Template1Component implements AfterViewInit  {
         });
         riskMitigationArray.push(formGroup);
         console.log('Consultation row created, total rows:', riskMitigationArray.length);
-        
+
         // Set JV Aligned checkbox state based on JV Review user
         setTimeout(() => {
           const jvReviewValue = item.jvReview || item.jvReviewId || null;
@@ -1864,6 +1953,74 @@ export class Template1Component implements AfterViewInit  {
     });
   }
 
+  goToPreview(): void {
+    if (this.paperId) {
+      this.router.navigate(['/preview/approach-to-market', this.paperId]);
+    }
+  }
+
+  exportToPDF(): void {
+    if (this.paperId) {
+      this.isExporting = true;
+      const paperId = Number(this.paperId);
+      this.paperService.generatePaperPDf(paperId).subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            this.toastService.show('PDF generated successfully!', 'success');
+            // Handle PDF download from base64 data
+            if (response.data && response.data.fileName && response.data.pdfBytes) {
+              this.downloadPDFFromBase64(response.data.fileName, response.data.pdfBytes);
+            }
+          } else {
+            this.toastService.show(response?.message || 'Failed to generate PDF', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error generating PDF:', error);
+          this.toastService.show('Error generating PDF. Please try again.', 'danger');
+        },
+        complete: () => {
+          this.isExporting = false;
+        }
+      });
+    } else {
+      this.toastService.show('Paper ID not found', 'danger');
+    }
+  }
+
+  private downloadPDFFromBase64(fileName: string, base64Data: string): void {
+    try {
+      // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
+      const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
+      
+      // Convert base64 to blob
+      const byteCharacters = atob(base64Content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error processing PDF download:', error);
+      this.toastService.show('Error processing PDF download', 'danger');
+    }
+  }
+
   handleStatusChange(status: string): void {
     // For "Waiting for PDM", always call the API to update status
     if (status === 'Waiting for PDM') {
@@ -1880,13 +2037,24 @@ export class Template1Component implements AfterViewInit  {
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
         statusId: this.paperStatusId
-      }]).subscribe(value => {
-        this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/all-papers'])
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/all-papers'])
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
     }
 
@@ -1895,10 +2063,52 @@ export class Template1Component implements AfterViewInit  {
 
   onSubmit(): void {
     this.submitted = true;
+    if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
+
+    // Trigger validation checks for value delivery remarks before marking as touched
+    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+    if (valueDeliveryGroup) {
+      // Check Cost Reduction - if $ is entered, both % and Remark are required
+      const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
+      const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
+      const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
+      const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
+      if (hasCostReductionValue) {
+        costReductionPercent?.setValidators([Validators.required]);
+        costReductionRemarks?.setValidators([Validators.required]);
+      } else {
+        costReductionPercent?.clearValidators();
+        costReductionRemarks?.clearValidators();
+      }
+      costReductionPercent?.updateValueAndValidity();
+      costReductionRemarks?.updateValueAndValidity();
+    }
+
+    // Mark all invalid form controls as touched to show validation errors
+    this.markFormGroupTouched(this.generalInfoForm);
+
+    // Mark all form arrays as touched
+    if (this.riskMitigation) {
+      this.markFormArrayTouched(this.riskMitigation);
+    }
+    if (this.inviteToBid) {
+      this.markFormArrayTouched(this.inviteToBid);
+    }
+    const consultationArray = this.generalInfoForm.get('consultation') as FormArray;
+    if (consultationArray) {
+      this.markFormArrayTouched(consultationArray);
+    }
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
+    }
+
+    // Check if form is valid
+    if (this.generalInfoForm.invalid) {
+      this.toastService.show("Please fill all required fields", "danger");
+      return;
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
@@ -2065,6 +2275,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   generatePaper(params: any) {
+    this.isSubmitting = true;
     this.paperService.upsertApproachToMarkets(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -2092,6 +2303,9 @@ export class Template1Component implements AfterViewInit  {
         console.log('Error', error);
         this.toastService.show("Something went wrong.", 'danger');
       },
+      complete: () => {
+        this.isSubmitting = false;
+      }
     });
   }
 
