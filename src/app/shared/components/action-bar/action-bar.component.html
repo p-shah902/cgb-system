@@ -1,6 +1,7 @@
 <div class="ff-btn-list d-flex gap-3 justify-content-end">
   <!-- Create mode: show Draft/Register -->
-  <ng-container *ngIf="!paperId || (paperId && isCopy)">
+  <ng-container
+    *ngIf="!paperId || (paperId && isCopy) && (permission.canShowDraftRegisterInEdit(roleName, statusName))">
     <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')" [disabled]="isLoading">
       <span *ngIf="!isLoading">Draft</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -16,22 +17,22 @@
   <!-- Edit mode -->
   <ng-container *ngIf="paperId && !isCopy">
     <!-- Draft/Register when not Registered -->
-    <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')"
-            *ngIf="permission.canShowDraftRegisterInEdit(statusName)" [disabled]="isLoading">
-      <span *ngIf="!isLoading">Draft</span>
-      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
-      <span *ngIf="isLoading">Loading...</span>
-    </button>
-    <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
-            *ngIf="permission.canShowDraftRegisterInEdit(statusName)" [disabled]="isLoading">
-      <span *ngIf="!isLoading">Register</span>
-      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
-      <span *ngIf="isLoading">Loading...</span>
-    </button>
+      <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')"
+        *ngIf=" permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Draft</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isLoading">Loading...</span>
+      </button>
+      <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
+        *ngIf="permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Register</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isLoading">Loading...</span>
+      </button>
 
     <!-- Archive -->
     <button class="btn btn-outline-dark" type="button" (click)="setStatus.emit('Archived')"
-            *ngIf="permission.canShowArchive(roleName, statusName)" [disabled]="isLoading">
+      *ngIf="permission.canShowArchive(roleName, statusName)" [disabled]="isLoading">
       <span *ngIf="!isLoading">Archive</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
@@ -39,7 +40,7 @@
 
     <!-- Send for PDM -->
     <button class="btn btn-primary" type="button" (click)="setStatus.emit('Waiting for PDM')"
-            *ngIf="permission.canShowSendForPDM(roleName, statusName)" [disabled]="isLoading">
+      *ngIf="permission.canShowSendForPDM(roleName, statusName)" [disabled]="isLoading">
       <span *ngIf="!isLoading">Send For PDM</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
@@ -47,7 +48,7 @@
 
     <!-- Update -->
     <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
-            *ngIf="permission.canShowUpdate(roleName, statusName)" [disabled]="isLoading">
+      *ngIf="permission.canShowUpdate(roleName, statusName)" [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
@@ -55,7 +56,7 @@
 
     <!-- PDM actions (kept generic with outputs) -->
     <div class="d-flex align-items-center justify-content-between gap-3"
-         *ngIf="roleName === 'PDM' && statusName === 'Waiting for PDM'">
+      *ngIf="roleName === 'PDM' && statusName === 'Waiting for PDM'">
       <button class="btn normal-btn" (click)="openReturn.emit($event)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Return to Originator</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -70,7 +71,7 @@
 
     <!-- Add review (Pre-CGB) -->
     <div class="d-flex align-items-center justify-content-between gap-3"
-         *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB'">
+      *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB'">
       <button class="btn update-btn" (click)="openAddReview.emit($event)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Add Review</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -80,7 +81,7 @@
 
     <!-- Voting (On CGB) -->
     <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
-         *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On CGB'">
+      *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On CGB'">
       <button class="btn btn-outline-secondary d-flex align-items-center gap-3" [disabled]="isLoading">
         <span *ngIf="!isLoading">Vote Now</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -90,9 +91,9 @@
 
     <!-- Return to requested (Action Required by CGB) -->
     <div class="ic-btn-div d-flex justify-content-end"
-         *ngIf="roleName === 'Procurement Tag' && statusName === 'Action Required by CGB'">
+      *ngIf="roleName === 'Procurement Tag' && statusName === 'Action Required by CGB'">
       <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
-              (click)="returnToRequested.emit()" [disabled]="isLoading">
+        (click)="returnToRequested.emit()" [disabled]="isLoading">
         <span *ngIf="!isLoading">Return to requested</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
         <span *ngIf="isLoading">Loading...</span>
@@ -100,5 +101,3 @@
     </div>
   </ng-container>
 </div>
-
-

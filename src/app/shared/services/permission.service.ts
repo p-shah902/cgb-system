@@ -10,8 +10,8 @@ export class PermissionService {
   }
 
   // Show Draft/Register while editing if not Registered
-  canShowDraftRegisterInEdit(status: PaperStatus): boolean {
-    return status !== 'Registered';
+  canShowDraftRegisterInEdit(role: UserRole, status: PaperStatus): boolean {
+    return this.is(role, ['Procurement Tag', 'CAM', 'Secretary', 'Super Admin']) && status === 'Draft';
   }
 
   // Archive: PT or Secretary and status Registered/Withdrawn
@@ -26,7 +26,7 @@ export class PermissionService {
 
   // Update: PT, CAM, Secretary and status Registered
   canShowUpdate(role: UserRole, status: PaperStatus): boolean {
-    return this.is(role, ['Procurement Tag', 'CAM', 'Secretary']) && status === 'Registered';
+    return this.is(role, ['Procurement Tag', 'CAM', 'Secretary', "Super Admin"]) && status === 'Registered';
   }
 }
 
