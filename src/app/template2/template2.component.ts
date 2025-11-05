@@ -77,6 +77,7 @@ export class Template2Component implements AfterViewInit {
   submitted = false;
   isSubmitting = false;
   isLoadingDetails = false;
+  isExporting = false;
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
@@ -999,22 +1000,24 @@ export class Template2Component implements AfterViewInit {
 
             // Create formatted options for Select2
             // Format: "CGB ref number, Value, Title (first 50 symbols), Date"
-            this.cgbAtmRefOptions = this.paperMappingData.map((item) => {
-              const refNo = item.cgbItemRefNo.toString();
-              const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
-              const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
-              // Note: Value field might not be available in PaperMappingType, using placeholder for now
-              // This can be updated when API provides contractValue/totalContractValue field
+            this.cgbAtmRefOptions = this.paperMappingData
+              .filter((item) => item.cgbItemRefNo != null) // Filter out items with null cgbItemRefNo
+              .map((item) => {
+                const refNo = item.cgbItemRefNo?.toString() || '';
+                const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
+                const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
+                // Note: Value field might not be available in PaperMappingType, using placeholder for now
+                // This can be updated when API provides contractValue/totalContractValue field
 
-              // Format label to include Ref#, Value, Title, Date for dropdown display
-              // Select2 will automatically search through the label text
-              const label = `${refNo}, ${title}, ${date}`;
+                // Format label to include Ref#, Value, Title, Date for dropdown display
+                // Select2 will automatically search through the label text
+                const label = `${refNo}, ${title}, ${date}`;
 
-              return {
-                value: refNo,
-                label: label
-              };
-            });
+                return {
+                  value: refNo,
+                  label: label
+                };
+              });
           }
           this.incrementAndCheck();
         }
@@ -3484,6 +3487,74 @@ export class Template2Component implements AfterViewInit {
           console.error('Upload error:', error);
         },
       });
+    }
+  }
+
+  goToPreview(): void {
+    if (this.paperId) {
+      this.router.navigate(['/preview/contract-award', this.paperId]);
+    }
+  }
+
+  exportToPDF(): void {
+    if (this.paperId) {
+      this.isExporting = true;
+      const paperId = Number(this.paperId);
+      this.paperService.generatePaperPDf(paperId).subscribe({
+        next: (response) => {
+          if (response && response.status) {
+            this.toastService.show('PDF generated successfully!', 'success');
+            // Handle PDF download from base64 data
+            if (response.data && response.data.fileName && response.data.pdfBytes) {
+              this.downloadPDFFromBase64(response.data.fileName, response.data.pdfBytes);
+            }
+          } else {
+            this.toastService.show(response?.message || 'Failed to generate PDF', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error generating PDF:', error);
+          this.toastService.show('Error generating PDF. Please try again.', 'danger');
+        },
+        complete: () => {
+          this.isExporting = false;
+        }
+      });
+    } else {
+      this.toastService.show('Paper ID not found', 'danger');
+    }
+  }
+
+  private downloadPDFFromBase64(fileName: string, base64Data: string): void {
+    try {
+      // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
+      const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
+      
+      // Convert base64 to blob
+      const byteCharacters = atob(base64Content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error processing PDF download:', error);
+      this.toastService.show('Error processing PDF download', 'danger');
     }
   }
 
