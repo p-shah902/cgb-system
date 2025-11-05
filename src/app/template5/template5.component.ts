@@ -683,42 +683,24 @@ export class Template5Component  implements AfterViewInit{
 
 
   setupPSAListeners() {
-    const psaControls = [
-      {checkbox: 'isACG', percentage: 'percentage_isACG', value: 'value_isACG'},
-      {checkbox: 'isShah', percentage: 'percentage_isShah', value: 'value_isShah'},
-      {checkbox: 'isSCP', percentage: 'percentage_isSCP', value: 'value_isSCP'},
-      {checkbox: 'isBTC', percentage: 'percentage_isBTC', value: 'value_isBTC'},
-      {checkbox: 'isAsiman', percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
-      {checkbox: 'isBPGroup', percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
-    ];
+    // Get selected PSAJV columns dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    
     const costAllocationJVApprovalData = this.paperDetails?.costAllocationJVApproval || []
     const patchValues: any = {costAllocation: {}};
 
-    const psaNameToCheckbox: Record<string, string> = {
-      "ACG": "isACG",
-      "Shah Deniz": "isShah",
-      "SCP": "isSCP",
-      "BTC": "isBTC",
-      "Asiman": "isAsiman",
-      "BP Group": "isBPGroup"
-    };
+    // Create dynamic mapping from PSA data
+    const psaNameToCheckbox: Record<string, string> = {};
+    this.psaData.forEach(psa => {
+      const checkboxName = this.getPSACheckboxControlName(psa.itemValue);
+      psaNameToCheckbox[psa.itemValue.toLowerCase()] = checkboxName;
+    });
 
     // Assign PSA/JV values dynamically
     costAllocationJVApprovalData.forEach((psa: any) => {
-      // Try exact match first, then case-insensitive match with trim
-      let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
-      
-      // If no exact match, try case-insensitive match
-      if (!checkboxKey && psa.psaName) {
-        const psaNameTrimmed = (psa.psaName || '').toString().trim();
-        const psaNameUpper = psaNameTrimmed.toUpperCase();
-        for (const [key, value] of Object.entries(psaNameToCheckbox)) {
-          if (key.toUpperCase() === psaNameUpper) {
-            checkboxKey = value;
-            break;
-          }
-        }
-      }
+      // Try exact match first, then lowercase match
+      const psaNameLower = psa.psaName?.toLowerCase().trim();
+      const checkboxKey = psaNameToCheckbox[psaNameLower as keyof typeof psaNameToCheckbox];
       
       if (checkboxKey) {
         console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
@@ -735,7 +717,7 @@ export class Template5Component  implements AfterViewInit{
       }
     });
 
-// Assign default values for all PSA/JV fields if not in API data
+    // Assign default values for all PSA/JV fields if not in API data
     Object.keys(psaNameToCheckbox).forEach(key => {
       const checkboxKey = psaNameToCheckbox[key];
       if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
@@ -745,59 +727,52 @@ export class Template5Component  implements AfterViewInit{
       }
     });
 
-    psaControls.forEach(({checkbox, percentage, value}) => {
+    // Setup listeners for selected PSAJV columns dynamically
+    selectedPSAJV.forEach((psaName: string) => {
+      const checkbox = this.getPSACheckboxControlName(psaName);
+      const percentage = this.getPSAPercentageControlName(psaName);
+      const value = this.getPSAValueControlName(psaName);
       this.generalInfoForm.get(`costAllocation.${checkbox}`)?.valueChanges.subscribe((isChecked) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentage}`);
         const valueControl = this.generalInfoForm.get(`costAllocation.${value}`);
         const jvApprovalsData = this.paperDetails?.jvApprovals[0] || null
 
-        //checkboxes
-        const ACG1 = this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)
-        const ACG2 = this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)
-
-        const SD1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)
-        const SD2 = this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)
-
-        const SCP1 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)
-        const SCP2 = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)
-        const SCP3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)
-
-        const BTC1 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)
-        const BTC2 = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)
-        const BTC3 = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)
-
+        //checkboxes - use helper methods to get committee control names dynamically
+        const firstCommitteeControlName = this.getFirstCommitteeControlName(psaName);
+        const secondCommitteeControlName = this.getSecondCommitteeControlName(psaName);
+        const firstCommitteeControl = firstCommitteeControlName ? this.generalInfoForm.get(`costAllocation.${firstCommitteeControlName}`) : null;
+        const secondCommitteeControl = secondCommitteeControlName ? this.generalInfoForm.get(`costAllocation.${secondCommitteeControlName}`) : null;
 
         if (isChecked) {
           percentageControl?.enable();
           percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, {emitEvent: false});
           valueControl?.setValue(patchValues.costAllocation[value] || 0, {emitEvent: false});
 
-          if (checkbox === "isACG") {
-            ACG1?.enable();
-            ACG2?.enable();
-            this.generalInfoForm.get(`costAllocation.coVenturers_CMC`)?.setValue(jvApprovalsData?.coVenturers_CMC || false, {emitEvent: false});
-            this.generalInfoForm.get(`costAllocation.steeringCommittee_SC`)?.setValue(jvApprovalsData?.steeringCommittee_SC || false, {emitEvent: false});
+          // Handle committee checkboxes based on PSA name
+          if (this.hasFirstCommitteeCheckbox(psaName) && firstCommitteeControl) {
+            firstCommitteeControl.enable();
+            const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
+            firstCommitteeControl.setValue(initialValue, {emitEvent: false});
+          }
 
-          } else if (checkbox === "isShah") {
-            SD1?.enable();
-            SD2?.enable();
-            this.generalInfoForm.get(`costAllocation.contractCommittee_SDCC`)?.setValue(jvApprovalsData?.contractCommittee_SDCC || false, {emitEvent: false});
-            this.generalInfoForm.get(`costAllocation.coVenturers_SDMC`)?.setValue(jvApprovalsData?.coVenturers_SDMC || false, {emitEvent: false});
-          } else if (checkbox === "isSCP") {
-            SCP1?.enable();
-            SCP2?.enable();
-            SCP3?.enable();
-            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CC`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CC || false, {emitEvent: false});
-            this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, {emitEvent: false});
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP`)?.setValue(jvApprovalsData?.coVenturers_SCP || false, {emitEvent: false});
-          } else if (checkbox === "isBTC") {
-            BTC1?.enable();
-            BTC2?.enable();
-            BTC3?.enable();
+          if (this.hasSecondCommitteeCheckbox(psaName) && secondCommitteeControl) {
+            secondCommitteeControl.enable();
+            const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
+            secondCommitteeControl.setValue(initialValue, {emitEvent: false});
+          }
 
-            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CC`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CC || false, {emitEvent: false});
-            this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`)?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, {emitEvent: false});
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
+          // Handle special cases for SCP and BTC which have additional checkboxes
+          if (psaName.toLowerCase() === 'scp') {
+            const scpInfoNote = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`);
+            scpInfoNote?.enable();
+            scpInfoNote?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, {emitEvent: false});
+          } else if (psaName.toLowerCase() === 'btc') {
+            const btcInfoNote = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`);
+            const scpBoard = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`);
+            btcInfoNote?.enable();
+            scpBoard?.enable();
+            btcInfoNote?.setValue(jvApprovalsData?.contractCommittee_BTC_CCInfoNote || false, {emitEvent: false});
+            scpBoard?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
           }
 
         } else {
@@ -805,31 +780,28 @@ export class Template5Component  implements AfterViewInit{
           percentageControl?.disable();
           valueControl?.reset();
 
-          if (checkbox === "isACG") {
-            ACG1?.disable();
-            ACG1?.reset();
-            ACG2?.disable();
-            ACG2?.reset();
-            this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`)?.setValue(jvApprovalsData?.coVenturers_SCP_Board || false, {emitEvent: false});
-          } else if (checkbox === "isShah") {
-            SD1?.disable();
-            SD1?.reset();
-            SD2?.disable();
-            SD2?.reset();
-          } else if (checkbox === "isSCP") {
-            SCP1?.enable();
-            SCP2?.enable();
-            SCP3?.enable();
-            SCP1?.reset();
-            SCP2?.reset();
-            SCP3?.reset();
-          } else if (checkbox === "isBTC") {
-            BTC1?.disable();
-            BTC2?.disable();
-            BTC3?.disable();
-            BTC1?.reset();
-            BTC2?.reset();
-            BTC3?.reset();
+          // Disable and reset committee checkboxes
+          if (firstCommitteeControl) {
+            firstCommitteeControl.disable();
+            firstCommitteeControl.reset();
+          }
+          if (secondCommitteeControl) {
+            secondCommitteeControl.disable();
+            secondCommitteeControl.reset();
+          }
+
+          // Handle special cases
+          if (psaName.toLowerCase() === 'scp') {
+            const scpInfoNote = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`);
+            scpInfoNote?.disable();
+            scpInfoNote?.reset();
+          } else if (psaName.toLowerCase() === 'btc') {
+            const btcInfoNote = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`);
+            const scpBoard = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`);
+            btcInfoNote?.disable();
+            scpBoard?.disable();
+            btcInfoNote?.reset();
+            scpBoard?.reset();
           }
         }
       });
@@ -837,54 +809,57 @@ export class Template5Component  implements AfterViewInit{
   }
 
   setupPSACalculations() {
-    const psaControls = [
-      {percentage: 'percentage_isACG', value: 'value_isACG'},
-      {percentage: 'percentage_isShah', value: 'value_isShah'},
-      {percentage: 'percentage_isSCP', value: 'value_isSCP'},
-      {percentage: 'percentage_isBTC', value: 'value_isBTC'},
-      {percentage: 'percentage_isAsiman', value: 'value_isAsiman'},
-      {percentage: 'percentage_isBPGroup', value: 'value_isBPGroup'}
-    ];
+    // Get selected PSAJV columns dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
 
-    psaControls.forEach(({percentage, value}) => {
-      this.generalInfoForm.get(`costAllocation.${percentage}`)?.valueChanges.subscribe((percentageValue) => {
-        const contractValue = this.generalInfoForm.get('generalInfo.saleDisposeValue')?.value || 0;
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
 
-        if (percentageValue >= 0 && percentageValue <= 100) {
-          const calculatedValue = (percentageValue / 100) * contractValue;
-          this.generalInfoForm.get(`costAllocation.${value}`)?.setValue(calculatedValue, {emitEvent: false});
-          this.calculateTotal()
-        }
-      });
+      const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
+      const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
+
+      if (percentageControl && valueControl) {
+        percentageControl.valueChanges.subscribe((percentageValue) => {
+          const contractValue = this.generalInfoForm.get('generalInfo.saleDisposeValue')?.value || 0;
+
+          if (percentageValue >= 0 && percentageValue <= 100) {
+            const calculatedValue = (percentageValue / 100) * contractValue;
+            valueControl.setValue(calculatedValue, {emitEvent: false});
+            this.calculateTotal();
+          }
+        });
+      }
     });
   }
 
   calculateTotal() {
     const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
 
     let totalPercentage = 0;
     let totalValue = 0;
 
-    const percentageFields = [
-      'percentage_isACG', 'percentage_isShah', 'percentage_isSCP',
-      'percentage_isBTC', 'percentage_isAsiman', 'percentage_isBPGroup'
-    ];
-    const valueFields = [
-      'value_isACG', 'value_isShah', 'value_isSCP',
-      'value_isBTC', 'value_isAsiman', 'value_isBPGroup'
-    ];
+    // Calculate totals based on selected PSAJV columns
+    selectedPSAJV.forEach((psaName: string) => {
+      const percentageControlName = this.getPSAPercentageControlName(psaName);
+      const valueControlName = this.getPSAValueControlName(psaName);
 
-    percentageFields.forEach((field) => {
-      const value = costAllocation.get(field)?.value;
-      if (!isNaN(value) && value !== null && value !== '') {
-        totalPercentage += Number(value);
+      const percentageControl = costAllocation.get(percentageControlName);
+      const valueControl = costAllocation.get(valueControlName);
+
+      if (percentageControl) {
+        const percentageValue = percentageControl.value;
+        if (!isNaN(percentageValue) && percentageValue !== null && percentageValue !== '') {
+          totalPercentage += Number(percentageValue);
+        }
       }
-    });
 
-    valueFields.forEach((field) => {
-      const value = costAllocation.get(field)?.value;
-      if (!isNaN(value) && value !== null && value !== '') {
-        totalValue += Number(value);
+      if (valueControl) {
+        const valueValue = valueControl.value;
+        if (!isNaN(valueValue) && valueValue !== null && valueValue !== '') {
+          totalValue += Number(valueValue);
+        }
       }
     });
 
@@ -898,7 +873,6 @@ export class Template5Component  implements AfterViewInit{
     } else {
       costAllocation.get('totalPercentage')?.setErrors(null);
     }
-
   }
 
   onRTOhange() {
@@ -1567,18 +1541,15 @@ export class Template5Component  implements AfterViewInit{
     const ccdValues = this.generalInfoForm?.value?.ccd
     const toIsoOrNull = (v: any) => v ? new Date(v).toISOString() : null;
 
-    // Mapping PSAs from the costAllocation object
-    const psaMappings = [
-      { key: "isACG", name: "ACG" },
-      { key: "isShah", name: "Shah Deniz" },
-      { key: "isSCP", name: "SCP" },
-      { key: "isBTC", name: "BTC" },
-      { key: "isAsiman", name: "Sh-Asiman" },
-      { key: "isBPGroup", name: "BP Group" }
-    ];
+    // Mapping PSAs from the costAllocation object dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const psaMappings = selectedPSAJV.map((psaName: string) => ({
+      key: this.getPSACheckboxControlName(psaName),
+      name: psaName
+    }));
 
     const costAllocationJVApproval = psaMappings
-      .map((psa, index) => {
+      .map((psa: any, index: number) => {
         const percentageKey = `percentage_${psa.key}`;
         const valueKey = `value_${psa.key}`;
 
@@ -1593,7 +1564,7 @@ export class Template5Component  implements AfterViewInit{
         }
         return null;
       })
-      .filter(item => item !== null);
+      .filter((item: any) => item !== null);
 
 
     const params = {
