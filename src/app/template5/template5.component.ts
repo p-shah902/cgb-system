@@ -209,7 +209,7 @@ export class Template5Component  implements AfterViewInit{
         contractEndDate: [null, Validators.required],
         variationStartDate: [null, Validators.required],
         variationEndDate: [null, Validators.required],
-        contractValue: [null],
+        contractValue: [{value: null, disabled: true}],
         psajv: [[], Validators.required],
       }),
       ccd: this.fb.group({
@@ -1342,16 +1342,35 @@ export class Template5Component  implements AfterViewInit{
           if (contractValue !== null && contractValue !== undefined) {
             const numericValue = Number(contractValue);
             if (!isNaN(numericValue)) {
-              contractValueControl?.setValue(numericValue, { emitEvent: false });
+              // Enable control temporarily to set value, then disable again (since it's read-only)
+              if (contractValueControl?.disabled) {
+                contractValueControl.enable({ emitEvent: false });
+                contractValueControl.setValue(numericValue, { emitEvent: false });
+                contractValueControl.disable({ emitEvent: false });
+              } else {
+                contractValueControl?.setValue(numericValue, { emitEvent: false });
+              }
               console.log('Contract value populated successfully:', numericValue);
               this.toastService?.show(`Contract value populated: ${numericValue}`, 'success');
             } else {
               console.warn('Contract value is not a valid number:', contractValue);
-              contractValueControl?.setValue(null);
+              if (contractValueControl?.disabled) {
+                contractValueControl.enable({ emitEvent: false });
+                contractValueControl.setValue(null, { emitEvent: false });
+                contractValueControl.disable({ emitEvent: false });
+              } else {
+                contractValueControl?.setValue(null);
+              }
             }
           } else {
             console.log('No contract value found for linked paper');
-            contractValueControl?.setValue(null);
+            if (contractValueControl?.disabled) {
+              contractValueControl.enable({ emitEvent: false });
+              contractValueControl.setValue(null, { emitEvent: false });
+              contractValueControl.disable({ emitEvent: false });
+            } else {
+              contractValueControl?.setValue(null);
+            }
             this.toastService?.show('No contract value available for the selected paper', 'warning');
           }
         } else {

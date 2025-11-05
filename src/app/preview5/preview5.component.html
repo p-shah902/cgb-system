@@ -133,7 +133,7 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Value</label>
-                    <h6>{{ getInfoNoteProperty('contractValue') ? (getInfoNoteProperty('contractValue') | number:'1.2-2') : 'N/A' }}</h6>
+                    <h6>{{ calculateContractValue() }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
