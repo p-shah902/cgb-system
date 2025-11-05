@@ -73,6 +73,7 @@ export class Template5Component  implements AfterViewInit{
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
+  isSubmitting = false;
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
   paperId: string | null = null;
@@ -1660,13 +1661,24 @@ export class Template5Component  implements AfterViewInit{
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
         statusId: this.paperStatusId
-      }]).subscribe(value => {
-        this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/all-papers'])
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/all-papers'])
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
     }
 

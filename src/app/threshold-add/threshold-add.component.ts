@@ -27,6 +27,7 @@ export class ThresholdAddComponent {
   public toastService = inject(ToastService)
   private readonly thresholdService = inject(ThresholdService);
   submitted = false;
+  isSubmitting = false;
   type: string = ""
   thresholdForm!: FormGroup;
   psaList: DictionaryDetail[] = []
@@ -127,6 +128,8 @@ export class ThresholdAddComponent {
       return;
     }
 
+    if (this.isSubmitting) return;
+
     const formValues = this.thresholdForm.value;
     const payload = {
       ...formValues,
@@ -155,6 +158,7 @@ export class ThresholdAddComponent {
 
 
   createThreshold(payload: any) {
+    this.isSubmitting = true;
     this.thresholdService.createThreshold(payload).subscribe({
       next: ({status, data, message}) => {
         if (status && data) {
@@ -169,11 +173,15 @@ export class ThresholdAddComponent {
       error: (error) => {
         console.error('Threshold creation error:', error);
         this.toastService.show("Something went wrong.", 'danger');
+      },
+      complete: () => {
+        this.isSubmitting = false;
       }
     });
   }
 
   updateThreshold(payload: any) {
+    this.isSubmitting = true;
     this.thresholdService.updateThreshold(payload).subscribe({
       next: ({status, data, message}) => {
         if (status && data) {
@@ -188,6 +196,9 @@ export class ThresholdAddComponent {
       error: (error) => {
         console.error('Threshold creation error:', error);
         this.toastService.show("Something went wrong.", 'danger');
+      },
+      complete: () => {
+        this.isSubmitting = false;
       }
     });
   }

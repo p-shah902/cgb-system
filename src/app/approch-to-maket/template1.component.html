@@ -1595,6 +1595,7 @@
                 [isCopy]="isCopy"
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.paperDetails?.paperStatusName"
+                [isLoading]="isSubmitting"
                 (setStatus)="handleStatusChange($event)"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"

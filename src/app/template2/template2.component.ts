@@ -75,6 +75,7 @@ export class Template2Component implements AfterViewInit {
   paperId: string | null = null;
   isCopy = false;
   submitted = false;
+  isSubmitting = false;
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
@@ -2078,6 +2079,8 @@ export class Template2Component implements AfterViewInit {
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
 
     if (callAPI && this.paperId && this.paperStatusId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       // For template2, paperDetails structure is different - use contractAwardDetails
       const existingStatusId = this.paperDetails?.contractAwardDetails?.paperStatusId || 
                                this.paperDetails?.paperDetails?.paperStatusId || 
@@ -2095,6 +2098,9 @@ export class Template2Component implements AfterViewInit {
         error: (error) => {
           console.error('Error updating paper status:', error);
           this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     }
@@ -2102,6 +2108,7 @@ export class Template2Component implements AfterViewInit {
 
   onSubmit() {
     this.submitted = true;
+    if (this.isSubmitting) return;
     console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
@@ -2312,6 +2319,7 @@ export class Template2Component implements AfterViewInit {
   }
 
   generatePaper(params: any) {
+    this.isSubmitting = true;
     this.paperService.upsertContractAward(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -2333,6 +2341,9 @@ export class Template2Component implements AfterViewInit {
         console.log('Error', error);
         this.toastService.show("Something went wrong.", 'danger');
       },
+      complete: () => {
+        this.isSubmitting = false;
+      }
     });
   }
 

@@ -78,6 +78,7 @@ export class Template3Component implements AfterViewInit {
   paperId: string | null = null;
   isCopy = false;
   submitted = false;
+  isSubmitting = false;
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
   paperDetails: any = null
@@ -1971,6 +1972,7 @@ export class Template3Component implements AfterViewInit {
 
   onSubmit(): void {
     this.submitted = true;
+    if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
@@ -2145,6 +2147,7 @@ export class Template3Component implements AfterViewInit {
   }
 
   generatePaper(params: any) {
+    this.isSubmitting = true;
     this.paperService.upsertVariationPaper(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -2166,6 +2169,9 @@ export class Template3Component implements AfterViewInit {
         console.log('Error', error);
         this.toastService.show("Something went wrong.", 'danger');
       },
+      complete: () => {
+        this.isSubmitting = false;
+      }
     });
   }
 
@@ -2183,13 +2189,24 @@ export class Template3Component implements AfterViewInit {
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
         statusId: this.paperStatusId
-      }]).subscribe(value => {
-        this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/all-papers'])
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/all-papers'])
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
     }
 

@@ -15,6 +15,7 @@ export class ActionBarComponent {
   @Input() isCopy: boolean = false;
   @Input() roleName: string | null | undefined = null;
   @Input() statusName: string | null | undefined = null;
+  @Input() isLoading: boolean = false;
 
   @Output() setStatus = new EventEmitter<string>();
   @Output() openReturn = new EventEmitter<Event>();

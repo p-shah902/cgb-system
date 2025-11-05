@@ -126,11 +126,11 @@
 
               <div class="fb-form pt-0">
                 <div class="ff-btn-list d-flex gap-3 justify-content-end">
-                  <button type="button" class="btn btn-outline-dark" (click)="discard()">Discard</button>
-                  <button [disabled]="thresholdForm.invalid || submitted" type="submit" class="btn btn-primary">
-                    <span *ngIf="!submitted">Save Changes</span>
-                    <span *ngIf="submitted" class="spinner-border spinner-border-sm me-1"></span>
-                    <span *ngIf="submitted">Submitting...</span>
+                  <button type="button" class="btn btn-outline-dark" (click)="discard()" [disabled]="isSubmitting">Discard</button>
+                  <button [disabled]="thresholdForm.invalid || isSubmitting" type="submit" class="btn btn-primary">
+                    <span *ngIf="!isSubmitting">Save Changes</span>
+                    <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                    <span *ngIf="isSubmitting">Saving...</span>
                   </button>
                 </div>
               </div>
