@@ -16,17 +16,35 @@
     }
     tbody {
       tr {
+        transition: all 0.2s ease;
+        cursor: default;
         td {
           padding: 10px 15px;
           vertical-align: middle;
           font-size: 14px;
+        }
+        &:hover {
+          background-color: #F0F4FF;
+          box-shadow: 0 2px 4px rgba(88, 42, 162, 0.08);
+          transform: translateX(2px);
         }
       }
       tr:nth-child(even) {
         td {
           background-color: #F8F9FB;
         }
+        &:hover {
+          background-color: #F0F4FF;
+        }
       }
+    }
+  }
+
+  .paper-title {
+    transition: all 0.2s ease;
+    &:hover {
+      color: #582AA2;
+      text-decoration: underline;
     }
   }
   .edit-btb-div {
@@ -98,22 +116,60 @@
   }
   .paper-status {
     label {
-      font-size: 14px;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-weight: 500;
+      display: inline-block;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: capitalize;
+      background: transparent;
+      transition: all 0.2s ease;
     }
     .p-approved {
-      background-color: #B2DAC0;
       color: #007007;
+      border: 2px solid #007007;
+      background-color: rgba(0, 112, 7, 0.05);
+      &:hover {
+        background-color: rgba(0, 112, 7, 0.1);
+        transform: translateY(-1px);
+      }
     }
     .p-waiting {
-      background-color: #BCCEE9;
       color: #1160D8;
+      border: 2px solid #1160D8;
+      background-color: rgba(17, 96, 216, 0.05);
+      &:hover {
+        background-color: rgba(17, 96, 216, 0.1);
+        transform: translateY(-1px);
+      }
     }
     .p-archive {
-      background-color: #EAC6C6;
       color: #EC4747;
+      border: 2px solid #EC4747;
+      background-color: rgba(236, 71, 71, 0.05);
+      &:hover {
+        background-color: rgba(236, 71, 71, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+    .p-draft {
+      color: #F59E0B;
+      border: 2px solid #F59E0B;
+      background-color: rgba(245, 158, 11, 0.05);
+      &:hover {
+        background-color: rgba(245, 158, 11, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+    .p-registered {
+      color: #8B5CF6;
+      border: 2px solid #8B5CF6;
+      background-color: rgba(139, 92, 246, 0.05);
+      &:hover {
+        background-color: rgba(139, 92, 246, 0.1);
+        transform: translateY(-1px);
+      }
     }
   }
 
@@ -181,6 +237,187 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.bill-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #DCDCDC;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+
+  &:hover {
+    border-color: #582AA2;
+    box-shadow: 0 4px 12px rgba(88, 42, 162, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .paper-title {
+    transition: all 0.2s ease;
+    &:hover {
+      color: #582AA2;
+      text-decoration: underline;
+    }
+  }
+
+  .bill-detail {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    h5 {
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 22px;
+      color: #1B202B;
+      margin: 0;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 20px;
+      color: #626262;
+      margin: 0;
+      flex: 1;
+    }
+
+    small {
+      font-weight: 500;
+      font-size: 12px;
+      line-height: 150%;
+      color: #787878;
+    }
+
+    .status {
+      flex-shrink: 0;
+    }
+
+    span {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 1.2;
+      letter-spacing: 0.3px;
+      text-transform: capitalize;
+      background: transparent;
+      transition: all 0.2s ease;
+
+      &.p-approved {
+        color: #007007;
+        border: 2px solid #007007;
+        background-color: rgba(0, 112, 7, 0.05);
+        &:hover {
+          background-color: rgba(0, 112, 7, 0.1);
+          transform: translateY(-1px);
+        }
+      }
+
+      &.p-waiting {
+        color: #1160D8;
+        border: 2px solid #1160D8;
+        background-color: rgba(17, 96, 216, 0.05);
+        &:hover {
+          background-color: rgba(17, 96, 216, 0.1);
+          transform: translateY(-1px);
+        }
+      }
+
+      &.p-archive {
+        color: #EC4747;
+        border: 2px solid #EC4747;
+        background-color: rgba(236, 71, 71, 0.05);
+        &:hover {
+          background-color: rgba(236, 71, 71, 0.1);
+          transform: translateY(-1px);
+        }
+      }
+
+      &.p-draft {
+        color: #F59E0B;
+        border: 2px solid #F59E0B;
+        background-color: rgba(245, 158, 11, 0.05);
+        &:hover {
+          background-color: rgba(245, 158, 11, 0.1);
+          transform: translateY(-1px);
+        }
+      }
+
+      &.p-registered {
+        color: #8B5CF6;
+        border: 2px solid #8B5CF6;
+        background-color: rgba(139, 92, 246, 0.05);
+        &:hover {
+          background-color: rgba(139, 92, 246, 0.1);
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+
+  .bill-action {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #F0F0F0;
+
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .update-btn {
+      background-color: #582AA2;
+      color: #fff;
+      font-size: 14px;
+      padding: 10px 15px;
+      height: 44px;
+      width: 100%;
+
+      &:hover {
+        background-color: #451c82;
+      }
+    }
+
+    .normal-btn {
+      background-color: #ffffff;
+      color: #1B202B;
+      font-size: 14px;
+      padding: 10px 15px;
+      height: 44px;
+      width: 100%;
+      border: 1px solid #DCDCDC;
+
+      &:hover {
+        background-color: #F8F9FB;
+        border-color: #582AA2;
+      }
+    }
+  }
+
+  @media screen and (max-width: 991px) {
+    padding: 15px;
+
+    .bill-detail {
+      h5 {
+        font-size: 16px;
+      }
+      p {
+        font-size: 12px;
+      }
+    }
+  }
 }
 
 
