@@ -227,7 +227,7 @@ export class Template3Component implements AfterViewInit {
         this.updateExchangeRate();
       }
     });
-    
+
     // Update contract value when exchange rate changes manually
     this.generalInfoForm.get('contractValues.exchangeRate')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
@@ -236,7 +236,7 @@ export class Template3Component implements AfterViewInit {
     this.generalInfoForm.get('contractValues.revisedContractValue')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
     });
-    
+
     // Exchange rate is manually editable - no automatic updates after initial population
 
     this.generalInfoForm.get('contractValues.thisVariationNote')?.valueChanges.subscribe(() => {
@@ -600,7 +600,7 @@ export class Template3Component implements AfterViewInit {
         const userIds = contractGeneralInfo.procurementSPAUsers
           .split(',')
           .map((id: any) => id.trim());
-        
+
         // If procurementTagUsers is loaded, map IDs to values
         if (this.procurementTagUsers && this.procurementTagUsers.length > 0) {
           selectedValuesProcurementTagUsers = userIds
@@ -657,12 +657,12 @@ export class Template3Component implements AfterViewInit {
         selectedValuesProcurementTagUsers,
         allSelectedValuesPSAJV
       });
-      
+
       this.generalInfoForm.patchValue({
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
           cgbItemRefNo: contractGeneralInfo?.cgbItemRefNo || '',
-          cgbCirculationDate: contractGeneralInfo?.cgbCirculationDate 
+          cgbCirculationDate: contractGeneralInfo?.cgbCirculationDate
             ? format(new Date(contractGeneralInfo.cgbCirculationDate), 'yyyy-MM-dd')
             : null,
           cgbApprovalDate: contractGeneralInfo?.cgbApprovalDate
@@ -1430,7 +1430,19 @@ export class Template3Component implements AfterViewInit {
   evaluateThreshold(psaName: string, checkboxType: string, values: { thisValue: number, revisedValue: number, byValue?: number }, vendorId?: number): boolean {
     const sourcingTypeId = Number(this.generalInfoForm.get('generalInfo.sourcingType')?.value) || 0;
     const psaAgreementId = this.getPSAAgreementId(psaName);
-    const paperType = 'Variation'; // For Template 3
+    const paperType = 'Variation Paper'; // For Template 3
+
+    // Early return if essential data is missing
+    if (!psaAgreementId || psaAgreementId === 0) {
+      console.log(`Invalid PSA Agreement ID for ${psaName}`);
+      return false;
+    }
+
+    // Early return if sourcing type is not selected
+    if (!sourcingTypeId || sourcingTypeId === 0) {
+      console.log(`Sourcing type not selected for ${psaName} - ${checkboxType}`);
+      return false;
+    }
 
     // Filter relevant thresholds based on global conditions (PSA Agreement and Threshold Type only)
     const relevantThresholds = this.thresholdData.filter(t => {
@@ -1468,8 +1480,15 @@ export class Template3Component implements AfterViewInit {
       return sourcingTypes.includes(sourcingTypeId);
     });
 
+    // If no thresholds match the sourcing type, don't check the checkbox
+    if (sourcingTypeFilteredThresholds.length === 0) {
+      console.log(`No thresholds match sourcing type ${sourcingTypeId} for PSA: ${psaName}, checkbox: ${checkboxType}`);
+      return false;
+    }
+
     // Check specific Paper Type + Sourcing Type + Committee combinations and get the selected threshold
-    const selectedThreshold = this.checkCommitteeConditions(paperType, sourcingTypeId, checkboxType, relevantThresholds);
+    // IMPORTANT: Use sourcingTypeFilteredThresholds, not relevantThresholds
+    const selectedThreshold = this.checkCommitteeConditions(paperType, sourcingTypeId, checkboxType, sourcingTypeFilteredThresholds);
 
     if (!selectedThreshold) {
       console.log(`Committee conditions not met for ${psaName} - ${checkboxType}`);
@@ -1478,26 +1497,46 @@ export class Template3Component implements AfterViewInit {
 
 
 
+    // Validate that threshold limit exists and is a valid number
+    if (!selectedThreshold.contractValueLimit || isNaN(selectedThreshold.contractValueLimit)) {
+      console.log(`Invalid threshold limit for ${psaName} - ${checkboxType}:`, selectedThreshold.contractValueLimit);
+      return false;
+    }
+
     let exceedsThreshold = false;
 
     // Template 3 (Variation): Different rules for different checkboxes
     switch (checkboxType) {
       case 'coVenturers_CMC': // CMC
-        exceedsThreshold = values.thisValue > selectedThreshold.contractValueLimit;
+        // Only check if thisValue is valid and exceeds threshold
+        if (values.thisValue && !isNaN(values.thisValue) && values.thisValue > 0) {
+          exceedsThreshold = values.thisValue > selectedThreshold.contractValueLimit;
+        }
         break;
 
       case 'steeringCommittee_SC': // SC
-        exceedsThreshold = values.revisedValue > selectedThreshold.contractValueLimit;
+        // Only check if revisedValue is valid and exceeds threshold
+        if (values.revisedValue && !isNaN(values.revisedValue) && values.revisedValue > 0) {
+          exceedsThreshold = values.revisedValue > selectedThreshold.contractValueLimit;
+        }
         break;
 
       case 'contractCommittee_SDCC': // SDCC
-        exceedsThreshold = values.thisValue > selectedThreshold.contractValueLimit;
+        // Only check if thisValue is valid and exceeds threshold
+        if (values.thisValue && !isNaN(values.thisValue) && values.thisValue > 0) {
+          exceedsThreshold = values.thisValue > selectedThreshold.contractValueLimit;
+        }
         break;
 
       case 'contractCommittee_SCP_Co_CC': // SCP CC - Hardcoded 10% ratio rule
-        const denominator = (values.revisedValue - values.thisValue) || 1;
-        const ratio = values.thisValue / denominator;
-        exceedsThreshold = ratio >= 0.10; // 10% threshold
+        // Only check if both values are valid
+        if (values.revisedValue && values.thisValue && 
+            !isNaN(values.revisedValue) && !isNaN(values.thisValue) &&
+            values.revisedValue > values.thisValue) {
+          const denominator = values.revisedValue - values.thisValue;
+          const ratio = values.thisValue / denominator;
+          exceedsThreshold = ratio >= 0.10; // 10% threshold
+        }
         break;
 
       case 'coVenturers_SCP': // SCP Board - Vendor override + ByValue logic
@@ -1510,12 +1549,17 @@ export class Template3Component implements AfterViewInit {
             break;
           }
         }
-        // Otherwise use ByValue logic
-        exceedsThreshold = (values.byValue || 0) > selectedThreshold.contractValueLimit;
+        // Otherwise use ByValue logic - only if byValue is valid
+        if (values.byValue && !isNaN(values.byValue) && values.byValue > 0) {
+          exceedsThreshold = values.byValue > selectedThreshold.contractValueLimit;
+        }
         break;
 
       default: // All other checkboxes use ByValue logic
-        exceedsThreshold = (values.byValue || 0) > selectedThreshold.contractValueLimit;
+        // Only check if byValue is valid and exceeds threshold
+        if (values.byValue && !isNaN(values.byValue) && values.byValue > 0) {
+          exceedsThreshold = values.byValue > selectedThreshold.contractValueLimit;
+        }
         break;
     }
 
@@ -1560,6 +1604,8 @@ export class Template3Component implements AfterViewInit {
       console.log(`No thresholds found for paper type: ${paperType}`);
       return null;
     }
+
+    console.log('=====', paperTypeFilteredThresholds);
 
     // Now apply sourcingType filtering to the paper type filtered thresholds
     const sourcingTypeFilteredThresholds = paperTypeFilteredThresholds.filter(t => {
@@ -1753,7 +1799,7 @@ export class Template3Component implements AfterViewInit {
           const shouldCheck = this.evaluateThreshold(psaName, firstCommitteeControlName, { thisValue, revisedValue, byValue }, vendorId);
           const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           firstCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -1771,7 +1817,7 @@ export class Template3Component implements AfterViewInit {
           const shouldCheck = this.evaluateThreshold(psaName, secondCommitteeControlName, { thisValue, revisedValue, byValue }, vendorId);
           const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
 
-          // When re-evaluating (e.g., after sourcing type or contract value changes), 
+          // When re-evaluating (e.g., after sourcing type or contract value changes),
           // use only the threshold evaluation result, not the initial saved value
           const finalValue = reEvaluate ? shouldCheck : (shouldCheck || initialValue);
           secondCommitteeControl.setValue(finalValue, { emitEvent: false });
@@ -2062,20 +2108,20 @@ export class Template3Component implements AfterViewInit {
     this.submitted = true;
     if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
-    
+
     // Mark all invalid form controls as touched to show validation errors
     this.markFormGroupTouched(this.generalInfoForm);
-    
+
     // Mark all form arrays as touched
     if (this.consultationRows) {
       this.markFormArrayTouched(this.consultationRows);
     }
-    
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
-    
+
     // Check if form is valid
     if (this.generalInfoForm.invalid) {
       this.toastService.show("Please fill all required fields", "danger");

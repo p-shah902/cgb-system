@@ -57,19 +57,6 @@ export class InboxoutboxComponent implements OnInit {
     this.router.navigate([`/${routePath}`, paperId]);
   }
 
-  private slugify(text: string): string {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '') // Remove non-word characters
-      .replace(/\s+/g, '-')     // Replace spaces with dashes
-  }
-
-  goToPreview(paper: any): void {
-    const routePath = this.slugify(paper.paperType);
-    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
-  }
-
   getInboxOutBox() {
     this.isLoading = true;
     this.inboxOutboxService.getPaperInboxOutbox().subscribe({
@@ -176,11 +163,11 @@ export class InboxoutboxComponent implements OnInit {
     if (event) {
       event.stopPropagation();
     }
-    
+
     if (paperId) {
       // Add paperId to downloading set
       this.downloadingPapers.add(paperId);
-      
+
       this.paperService.generatePaperPDf(paperId).subscribe({
         next: (response) => {
           if (response && response.status) {
@@ -217,7 +204,7 @@ export class InboxoutboxComponent implements OnInit {
     try {
       // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
       const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
-      
+
       // Convert base64 to blob
       const byteCharacters = atob(base64Content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -226,17 +213,17 @@ export class InboxoutboxComponent implements OnInit {
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
@@ -251,15 +238,15 @@ export class InboxoutboxComponent implements OnInit {
     const status = inbox.paperStatus;
 
     // Vote Now button
-    if ((roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || 
-         roleName === 'Legal VP-1' || roleName === 'Performance Manager' || 
-         roleName === 'Legal VP' || roleName === 'PHCA' || roleName === 'BLT') && 
+    if ((roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' ||
+         roleName === 'Legal VP-1' || roleName === 'Performance Manager' ||
+         roleName === 'Legal VP' || roleName === 'PHCA' || roleName === 'BLT') &&
         status === 'On CGB') {
       return true;
     }
 
     // Send For PDM button
-    if ((roleName === 'Procurement Tag' || roleName === 'CAM') && 
+    if ((roleName === 'Procurement Tag' || roleName === 'CAM') &&
         (status === 'Waiting for PDM' || status === 'Action Required by Pre-CGB')) {
       return true;
     }
@@ -275,8 +262,8 @@ export class InboxoutboxComponent implements OnInit {
     }
 
     // Add Review button
-    if ((roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || 
-         roleName === 'Legal VP-1' || roleName === 'Performance Manager') && 
+    if ((roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' ||
+         roleName === 'Legal VP-1' || roleName === 'Performance Manager') &&
         status === 'On Pre-CGB') {
       return true;
     }
