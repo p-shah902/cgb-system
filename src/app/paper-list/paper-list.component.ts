@@ -70,6 +70,7 @@ export class PaperListComponent implements OnInit {
   };
   paperList: PaperConfig[] = [];
   allPaperList: PaperConfig[] = []; // Store all papers from API for frontend filtering
+  searchText: string = ''; // Search input value
   isDesc = false;
   aToZ: string = 'Z A';
   user: LoginUser | null = null;
@@ -184,6 +185,22 @@ export class PaperListComponent implements OnInit {
     
     let filteredList = [...this.allPaperList];
 
+    // Search filter - search across multiple fields
+    if (this.searchText && this.searchText.trim()) {
+      const searchLower = this.searchText.toLowerCase().trim();
+      filteredList = filteredList.filter((paper: any) => {
+        return (
+          (paper.purposeTitle?.toLowerCase().includes(searchLower)) ||
+          (paper.description?.toLowerCase().includes(searchLower)) ||
+          (paper.paperType?.toLowerCase().includes(searchLower)) ||
+          (paper.statusName?.toLowerCase().includes(searchLower)) ||
+          (paper.lastModifyName?.toLowerCase().includes(searchLower)) ||
+          (paper.lastModifyBy?.toLowerCase().includes(searchLower)) ||
+          (paper.paperID?.toString().includes(searchLower))
+        );
+      });
+    }
+
     // Filter by status
     if (this.tempFilter.statusIds && this.tempFilter.statusIds.length > 0) {
       filteredList = filteredList.filter((paper: any) => {
@@ -240,6 +257,10 @@ export class PaperListComponent implements OnInit {
     }
 
     this.paperList = filteredList;
+  }
+
+  onSearchChange(): void {
+    this.applyFrontendFilters();
   }
 
   loadPaperStatusListData() {
