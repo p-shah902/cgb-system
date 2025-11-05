@@ -96,6 +96,7 @@ export const getAllUserPassChange = baseUri + '/UserMaster/AllUserPassChange';
 export const getVendorListUri = baseUri + '/VendorMaster/GetVendorsList';
 export const getVendorDetailsByIdUri = baseUri + '/VendorMaster/GetVendorDetailsById';
 export const upsertVendorsUri = baseUri + '/VendorMaster/UpsertVendors';
+export const deleteVendorsUri = baseUri + '/VendorMaster/DeleteVendors';
 
 // Visitor Log
 export const addPaperVisitorLogs = baseUri + '/VisitorLog/VisitorLogs';

@@ -2180,6 +2180,36 @@ export class Template2Component implements AfterViewInit {
       costAvoidanceRemarks?.updateValueAndValidity();
     }
 
+    // Trigger validation checks for High Risk Contract CDD fields before marking as touched
+    const ccdGroup = this.generalInfoForm.get('ccd');
+    if (ccdGroup) {
+      const isHighRiskContract = ccdGroup.get('isHighRiskContract')?.value;
+      const highRiskExplanationControl = ccdGroup.get('highRiskExplanation');
+      const flagRaisedCDDControl = ccdGroup.get('flagRaisedCDD');
+      const additionalCDDControl = ccdGroup.get('additionalCDD');
+
+      if (isHighRiskContract === true) {
+        // Ensure validators are set and fields are enabled
+        highRiskExplanationControl?.setValidators([Validators.required]);
+        flagRaisedCDDControl?.setValidators([Validators.required]);
+        additionalCDDControl?.setValidators([Validators.required]);
+        highRiskExplanationControl?.enable({ emitEvent: false });
+        flagRaisedCDDControl?.enable({ emitEvent: false });
+        additionalCDDControl?.enable({ emitEvent: false });
+        highRiskExplanationControl?.updateValueAndValidity();
+        flagRaisedCDDControl?.updateValueAndValidity();
+        additionalCDDControl?.updateValueAndValidity();
+      } else {
+        // Clear validators and disable fields if not high risk
+        highRiskExplanationControl?.clearValidators();
+        flagRaisedCDDControl?.clearValidators();
+        additionalCDDControl?.clearValidators();
+        highRiskExplanationControl?.updateValueAndValidity();
+        flagRaisedCDDControl?.updateValueAndValidity();
+        additionalCDDControl?.updateValueAndValidity();
+      }
+    }
+
     // Mark all invalid form controls as touched to show validation errors
     this.markFormGroupTouched(this.generalInfoForm);
 

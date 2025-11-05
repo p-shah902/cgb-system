@@ -1,9 +1,9 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnDestroy} from '@angular/core';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../../service/toast.service';
 import {CommonModule} from '@angular/common';
 import {Router, ActivatedRoute} from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import {
   Validators,
   ReactiveFormsModule,
@@ -23,7 +23,7 @@ import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
   templateUrl: './threshold-add.component.html',
   styleUrl: './threshold-add.component.scss'
 })
-export class ThresholdAddComponent {
+export class ThresholdAddComponent implements OnDestroy {
   public toastService = inject(ToastService)
   private readonly thresholdService = inject(ThresholdService);
   submitted = false;
@@ -38,6 +38,7 @@ export class ThresholdAddComponent {
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
   private totalCalls = 2;
+  private validationSubscriptions: Subscription[] = [];
   constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService) {
   }
 
@@ -107,6 +108,8 @@ export class ThresholdAddComponent {
           this.thresholdForm.get('sourcingType')?.updateValueAndValidity();
           this.thresholdForm.get('psaAgreement')?.updateValueAndValidity();
 
+          // Setup value change listeners to ensure validation runs when values change
+          this.setupValidationListeners();
 
           if(this.thresholdId) {
             this.fetchThresholdDetails(this.thresholdId)
@@ -123,8 +126,19 @@ export class ThresholdAddComponent {
   onSubmit(): void {
     this.submitted = true;
 
+    // Mark all fields as touched to trigger validation display
+    Object.keys(this.thresholdForm.controls).forEach(key => {
+      const control = this.thresholdForm.get(key);
+      if (control) {
+        control.markAsTouched();
+        control.updateValueAndValidity();
+      }
+    });
+
     if (this.thresholdForm.invalid) {
       console.warn('Invalid form submission');
+      // Show specific validation error message
+      this.showValidationErrors();
       return;
     }
 
@@ -327,11 +341,103 @@ export class ThresholdAddComponent {
   // Custom validator for array minimum length
   arrayMinLengthValidator(minLength: number) {
     return (control: any) => {
-      if (!control.value || !Array.isArray(control.value) || control.value.length < minLength) {
-        return { arrayMinLength: { requiredLength: minLength, actualLength: control.value?.length || 0 } };
+      const value = control.value;
+      // Check if value is null, undefined, empty array, or doesn't meet minimum length
+      if (!value || !Array.isArray(value) || value.length < minLength) {
+        return { arrayMinLength: { requiredLength: minLength, actualLength: (value && Array.isArray(value)) ? value.length : 0 } };
       }
       return null;
     };
+  }
+
+  /**
+   * Setup value change listeners to trigger validation when dropdown values change
+   */
+  private setupValidationListeners(): void {
+    // Clear existing subscriptions
+    this.validationSubscriptions.forEach(sub => sub.unsubscribe());
+    this.validationSubscriptions = [];
+
+    // Listen to paperTypes changes to ensure validation runs
+    const paperTypesSub = this.thresholdForm.get('paperTypes')?.valueChanges.subscribe(() => {
+      this.thresholdForm.get('paperTypes')?.updateValueAndValidity({ emitEvent: false });
+    });
+    if (paperTypesSub) this.validationSubscriptions.push(paperTypesSub);
+
+    // Listen to sourcingType changes to ensure validation runs
+    const sourcingTypeSub = this.thresholdForm.get('sourcingType')?.valueChanges.subscribe(() => {
+      this.thresholdForm.get('sourcingType')?.updateValueAndValidity({ emitEvent: false });
+    });
+    if (sourcingTypeSub) this.validationSubscriptions.push(sourcingTypeSub);
+
+    // Listen to committee changes to ensure validation runs
+    const committeeSub = this.thresholdForm.get('committee')?.valueChanges.subscribe(() => {
+      this.thresholdForm.get('committee')?.updateValueAndValidity({ emitEvent: false });
+    });
+    if (committeeSub) this.validationSubscriptions.push(committeeSub);
+  }
+
+  ngOnDestroy(): void {
+    // Clean up subscriptions to prevent memory leaks
+    this.validationSubscriptions.forEach(sub => sub.unsubscribe());
+    this.validationSubscriptions = [];
+  }
+
+  /**
+   * Show specific validation error messages for invalid fields
+   */
+  private showValidationErrors(): void {
+    const controls = this.thresholdForm.controls;
+    let errorMessage = 'Please fix the following errors:\n';
+
+    if (controls['thresholdName'].invalid) {
+      if (controls['thresholdName'].errors?.['required']) {
+        this.toastService.show('Threshold name is required', 'danger');
+        return;
+      }
+    }
+
+    if (controls['paperTypes'].invalid) {
+      if (controls['paperTypes'].errors?.['required'] || controls['paperTypes'].errors?.['arrayMinLength']) {
+        this.toastService.show('Please select at least one paper type', 'danger');
+        return;
+      }
+    }
+
+    if (controls['sourcingType'].invalid) {
+      if (controls['sourcingType'].errors?.['required'] || controls['sourcingType'].errors?.['arrayMinLength']) {
+        this.toastService.show('Please select at least one sourcing type', 'danger');
+        return;
+      }
+    }
+
+    if (controls['committee'].invalid) {
+      if (controls['committee'].errors?.['required']) {
+        this.toastService.show('Please select a committee', 'danger');
+        return;
+      }
+    }
+
+    if (controls['contractValueLimit'].invalid) {
+      if (controls['contractValueLimit'].errors?.['required']) {
+        this.toastService.show('Contract value limit is required', 'danger');
+        return;
+      }
+      if (controls['contractValueLimit'].errors?.['pattern']) {
+        this.toastService.show('Please enter a valid contract value (e.g., 5000000 or 5000000.00)', 'danger');
+        return;
+      }
+    }
+
+    if (controls['psaAgreement'] && controls['psaAgreement'].invalid) {
+      if (controls['psaAgreement'].errors?.['required']) {
+        this.toastService.show('PSA Agreement is required', 'danger');
+        return;
+      }
+    }
+
+    // Default fallback
+    this.toastService.show('Please fill all required fields correctly', 'danger');
   }
 
 }

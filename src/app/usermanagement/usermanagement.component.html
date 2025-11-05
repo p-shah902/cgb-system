@@ -52,7 +52,7 @@
                                 <th>Role</th>
                                 <th>Department</th>
                                 <th>Status</th>
-                                <th>Last Login</th>
+<!--                                <th>Last Login</th>-->
                                 <th>Action</th>
                               </tr>
                             </thead>
@@ -102,12 +102,12 @@
                                 <td>
                                   {{ user.isActive ? "Active" : "Inactive" }}
                                 </td>
-                                <td>
-                                  {{
-                                    user.modifiedDate || user.createdDate
-                                      | date : "dd MMMM yyyy"
-                                  }}
-                                </td>
+<!--                                <td>-->
+<!--                                  {{-->
+<!--                                    user.modifiedDate || user.createdDate-->
+<!--                                      | date : "dd MMMM yyyy"-->
+<!--                                  }}-->
+<!--                                </td>-->
                                 <td>
                                   <div
                                     ngbDropdown

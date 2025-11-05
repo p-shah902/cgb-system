@@ -38,10 +38,10 @@
                 <label>Paper Type*</label>
                 <ng-select2 placeholder="Select Paper Type" displaySearchStatus="hidden" id="paperType" class="allow-comments" formControlName="paperTypes" [data]="paperTypeData"
                                 multiple></ng-select2>
-                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('required')">
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperTypes')?.hasError('required')">
                   <small>This field is required.</small>
                 </div>
-                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperType')?.hasError('arrayMinLength')">
+                <div class="text-danger" *ngIf="submitted && thresholdForm.get('paperTypes')?.hasError('arrayMinLength')">
                   <small>Please select at least one paper type.</small>
                 </div>
 
