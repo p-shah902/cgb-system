@@ -180,7 +180,7 @@ export class Preview5Component implements OnInit {
       // API structure: data.paperDetails.paperDetails (paper info), data.paperDetails.consultationsDetails, etc.
       // They are nested under paperDetails
       const paperData = this.paperDetails?.paperDetails as any;
-      
+
       if (paperData?.riskMitigations) {
         this.riskMitigation = paperData.riskMitigations.filter((item: any) => item.risks && item.risks.trim() !== '');
         console.log('Risk Mitigation', this.riskMitigation)
@@ -208,7 +208,7 @@ export class Preview5Component implements OnInit {
         this.populateTableData();
         this.calculateTotals();
       }
-      
+
       // consultationsDetails is under paperDetails.paperDetails
       if (paperData?.consultationsDetails) {
         this.consultationsDetails = paperData.consultationsDetails.map((consultation: any) => ({
@@ -222,12 +222,8 @@ export class Preview5Component implements OnInit {
       if (paperData?.paperDetails) {
         this.paperInfo = paperData.paperDetails;
         console.log('paper Info ', this.paperInfo);
-      } else if (paperData) {
-        // If paperDetails is directly the paper info
-        this.paperInfo = paperData as any;
-        console.log('paper Info (direct)', this.paperInfo);
       }
-      
+
       this.loadUserDetails()
       this.loadDictionaryItems()
       this.loadVendorDetails()
@@ -240,7 +236,7 @@ export class Preview5Component implements OnInit {
       next: (response) => {
         if (response.status && response.data) {
           this.vendorList = response.data;
-          
+
           // Resolve vendorId to vendor name
           if (this.paperInfo && (this.paperInfo as any)?.vendorId) {
             const vendorId = Number((this.paperInfo as any).vendorId);
@@ -248,7 +244,7 @@ export class Preview5Component implements OnInit {
             if (vendor) {
               this.paperInfo = {
                 ...this.paperInfo,
-                legalName: vendor.vendorName
+                legalName: vendor.legalName || vendor.vendorName || 'N/A'
               } as any;
             }
           }
@@ -349,6 +345,13 @@ export class Preview5Component implements OnInit {
   ];
 
   populateTableData(): void {
+    // Reset all PSA columns first to avoid stale data
+    this.psaColumns.forEach(column => {
+      column.value = false;
+      column.percentage = null;
+      column.amount = null;
+    });
+
     // Process PSA columns from costAllocationJVApproval
     this.costAllocationJVApproval.forEach(item => {
       const psaColumn = this.psaColumns.find(col => col.name === item.psaName);
@@ -360,6 +363,10 @@ export class Preview5Component implements OnInit {
     });
   }
   calculateTotals(): void {
+    // Reset totals before calculating
+    this.totalPercentage = 0;
+    this.totalValue = 0;
+
     // Calculate total percentage and values
     this.psaColumns.forEach(column => {
       if (column.percentage) {

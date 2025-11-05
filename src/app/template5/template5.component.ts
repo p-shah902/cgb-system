@@ -273,7 +273,7 @@ export class Template5Component  implements AfterViewInit{
     this.generalInfoForm.get('generalInfo.camUserId')?.valueChanges.subscribe((newCamUserId) => {
       this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
-    
+
     // Subscribe to Previous CGB Item Reference changes to auto-populate contract value
     this.generalInfoForm.get('generalInfo.previousCGBItemRefNo')?.valueChanges.subscribe((previousCGBItemRefNo) => {
       if (previousCGBItemRefNo) {
@@ -290,7 +290,7 @@ export class Template5Component  implements AfterViewInit{
     this.generalInfoForm.get('generalInfo.contractValue')?.valueChanges.subscribe(() => {
       this.setupPSACalculationsManually();
     });
-    
+
     this.setupPSAListeners()
     this.setupPSACalculations()
     this.onRTOhange()
@@ -343,7 +343,7 @@ export class Template5Component  implements AfterViewInit{
         const data = value.data as any;
       const infoNoteData = data?.infoNote || data;
       this.paperDetails = infoNoteData;
-      
+
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = infoNoteData?.consultationsDetails || [];
       this.paperDetails.consultationsDetails = consultationsData;
@@ -403,7 +403,7 @@ export class Template5Component  implements AfterViewInit{
         .filter((psa: any) => psa.psaValue === true)
         .map((psa: any) => {
           // Find the PSA value from psaJvOptions by matching the psaName
-          const psaOption = this.psaJvOptions.find(option => 
+          const psaOption = this.psaJvOptions.find(option =>
             option.label === psa.psaName || option.value === psa.psaName
           );
           return psaOption?.value;
@@ -482,19 +482,19 @@ export class Template5Component  implements AfterViewInit{
         setTimeout(() => {
           this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
           this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValues, { emitEvent: false });
-          
+
           // Ensure form controls are created for all selected PSAs (in case they weren't created earlier)
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
             .forEach((psaName: string) => {
               this.addPSAJVFormControls(psaName);
             });
-          
+
           // Re-patch costAllocation values to ensure they're set after controls exist
           this.generalInfoForm.patchValue({
             costAllocation: patchValues.costAllocation
           }, { emitEvent: false });
-          
+
           // Enable percentage controls for all selected PSAs and ensure checkboxes are true
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
@@ -503,24 +503,33 @@ export class Template5Component  implements AfterViewInit{
               const percentageControlName = this.getPSAPercentageControlName(psaName);
               const checkboxControl = this.generalInfoForm.get(`costAllocation.${checkboxControlName}`);
               const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-              
+
               // Ensure checkbox is true if PSA is selected
               if (checkboxControl) {
                 checkboxControl.setValue(true, { emitEvent: false });
               }
-              
+
               // Enable percentage control for all selected PSAs (including BP Group)
               if (percentageControl) {
                 percentageControl.enable({ emitEvent: false });
               }
             });
-          
+
+          // Calculate totals after all values are patched and controls are enabled
+          this.calculateTotal();
+
           this.isInitialLoad = false;
         }, 500)
 
 
         this.addConsultationRow(true, false, consultationsData);
-        this.setupPSAListeners()
+        this.setupPSAListeners();
+        // Setup percentage calculation listeners after form is patched in edit mode
+        setTimeout(() => {
+          this.setupPSACalculations();
+          // Recalculate totals after listeners are set up
+          this.calculateTotal();
+        }, 600);
       }
       },
       error: (error) => {
@@ -664,6 +673,7 @@ export class Template5Component  implements AfterViewInit{
         ],
         budgetStatement: [null, Validators.required],
         jvReview: [null, Validators.required],
+        jvAligned: [{ value: false, disabled: true }],
         id: [0]
       })
     );
@@ -691,7 +701,7 @@ export class Template5Component  implements AfterViewInit{
   setupPSAListeners() {
     // Get selected PSAJV columns dynamically
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
-    
+
     const costAllocationJVApprovalData = this.paperDetails?.costAllocationJVApproval || []
     const patchValues: any = {costAllocation: {}};
 
@@ -707,13 +717,13 @@ export class Template5Component  implements AfterViewInit{
       // Try exact match first, then lowercase match
       const psaNameLower = psa.psaName?.toLowerCase().trim();
       const checkboxKey = psaNameToCheckbox[psaNameLower as keyof typeof psaNameToCheckbox];
-      
+
       if (checkboxKey) {
         console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
         // Handle different types for psaValue (boolean, string, number)
-        const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue : 
-                             typeof psa.psaValue === 'string' ? psa.psaValue === 'true' : 
-                             typeof psa.psaValue === 'number' ? psa.psaValue === 1 : 
+        const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
+                             typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
+                             typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
                              Boolean(psa.psaValue);
         patchValues.costAllocation[checkboxKey] = psaValueBool;
         patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
@@ -1161,7 +1171,7 @@ export class Template5Component  implements AfterViewInit{
   setupPreviousCGBItemReference() {
     // Initialize with empty array
     this.previousCGBItemOptions = [];
-    
+
     // Fetch all papers for mapping - similar to template2/template3
     this.paperService.getApprovedPapersForMapping().subscribe({
       next: (response) => {
@@ -1174,21 +1184,21 @@ export class Template5Component  implements AfterViewInit{
               if (this.paperId && item.paperID?.toString() === this.paperId) {
                 return false;
               }
-              
+
               // Exclude Draft and Withdrawn status
               if (item.paperStatusName === "Draft" || item.paperStatusName === "Withdrawn") {
                 return false;
               }
-              
+
               // Show all approved paper types for Previous CGB Item Reference
               // This allows referencing any previous approved paper
               return true;
             });
-            
+
             console.log('Filtered papers for Previous CGB Item Reference:', filteredPapers);
             console.log('Total filtered papers:', filteredPapers.length);
             this.paperMappingData = filteredPapers;
-            
+
             // Create formatted options for Select2 - similar to template2 format
             // Format: "Ref#, Paper Type, Title (first 50 chars), Date"
             this.previousCGBItemOptions = this.paperMappingData.map((item: any) => {
@@ -1196,19 +1206,19 @@ export class Template5Component  implements AfterViewInit{
               const paperType = item.paperType || '';
               const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
               const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
-              
+
               // Format label to include Ref#, Paper Type, Title, Date for dropdown display
               const label = `${refNo}, ${paperType}, ${title}, ${date}`;
-              
+
               return {
                 value: refNo,
                 label: label
               };
             });
-            
+
             console.log('previousCGBItemOptions created:', this.previousCGBItemOptions.length, 'items');
             console.log('Sample options:', this.previousCGBItemOptions.slice(0, 3));
-            
+
             // Force change detection
             if (this.previousCGBItemOptions.length > 0) {
               console.log('Options populated successfully');
@@ -1236,7 +1246,7 @@ export class Template5Component  implements AfterViewInit{
     // The form control already has the value set (Ref. No as string)
     const selectedPaperId = event;
     console.log('Previous CGB Item Reference selected:', selectedPaperId);
-    
+
     if (selectedPaperId) {
       // Automatically populate contract value based on selected paper
       this.populateContractValueFromLinkedPaper(Number(selectedPaperId));
@@ -1250,7 +1260,7 @@ export class Template5Component  implements AfterViewInit{
   populateContractValueFromLinkedPaper(paperId: number) {
     // Find the paper from mapping data to determine its type
     const linkedPaper = this.paperMappingData.find((p: any) => p.paperID?.toString() === paperId.toString());
-    
+
     if (!linkedPaper) {
       console.log('Linked paper not found in mapping data for ID:', paperId);
       return;
@@ -1309,7 +1319,7 @@ export class Template5Component  implements AfterViewInit{
               // For split award, get vendor-specific award value
               const legalEntitiesAwarded = paperData?.legalEntitiesAwarded || paperData?.contractAward?.legalEntitiesAwarded || [];
               console.log('Legal Entities Awarded:', legalEntitiesAwarded);
-              const vendorEntity = legalEntitiesAwarded.find((entity: any) => 
+              const vendorEntity = legalEntitiesAwarded.find((entity: any) =>
                 entity.vendorId === Number(selectedVendorId)
               );
               contractValue = vendorEntity?.totalAwardValueUSD || vendorEntity?.awardValue || null;
@@ -1478,7 +1488,7 @@ export class Template5Component  implements AfterViewInit{
           id: [item.id || 0]
         });
         riskMitigationArray.push(formGroup);
-        
+
         // Set JV Aligned checkbox state based on JV Review user
         setTimeout(() => {
           const jvReviewValue = item.jvReview || item.jvReviewId || null;
@@ -1580,7 +1590,7 @@ export class Template5Component  implements AfterViewInit{
     try {
       // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
       const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
-      
+
       // Convert base64 to blob
       const byteCharacters = atob(base64Content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -1589,17 +1599,17 @@ export class Template5Component  implements AfterViewInit{
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
@@ -1612,21 +1622,21 @@ export class Template5Component  implements AfterViewInit{
   onSubmit(): void {
     this.submitted = true;
     console.log("==this.generalInfoForm", this.generalInfoForm)
-    
+
     // Mark all invalid form controls as touched to show validation errors
     this.markFormGroupTouched(this.generalInfoForm);
-    
+
     // Mark all form arrays as touched
     const consultationArray = this.generalInfoForm.get('consultation') as FormArray;
     if (consultationArray) {
       this.markFormArrayTouched(consultationArray);
     }
-    
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
-    
+
     // Check if form is valid
     if (this.generalInfoForm.invalid) {
       this.toastService.show("Please fill all required fields", "danger");
