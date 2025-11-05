@@ -2131,9 +2131,61 @@ export class Template2Component implements AfterViewInit {
     this.submitted = true;
     if (this.isSubmitting) return;
     console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
+    
+    // Mark all invalid form controls as touched to show validation errors
+    this.markFormGroupTouched(this.generalInfoForm);
+    
+    // Mark all date fields in legal entities array as touched
+    this.inviteToBid.controls.forEach((control) => {
+      const startDateControl = control.get('contractStartDate');
+      const endDateControl = control.get('contractEndDate');
+      const legalNameControl = control.get('legalName');
+      if (startDateControl && startDateControl.invalid) {
+        startDateControl.markAsTouched();
+      }
+      if (endDateControl && endDateControl.invalid) {
+        endDateControl.markAsTouched();
+      }
+      if (legalNameControl && legalNameControl.invalid) {
+        legalNameControl.markAsTouched();
+      }
+    });
+    
+    // Mark all form arrays as touched
+    this.markFormArrayTouched(this.riskMitigation);
+    this.markFormArrayTouched(this.commericalEvaluation);
+    this.markFormArrayTouched(this.supplierTechnical);
+    this.markFormArrayTouched(this.consultationRows);
+    
+    // Mark supplier technical fields as touched
+    this.supplierTechnical.controls.forEach((control) => {
+      const legalNameControl = control.get('legalName');
+      const thresholdPercentControl = control.get('thresholdPercent');
+      const technicalScorePercentControl = control.get('technicalScorePercent');
+      const resultOfHSSEControl = control.get('resultOfHSSE');
+      if (legalNameControl && legalNameControl.invalid) {
+        legalNameControl.markAsTouched();
+      }
+      if (thresholdPercentControl && thresholdPercentControl.invalid) {
+        thresholdPercentControl.markAsTouched();
+      }
+      if (technicalScorePercentControl && technicalScorePercentControl.invalid) {
+        technicalScorePercentControl.markAsTouched();
+      }
+      if (resultOfHSSEControl && resultOfHSSEControl.invalid) {
+        resultOfHSSEControl.markAsTouched();
+      }
+    });
+    
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
+    }
+    
+    // Check if form is valid
+    if (this.generalInfoForm.invalid) {
+      this.toastService.show("Please fill all required fields", "danger");
+      return;
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
@@ -2379,6 +2431,37 @@ export class Template2Component implements AfterViewInit {
 
   get riskMitigation(): FormArray {
     return this.generalInfoForm.get('additionalDetails.riskMitigation') as FormArray;
+  }
+
+  // Helper method to mark all controls in a form group as touched
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
+  }
+
+  // Helper method to mark all controls in a form array as touched
+  markFormArrayTouched(formArray: FormArray) {
+    formArray.controls.forEach((control) => {
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
   }
 
   // Add a new risk row
@@ -3043,10 +3126,10 @@ export class Template2Component implements AfterViewInit {
             id: [item.id],
             contractStartDate: [item.contractStartDate
               ? format(new Date(item.contractStartDate), 'yyyy-MM-dd')
-              : ''],
+              : '', Validators.required],
             contractEndDate: [item.contractEndDate
               ? format(new Date(item.contractEndDate), 'yyyy-MM-dd')
-              : ''],
+              : '', Validators.required],
             extensionOption: [item.extensionOption],
             currencyCode: [item.currencyCode],
             totalAwardValueUSD: [item.totalAwardValueUSD],
@@ -3068,8 +3151,8 @@ export class Template2Component implements AfterViewInit {
           vendorId: [null],
           legalName: ['', Validators.required],
           isLocalOrJV: [false],
-          contractStartDate: [''],
-          contractEndDate: [''],
+          contractStartDate: ['', Validators.required],
+          contractEndDate: ['', Validators.required],
           extensionOption: [''],
           currencyCode: [''],
           totalAwardValueUSD: [0],
