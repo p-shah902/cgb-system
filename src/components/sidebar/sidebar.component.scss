@@ -52,7 +52,7 @@
     }
 
     background: #ffffff;
-    color: #626262;
+    color: #1B202B;
     box-shadow: 0 0 10px 0 rgba(0,0,0,0.1);
     .header {
       position: relative;
@@ -61,7 +61,7 @@
       height: 70px;
       h1 {
         font-size: 20px;
-        color: #6d6e7e;
+        color: #1B202B;
         margin: 0;
         flex: 1;
         transition: 0.3s;
@@ -70,7 +70,7 @@
       }
 
       .chevron {
-        color: #6d6e7e;
+        color: #1B202B;
         cursor: pointer;
         transition: 0.3s;
         margin-left: -25px;
@@ -96,6 +96,27 @@
       padding: 15px 0;
       .link {
         text-decoration: none;
+        color: #1B202B;
+        
+        &:visited,
+        &:link,
+        &:active {
+          color: #1B202B;
+        }
+        
+        &:not(.active) {
+          .content {
+            .title {
+              color: #1B202B !important;
+            }
+            .icon {
+              svg {
+                stroke: #1B202B !important;
+                fill: #1B202B !important;
+              }
+            }
+          }
+        }
         .children {
           position: relative;
           padding-left: 10px;
@@ -113,9 +134,60 @@
             background: #ffffff;
             // padding-left: 30px;
             padding-left: 10px;
+            
+            .title {
+              color: #1B202B;
+            }
+            
+            .icon {
+              svg {
+                stroke: #1B202B;
+                fill: #1B202B;
+              }
+            }
 
             &.active {
-              background: #191a27;
+              .title {
+                color: #582AA2 !important;
+                font-weight: 600;
+              }
+              .icon {
+                svg {
+                  stroke: #582AA2 !important;
+                  fill: #582AA2 !important;
+                }
+              }
+            }
+          }
+          
+          .link {
+            &.active {
+              .content {
+                .title {
+                  color: #582AA2 !important;
+                  font-weight: 600;
+                }
+                .icon {
+                  svg {
+                    stroke: #582AA2 !important;
+                    fill: #582AA2 !important;
+                  }
+                }
+              }
+            }
+            
+            &:not(.active) {
+              .content {
+                .title {
+                  color: #1B202B !important;
+                }
+                .icon {
+                  svg {
+                    stroke: #1B202B !important;
+                    fill: #1B202B !important;
+                  }
+                }
+              }
             }
           }
         }
@@ -127,6 +199,18 @@
           cursor: pointer;
           transition: 0.3s;
           border-radius: 12px;
+          
+          .title {
+            color: #1B202B;
+          }
+          
+          .icon {
+            svg {
+              stroke: #1B202B;
+              fill: #1B202B;
+            }
+          }
+          
           &:hover {
             background: #E6EFFC;
             .title {
@@ -142,27 +226,63 @@
           }
 
           &.active {
-            background: #0f1017;
             .title {
-              color: white;
+              color: #582AA2;
+              font-weight: 600;
+            }
+            .icon {
+              svg {
+                stroke: #582AA2;
+                fill: #582AA2;
+              }
             }
           }
+        }
+        
+        &.active {
+          .content {
+            .title {
+              color: #582AA2 !important;
+              font-weight: 600;
+            }
+            .icon {
+              svg {
+                stroke: #582AA2 !important;
+                fill: #582AA2 !important;
+              }
+            }
+          }
+        }
+        
+        &:not(.active) {
+          .content {
+            .title {
+              color: #1B202B !important;
+            }
+            .icon {
+              svg {
+                stroke: #1B202B !important;
+                fill: #1B202B !important;
+              }
+            }
+          }
+        }
 
-          .icon {
-            flex: 0 0 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 0px;
-          }
-          .title {
-            flex: 1;
-            color: #6d6e7e;
-            transition: 0.3s;
-            max-width: 0;
-            overflow: hidden;
-            font-weight: 500;
-          }
+        .icon {
+          flex: 0 0 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 0px;
+        }
+        
+        .title {
+          flex: 1;
+          color: #1B202B;
+          transition: 0.3s;
+          max-width: 0;
+          overflow: hidden;
+          font-weight: 500;
         }
       }
       .title {
