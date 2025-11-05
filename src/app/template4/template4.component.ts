@@ -71,6 +71,7 @@ export class Template4Component  implements AfterViewInit{
   minEndDate: string = '';
   submitted = false;
   isSubmitting = false;
+  isLoadingDetails = false;
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
   paperId: string | null = null;
@@ -136,11 +137,21 @@ export class Template4Component  implements AfterViewInit{
     }).then(this._setupEditor.bind(this));
     this.editorService.getEditorToken().subscribe();
 
+    // Check for paperId immediately from route snapshot to set loading state early
+    const paperIdFromSnapshot = this.route.snapshot.paramMap.get('id');
+    if (paperIdFromSnapshot) {
+      this.paperId = paperIdFromSnapshot;
+      this.isLoadingDetails = true; // Set loading immediately if paperId exists
+    }
+
     this.allApisDone$.subscribe((done) => {
       if (done) {
         this.route.paramMap.subscribe(params => {
           this.paperId = params.get('id');
           if (this.paperId) {
+            if (!this.isLoadingDetails) {
+              this.isLoadingDetails = true; // Set loading if not already set
+            }
             this.fetchPaperDetails(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
           } else {
@@ -296,9 +307,11 @@ export class Template4Component  implements AfterViewInit{
   }
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'sale').subscribe((value) => {
-      // Handle both nested (approvalOfSale.paperDetails) and flat (paperDetails) structures
-      const data = value.data as any;
+    // isLoadingDetails is already set to true when paperId is detected
+    this.paperService.getPaperDetails(paperId, 'sale').subscribe({
+      next: (value) => {
+        // Handle both nested (approvalOfSale.paperDetails) and flat (paperDetails) structures
+        const data = value.data as any;
       const approvalOfSaleData = data?.approvalOfSale || data;
       this.paperDetails = approvalOfSaleData;
       
@@ -499,7 +512,15 @@ export class Template4Component  implements AfterViewInit{
         this.setupPSAListeners()
         this.getUploadedDocs(paperId);
       }
-    })
+      },
+      error: (error) => {
+        console.error('Error loading paper details:', error);
+        this.toastService.show('Error loading paper details', 'danger');
+      },
+      complete: () => {
+        this.isLoadingDetails = false;
+      }
+    });
   }
 
 
