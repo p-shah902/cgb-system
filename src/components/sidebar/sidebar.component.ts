@@ -24,6 +24,9 @@ export class SidebarComponent {
   private loggedInUserRole: string | null = null;
 
   constructor(private toggleService: ToggleService, private router: Router, private activatedRoute: ActivatedRoute, private authService: AuthService, private cdr: ChangeDetectorRef) {
+    // Initialize active state on component load
+    this.updateCurrentPath();
+    
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
@@ -180,17 +183,22 @@ export class SidebarComponent {
 
   isMenuItemActive(item: Menu): boolean {
     if (!item.path || item.path === '#') {
+      // For items without path, check if any child is active
+      if (item.children && item.children.length > 0) {
+        return item.children.some(child => this.isMenuItemActive(child));
+      }
       return false;
     }
+    
     const currentUrl = this.router.url.split('?')[0].split('#')[0];
     const normalizedPath = item.path.split('?')[0].split('#')[0];
     
     // Check if current URL matches or starts with item path
-    if (currentUrl === normalizedPath || currentUrl.startsWith(normalizedPath + '/')) {
+    if (normalizedPath && (currentUrl === normalizedPath || currentUrl.startsWith(normalizedPath + '/'))) {
       return true;
     }
     
-    // Check if any child is active
+    // Check if any child is active (recursive)
     if (item.children && item.children.length > 0) {
       return item.children.some(child => this.isMenuItemActive(child));
     }

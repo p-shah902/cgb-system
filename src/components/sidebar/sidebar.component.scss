@@ -176,6 +176,20 @@
               }
             }
             
+            // Ensure deeply nested children also highlight
+            .children .link.active .content {
+              .title {
+                color: #582AA2 !important;
+                font-weight: 600;
+              }
+              .icon {
+                svg {
+                  stroke: #582AA2 !important;
+                  fill: #582AA2 !important;
+                }
+              }
+            }
+            
             &:not(.active) {
               .content {
                 .title {
