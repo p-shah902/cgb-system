@@ -92,7 +92,7 @@
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
                   <label>CGB Circulation Date</label>
-                  <h6>{{ paperInfo?.cgbCirculationDate ? (paperInfo.cgbCirculationDate | date: 'dd-MMM-yyyy') : 'N/A' }}</h6>
+                  <h6>{{ paperInfo?.cgbCirculationDate ? (paperInfo?.cgbCirculationDate | date: 'dd-MMM-yyyy') : 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-12">
@@ -146,7 +146,7 @@
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
                   <label>Sale/Disposal Value ($)*</label>
-                  <h6>{{ paperInfo?.saleDisposeValue ? (paperInfo.saleDisposeValue | number:'1.2-2') : 'N/A' }}</h6>
+                  <h6>{{ paperInfo?.saleDisposeValue ? (paperInfo?.saleDisposeValue | number:'1.2-2') : 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
@@ -220,7 +220,7 @@
                     <label>{{ (getPSAPercentageValue(psa) ?? 0) | number:'1.2-2' }}%</label>
                   </td>
                   <td>
-                    <label><b>{{ (getTotalPercentage() ?? 0) | number:'1.2-2' }}%</b></label>
+                    <label><b>{{ getTotalPercentage() | number:'1.2-2' }}%</b></label>
                   </td>
                 </tr>
 
@@ -230,7 +230,7 @@
                     <label>{{ (getPSAValueValue(psa) ?? 0) | number:'1.2-2' }}</label>
                   </td>
                   <td>
-                    <label><b>${{ (getTotalValue() ?? 0) | number:'1.2-2' }}</b></label>
+                    <label><b>${{ getTotalValue() | number:'1.2-2' }}</b></label>
                   </td>
                 </tr>
 
@@ -283,9 +283,9 @@
                   <tbody>
                   <tr *ngFor="let consultation of consultationsDetails">
                     <td>{{ consultation.psa || 'N/A' }}</td>
-                    <td>{{ consultation.technicalCorrectName || getDisplayName(consultation.technicalCorrectId) || getDisplayName(consultation.technicalCorrect) || 'N/A' }}</td>
-                    <td>{{ consultation.budgetStatementName || getDisplayName(consultation.budgetStatementId) || getDisplayName(consultation.budgetStatement) || 'N/A' }}</td>
-                    <td>{{ consultation.jvReviewName || getDisplayName(consultation.jvReviewId) || getDisplayName(consultation.jvReview) || 'N/A' }}</td>
+                    <td>{{ consultation.technicalCorrectName || (consultation.technicalCorrectId ? getDisplayName(consultation.technicalCorrectId) : 'N/A') || 'N/A' }}</td>
+                    <td>{{ consultation.budgetStatementName || (consultation.budgetStatementId ? getDisplayName(consultation.budgetStatementId) : 'N/A') || 'N/A' }}</td>
+                    <td>{{ consultation.jvReviewName || (consultation.jvReviewId ? getDisplayName(consultation.jvReviewId) : 'N/A') || 'N/A' }}</td>
                   </tr>
                   </tbody>
                 </table>
