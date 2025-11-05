@@ -69,6 +69,7 @@ export class PaperListComponent implements OnInit {
     sortHighToLow: false,
   };
   paperList: PaperConfig[] = [];
+  allPaperList: PaperConfig[] = []; // Store all papers from API for frontend filtering
   isDesc = false;
   aToZ: string = 'Z A';
   user: LoginUser | null = null;
@@ -115,6 +116,11 @@ export class PaperListComponent implements OnInit {
 
   openDropdown() {
     this.tempFilter = JSON.parse(JSON.stringify(this.filter));
+    // Sync tempPrice with filter prices
+    this.tempPrice = [
+      this.filter.priceMin || 0,
+      this.filter.priceMax || 0
+    ];
     setTimeout(() => this.syncSwitchesWithTemp(), 0);
   }
 
@@ -148,14 +154,19 @@ export class PaperListComponent implements OnInit {
 
   loadPaperConfigList() {
     this.isLoading = true;
-    const cleanedFilter = this.getCleanFilter(this.filter);
+    // Remove statusIds from filter when fetching from API (frontend filtering only)
+    const cleanedFilter = this.getCleanFilter({...this.filter, statusIds: []});
 
     this.paperConfigService.getPaperConfigList(cleanedFilter).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.paperList = response.data.filter((paper: any) =>
+          // Store all papers for frontend filtering
+          this.allPaperList = response.data.filter((paper: any) =>
             !paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
           );
+
+          // Apply frontend filters immediately
+          this.applyFrontendFilters();
         }
       },
       error: (error) => {
@@ -165,6 +176,70 @@ export class PaperListComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  applyFrontendFilters(): void {
+    // Sync tempFilter to filter so it persists when reopening modal
+    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
+    
+    let filteredList = [...this.allPaperList];
+
+    // Filter by status
+    if (this.tempFilter.statusIds && this.tempFilter.statusIds.length > 0) {
+      filteredList = filteredList.filter((paper: any) => {
+        return this.tempFilter.statusIds?.includes(paper.statusId);
+      });
+    }
+
+    // Filter by date range
+    if (this.tempFilter.fromDate) {
+      filteredList = filteredList.filter((paper: any) => {
+        const paperDate = new Date(paper.lastModifyDate || paper.createdDate);
+        const fromDate = new Date(this.tempFilter.fromDate!);
+        return paperDate >= fromDate;
+      });
+    }
+
+    if (this.tempFilter.toDate) {
+      filteredList = filteredList.filter((paper: any) => {
+        const paperDate = new Date(paper.lastModifyDate || paper.createdDate);
+        const toDate = new Date(this.tempFilter.toDate!);
+        toDate.setHours(23, 59, 59, 999); // Include entire day
+        return paperDate <= toDate;
+      });
+    }
+
+    // Filter by price range
+    if (this.tempFilter.priceMin !== null && this.tempFilter.priceMin !== undefined && this.tempFilter.priceMin > 0) {
+      filteredList = filteredList.filter((paper: any) => {
+        const price = paper.totalContractValue || paper.price || 0;
+        return price >= this.tempFilter.priceMin!;
+      });
+    }
+
+    if (this.tempFilter.priceMax !== null && this.tempFilter.priceMax !== undefined && this.tempFilter.priceMax > 0) {
+      filteredList = filteredList.filter((paper: any) => {
+        const price = paper.totalContractValue || paper.price || 0;
+        return price <= this.tempFilter.priceMax!;
+      });
+    }
+
+    // Sort by price if needed
+    if (this.tempFilter.sortLowToHigh) {
+      filteredList.sort((a: any, b: any) => {
+        const priceA = a.totalContractValue || a.price || 0;
+        const priceB = b.totalContractValue || b.price || 0;
+        return priceA - priceB;
+      });
+    } else if (this.tempFilter.sortHighToLow) {
+      filteredList.sort((a: any, b: any) => {
+        const priceA = a.totalContractValue || a.price || 0;
+        const priceB = b.totalContractValue || b.price || 0;
+        return priceB - priceA;
+      });
+    }
+
+    this.paperList = filteredList;
   }
 
   loadPaperStatusListData() {
@@ -396,10 +471,12 @@ export class PaperListComponent implements OnInit {
   clearDates(): void {
     this.tempFilter.fromDate = '';
     this.tempFilter.toDate = '';
+    this.applyFrontendFilters();
   }
 
   clearStatusFilters(): void {
     this.tempFilter.statusIds = [];
+    this.applyFrontendFilters();
   }
 
   clearPriceFilters(): void {
@@ -411,6 +488,7 @@ export class PaperListComponent implements OnInit {
       priceMin: 0,
       priceMax: 0
     };
+    this.applyFrontendFilters();
   }
 
 
@@ -422,7 +500,7 @@ export class PaperListComponent implements OnInit {
     this.isFilterApplied = false;
     this.filter = JSON.parse(JSON.stringify(this.tempFilter));
     this.dropdownRef.close();
-    this.loadPaperConfigList();
+    this.applyFrontendFilters();
   }
 
 
@@ -434,19 +512,20 @@ export class PaperListComponent implements OnInit {
       this.tempFilter.sortLowToHigh = false;
       this.tempFilter.sortHighToLow = true;
     }
+    this.applyFrontendFilters();
   }
 
+  onDateChange(): void {
+    this.applyFrontendFilters();
+  }
 
-  applyFilters(): void {
+  onPriceChange(): void {
     this.tempFilter = {
       ...this.tempFilter,
       priceMin: this.tempPrice[0],
       priceMax: this.tempPrice[1]
     };
-    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
-    this.isFilterApplied = true;
-    this.dropdownRef.close();
-    this.loadPaperConfigList();
+    this.applyFrontendFilters();
   }
 
   cancelFilters(): void {
@@ -466,6 +545,9 @@ export class PaperListComponent implements OnInit {
     } else {
       this.tempFilter.statusIds = (this.tempFilter.statusIds || []).filter(id => id !== statusId);
     }
+
+    // Apply filters immediately
+    this.applyFrontendFilters();
   }
 
   syncSwitchesWithTemp(): void {
