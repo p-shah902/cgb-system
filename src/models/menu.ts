@@ -21,21 +21,40 @@ export const menuItems: Menu[] = [
       {
         path: '/dashboard',
         title: 'Overview',
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.66667 2.66667H13.3333C13.7015 2.66667 14 3.03486 14 3.33333V13.3333C14 13.7015 13.7015 14 13.3333 14H2.66667C2.29848 14 2 13.7015 2 13.3333V3.33333C2 3.03486 2.29848 2.66667 2.66667 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 6.66667H14M2 10H14" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.66667 2V14" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
       },
       {
         path: '/inboxoutbox',
         title: 'Inbox Outbox',
         roleMap: 'Inbox Outbox',
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.66667 4.66667H13.3333C13.7015 4.66667 14 5.03486 14 5.33333V12.6667C14 13.0349 13.7015 13.3333 13.3333 13.3333H2.66667C2.29848 13.3333 2 13.0349 2 12.6667V5.33333C2 5.03486 2.29848 4.66667 2.66667 4.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 6.66667L8 10.6667L14 6.66667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="13.3333" cy="4.66667" r="1.33333" stroke="#1B202B" stroke-width="1.06667"/>
+          </svg>`
       },
       {
         path: '#',
         title: 'CGB Cycle',
         roleMap: 'Cgb Cycle',
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="6.66667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 2.66667V8L11.3333 10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
       },
       {
         path: '#',
         title: 'Reports',
         roleMap: 'Reports',
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3.33333 2.66667H12.6667C13.0349 2.66667 13.3333 2.96514 13.3333 3.33333V12.6667C13.3333 13.0349 13.0349 13.3333 12.6667 13.3333H3.33333C2.96514 13.3333 2.66667 13.0349 2.66667 12.6667V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.33333 6.66667H10.6667M5.33333 9.33333H8M5.33333 12H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 3.33333H14" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
       },
     ],
   },
@@ -164,12 +183,23 @@ export const menuItems: Menu[] = [
         title: 'Pre CGB Review',
         roleMap: 'Pre-CGB Review',
         checkPermission: true,
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3.33333 2.66667H8L10.6667 5.33333V13.3333C10.6667 13.7015 10.3682 14 10 14H3.33333C2.96514 14 2.66667 13.7015 2.66667 13.3333V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 2.66667V5.33333H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.33333 8.66667H7.33333M5.33333 10.6667H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M11.3333 4.66667L12.6667 6L11.3333 7.33333" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
       },
       {
         path: '/cgb-voting',
         title: 'CGB Voting',
         roleMap: 'CGB Voting',
         checkPermission: true,
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 2.66667C9.47275 2.66667 10.6667 3.86057 10.6667 5.33333C10.6667 6.8061 9.47275 8 8 8C6.52723 8 5.33333 6.8061 5.33333 5.33333C5.33333 3.86057 6.52723 2.66667 8 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2.66667 13.3333C2.66667 11.1242 4.45762 9.33333 6.66667 9.33333H9.33333C11.5424 9.33333 13.3333 11.1242 13.3333 13.3333" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 10.6667L10 12.6667L12 10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
       }
     ]
   },
