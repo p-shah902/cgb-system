@@ -53,11 +53,8 @@
                                     </span>
                                   </td>
                                   <td>
-                                    <span *ngIf="isArray(threshold.sourcingType)">
-                                      {{ getSourcingTypeNames(threshold.sourcingType).join(', ') }}
-                                    </span>
-                                    <span *ngIf="!isArray(threshold.sourcingType) && threshold.sourcingType">
-                                      {{ getSourcingTypeName(threshold.sourcingType) }}
+                                    <span >
+                                      {{ threshold.sourcingTypeName.split(',').join(', ') }}
                                     </span>
                                     <span *ngIf="!threshold.sourcingType || threshold.sourcingType === 0">
                                       Any
@@ -128,12 +125,10 @@
                                     </span>
                                   </td>
                                   <td>
-                                    <span *ngIf="isArray(threshold.sourcingType)">
-                                      {{ getSourcingTypeNames(threshold.sourcingType).join(', ') }}
+                                    <span >
+                                      {{ threshold.sourcingTypeName.split(',').join(', ') }}
                                     </span>
-                                    <span *ngIf="!isArray(threshold.sourcingType) && threshold.sourcingType">
-                                      {{ getSourcingTypeName(threshold.sourcingType) }}
-                                    </span>
+                                    
                                     <span *ngIf="!threshold.sourcingType || threshold.sourcingType === 0">
                                       Any
                                     </span>
