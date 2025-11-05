@@ -161,7 +161,7 @@ export class Preview4Component implements OnInit {
 
 
   fetchPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'disposal').subscribe(value => {
+    this.paperService.getPaperDetailsWithPreview(paperId, 'sale').subscribe(value => {
       this.paperDetails = value.data as any;
       console.log('Paper Detail', this.paperDetails);
 
@@ -465,7 +465,7 @@ this.loadUserDetails()
     try {
       // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
       const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
-      
+
       // Convert base64 to blob
       const byteCharacters = atob(base64Content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -474,17 +474,17 @@ this.loadUserDetails()
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
