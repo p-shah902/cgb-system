@@ -852,6 +852,8 @@ export class Template2Component implements AfterViewInit {
     const section = document.getElementById(selectedValue);
 
     if (section) {
+      // Set section visibility to true when selected from dropdown
+      this.sectionVisibility[selectedValue] = true;
       section.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
   }
