@@ -8,7 +8,16 @@
 <div class="container-fluid">
   <div class="row">
     <div [ngClass]="isExpanded ? 'col-xl-9' : 'col-xl-12'">
-      <div class="form-main-div">
+      <div class="form-main-div position-relative">
+        <!-- Loading Overlay - Only covers form section -->
+        <div *ngIf="isLoadingDetails" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px;">
+          <div class="table-loader">
+            <div class="spinner"></div>
+            <p>Loading paper details...</p>
+          </div>
+        </div>
+        <!-- Form Content - Hidden while loading -->
+        <div [style.display]="isLoadingDetails ? 'none' : 'block'">
         <div class="form-header sticky-header mb-4">
           <div class="row align-items-center">
             <div class="col-md-6">
@@ -1595,6 +1604,7 @@
                 [isCopy]="isCopy"
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.paperDetails?.paperStatusName"
+                [isLoading]="isSubmitting"
                 (setStatus)="handleStatusChange($event)"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
@@ -1604,8 +1614,8 @@
               </div>
             </div>
           </form>
-
-
+        </div>
+        <!-- Close form content wrapper -->
         </div>
       </div>
     </div>

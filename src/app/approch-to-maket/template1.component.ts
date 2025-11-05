@@ -79,6 +79,8 @@ export class Template1Component implements AfterViewInit  {
   isEndDateDisabled: boolean = true;
   minEndDate: string = '';
   submitted = false;
+  isSubmitting = false;
+  isLoadingDetails = false;
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
   paperId: string | null = null;
@@ -158,11 +160,21 @@ export class Template1Component implements AfterViewInit  {
 
     this.editorService.getEditorToken().subscribe();
 
+    // Check for paperId immediately from route snapshot to set loading state early
+    const paperIdFromSnapshot = this.route.snapshot.paramMap.get('id');
+    if (paperIdFromSnapshot) {
+      this.paperId = paperIdFromSnapshot;
+      this.isLoadingDetails = true; // Set loading immediately if paperId exists
+    }
+
     this.allApisDone$.subscribe((done) => {
       if (done) {
         this.route.paramMap.subscribe(params => {
           this.paperId = params.get('id');
           if (this.paperId) {
+            if (!this.isLoadingDetails) {
+              this.isLoadingDetails = true; // Set loading if not already set
+            }
             this.fetchPaperDetails(Number(this.paperId))
             this.getUploadedDocs(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
@@ -577,8 +589,10 @@ export class Template1Component implements AfterViewInit  {
   }
 
   fetchPaperDetails(paperId: number) {
-      this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
-      this.paperDetails = value.data;
+    // isLoadingDetails is already set to true when paperId is detected
+    this.paperService.getPaperDetails(paperId, 'approch').subscribe({
+      next: (value) => {
+        this.paperDetails = value.data;
       console.log('paperDetails from API:', this.paperDetails);
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = value.data?.consultationsDetails || [];
@@ -818,7 +832,15 @@ export class Template1Component implements AfterViewInit  {
         this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners()
       }
-    })
+      },
+      error: (error) => {
+        console.error('Error loading paper details:', error);
+        this.toastService.show('Error loading paper details', 'danger');
+      },
+      complete: () => {
+        this.isLoadingDetails = false;
+      }
+    });
   }
 
   loadDictionaryDetails(itemName: string) {
@@ -1880,13 +1902,24 @@ export class Template1Component implements AfterViewInit  {
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,
         statusId: this.paperStatusId
-      }]).subscribe(value => {
-        this.toastService.show('Paper has been moved to ' + status);
-        this.router.navigate(['/all-papers'])
+      }]).subscribe({
+        next: (value) => {
+          this.toastService.show('Paper has been moved to ' + status);
+          this.router.navigate(['/all-papers'])
+        },
+        error: (error) => {
+          console.error('Error updating paper status:', error);
+          this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
     }
 
@@ -1895,6 +1928,7 @@ export class Template1Component implements AfterViewInit  {
 
   onSubmit(): void {
     this.submitted = true;
+    if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
@@ -2065,6 +2099,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   generatePaper(params: any) {
+    this.isSubmitting = true;
     this.paperService.upsertApproachToMarkets(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -2092,6 +2127,9 @@ export class Template1Component implements AfterViewInit  {
         console.log('Error', error);
         this.toastService.show("Something went wrong.", 'danger');
       },
+      complete: () => {
+        this.isSubmitting = false;
+      }
     });
   }
 

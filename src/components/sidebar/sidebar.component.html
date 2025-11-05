@@ -40,7 +40,7 @@
       </span>
         </div>
 
-        <div class="children" *ngIf="expandedMenus[item.title]">
+        <div class="children" *ngIf="expandedMenus[item.title]" (click)="$event.stopPropagation()">
           <ng-container *ngFor="let child of item.children">
             <ng-template
               [ngTemplateOutlet]="recursiveMenu"
@@ -51,7 +51,7 @@
       </div>
 
       <ng-template #singleMenu>
-        <a [href]="item.path" class="link">
+        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}" class="link" (click)="$event.stopPropagation()">
           <div class="content">
             <div class="icon" [safeHtml]="item.icon"></div>
             <div class="title">{{ item.title }}</div>

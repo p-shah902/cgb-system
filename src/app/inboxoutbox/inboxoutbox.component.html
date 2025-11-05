@@ -14,7 +14,16 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <div class="page-card-div">
+      <div class="page-card-div position-relative">
+        <!-- Loading Overlay -->
+        <div *ngIf="isLoading" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px; border-radius: 12px;">
+          <div class="table-loader">
+            <div class="spinner"></div>
+            <p>Loading inbox and outbox data...</p>
+          </div>
+        </div>
+        <!-- Content - Hidden while loading -->
+        <div [style.display]="isLoading ? 'none' : 'block'">
 
         <div class="row row-gap-3">
           <div class="col-md-5">
@@ -25,39 +34,40 @@
                   <ng-template ngbNavContent>
                     <div class="inbox-col">
                       <div class="inbox-body">
-                        <div class="row">
+                        <div class="row mt-1" >
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let inbox of inboxData">
-                            <div class="inbox-card mb-3">
-                              <h5 class="mb-0 cursor-pointer" (click)="goToPreview(inbox)">{{ inbox.paperProvision }}</h5>
+                            <div class="inbox-card cursor-pointer" (click)="gotoPaper(inbox.paperID, inbox.paperType)">
+                              <h5 class="mb-0">{{ inbox.paperProvision }}</h5>
                               <div>
-                                <span class="status-blue">{{ inbox.paperStatus }}</span>
+                                <span [ngClass]="getStatusClass(inbox.paperStatus)">{{ inbox.paperStatus }}</span>
                               </div>
-                              <p>Received Timestamp · {{ inbox.cycleStartDate | date: 'dd-MMM-YYYY, hh:mm a' }}</p>
+                              <p>Paper Type · {{ inbox.paperType }}</p>
                               <p>
-                                Due Date · {{ inbox.cycleDueDate | date: 'dd-MMM-YYYY' }}
+                                Last Updated · {{ inbox.paperLastModifyDate | date: 'dd-MMM-YYYY, hh:mm a' }}
                               </p>
-                              <hr class="my-2">
+                              <hr class="my-2" *ngIf="hasActionButtons(inbox)">
                               <div class="ic-btn-div d-flex justify-content-end" [routerLink]="['/cgb-voting']"
-                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager' || loggedInUser?.roleName === 'Legal VP'  || loggedInUser?.roleName === 'PHCA'  || loggedInUser?.roleName === 'BLT') && inbox.paperStatus === 'On CGB'">
+                                   *ngIf="(loggedInUser?.roleName === 'CGB Chair' || loggedInUser?.roleName === 'CPO' || loggedInUser?.roleName === 'JV Admin' || loggedInUser?.roleName === 'Legal VP-1'|| loggedInUser?.roleName === 'Performance Manager' || loggedInUser?.roleName === 'Legal VP'  || loggedInUser?.roleName === 'PHCA'  || loggedInUser?.roleName === 'BLT') && inbox.paperStatus === 'On CGB'"
+                                   (click)="$event.stopPropagation()">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                                   Vote Now
                                 </button>
                               </div>
-                              <button class="btn btn-primary" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4)"
+                              <button class="btn btn-primary" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4); $event.stopPropagation()"
                                       *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB'))">
                                 Send For PDM {{inbox.paperStatus === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
                               </button>
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                                        (click)="open($event, content3, inbox.paperID)">
+                                        (click)="open($event, content3, inbox.paperID); $event.stopPropagation()">
                                   Return to Originator
                                 </button>
                               </div>
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                                        (click)="open($event, content2, inbox.paperID)">
+                                        (click)="open($event, content2, inbox.paperID); $event.stopPropagation()">
                                   Approve
                                 </button>
                               </div>
@@ -70,14 +80,14 @@
                       inbox.paperStatus === 'On Pre-CGB'
                     ">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                                        (click)="open($event, content4, inbox.paperID)">
+                                        (click)="open($event, content4, inbox.paperID); $event.stopPropagation()">
                                   Add Review
                                 </button>
                               </div>
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="loggedInUser?.roleName === 'Procurement Tag' && inbox.paperStatus === 'Action Required by CGB'">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                                        (click)="updateProject(inbox.paperID, inbox.paperStatusId)">
+                                        (click)="updateProject(inbox.paperID, inbox.paperStatusId); $event.stopPropagation()">
                                   Return to requested
                                 </button>
                               </div>
@@ -93,23 +103,28 @@
                   <ng-template ngbNavContent>
                     <div class="inbox-col">
                       <div class="inbox-body">
-                        <div class="row">
+                        <div class="row mt-1">
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let outbox of outboxData">
                             <div class="inbox-card mb-3 cursor-pointer"
                                  (click)="gotoPaper(outbox.paperID, outbox.paperType)">
                               <h5 class="mb-0">{{ outbox.paperProvision }}</h5>
                               <div>
-                                <span class="status-blue">{{ outbox.paperStatus }}</span>
+                                <span [ngClass]="getStatusClass(outbox.paperStatus)">{{ outbox.paperStatus }}</span>
                               </div>
-                              <p *ngIf="outbox.cycleStartDate">Received Timestamp
-                                · {{ outbox.cycleStartDate | date: 'dd-MMM-YYYY, hh:mm a' }}</p>
+                              <p *ngIf="outbox.paperType">Paper Type
+                                · {{ outbox.paperType }}</p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end gap-3">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
                                   History
                                 </button>
-                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
-                                  Download
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
+                                        (click)="exportToPDF(outbox.paperID, $event)"
+                                        [disabled]="isDownloading(outbox.paperID)">
+                                  <span *ngIf="!isDownloading(outbox.paperID)">Download</span>
+                                  <span *ngIf="isDownloading(outbox.paperID)" class="d-flex align-items-center gap-2">
+                                    Downloading...
+                                  </span>
                                 </button>
                               </div>
                             </div>
@@ -164,6 +179,7 @@
           </div>
         </div>
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
+        </div> <!-- End of content wrapper -->
       </div>
     </div>
   </div>

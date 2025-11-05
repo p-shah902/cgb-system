@@ -130,9 +130,14 @@ export class PreCgbReviewComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    if (status.toLowerCase().includes('approved')) {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) {
       return 'p-approved';
-    } else if (status.toLowerCase().includes('waiting')) {
+    } else if (statusLower.includes('draft')) {
+      return 'p-draft';
+    } else if (statusLower.includes('registered')) {
+      return 'p-registered';
+    } else if (statusLower.includes('waiting') || statusLower.includes('on pre-cgb') || statusLower.includes('on cgb') || statusLower.includes('action required')) {
       return 'p-waiting';
     } else {
       return 'p-archive';

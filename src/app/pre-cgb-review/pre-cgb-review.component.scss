@@ -29,6 +29,14 @@
       }
     }
   }
+
+  .paper-title {
+    transition: all 0.2s ease;
+    &:hover {
+      color: #582AA2;
+      text-decoration: underline;
+    }
+  }
   .edit-btb-div {
     .btn {
       background-color: #E6EFFC;
@@ -51,29 +59,88 @@
       }
     }
     .action-menu {
-      padding: 10px;
+      padding: 8px;
       background: #FFFFFF;
-      border-right: 1px solid #DCDCDC;
-      box-shadow: 0px 0px 4px rgba(0, 16, 79, 0.12);
-      border-radius: 8px;
+      border: 1px solid #E8E8E8;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
       left: auto;
       right: 0;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       width: 100%;
-      min-width: 107px;
-      .links {
-        background-color: #F0F0F0;
-        border-radius: 5px;
-        margin-bottom: 8px;
-        font-size: 12px;
+      min-width: 160px;
+      margin-top: 8px;
+      
+      ::ng-deep .dropdown-item::after,
+      ::ng-deep .dropdown-item::before {
+        display: none !important;
+        content: none !important;
       }
+
+      .links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background-color: transparent;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1B202B;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin: 0;
+        border: none;
+        width: 100%;
+
+        &::after,
+        &::before {
+          display: none !important;
+          content: none !important;
+        }
+
+        svg {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+        }
+
+        &:hover {
+          background-color: #F8F9FB;
+          color: #582AA2;
+          transform: translateX(2px);
+
+          svg {
+            transform: scale(1.1);
+          }
+
+          svg path,
+          svg g path {
+            fill: #582AA2;
+            stroke: #582AA2;
+          }
+        }
+
+        &:active {
+          background-color: #E6EFFC;
+          transform: translateX(1px);
+        }
+      }
+
       .btn-primary {
         background-color: #582AA2;
         color: #fff;
         text-align: center;
-        padding: 10px 0;
+        padding: 10px 14px;
         font-size: 14px;
+        border-radius: 8px;
+        margin: 0;
+
+        &:hover {
+          background-color: #451c82;
+          transform: translateX(2px);
+        }
       }
     }
   }
@@ -97,22 +164,60 @@
   }
   .paper-status {
     label {
-      font-size: 14px;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-weight: 500;
+      display: inline-block;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: capitalize;
+      background: transparent;
+      transition: all 0.2s ease;
     }
     .p-approved {
-      background-color: #B2DAC0;
       color: #007007;
+      border: 2px solid #007007;
+      background-color: rgba(0, 112, 7, 0.05);
+      &:hover {
+        background-color: rgba(0, 112, 7, 0.1);
+        transform: translateY(-1px);
+      }
     }
     .p-waiting {
-      background-color: #BCCEE9;
       color: #1160D8;
+      border: 2px solid #1160D8;
+      background-color: rgba(17, 96, 216, 0.05);
+      &:hover {
+        background-color: rgba(17, 96, 216, 0.1);
+        transform: translateY(-1px);
+      }
     }
     .p-archive {
-      background-color: #EAC6C6;
       color: #EC4747;
+      border: 2px solid #EC4747;
+      background-color: rgba(236, 71, 71, 0.05);
+      &:hover {
+        background-color: rgba(236, 71, 71, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+    .p-draft {
+      color: #F59E0B;
+      border: 2px solid #F59E0B;
+      background-color: rgba(245, 158, 11, 0.05);
+      &:hover {
+        background-color: rgba(245, 158, 11, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+    .p-registered {
+      color: #8B5CF6;
+      border: 2px solid #8B5CF6;
+      background-color: rgba(139, 92, 246, 0.05);
+      &:hover {
+        background-color: rgba(139, 92, 246, 0.1);
+        transform: translateY(-1px);
+      }
     }
   }
 

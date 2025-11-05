@@ -52,16 +52,35 @@
                 vertical-align: middle;
                 background-color: #F8F9FB;
                 padding: 15px;
-                .vendore-status {
-                  label {
-                    font-weight: 600;
-                    font-size: 14px;
-                    line-height: 150%;
-                    padding: 5px 10px;
-                    border-radius: 30px;
-                    &.active {
-                      background-color: #B2DAC0;
-                      color: #007007;
+                span {
+                  display: inline-block;
+                  font-weight: 600;
+                  font-size: 14px;
+                  line-height: 150%;
+                  padding: 6px 14px;
+                  border-radius: 20px;
+                  text-transform: capitalize;
+                  background: transparent;
+                  transition: all 0.2s ease;
+                  border: 2px solid;
+                  
+                  &.p-active {
+                    color: #007007;
+                    border-color: #007007;
+                    background-color: rgba(0, 112, 7, 0.05);
+                    &:hover {
+                      background-color: rgba(0, 112, 7, 0.1);
+                      transform: translateY(-1px);
+                    }
+                  }
+                  
+                  &.p-inactive {
+                    color: #787878;
+                    border-color: #787878;
+                    background-color: rgba(120, 120, 120, 0.05);
+                    &:hover {
+                      background-color: rgba(120, 120, 120, 0.1);
+                      transform: translateY(-1px);
                     }
                   }
                 }

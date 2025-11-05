@@ -9,7 +9,16 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <div class="page-card-div">
+      <div class="page-card-div position-relative">
+        <!-- Loading Overlay -->
+        <div *ngIf="isLoading" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px; border-radius: 12px;">
+          <div class="table-loader">
+            <div class="spinner"></div>
+            <p>Loading data, please wait...</p>
+          </div>
+        </div>
+        <!-- Content - Hidden while loading -->
+        <div [style.display]="isLoading ? 'none' : 'block'">
 
         <div class="row row-gap-3">
           <div class="col-md-5">
@@ -66,8 +75,18 @@
                                         </svg>
                                       </button>
                                       <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                                        <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
-                                        <a class="links cursor-pointer" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>Delete</a>
+                                        <a class="links cursor-pointer" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>
+                                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.9174 1.5127L9.59395 2.83613L13.1486 6.39082L14.4721 5.06738C15.1557 4.38379 15.1557 3.27637 14.4721 2.59277L13.3947 1.5127C12.7111 0.829102 11.6037 0.829102 10.9201 1.5127H10.9174ZM8.97598 3.4541L2.60215 9.83066C2.31778 10.115 2.10997 10.4678 1.99512 10.8533L1.02715 14.1428C0.958795 14.3752 1.02169 14.624 1.19122 14.7936C1.36075 14.9631 1.60958 15.026 1.83926 14.9604L5.12872 13.9924C5.51426 13.8775 5.867 13.6697 6.15137 13.3854L12.5307 7.00879L8.97598 3.4541Z" stroke="#626262" stroke-width="1.2"/>
+                                          </svg>
+                                          Edit
+                                        </a>
+                                        <a class="links cursor-pointer" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>
+                                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM11 9.5C11 9.77614 10.7761 10 10.5 10H5.5C5.22386 10 5 9.77614 5 9.5V6.5C5 6.22386 5.22386 6 5.5 6H10.5C10.7761 6 11 6.22386 11 6.5V9.5Z" fill="#EC4747"/>
+                                          </svg>
+                                          Delete
+                                        </a>
                                       </div>
                                     </div>
                                   </td>
@@ -131,8 +150,18 @@
                                         </svg>
                                       </button>
                                       <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                                        <a class="links" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>Edit</a>
-                                        <a class="links" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>Delete</a>
+                                        <a class="links cursor-pointer" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>
+                                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.9174 1.5127L9.59395 2.83613L13.1486 6.39082L14.4721 5.06738C15.1557 4.38379 15.1557 3.27637 14.4721 2.59277L13.3947 1.5127C12.7111 0.829102 11.6037 0.829102 10.9201 1.5127H10.9174ZM8.97598 3.4541L2.60215 9.83066C2.31778 10.115 2.10997 10.4678 1.99512 10.8533L1.02715 14.1428C0.958795 14.3752 1.02169 14.624 1.19122 14.7936C1.36075 14.9631 1.60958 15.026 1.83926 14.9604L5.12872 13.9924C5.51426 13.8775 5.867 13.6697 6.15137 13.3854L12.5307 7.00879L8.97598 3.4541Z" stroke="#626262" stroke-width="1.2"/>
+                                          </svg>
+                                          Edit
+                                        </a>
+                                        <a class="links cursor-pointer" (click)="deleteThreshold(threshold.id)" ngbDropdownItem>
+                                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8 0C3.58172 0 0 3.58172 0 8C0 12.4183 3.58172 16 8 16C12.4183 16 16 12.4183 16 8C16 3.58172 12.4183 0 8 0ZM11 9.5C11 9.77614 10.7761 10 10.5 10H5.5C5.22386 10 5 9.77614 5 9.5V6.5C5 6.22386 5.22386 6 5.5 6H10.5C10.7761 6 11 6.22386 11 6.5V9.5Z" fill="#EC4747"/>
+                                          </svg>
+                                          Delete
+                                        </a>
                                       </div>
                                     </div>
                                   </td>
@@ -161,6 +190,7 @@
           </div>
         </div>
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
+        </div>
       </div>
     </div>
   </div>

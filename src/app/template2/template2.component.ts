@@ -75,6 +75,8 @@ export class Template2Component implements AfterViewInit {
   paperId: string | null = null;
   isCopy = false;
   submitted = false;
+  isSubmitting = false;
+  isLoadingDetails = false;
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
@@ -149,11 +151,21 @@ export class Template2Component implements AfterViewInit {
     this.editorService.getEditorToken().subscribe();
 
 
+    // Check for paperId immediately from route snapshot to set loading state early
+    const paperIdFromSnapshot = this.route.snapshot.paramMap.get('id');
+    if (paperIdFromSnapshot) {
+      this.paperId = paperIdFromSnapshot;
+      this.isLoadingDetails = true; // Set loading immediately if paperId exists
+    }
+
     this.allApisDone$.subscribe((done) => {
       if (done) {
         this.route.paramMap.subscribe(params => {
           this.paperId = params.get('id');
           if (this.paperId) {
+            if (!this.isLoadingDetails) {
+              this.isLoadingDetails = true; // Set loading if not already set
+            }
             this.fetchPaperDetails(Number(this.paperId))
           } else {
             this.isExpanded = false;
@@ -429,8 +441,10 @@ export class Template2Component implements AfterViewInit {
   }
 
   fetchPaperDetails(paperId: number) {
-      this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
-      this.paperDetails = value.data as any;
+    // isLoadingDetails is already set to true when paperId is detected
+    this.paperService.getPaperDetails(paperId, 'contract').subscribe({
+      next: (value) => {
+        this.paperDetails = value.data as any;
       console.log("==this.paperDetails", this.paperDetails)
       // Store consultations data in paperDetails for addConsultationRow to access
       const consultationsData = value.data?.consultations || [];
@@ -763,7 +777,15 @@ export class Template2Component implements AfterViewInit {
         }, 100);
         this.getUploadedDocs(paperId);
       }
-    })
+      },
+      error: (error) => {
+        console.error('Error loading paper details:', error);
+        this.toastService.show('Error loading paper details', 'danger');
+      },
+      complete: () => {
+        this.isLoadingDetails = false;
+      }
+    });
   }
 
   onSourcingTypeChange() {
@@ -2078,6 +2100,8 @@ export class Template2Component implements AfterViewInit {
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
 
     if (callAPI && this.paperId && this.paperStatusId) {
+      if (this.isSubmitting) return;
+      this.isSubmitting = true;
       // For template2, paperDetails structure is different - use contractAwardDetails
       const existingStatusId = this.paperDetails?.contractAwardDetails?.paperStatusId || 
                                this.paperDetails?.paperDetails?.paperStatusId || 
@@ -2095,6 +2119,9 @@ export class Template2Component implements AfterViewInit {
         error: (error) => {
           console.error('Error updating paper status:', error);
           this.toastService.show('Error updating paper status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     }
@@ -2102,6 +2129,7 @@ export class Template2Component implements AfterViewInit {
 
   onSubmit() {
     this.submitted = true;
+    if (this.isSubmitting) return;
     console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
@@ -2312,6 +2340,7 @@ export class Template2Component implements AfterViewInit {
   }
 
   generatePaper(params: any) {
+    this.isSubmitting = true;
     this.paperService.upsertContractAward(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -2333,6 +2362,9 @@ export class Template2Component implements AfterViewInit {
         console.log('Error', error);
         this.toastService.show("Something went wrong.", 'danger');
       },
+      complete: () => {
+        this.isSubmitting = false;
+      }
     });
   }
 

@@ -21,12 +21,16 @@
           </div>
         </div>
 
-        <div *ngIf="isLoading; else contentPart" class="table-loader">
-          <div class="spinner"></div>
-          <p>Loading audit logs, please wait...</p>
-        </div>
-        <ng-template #contentPart>
-          <div class="page-card-body">
+        <div class="page-card-body position-relative">
+          <!-- Loading Overlay -->
+          <div *ngIf="isLoading" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px; border-radius: 12px;">
+            <div class="table-loader">
+              <div class="spinner"></div>
+              <p>Loading audit logs, please wait...</p>
+            </div>
+          </div>
+          <!-- Content - Hidden while loading -->
+          <div [style.display]="isLoading ? 'none' : 'block'">
             <div class="table-responsive">
               <div class="approach-table custom-table tbl-div pb-5">
                 <table class="table table-wrapper">
@@ -62,7 +66,6 @@
                         <div class="paper-name">
                           <div class="paper-detail">
                             <p>{{ log.createdByName }}</p>
-                            <small class="text-muted">ID: {{ log.createdBy }}</small>
                           </div>
                         </div>
                       </td>
@@ -73,7 +76,7 @@
                         <div class="paper-name">
                           <div class="paper-detail">
                             <p>{{ log.modifiedByName }}</p>
-                            <small class="text-muted">ID: {{ log.modifiedBy }}</small>
+                            <!-- <small class="text-muted">ID: {{ log.modifiedBy }}</small> -->
                           </div>
                         </div>
                       </td>
@@ -86,7 +89,7 @@
               </div>
             </div>
           </div>
-        </ng-template>
+        </div>
       </div>
     </div>
   </div>
