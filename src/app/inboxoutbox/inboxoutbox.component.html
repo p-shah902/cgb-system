@@ -28,7 +28,7 @@
                         <div class="row">
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let inbox of inboxData">
                             <div class="inbox-card mb-3">
-                              <h5 class="mb-0">{{ inbox.paperProvision }}</h5>
+                              <h5 class="mb-0 cursor-pointer" (click)="goToPreview(inbox)">{{ inbox.paperProvision }}</h5>
                               <div>
                                 <span class="status-blue">{{ inbox.paperStatus }}</span>
                               </div>

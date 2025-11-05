@@ -178,7 +178,7 @@
                   <div class="form-group mb-3">
                     <label>Previous CGB Ref No*</label>
                     <div class="d-flex gap-2">
-                      <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo" [disabled]="!generalInfoForm.get('generalInfo.fullLegalName')?.value"
+                      <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo"
                               [style.flex]="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value ? '1' : 'auto'">
                         <option [value]="null">Select</option>
                         <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
@@ -187,13 +187,12 @@
                           </option>
                         </ng-container>
                       </select>
-                      <button type="button" class="btn btn-primary" (click)="onPopulateFromContract()" [disabled]="!generalInfoForm.get('generalInfo.fullLegalName')?.value || !generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
+                      <button type="button" class="btn btn-primary" (click)="onPopulateFromContract()" [disabled]="!generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
                               *ngIf="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
                               style="white-space: nowrap;">
                         Populate
                       </button>
                     </div>
-                    <small class="text-muted d-block mt-1">This will populate after selecting full legal name.</small>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('cgbAwardRefNo')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>

@@ -49,6 +49,19 @@ export class InboxoutboxComponent implements OnInit {
     this.router.navigate([route, paperId])
   }
 
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove non-word characters
+      .replace(/\s+/g, '-')     // Replace spaces with dashes
+  }
+
+  goToPreview(paper: any): void {
+    const routePath = this.slugify(paper.paperType);
+    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
+  }
+
   getInboxOutBox() {
     this.inboxOutboxService.getPaperInboxOutbox().subscribe({
       next: response => {

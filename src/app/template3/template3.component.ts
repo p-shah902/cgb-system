@@ -505,12 +505,7 @@ export class Template3Component implements AfterViewInit {
   }
 
   onPopulateFromContract() {
-    const vendorSelected = this.generalInfoForm.get('generalInfo.fullLegalName')?.value;
     const cgbAwardRefNo = this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value;
-    if (!vendorSelected) {
-      this.toastService.show('Please select Legal Name (Vendor) first', 'warning');
-      return;
-    }
     if (!cgbAwardRefNo) {
       this.toastService.show('Please select CGB Award Ref No first', 'warning');
       return;
@@ -519,12 +514,32 @@ export class Template3Component implements AfterViewInit {
   }
 
   fetchCAPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'contract').subscribe((value) => {
-      const contractPaperDetails = value.data as any;
-      const contractGeneralInfo = contractPaperDetails?.contractAwardDetails || null;
-      const contractValueData = contractPaperDetails?.valueDeliveriesCostsharing[0] || null;
-      const contractJvApprovalsData = contractPaperDetails?.jvApprovals[0] || null;
-      const contractCostAllocationJVApprovalData = contractPaperDetails?.costAllocationJVApproval || [];
+    if (!this.generalInfoForm) {
+      this.toastService.show('Form not initialized. Please try again.', 'warning');
+      return;
+    }
+
+    this.paperService.getPaperDetailsWithPreview(paperId, 'contract').subscribe({
+      next: (value) => {
+        if (!value || !value.data) {
+          this.toastService.show('No data received from the selected paper.', 'warning');
+          return;
+        }
+
+        const contractPaperDetails = value.data as any;
+        console.log('Contract Paper Details:', contractPaperDetails);
+        const contractGeneralInfo = contractPaperDetails?.paperDetails?.contractAwardDetails || null;
+        const contractValueData = contractPaperDetails?.paperDetails?.valueDeliveries?.[0] || null;
+        const contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || null;
+        const contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || [];
+
+        if (!contractGeneralInfo) {
+          this.toastService.show('Contract award details not found in the selected paper.', 'warning');
+          return;
+        }
+
+        console.log('Contract General Info:', contractGeneralInfo);
+        console.log('PSA JV Options:', this.psaJvOptions);
 
       // Start with PSAs from contractGeneralInfo
       const selectedValuesPSAJV = contractGeneralInfo?.psajv
@@ -555,13 +570,30 @@ export class Template3Component implements AfterViewInit {
         this.addPSAJVFormControls(psaName);
       });
 
-      const selectedValuesProcurementTagUsers = contractGeneralInfo?.procurementSPAUsers
-        ? contractGeneralInfo.procurementSPAUsers
+      // Handle procurementSPAUsers - it might be comma-separated IDs or names
+      let selectedValuesProcurementTagUsers: any[] = [];
+      if (contractGeneralInfo?.procurementSPAUsers) {
+        const userIds = contractGeneralInfo.procurementSPAUsers
           .split(',')
-          .map((id: any) => id.trim())
-          .map((id: any) => this.procurementTagUsers.find((option: any) => option.value === Number(id))?.value)
-          .filter((value: any) => value != null)
-        : [];
+          .map((id: any) => id.trim());
+        
+        // If procurementTagUsers is loaded, map IDs to values
+        if (this.procurementTagUsers && this.procurementTagUsers.length > 0) {
+          selectedValuesProcurementTagUsers = userIds
+            .map((id: any) => {
+              const numId = Number(id);
+              const found = this.procurementTagUsers.find((option: any) => option.value === numId);
+              return found ? found.value : numId; // Return the ID if not found in options
+            })
+            .filter((value: any) => value != null);
+        } else {
+          // If procurementTagUsers not loaded yet, use the IDs directly
+          selectedValuesProcurementTagUsers = userIds
+            .map((id: any) => Number(id))
+            .filter((id: any) => !isNaN(id));
+        }
+      }
+      console.log('Selected Procurement SPA Users:', selectedValuesProcurementTagUsers);
 
       // Prepare cost allocation patch values
       const patchValues: any = { costAllocation: {} };
@@ -596,34 +628,55 @@ export class Template3Component implements AfterViewInit {
       });
 
       // Patch all matching fields from Contract paper to Variation template
+      console.log('Patching form with data:', {
+        contractGeneralInfo,
+        selectedValuesProcurementTagUsers,
+        allSelectedValuesPSAJV
+      });
+      
       this.generalInfoForm.patchValue({
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
+          cgbItemRefNo: contractGeneralInfo?.cgbItemRefNo || '',
+          cgbCirculationDate: contractGeneralInfo?.cgbCirculationDate 
+            ? format(new Date(contractGeneralInfo.cgbCirculationDate), 'yyyy-MM-dd')
+            : null,
+          cgbApprovalDate: contractGeneralInfo?.cgbApprovalDate
+            ? format(new Date(contractGeneralInfo.cgbApprovalDate), 'yyyy-MM-dd')
+            : null,
           purposeRequired: contractGeneralInfo?.purposeRequired || '',
           otherRelatedCgbPapers: contractGeneralInfo?.otherRelatedCgbPapers || '',
           fullLegalName: contractGeneralInfo?.vendorId || null,
           contractNo: contractGeneralInfo?.contractNo || '',
-          globalCGB: contractGeneralInfo?.globalCGB || '',
+          globalCGB: contractGeneralInfo?.globalCGB ? contractGeneralInfo.globalCGB.toString() : '',
           camUserId: contractGeneralInfo?.camUserId || null,
           vP1UserId: contractGeneralInfo?.vP1UserId || null,
           procurementSPAUsers: selectedValuesProcurementTagUsers,
-          pdManagerName: contractGeneralInfo?.pdManagerNameId || null,
-          operatingFunction: contractGeneralInfo?.operatingFunction || '',
-          bltMember: contractGeneralInfo?.bltMemberId ? Number(contractGeneralInfo.bltMemberId) : null,
-          subSector: contractGeneralInfo?.subSector || '',
-          sourcingType: contractGeneralInfo?.sourcingType || '',
+          pdManagerName: contractGeneralInfo?.pdManagerNameId || contractGeneralInfo?.pdManagerName || null,
+          operatingFunction: contractGeneralInfo?.operatingFunction ? contractGeneralInfo.operatingFunction.toString() : '',
+          bltMember: contractGeneralInfo?.bltMemberId ? Number(contractGeneralInfo.bltMemberId) : contractGeneralInfo?.bltMember || null,
+          subSector: contractGeneralInfo?.subSector ? contractGeneralInfo.subSector.toString() : '',
+          sourcingType: contractGeneralInfo?.sourcingType ? contractGeneralInfo.sourcingType.toString() : '',
           psajv: allSelectedValuesPSAJV,
           isLTCC: contractGeneralInfo?.isLTCC || false,
           ltccNotes: contractGeneralInfo?.ltccNotes || '',
           isGovtReprAligned: contractGeneralInfo?.isGovtReprAligned || false,
           govtReprAlignedComment: contractGeneralInfo?.govtReprAlignedComment || '',
+          contractStartDate: contractGeneralInfo?.contractStartDate
+            ? format(new Date(contractGeneralInfo.contractStartDate), 'yyyy-MM-dd')
+            : null,
+          contractEndDate: contractGeneralInfo?.contractEndDate
+            ? format(new Date(contractGeneralInfo.contractEndDate), 'yyyy-MM-dd')
+            : null,
         },
         contractInfo: {
           isPHCA: contractGeneralInfo?.isPHCA || false,
           workspaceNo: contractGeneralInfo?.workspaceNo || '',
-          remunerationType: contractGeneralInfo?.remunerationType || '',
+          remunerationType: contractGeneralInfo?.remunerationType ? contractGeneralInfo.remunerationType.toString() : '',
           isPaymentRequired: contractGeneralInfo?.isPaymentRequired || false,
           prePayAmount: contractGeneralInfo?.prePayAmount || 0,
+          isConflictOfInterest: contractGeneralInfo?.isConflictOfInterest || false,
+          conflictOfInterestComment: contractGeneralInfo?.conflictOfInterestComment || '',
           isRetrospectiveApproval: contractGeneralInfo?.isRetrospectiveApproval || false,
           retrospectiveApprovalReason: contractGeneralInfo?.retrospectiveApprovalReason || '',
         },
@@ -631,13 +684,11 @@ export class Template3Component implements AfterViewInit {
           // Map Contract value to Previous Variation Total in Variation template
           previousVariationTotal: contractGeneralInfo?.totalAwardValueUSD || 0,
           originalContractValue: contractGeneralInfo?.totalAwardValueUSD || 0,
-          currencyCode: contractGeneralInfo?.currencyCode || '',
+          currencyCode: contractGeneralInfo?.currencyCode ? contractGeneralInfo.currencyCode.toString() : '',
           exchangeRate: contractGeneralInfo?.exchangeRate || 0,
           contractValue: contractGeneralInfo?.contractValue || 0,
           isCurrencyLinktoBaseCost: contractGeneralInfo?.contractCurrencyLinktoBaseCost || false,
           noCurrencyLinkNotes: contractGeneralInfo?.explanationsforBaseCost || '',
-          isConflictOfInterest: contractGeneralInfo?.isConflictOfInterest || false,
-          conflictOfInterestComment: contractGeneralInfo?.conflictOfInterestComment || '',
         },
         ccd: {
           isHighRiskContract: contractGeneralInfo?.isHighRiskContract || false,
@@ -680,6 +731,11 @@ export class Template3Component implements AfterViewInit {
 
       // Setup PSA listeners after patching values
       this.setupPSAListeners();
+      },
+      error: (error) => {
+        console.error('Error fetching contract paper details:', error);
+        this.toastService.show('Failed to load contract paper details. Please try again.', 'danger');
+      }
     });
   }
 
@@ -733,8 +789,7 @@ export class Template3Component implements AfterViewInit {
   }
 
   onVendorSelectionChange() {
-    // Reset dependent fields when vendor changes to enforce selection order
-    this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.setValue(null);
+    // Reset approval date when vendor changes
     this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(null);
   }
 
