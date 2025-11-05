@@ -1421,6 +1421,37 @@ export class Template5Component  implements AfterViewInit{
     return this.generalInfoForm.get('consultation') as FormArray;
   }
 
+  // Helper method to mark all controls in a form group as touched
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
+  }
+
+  // Helper method to mark all controls in a form array as touched
+  markFormArrayTouched(formArray: FormArray) {
+    formArray.controls.forEach((control) => {
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
+  }
+
   // Generate ID dynamically (001, 002, etc.)
   generateId(index: number): string {
     return (index + 1).toString().padStart(3, '0');
@@ -1509,9 +1540,25 @@ export class Template5Component  implements AfterViewInit{
   onSubmit(): void {
     this.submitted = true;
     console.log("==this.generalInfoForm", this.generalInfoForm)
+    
+    // Mark all invalid form controls as touched to show validation errors
+    this.markFormGroupTouched(this.generalInfoForm);
+    
+    // Mark all form arrays as touched
+    const consultationArray = this.generalInfoForm.get('consultation') as FormArray;
+    if (consultationArray) {
+      this.markFormArrayTouched(consultationArray);
+    }
+    
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
+    }
+    
+    // Check if form is valid
+    if (this.generalInfoForm.invalid) {
+      this.toastService.show("Please fill all required fields", "danger");
+      return;
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo

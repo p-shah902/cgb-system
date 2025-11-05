@@ -105,10 +105,12 @@
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
                     <label>For the provision of* </label>
-                    <input type="text" id="paperProvision" class="form-control allow-comments" placeholder="Enter value"
+                    <input type="text" id="paperProvision" 
+                           [class.is-invalid]="submitted && generalInfo?.get('paperProvision')?.invalid && generalInfo?.get('paperProvision')?.touched"
+                           class="form-control allow-comments" placeholder="Enter value"
                            formControlName="paperProvision"/>
                     <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required')">
+                         *ngIf="submitted && generalInfo?.get('paperProvision')?.hasError('required') && generalInfo?.get('paperProvision')?.touched">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -228,7 +230,9 @@
                 <div class="col-sm-6-12 col-md-4">
                   <div class="form-group mb-3">
                     <label>Global CGB*</label>
-                    <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
+                    <select class="form-control allow-comments" 
+                            [class.is-invalid]="submitted && generalInfo?.get('globalCGB')?.invalid && generalInfo?.get('globalCGB')?.touched"
+                            id="globalCGB" formControlName="globalCGB">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
                         <option [value]="item.id.toString()">
@@ -236,7 +240,7 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required')">
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('globalCGB')?.hasError('required') && generalInfo?.get('globalCGB')?.touched">
                       <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
@@ -244,7 +248,9 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Sourcing Type*</label>
-                    <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
+                    <select class="form-control allow-comments" 
+                            [class.is-invalid]="submitted && generalInfo?.get('sourcingType')?.invalid && generalInfo?.get('sourcingType')?.touched"
+                            formControlName="sourcingType" id="sourcingType">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
                         <option [value]="item.id.toString()">
@@ -253,7 +259,7 @@
                       </ng-container>
                     </select>
                     <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required')">
+                         *ngIf="submitted && generalInfo?.get('sourcingType')?.hasError('required') && generalInfo?.get('sourcingType')?.touched">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -261,7 +267,9 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Operating Function* </label>
-                    <select class="form-control allow-comments" id="operatingFunction"
+                    <select class="form-control allow-comments" 
+                            [class.is-invalid]="submitted && generalInfo?.get('operatingFunction')?.invalid && generalInfo?.get('operatingFunction')?.touched"
+                            id="operatingFunction"
                             formControlName="operatingFunction">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of operatingFunctionsData?.length ? operatingFunctionsData : []">
@@ -271,7 +279,7 @@
                       </ng-container>
                     </select>
                     <div class="text-danger"
-                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required')">
+                         *ngIf="submitted && generalInfo?.get('operatingFunction')?.hasError('required') && generalInfo?.get('operatingFunction')?.touched">
                       <small class="text-danger">Please select value.</small>
                     </div>
                   </div>
@@ -279,7 +287,9 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector*</label>
-                    <select class="form-control allow-comments" formControlName="subSector" id="subSector">
+                    <select class="form-control allow-comments" 
+                            [class.is-invalid]="submitted && generalInfo?.get('subSector')?.invalid && generalInfo?.get('subSector')?.touched"
+                            formControlName="subSector" id="subSector">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
                         <option [value]="item.id.toString()">
@@ -287,7 +297,7 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required')">
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required') && generalInfo?.get('subSector')?.touched">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -297,7 +307,9 @@
                     <label>Contract Accountable Manager*</label>
 
 
-                    <select class="form-control allow-comments" formControlName="camUserId" id="camUserId">
+                    <select class="form-control allow-comments" 
+                            [class.is-invalid]="submitted && generalInfo?.get('camUserId')?.invalid && generalInfo?.get('camUserId')?.touched"
+                            formControlName="camUserId" id="camUserId">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
@@ -305,7 +317,7 @@
                         </option>
                       </ng-container>
                     </select>
-                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required')">
+                    <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required') && generalInfo?.get('camUserId')?.touched">
                       <small class="text-danger">This field is required.</small>
                     </div>
                   </div>
@@ -657,13 +669,18 @@
                           <tbody formArrayName="legalEntitiesAwarded">
                           <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
                             <td>
-                              <select class="form-control" formControlName="vendorId" (change)="onVendorSelectionChange(i)">
+                              <select class="form-control" 
+                                      [class.is-invalid]="submitted && inviteToBid.at(i)?.get('legalName')?.invalid && inviteToBid.at(i)?.get('legalName')?.touched"
+                                      formControlName="vendorId" (change)="onVendorSelectionChange(i)">
                                 <option [ngValue]="null">Select vendor</option>
                                 <option *ngFor="let vendor of getVendorOptions()" [ngValue]="vendor.value">
                                   {{ vendor.label }}
                                 </option>
                               </select>
                               <input type="hidden" formControlName="legalName"/>
+                              <div class="text-danger" *ngIf="submitted && inviteToBid.at(i)?.get('legalName')?.hasError('required') && inviteToBid.at(i)?.get('legalName')?.touched">
+                                <small>Legal Entity Name is required.</small>
+                              </div>
                             </td>
                             <td class="text-center align-middle">
                               <input type="checkbox" formControlName="isLocalOrJV"/>
@@ -693,12 +710,26 @@
 
                             </td>
                             <td>
-                              <input type="date" formControlName="contractStartDate" class="form-control"
-                                     placeholder="Start Date"/>
+                              <div class="date-input-wrapper">
+                                <input type="date" formControlName="contractStartDate" 
+                                       [class.is-invalid]="submitted && inviteToBid.at(i)?.get('contractStartDate')?.invalid && inviteToBid.at(i)?.get('contractStartDate')?.touched"
+                                       class="form-control date-input"
+                                       placeholder="dd/mm/yyyy"/>
+                                <div class="text-danger" *ngIf="submitted && inviteToBid.at(i)?.get('contractStartDate')?.hasError('required') && inviteToBid.at(i)?.get('contractStartDate')?.touched">
+                                  <small>Start Date is required.</small>
+                                </div>
+                              </div>
                             </td>
                             <td>
-                              <input formControlName="contractEndDate" type="date" class="form-control"
-                                     placeholder="End Date"/>
+                              <div class="date-input-wrapper">
+                                <input formControlName="contractEndDate" type="date" 
+                                       [class.is-invalid]="submitted && inviteToBid.at(i)?.get('contractEndDate')?.invalid && inviteToBid.at(i)?.get('contractEndDate')?.touched"
+                                       class="form-control date-input"
+                                       placeholder="dd/mm/yyyy"/>
+                                <div class="text-danger" *ngIf="submitted && inviteToBid.at(i)?.get('contractEndDate')?.hasError('required') && inviteToBid.at(i)?.get('contractEndDate')?.touched">
+                                  <small>End Date is required.</small>
+                                </div>
+                              </div>
                             </td>
                             <td>
                               <input formControlName="extensionOption" type="text" class="form-control"
@@ -955,43 +986,59 @@
                           <tbody formArrayName="supplierTechnical">
                           <tr *ngFor="let risk of supplierTechnical.controls; let i = index" [formGroupName]="i">
                             <td>
-                              <select class="form-control border-0 p-0 shadow-none" formControlName="vendorId" (change)="onVendorSelectionChange(i, 'supplierTechnical')">
+                              <select class="form-control" 
+                                      [class.is-invalid]="submitted && supplierTechnical.at(i)?.get('legalName')?.invalid && supplierTechnical.at(i)?.get('legalName')?.touched"
+                                      formControlName="vendorId" (change)="onVendorSelectionChange(i, 'supplierTechnical')">
                                 <option [ngValue]="null">Select vendor</option>
                                 <option *ngFor="let vendor of getVendorOptions()" [ngValue]="vendor.value">
                                   {{ vendor.label }}
                                 </option>
                               </select>
                               <input type="hidden" formControlName="legalName"/>
-                            </td>
-                            <td>
-                              <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
-                                     class="form-control border-0 p-0 shadow-none"
-                                     placeholder="Enter here" formControlName="thresholdPercent"/>
-                            </td>
-                            <td>
-                              <div class="form-group">
-                                <select id="isTechnical" class="form-control" formControlName="isTechnical">
-                                  <option [ngValue]="true">Yes</option>
-                                  <option [ngValue]="false">No</option>
-                                </select>
+                              <div class="text-danger" *ngIf="submitted && supplierTechnical.at(i)?.get('legalName')?.hasError('required') && supplierTechnical.at(i)?.get('legalName')?.touched">
+                                <small>Legal Entity Name is required.</small>
                               </div>
                             </td>
                             <td>
                               <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
-                                     class="form-control border-0 p-0 shadow-none"
+                                     [class.is-invalid]="submitted && supplierTechnical.at(i)?.get('thresholdPercent')?.invalid && supplierTechnical.at(i)?.get('thresholdPercent')?.touched"
+                                     class="form-control"
+                                     placeholder="Enter here" formControlName="thresholdPercent"/>
+                              <div class="text-danger" *ngIf="submitted && supplierTechnical.at(i)?.get('thresholdPercent')?.hasError('required') && supplierTechnical.at(i)?.get('thresholdPercent')?.touched">
+                                <small>Score Threshold is required.</small>
+                              </div>
+                            </td>
+                            <td>
+                              <select class="form-control" formControlName="isTechnical">
+                                <option [ngValue]="true">Yes</option>
+                                <option [ngValue]="false">No</option>
+                              </select>
+                            </td>
+                            <td>
+                              <input type="number" oninput="if (this.value > 100) this.value = 100" min="0" max="100"
+                                     [class.is-invalid]="submitted && supplierTechnical.at(i)?.get('technicalScorePercent')?.invalid && supplierTechnical.at(i)?.get('technicalScorePercent')?.touched"
+                                     class="form-control"
                                      placeholder="Enter here" formControlName="technicalScorePercent"/>
+                              <div class="text-danger" *ngIf="submitted && supplierTechnical.at(i)?.get('technicalScorePercent')?.hasError('required') && supplierTechnical.at(i)?.get('technicalScorePercent')?.touched">
+                                <small>Technical Score is required.</small>
+                              </div>
                             </td>
                             <td>
-                              <input type="text" class="form-control border-0 p-0 shadow-none"
+                              <input type="text" 
+                                     [class.is-invalid]="submitted && supplierTechnical.at(i)?.get('resultOfHSSE')?.invalid && supplierTechnical.at(i)?.get('resultOfHSSE')?.touched"
+                                     class="form-control"
                                      placeholder="Enter here" formControlName="resultOfHSSE"/>
+                              <div class="text-danger" *ngIf="submitted && supplierTechnical.at(i)?.get('resultOfHSSE')?.hasError('required') && supplierTechnical.at(i)?.get('resultOfHSSE')?.touched">
+                                <small>Results of HSSE is required.</small>
+                              </div>
                             </td>
                             <td>
-                              <input type="text" class="form-control border-0 p-0 shadow-none"
+                              <input type="text" class="form-control"
                                      placeholder="Enter here" formControlName="commentary"/>
                             </td>
                             <td>
                               <div class="krt-action">
-                                <button type="button" class="btn btn-outline-danger mx-auto"
+                                <button class="btn p-0" type="button"
                                         (click)="removeSupplierTechnical(i)"
                                 >
                                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none"

@@ -784,8 +784,8 @@
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
                     <label>Exchange Rate</label>
-                    <input min="0" type="number" formControlName="exchangeRate" class="form-control"
-                           placeholder="0.00" readonly/>
+                    <input min="0" type="number" formControlName="exchangeRate" class="form-control allow-comments"
+                           placeholder="0.00" (input)="updateContractValueOriginalCurrency()"/>
                   </div>
 
                 </div>

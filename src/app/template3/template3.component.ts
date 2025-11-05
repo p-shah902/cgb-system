@@ -219,13 +219,25 @@ export class Template3Component implements AfterViewInit {
       this.updateTechnicalCorrectInAllRows(newCamUserId);
     });
 
+    // Exchange rate is manually entered - auto-populate as default but allow manual override
     this.generalInfoForm.get('contractValues.currencyCode')?.valueChanges.subscribe(() => {
-      this.updateExchangeRate();
+      // Only auto-populate if exchange rate is 0 or empty (initial state)
+      const currentExchangeRate = this.generalInfoForm.get('contractValues.exchangeRate')?.value;
+      if (!currentExchangeRate || currentExchangeRate === 0) {
+        this.updateExchangeRate();
+      }
+    });
+    
+    // Update contract value when exchange rate changes manually
+    this.generalInfoForm.get('contractValues.exchangeRate')?.valueChanges.subscribe(() => {
+      this.updateContractValueOriginalCurrency();
     });
 
     this.generalInfoForm.get('contractValues.revisedContractValue')?.valueChanges.subscribe(() => {
       this.updateContractValueOriginalCurrency();
     });
+    
+    // Exchange rate is manually editable - no automatic updates after initial population
 
     this.generalInfoForm.get('contractValues.thisVariationNote')?.valueChanges.subscribe(() => {
       // Recalculate all "By value $" fields when "This Value" changes (like template1 does with contractValueUsd)
@@ -2050,9 +2062,24 @@ export class Template3Component implements AfterViewInit {
     this.submitted = true;
     if (this.isSubmitting) return;
     console.log("==this.generalInfoForm", this.generalInfoForm)
+    
+    // Mark all invalid form controls as touched to show validation errors
+    this.markFormGroupTouched(this.generalInfoForm);
+    
+    // Mark all form arrays as touched
+    if (this.consultationRows) {
+      this.markFormArrayTouched(this.consultationRows);
+    }
+    
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
+    }
+    
+    // Check if form is valid
+    if (this.generalInfoForm.invalid) {
+      this.toastService.show("Please fill all required fields", "danger");
+      return;
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
@@ -2350,6 +2377,37 @@ export class Template3Component implements AfterViewInit {
   // Getter for FormArray
   get consultationRows(): FormArray {
     return this.generalInfoForm.get('consultation') as FormArray;
+  }
+
+  // Helper method to mark all controls in a form group as touched
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
+  }
+
+  // Helper method to mark all controls in a form array as touched
+  markFormArrayTouched(formArray: FormArray) {
+    formArray.controls.forEach((control) => {
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        this.markFormArrayTouched(control);
+      } else {
+        if (control && control.invalid) {
+          control.markAsTouched();
+        }
+      }
+    });
   }
 
   addConsultationRowOnChangePSAJV(jvValue: string) {
