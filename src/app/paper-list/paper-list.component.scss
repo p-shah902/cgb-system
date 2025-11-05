@@ -98,22 +98,60 @@
   }
   .paper-status {
     label {
-      font-size: 14px;
-      padding: 4px 12px;
-      border-radius: 30px;
-      font-weight: 500;
+      display: inline-block;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: capitalize;
+      background: transparent;
+      transition: all 0.2s ease;
     }
     .p-approved {
-      background-color: #B2DAC0;
       color: #007007;
+      border: 2px solid #007007;
+      background-color: rgba(0, 112, 7, 0.05);
+      &:hover {
+        background-color: rgba(0, 112, 7, 0.1);
+        transform: translateY(-1px);
+      }
     }
     .p-waiting {
-      background-color: #BCCEE9;
       color: #1160D8;
+      border: 2px solid #1160D8;
+      background-color: rgba(17, 96, 216, 0.05);
+      &:hover {
+        background-color: rgba(17, 96, 216, 0.1);
+        transform: translateY(-1px);
+      }
     }
     .p-archive {
-      background-color: #EAC6C6;
       color: #EC4747;
+      border: 2px solid #EC4747;
+      background-color: rgba(236, 71, 71, 0.05);
+      &:hover {
+        background-color: rgba(236, 71, 71, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+    .p-draft {
+      color: #F59E0B;
+      border: 2px solid #F59E0B;
+      background-color: rgba(245, 158, 11, 0.05);
+      &:hover {
+        background-color: rgba(245, 158, 11, 0.1);
+        transform: translateY(-1px);
+      }
+    }
+    .p-registered {
+      color: #8B5CF6;
+      border: 2px solid #8B5CF6;
+      background-color: rgba(139, 92, 246, 0.05);
+      &:hover {
+        background-color: rgba(139, 92, 246, 0.1);
+        transform: translateY(-1px);
+      }
     }
   }
 
