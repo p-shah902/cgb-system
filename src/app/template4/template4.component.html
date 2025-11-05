@@ -98,7 +98,7 @@
               <div class="row">
                 <div class="col-sm-12 col-md-8">
                   <div class="form-group mb-3">
-                    <label>Title of Sale/Disposal* </label>
+                    <label>Title of Sale/Disposal<span class="danger">*</span> </label>
                     <input type="text" class="form-control allow-comments" placeholder="Enter Title"
                            formControlName="paperProvision" id="paperProvision"/>
                     <div class="text-danger"
@@ -127,7 +127,7 @@
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
                     <div class="form-group mb-3">
-                      <label>What is being sold/disposed? *</label>
+                      <label>What is being sold/disposed? <span class="danger">*</span></label>
                       <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                       <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
                                   formControlName="purposeRequired"/>
@@ -158,7 +158,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Reference Number*</label>
+                    <label>Reference Number<span class="danger">*</span></label>
                     <input id="referenceNo" type="text" class="form-control allow-comments" placeholder="Ref Number"
                            formControlName="referenceNo"/>
                     <div class="text-danger"
@@ -170,7 +170,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PSA/JV*</label>
+                    <label>PSA/JV<span class="danger">*</span></label>
                     <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
                                 multiple></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
@@ -180,7 +180,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function* </label>
+                    <label>Operating Function<span class="danger">*</span> </label>
                     <select id="operatingFunction" class="form-control allow-comments"
                             formControlName="operatingFunction">
                       <option [value]="''">Select</option>
@@ -198,7 +198,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Account Manager (CAM)*</label>
+                    <label>Contract Account Manager (CAM)<span class="danger">*</span></label>
                     <select id="technicalApprover" class="form-control allow-comments"
                             formControlName="technicalApprover">
                       <option [value]="null">Select</option>
@@ -217,7 +217,7 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
+                    <label>Procurement SPA<span class="danger">*</span></label>
                     <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
                                 [data]="procurementTagUsers" multiple></ng-select2>
                     <div class="text-danger"
@@ -228,7 +228,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>PDM*</label>
+                    <label>PDM<span class="danger">*</span></label>
                     <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -245,7 +245,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>VP-1* </label>
+                    <label>VP-1<span class="danger">*</span> </label>
                     <select id="vP1UserId" class="form-control allow-comments" formControlName="vP1UserId">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -261,7 +261,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>BLT Member* </label>
+                    <label>BLT Member<span class="danger">*</span> </label>
                     <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -277,7 +277,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>Purchaser Name *</label>
+                    <label>Purchaser Name <span class="danger">*</span></label>
                     <input id="purchaserName" type="text" class="form-control allow-comments" placeholder="Enter Value"
                            formControlName="purchaserName"/>
                     <div class="text-danger"
@@ -289,7 +289,7 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>Sale/Disposal Value ($)*</label>
+                    <label>Sale/Disposal Value ($)<span class="danger">*</span></label>
 <!--                    <input id="saleDisposeValue" type="number" class="form-control allow-comments" placeholder="0000.0"-->
 <!--                           formControlName="saleDisposeValue" min="0" step="0.01"/>-->
 

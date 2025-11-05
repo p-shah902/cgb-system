@@ -124,7 +124,7 @@
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group mb-3">
-                      <label>For the provision of* </label>
+                      <label>For the provision of<span class="danger">*</span> </label>
                       <input type="text" class="form-control allow-comments" placeholder="Enter Title"
                              formControlName="paperProvision" id="paperProvision"/>
                       <div class="text-danger"
@@ -154,7 +154,7 @@
 
                   <div class="col-md-12">
                     <div class="form-group mb-3">
-                      <label>Why is this work required?* </label>
+                      <label>Why is this work required?<span class="danger">*</span> </label>
                       <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                       <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
                                   formControlName="purposeRequired"/>
@@ -177,7 +177,7 @@
 
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>PSA/JV*</label>
+                      <label>PSA/JV<span class="danger">*</span></label>
                       <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments"
                                   formControlName="psajv" [data]="psaJvOptions"
                                   multiple></ng-select2>
@@ -188,7 +188,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Global CGB*</label>
+                      <label>Global CGB<span class="danger">*</span></label>
                       <select id="globalCGB" class="form-control allow-comments" formControlName="globalCGB">
                         <option [value]="''">Select</option>
                         <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
@@ -204,7 +204,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Sourcing Type*</label>
+                      <label>Sourcing Type<span class="danger">*</span></label>
                       <select id="sourcingType" class="form-control allow-comments" formControlName="sourcingType">
                         <option [value]="''">Select</option>
                         <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
@@ -221,7 +221,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Operating Function* </label>
+                      <label>Operating Function<span class="danger">*</span> </label>
                       <select id="operatingFunction" class="form-control allow-comments"
                               formControlName="operatingFunction">
                         <option [value]="''">Select</option>
@@ -239,7 +239,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Subsector*</label>
+                      <label>Subsector<span class="danger">*</span></label>
                       <select id="subSector" class="form-control allow-comments" formControlName="subSector">
                         <option [value]="''">Select</option>
                         <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
@@ -255,7 +255,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Contract Accountable Manager*</label>
+                      <label>Contract Accountable Manager<span class="danger">*</span></label>
 
 
                       <select id="camUserId" class="form-control allow-comments" formControlName="camUserId">
@@ -274,7 +274,7 @@
 
                   <div class="col-sm-6 col-md-6">
                     <div class="form-group mb-3">
-                      <label>Procurement SPA*</label>
+                      <label>Procurement SPA<span class="danger">*</span></label>
                       <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="procurementSPAUsers"
                                   class="allow-comments" formControlName="procurementSPAUsers"
                                   [data]="procurementTagUsers" multiple></ng-select2>
@@ -286,7 +286,7 @@
                   </div>
                   <div class="col-sm-6 col-md-6">
                     <div class="form-group mb-3">
-                      <label>PDM*</label>
+                      <label>PDM<span class="danger">*</span></label>
                       <select id="pdManagerName" class="form-control allow-comments" formControlName="pdManagerName">
                         <option [value]="null">Select</option>
                         <ng-container *ngFor="let user of userDetails">
@@ -303,7 +303,7 @@
                   </div>
                   <div class="col-sm-6 col-md-6">
                     <div class="form-group mb-3">
-                      <label>VP-1* </label>
+                      <label>VP-1<span class="danger">*</span> </label>
                       <select id="vP1UserId" class="form-control allow-comments" formControlName="vP1UserId">
                         <option [value]="null">Select</option>
                         <ng-container *ngFor="let user of userDetails">
@@ -319,7 +319,7 @@
                   </div>
                   <div class="col-sm-6 col-md-6">
                     <div class="form-group mb-3">
-                      <label>BLT Member* </label>
+                      <label>BLT Member<span class="danger">*</span> </label>
                       <select id="bltMember" class="form-control allow-comments" formControlName="bltMember">
                         <option [value]="null">Select</option>
                         <ng-container *ngFor="let user of userDetails">
@@ -336,7 +336,7 @@
 
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Contract Value (USD)*</label>
+                      <label>Contract Value (USD)<span class="danger">*</span></label>
                       <!--                        <input id="contractValueUsd" type="number" class="form-control allow-comments" placeholder="0000.0"-->
                       <!--                               formControlName="contractValueUsd" min="0" step="0.01"/>-->
                       <app-number-input id="contractValueUsd" inputClass="allow-comments"
@@ -373,7 +373,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Contract Value (Original Currency)*</label>
+                      <label>Contract Value (Original Currency)<span class="danger">*</span></label>
                       <!--                        <input id="contractValueOriginalCurrency" type="text" class="form-control allow-comments"-->
                       <!--                               placeholder="0000.0" formControlName="contractValueOriginalCurrency" readonly/>-->
 
@@ -387,7 +387,7 @@
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
-                          <label class="mb-2">Contract Duration Start Date *</label>
+                          <label class="mb-2">Contract Duration Start Date <span class="danger">*</span></label>
                           <input id="contractStartDate" type="date" class="form-control allow-comments"
                                  placeholder="Start Date" formControlName="contractStartDate"
                                  (change)="onStartDateChange()"/>
@@ -399,7 +399,7 @@
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
-                          <label class="mb-2">Contract Duration End Date *</label>
+                          <label class="mb-2">Contract Duration End Date <span class="danger">*</span></label>
                           <input id="contractEndDate" type="date" class="form-control allow-comments"
                                  placeholder="End Date" formControlName="contractEndDate" [readOnly]="isEndDateDisabled"
                                  [min]="minEndDate"/>
@@ -568,7 +568,7 @@
                 <div class="row">
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Remuneration Type*</label>
+                      <label>Remuneration Type<span class="danger">*</span></label>
                       <select id="remunerationType" class="form-control allow-comments"
                               formControlName="remunerationType">
                         <option [value]="''">Select</option>
@@ -586,7 +586,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Proposed Contract Management Level*</label>
+                      <label>Proposed Contract Management Level<span class="danger">*</span></label>
                       <select id="contractMgmtLevel" class="form-control allow-comments"
                               formControlName="contractMgmtLevel">
                         <option [value]="''">Select</option>
@@ -604,7 +604,7 @@
                   </div>
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
-                      <label>Sourcing Rigor*</label>
+                      <label>Sourcing Rigor<span class="danger">*</span></label>
                       <select id="sourcingRigor" class="form-control allow-comments" formControlName="sourcingRigor">
                         <option [value]="''">Select</option>
                         <ng-container *ngFor="let item of sourcingRigorData?.length ? sourcingRigorData : []">
@@ -786,7 +786,7 @@
 
                   <div class="col-md-6">
                     <div class="form-group mb-3">
-                      <label>SOCAR notification sent on *</label>
+                      <label>SOCAR notification sent on <span class="danger">*</span></label>
                       <div class="date-input position-relative">
                         <input id="socaRsentOn" type="date" class="form-control allow-comments"
                                formControlName="socaRsentOn"/>
@@ -798,7 +798,7 @@
                     </div>
 
                     <div class="form-group mb-3">
-                      <label>SOCAR Response Received Date *</label>
+                      <label>SOCAR Response Received Date <span class="danger">*</span></label>
                       <div class="date-input position-relative">
                         <input id="socaRreceivedOn" type="date" class="form-control allow-comments"
                                formControlName="socaRreceivedOn"/>

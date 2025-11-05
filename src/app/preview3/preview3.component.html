@@ -61,7 +61,7 @@
               <div class="row">
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Title of Variation*</label>
+                    <label>Title of Variation<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.paperProvision || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Previous CGB Ref No*</label>
+                    <label>Previous CGB Ref No<span class="danger">*</span></label>
                     <h6>{{ getVariationProperty('cgbAwardRefNo') || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -130,13 +130,13 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>What is the variation for?*</label>
+                    <label>What is the variation for?<span class="danger">*</span></label>
                     <p [safeHtml]="paperInfo?.purposeRequired || 'N/A'"></p>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Full Legal Name*</label>
+                    <label>Full Legal Name<span class="danger">*</span></label>
                     <h6>{{ getVariationProperty('fullLegalName') || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -148,43 +148,43 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PSA/JV*</label>
+                    <label>PSA/JV<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.psajv || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Global CGB*</label>
+                    <label>Global CGB<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.globalCGB || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
+                    <label>Sourcing Type<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.sourcingType || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function*</label>
+                    <label>Operating Function<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.operatingFunction || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Subsector*</label>
+                    <label>Subsector<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.subSector || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Accountable Manager (CAM)*</label>
+                    <label>Contract Accountable Manager (CAM)<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.camUserName || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
+                    <label>Procurement SPA<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.procurementSPAUsers || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -196,13 +196,13 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>VP-1*</label>
+                    <label>VP-1<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.vP1UserName || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>BLT Member*</label>
+                    <label>BLT Member<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.bltMemberName || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -287,13 +287,13 @@
               <div class="row">
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Why is the change required?*</label>
+                    <label>Why is the change required?<span class="danger">*</span></label>
                     <p [safeHtml]="getVariationProperty('whyChangeRequired') || 'N/A'"></p>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Long-Term Strategy*</label>
+                    <label>Long-Term Strategy<span class="danger">*</span></label>
                     <p [safeHtml]="getVariationProperty('longTermStrategy') || 'N/A'"></p>
                   </div>
                 </div>
@@ -316,7 +316,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Remuneration Type*</label>
+                    <label>Remuneration Type<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.remunerationType || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -383,7 +383,7 @@
                 </div>
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
-                    <label>This Value*</label>
+                    <label>This Value<span class="danger">*</span></label>
                     <h6>{{ getVariationProperty('thisVariationNote') || 'N/A' }}</h6>
                   </div>
                 </div>

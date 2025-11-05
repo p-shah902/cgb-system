@@ -61,19 +61,19 @@
               <div class="row">
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Provision for*</label>
+                    <label>Provision for<span class="danger">*</span></label>
                     <h6>{{ getInfoNoteProperty('paperProvision') || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Type of Transaction*</label>
+                    <label>Type of Transaction<span class="danger">*</span></label>
                     <h6>{{ getInfoNoteProperty('transactionType') || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>What is the change?*</label>
+                    <label>What is the change?<span class="danger">*</span></label>
                     <p [safeHtml]="getInfoNoteProperty('purposeRequired') || 'N/A'"></p>
                   </div>
                 </div>
@@ -114,7 +114,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Full Legal Name*</label>
+                    <label>Full Legal Name<span class="danger">*</span></label>
                     <h6>{{ getInfoNoteProperty('legalName') || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -138,43 +138,43 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>PSA/JV*</label>
+                    <label>PSA/JV<span class="danger">*</span></label>
                     <h6>{{ getInfoNoteProperty('psajv') || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
+                    <label>Sourcing Type<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.sourcingType || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function*</label>
+                    <label>Operating Function<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.operatingFunction || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Subsector*</label>
+                    <label>Subsector<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.subSector || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Account Manager (CAM)*</label>
+                    <label>Contract Account Manager (CAM)<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.camUserName || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
+                    <label>Procurement SPA<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.procurementSPAUsers || 'N/A' }}</h6>
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>VP-1*</label>
+                    <label>VP-1<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.vP1UserName || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -186,7 +186,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>BLT Member*</label>
+                    <label>BLT Member<span class="danger">*</span></label>
                     <h6>{{ paperInfo?.bltMemberName || 'N/A' }}</h6>
                   </div>
                 </div>
@@ -195,13 +195,13 @@
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
-                        <label>Start Date*</label>
+                        <label>Start Date<span class="danger">*</span></label>
                         <h6>{{ getInfoNoteProperty('contractStartDate') ? (getInfoNoteProperty('contractStartDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
                       </div>
                     </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
-                        <label>End Date*</label>
+                        <label>End Date<span class="danger">*</span></label>
                         <h6>{{ getInfoNoteProperty('contractEndDate') ? (getInfoNoteProperty('contractEndDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
                       </div>
                     </div>
@@ -212,13 +212,13 @@
                   <div class="row">
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
-                        <label>Start Date*</label>
+                        <label>Start Date<span class="danger">*</span></label>
                         <h6>{{ getInfoNoteProperty('variationStartDate') ? (getInfoNoteProperty('variationStartDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
                       </div>
                     </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3">
-                        <label>End Date*</label>
+                        <label>End Date<span class="danger">*</span></label>
                         <h6>{{ getInfoNoteProperty('variationEndDate') ? (getInfoNoteProperty('variationEndDate') | date: 'dd MMMM yyyy') : 'N/A' }}</h6>
                       </div>
                     </div>

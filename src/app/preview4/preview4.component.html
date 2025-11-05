@@ -61,7 +61,7 @@
             <div class="row">
               <div class="col-sm-12 col-md-8">
                 <div class="form-group mb-3">
-                  <label>Title of Sale/Disposal*</label>
+                  <label>Title of Sale/Disposal<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.paperProvision || 'N/A' }}</h6>
                 </div>
               </div>
@@ -73,7 +73,7 @@
               </div>
               <div class="col-sm-12 col-md-12">
                 <div class="form-group mb-3">
-                  <label>What is being sold/disposed?*</label>
+                  <label>What is being sold/disposed?<span class="danger">*</span></label>
                   <h6 [innerHTML]="paperInfo?.purposeRequired || 'N/A'"></h6>
                 </div>
               </div>
@@ -85,7 +85,7 @@
               </div>
               <div class="col-sm-6 col-md-4">
                 <div class="form-group mb-3">
-                  <label>Reference Number*</label>
+                  <label>Reference Number<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.referenceNo || 'N/A' }}</h6>
                 </div>
               </div>
@@ -97,55 +97,55 @@
               </div>
               <div class="col-sm-6 col-md-12">
                 <div class="form-group mb-3">
-                  <label>PSA/JV*</label>
+                  <label>PSA/JV<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.psajv || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Technical Approver*</label>
+                  <label>Technical Approver<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.camUserName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Procurement SPA*</label>
+                  <label>Procurement SPA<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.procurementSPAUsers || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>VP-1*</label>
+                  <label>VP-1<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.vP1UserName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>PDM*</label>
+                  <label>PDM<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.pdManagerName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Operating Function*</label>
+                  <label>Operating Function<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.operatingFunction || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>BLT Member*</label>
+                  <label>BLT Member<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.bltMemberName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Purchaser Name*</label>
+                  <label>Purchaser Name<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.purchaserName || 'N/A' }}</h6>
                 </div>
               </div>
               <div class="col-sm-6 col-md-6">
                 <div class="form-group mb-3">
-                  <label>Sale/Disposal Value ($)*</label>
+                  <label>Sale/Disposal Value ($)<span class="danger">*</span></label>
                   <h6>{{ paperInfo?.saleDisposeValue ? (paperInfo?.saleDisposeValue | number:'1.2-2') : 'N/A' }}</h6>
                 </div>
               </div>

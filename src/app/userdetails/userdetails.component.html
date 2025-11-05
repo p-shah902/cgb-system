@@ -32,21 +32,21 @@
            </div>
 
            <div class="form-group mb-3">
-             <label>Full Name *</label>
+             <label>Full Name <span class="danger">*</span></label>
              <input type="text" class="form-control" placeholder="Enter Full Name"  formControlName="displayName"/>
            </div>
 
            <div class="form-group mb-3">
-             <label>Email Address *</label>
+             <label>Email Address <span class="danger">*</span></label>
              <input type="text" class="form-control" placeholder="Enter Email Address" formControlName="email"/>
            </div>
            <div class="form-group mb-3">
-            <label>New Password *</label>
+            <label>New Password <span class="danger">*</span></label>
             <input type="password" class="form-control" placeholder="Enter New Password" formControlName="password"/>
            </div>
 
            <div class="form-group mb-3">
-             <label>Phone Number *</label>
+             <label>Phone Number <span class="danger">*</span></label>
              <input type="text" class="form-control" placeholder="Phone number" formControlName="phone"/>
            </div>
          </div>
@@ -55,14 +55,14 @@
               <h3>Role Assignment</h3>
             </div>
             <div class="form-group mb-3">
-              <label>Role Assignment *</label>
+              <label>Role Assignment <span class="danger">*</span></label>
                <select class="form-control" formControlName="roleId" >
                  <option [value]="0">Select Role</option>
                  <option *ngFor="let role of userRoles" [value]="role.id">{{role.name}}</option>
                </select>
             </div>
             <div class="form-group mb-3">
-              <label>Department *</label>
+              <label>Department <span class="danger">*</span></label>
               <select class="form-control" formControlName="departmentId">
                 <option [value]="0">Select Department</option>
                 <option *ngFor="let dept of departments" [value]="dept.id">{{dept.displayName}}</option>

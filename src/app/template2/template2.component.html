@@ -105,7 +105,7 @@
               <div class="row">
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>For the provision of* </label>
+                    <label>For the provision of<span class="danger">*</span> </label>
                     <input type="text" id="paperProvision" 
                            [class.is-invalid]="submitted && generalInfo?.get('paperProvision')?.invalid && generalInfo?.get('paperProvision')?.touched"
                            class="form-control allow-comments" placeholder="Enter value"
@@ -176,7 +176,7 @@
 
                 <div class="col-md-12">
                   <div class="form-group mb-3 allow-comments" id="isChangeinApproachMarket">
-                    <label>Have there been changes to the Scope since CGB Approach to Market?*</label>
+                    <label>Have there been changes to the Scope since CGB Approach to Market?<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" [value]="true" formControlName="isChangeinApproachMarket"
@@ -196,7 +196,7 @@
                 </div>
                 <div class="col-md-12" *ngIf="generalInfo?.get('isChangeinApproachMarket')?.value === true">
                   <div class="form-group mb-3">
-                    <label>Changes since AtM / Why is this work required?* </label>
+                    <label>Changes since AtM / Why is this work required?<span class="danger">*</span> </label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
                                 formControlName="purposeRequired"/>
@@ -220,7 +220,7 @@
               <div class="row">
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PSA/JV*</label>
+                    <label>PSA/JV<span class="danger">*</span></label>
                     <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
                                 multiple></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
@@ -230,7 +230,7 @@
                 </div>
                 <div class="col-sm-6-12 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Global CGB*</label>
+                    <label>Global CGB<span class="danger">*</span></label>
                     <select class="form-control allow-comments" 
                             [class.is-invalid]="submitted && generalInfo?.get('globalCGB')?.invalid && generalInfo?.get('globalCGB')?.touched"
                             id="globalCGB" formControlName="globalCGB">
@@ -248,7 +248,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
+                    <label>Sourcing Type<span class="danger">*</span></label>
                     <select class="form-control allow-comments" 
                             [class.is-invalid]="submitted && generalInfo?.get('sourcingType')?.invalid && generalInfo?.get('sourcingType')?.touched"
                             formControlName="sourcingType" id="sourcingType">
@@ -267,7 +267,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function* </label>
+                    <label>Operating Function<span class="danger">*</span> </label>
                     <select class="form-control allow-comments" 
                             [class.is-invalid]="submitted && generalInfo?.get('operatingFunction')?.invalid && generalInfo?.get('operatingFunction')?.touched"
                             id="operatingFunction"
@@ -287,7 +287,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>Subsector*</label>
+                    <label>Subsector<span class="danger">*</span></label>
                     <select class="form-control allow-comments" 
                             [class.is-invalid]="submitted && generalInfo?.get('subSector')?.invalid && generalInfo?.get('subSector')?.touched"
                             formControlName="subSector" id="subSector">
@@ -305,7 +305,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Accountable Manager*</label>
+                    <label>Contract Accountable Manager<span class="danger">*</span></label>
 
 
                     <select class="form-control allow-comments" 
@@ -325,7 +325,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
+                    <label>Procurement SPA<span class="danger">*</span></label>
                     <ng-select2 placeholder="Select" displaySearchStatus="hidden" class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
                                 [data]="procurementTagUsers"
                                 multiple></ng-select2>
@@ -337,7 +337,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>PDM*</label>
+                    <label>PDM<span class="danger">*</span></label>
                     <select class="form-control allow-comments" formControlName="pdManagerName" id="pdManagerName">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -354,7 +354,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>VP-1* </label>
+                    <label>VP-1<span class="danger">*</span> </label>
                     <select class="form-control allow-comments" formControlName="vP1UserId" id="vP1UserId">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -371,7 +371,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>BLT Member* </label>
+                    <label>BLT Member<span class="danger">*</span> </label>
                     <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -388,7 +388,7 @@
 
                 <div class="col-sm-6 col-md-12">
                   <div class="form-group mb-3 allow-comments" id="isPHCA">
-                    <label>PHCA*</label>
+                    <label>PHCA<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" formControlName="isPHCA" name="isPHCA" [value]="true">
@@ -407,7 +407,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Value (USD) *</label>
+                    <label>Contract Value (USD) <span class="danger">*</span></label>
                  <!--   <input type="number" class="form-control allow-comments" id="totalAwardValueUSD"
                            formControlName="totalAwardValueUSD" placeholder="0.0000"
                            min="0"/>-->
@@ -448,7 +448,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Value (Original Currency)*</label>
+                    <label>Contract Value (Original Currency)<span class="danger">*</span></label>
                     <app-number-input id="contractValue" [readonly]="true" [showDollarSign]="false" inputClass="allow-comments" formControlName="contractValue" placeholder="0.00"></app-number-input>
 
                   </div>
@@ -456,7 +456,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Remuneration Type*</label>
+                    <label>Remuneration Type<span class="danger">*</span></label>
                     <select class="form-control allow-comments" id="remunerationType"
                             formControlName="remunerationType">
                       <option [value]="''">Select</option>
@@ -476,7 +476,7 @@
                   <div class="form-group mb-3">
 
                     <div class="form-group mb-3 allow-comments" id="isPaymentRequired">
-                      <label>Prepayment Required*</label>
+                      <label>Prepayment Required<span class="danger">*</span></label>
                       <div class="form-radio d-flex gap-3">
                         <div class="radio-box position-relative">
                           <input type="radio" formControlName="isPaymentRequired" name="isPaymentRequired"
@@ -531,7 +531,7 @@
                   <div class="form-group mb-3">
 
                     <div class="form-group mb-3 allow-comments" id="isSplitAward">
-                      <label>Split Award*</label>
+                      <label>Split Award<span class="danger">*</span></label>
                       <div class="form-radio d-flex gap-3">
                         <div class="radio-box position-relative">
                           <input type="radio" formControlName="isSplitAward" name="isSplitAward" [value]="true">
@@ -551,7 +551,7 @@
 
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3 allow-comments" id="isLTCC">
-                    <label>Long Term Commercial Commitment*</label>
+                    <label>Long Term Commercial Commitment<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isLTCC" formControlName="isLTCC" [value]="true">
@@ -579,7 +579,7 @@
                     </div>
                     <div class="col-sm-6 col-md-6">
                       <div class="form-group mb-3 allow-comments" id="isGovtReprAligned">
-                        <label>Aligned with Government Representative*</label>
+                        <label>Aligned with Government Representative<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isGovtReprAligned" [value]="true"
@@ -638,7 +638,7 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>Supplier Award Recommendation *</label>
+                    <label>Supplier Award Recommendation <span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="supplierAwardRecommendations"/>
                     <app-editor *ngIf="isRegisterPaper"
                                 [paperId]="paperId ? (paperId + 'supplierAwardRecommendations') : ''"
@@ -772,7 +772,7 @@
               <div class="row">
                 <div class="col-sm-6">
                   <div class="form-group mb-3 allow-comments" id="isConflictOfInterest">
-                    <label class="mb-3">Conflict of Interest*</label>
+                    <label class="mb-3">Conflict of Interest<span class="danger">*</span></label>
                       <svg width="17" height="16" viewBox="0 0 17 16" fill="none" class="pointer"
                            [ngbTooltip]="'Conflict of Interest with SOCAR, SOCAR Affiliated entities (JVs, Alliances) or other'" placement="top" container="body"
                            xmlns="http://www.w3.org/2000/svg">
@@ -810,7 +810,7 @@
                 </div>
                 <div class="col-sm-6">
                   <div class="form-group mb-3 allow-comments" id="isRetrospectiveApproval">
-                    <label class="mb-3">Retrospective Approval*</label>
+                    <label class="mb-3">Retrospective Approval<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isRetrospectiveApproval" formControlName="isRetrospectiveApproval"
@@ -841,7 +841,7 @@
                 <div class="col-sm-12">
 
                   <div class="form-group mb-3">
-                    <label>National Content*</label>
+                    <label>National Content<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="nationalContent"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'nationalContent') : ''"
                                 formControlName="nationalContent"/>
@@ -865,7 +865,7 @@
               <div class="row">
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>High Risk Contract*</label>
+                    <label>High Risk Contract<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3 allow-comments" id="isHighRiskContract">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isHighRiskContract" formControlName="isHighRiskContract"
@@ -885,7 +885,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>CDD Completed / Refreshed*</label>
+                    <label>CDD Completed / Refreshed<span class="danger">*</span></label>
                     <div class="date-input position-relative">
                       <input type="date" formControlName="cddCompleted" id="cddCompleted"
                              class="form-control allow-comments" placeholder=""/>
@@ -898,7 +898,7 @@
                 <div class="col-sm-12" *ngIf="generalInfoForm.get('ccd.isHighRiskContract')?.value === true">
 
                   <div class="form-group mb-3">
-                    <label>Explanation for High Risk*</label>
+                    <label>Explanation for High Risk<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="highRiskExplanation"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'highRiskExplanation') : ''"
                                 formControlName="highRiskExplanation"/>
@@ -910,7 +910,7 @@
                 <div class="col-sm-6" *ngIf="generalInfoForm.get('ccd.isHighRiskContract')?.value === true">
 
                   <div class="form-group mb-3">
-                    <label>Flags raised during initial CDD / CDD refresh*</label>
+                    <label>Flags raised during initial CDD / CDD refresh<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="flagRaisedCDD"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'flagRaisedCDD') : ''"
                                 formControlName="flagRaisedCDD"/>
@@ -922,7 +922,7 @@
                 <div class="col-sm-6" *ngIf="generalInfoForm.get('ccd.isHighRiskContract')?.value === true">
 
                   <div class="form-group mb-3">
-                    <label>Additional CDD Controls for High Risk Contracts*</label>
+                    <label>Additional CDD Controls for High Risk Contracts<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="additionalCDD"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'additionalCDD') : ''"
                                 formControlName="additionalCDD"/>
@@ -1184,7 +1184,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3 allow-comments" id="contractCurrencyLinktoBaseCost">
-                    <label>Contract Currency Linked to Base Cost*</label>
+                    <label>Contract Currency Linked to Base Cost<span class="danger">*</span></label>
                     <div class="form-radio d-flex gap-3 flex-wrap">
                       <div class="radio-box position-relative">
                         <input type="radio" name="contractCurrencyLinktoBaseCost"
@@ -1859,7 +1859,7 @@
               
               <!-- Framework or Commitment field - additional field in Cost Sharing Methodology section -->
               <div class="form-group mb-3 allow-comments mt-4" id="contractSpendCommitment">
-                <label class="mb-3">Framework or Commitment*</label>
+                <label class="mb-3">Framework or Commitment<span class="danger">*</span></label>
                 <div class="form-radio d-flex flex-column ps-3">
                   <div class="radio-box position-relative mb-2">
                     <input type="radio" name="contractSpendCommitment"

@@ -107,7 +107,7 @@
               <div class="row">
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>For the provision of* </label>
+                    <label>For the provision of<span class="danger">*</span> </label>
                     <input type="text" class="form-control allow-comments" placeholder="Enter Title"
                            formControlName="paperProvision" id="paperProvision"/>
                     <div class="text-danger"
@@ -175,7 +175,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
 <!--                  <div class="form-group mb-3">-->
-<!--                    <label>CGB Award Ref No*</label>-->
+<!--                    <label>CGB Award Ref No<span class="danger">*</span></label>-->
 <!--                    <input id="cgbAwardRefNo" type="text" class="form-control" placeholder="CGB Award Ref No"-->
 <!--                           formControlName="cgbAwardRefNo"/>-->
 <!--                    <div class="text-danger"-->
@@ -185,7 +185,7 @@
 <!--                  </div>-->
 
                   <div class="form-group mb-3">
-                    <label>Previous CGB Ref No*</label>
+                    <label>Previous CGB Ref No<span class="danger">*</span></label>
                     <div class="d-flex gap-2">
                       <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo"
                               [style.flex]="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value ? '1' : 'auto'">
@@ -224,7 +224,7 @@
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
-                    <label>What is the change? *</label>
+                    <label>What is the change? <span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
                                 formControlName="purposeRequired"/>
@@ -239,7 +239,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Full Legal Name *</label>
+                    <label>Full Legal Name <span class="danger">*</span></label>
                     <select class="form-control allow-comments" id="fullLegalName" formControlName="fullLegalName" (change)="onVendorSelectionChange()">
                       <option [value]="null">Select vendor</option>
                       <option *ngFor="let vendor of getVendorOptions()" [value]="vendor.value">
@@ -261,7 +261,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>PSA/JV*</label>
+                    <label>PSA/JV<span class="danger">*</span></label>
                     <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments" formControlName="psajv" [data]="psaJvOptions"
                                 multiple></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
@@ -272,7 +272,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Global CGB*</label>
+                    <label>Global CGB<span class="danger">*</span></label>
                     <select class="form-control allow-comments" id="globalCGB" formControlName="globalCGB">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of globalCGBData?.length ? globalCGBData : []">
@@ -290,7 +290,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Sourcing Type*</label>
+                    <label>Sourcing Type<span class="danger">*</span></label>
                     <select class="form-control allow-comments" formControlName="sourcingType" id="sourcingType">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of sourcingTypeData?.length ? sourcingTypeData : []">
@@ -308,7 +308,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Operating Function* </label>
+                    <label>Operating Function<span class="danger">*</span> </label>
                     <select class="form-control allow-comments" id="operatingFunction"
                             formControlName="operatingFunction">
                       <option [value]="''">Select</option>
@@ -326,7 +326,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Subsector*</label>
+                    <label>Subsector<span class="danger">*</span></label>
                     <select class="form-control allow-comments" formControlName="subSector" id="subSector">
                       <option [value]="''">Select</option>
                       <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
@@ -342,7 +342,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>Contract Account Manager (CAM)*</label>
+                    <label>Contract Account Manager (CAM)<span class="danger">*</span></label>
                     <select class="form-control allow-comments" formControlName="camUserId" id="camUserId">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -358,7 +358,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>Procurement SPA*</label>
+                    <label>Procurement SPA<span class="danger">*</span></label>
                     <ng-select2 placeholder="Select" displaySearchStatus="hidden" class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
                                 [data]="procurementTagUsers"
                                 multiple></ng-select2>
@@ -387,7 +387,7 @@
                 </div>
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
-                    <label>VP-1*</label>
+                    <label>VP-1<span class="danger">*</span></label>
                     <select class="form-control allow-comments" formControlName="vP1UserId" id="vP1UserId">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -404,7 +404,7 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>BLT Member* </label>
+                    <label>BLT Member<span class="danger">*</span> </label>
                     <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
@@ -424,7 +424,7 @@
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
-                          <label>Start Date *</label>
+                          <label>Start Date <span class="danger">*</span></label>
                           <input id="contractStartDate" formControlName="contractStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -435,7 +435,7 @@
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
-                          <label>End Date *</label>
+                          <label>End Date <span class="danger">*</span></label>
                           <input id="contractEndDate" formControlName="contractEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -454,7 +454,7 @@
                     <div class="row">
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
-                          <label>Start Date *</label>
+                          <label>Start Date <span class="danger">*</span></label>
                           <input id="variationStartDate" formControlName="variationStartDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -465,7 +465,7 @@
                       </div>
                       <div class="col-sm-6 col-md-6">
                         <div class="form-group mb-3">
-                          <label>End Date *</label>
+                          <label>End Date <span class="danger">*</span></label>
                           <input id="variationEndDate" formControlName="variationEndDate" type="date"
                                  class="form-control allow-comments" placeholder=""/>
                           <div class="text-danger"
@@ -561,7 +561,7 @@
 
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3">
-                    <label>Why is the change required? *</label>
+                    <label>Why is the change required? <span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="whyChangeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'whyChangeRequired') : ''"
                                 formControlName="whyChangeRequired"/>
@@ -571,7 +571,7 @@
                     </div>
                   </div>
                   <div class="form-group mb-3">
-                    <label>Long-Term Strategy*</label>
+                    <label>Long-Term Strategy<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="longTermStrategy"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'longTermStrategy') : ''"
                                 formControlName="longTermStrategy"/>
@@ -614,7 +614,7 @@
                 </div>
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Remuneration Type*</label>
+                    <label>Remuneration Type<span class="danger">*</span></label>
                     <select id="remunerationType" class="form-control allow-comments"
                             formControlName="remunerationType">
                       <option [value]="''">Select</option>
@@ -759,7 +759,7 @@
                 </div>
                 <div class="col-sm-6 col-md-3">
                   <div class="form-group mb-3">
-                    <label>This Value*</label>
+                    <label>This Value<span class="danger">*</span></label>
                     <app-number-input id="thisVariationNote" inputClass="allow-comments" formControlName="thisVariationNote" placeholder="0.00" [showDollarSign]="true"></app-number-input>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfoForm.get('contractValues.thisVariationNote')?.hasError('required')">
