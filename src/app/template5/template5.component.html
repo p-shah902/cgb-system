@@ -12,7 +12,7 @@
 </div>
 <div class="container-fluid">
   <div class="row">
-    <div [ngClass]="isExpanded ? 'col-xl-8' : 'col-xl-12'">
+    <div [ngClass]="isExpanded ? 'col-xl-9' : 'col-xl-12'">
       <div class="form-main-div position-relative">
         <!-- Loading Overlay - Only covers form section -->
         <div *ngIf="isLoadingDetails" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px;">
@@ -629,7 +629,7 @@
                     <td></td>
                   </tr>
 
-                  
+
                   </tbody>
                 </table>
                 <div *ngIf="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')">
@@ -758,7 +758,8 @@
         <!-- Close form content wrapper -->
       </div>
     </div>
-    <div class="col-xl-4">
+    </div>
+    <div class="col-xl-3">
       <div class="form-main-div" *ngIf="isExpanded">
         <div class="form-header mb-4">
           <div class="row align-items-center">

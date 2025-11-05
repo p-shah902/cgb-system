@@ -1,6 +1,5 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {formatDistanceToNow} from 'date-fns';
-import {toZonedTime} from 'date-fns-tz';
 
 @Pipe({
   name: 'timeAgo',
@@ -12,9 +11,13 @@ export class TimeAgoPipe implements PipeTransform {
 
     const date = typeof value === 'string' ? new Date(value) : value;
 
-    // Convert from UTC to local timezone
-    const localDate = toZonedTime(date, Intl.DateTimeFormat().resolvedOptions().timeZone);
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return '';
+    }
 
-    return formatDistanceToNow(localDate, {addSuffix: true});
+    // formatDistanceToNow works correctly with Date objects
+    // Date objects are automatically in local time, so no conversion needed
+    return formatDistanceToNow(date, {addSuffix: true});
   }
 }

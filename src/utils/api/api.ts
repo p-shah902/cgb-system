@@ -100,7 +100,7 @@ export const deleteVendorsUri = baseUri + '/VendorMaster/DeleteVendors';
 
 // Visitor Log
 export const addPaperVisitorLogs = baseUri + '/VisitorLog/VisitorLogs';
-export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisiterLogById';
+export const getPaperVisitorLogs = baseUri + '/VisitorLog/GetVisitorLogById';
 
 // Voting
 export const getCGBVotingCountByPaper = baseUri + '/Voting/GetCGBVotingCountByPaper';
