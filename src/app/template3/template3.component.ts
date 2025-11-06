@@ -2268,46 +2268,49 @@ export class Template3Component implements AfterViewInit {
 
 
   onSubmit(): void {
-    this.submitted = true;
     if (this.isSubmitting) return;
-    console.log("==this.generalInfoForm", this.generalInfoForm)
-
-    // Trigger validation checks for value delivery remarks before marking as touched
-    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
-    if (valueDeliveryGroup) {
-      // Check Cost Reduction - if $ is entered, both % and Remark are required
-      const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
-      const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
-      const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
-      const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
-      if (hasCostReductionValue) {
-        costReductionPercent?.setValidators([Validators.required]);
-        costReductionRemarks?.setValidators([Validators.required]);
-      } else {
-        costReductionPercent?.clearValidators();
-        costReductionRemarks?.clearValidators();
-      }
-      costReductionPercent?.updateValueAndValidity();
-      costReductionRemarks?.updateValueAndValidity();
-    }
-
-    // Mark all invalid form controls as touched to show validation errors
-    this.markFormGroupTouched(this.generalInfoForm);
-
-    // Mark all form arrays as touched
-    if (this.consultationRows) {
-      this.markFormArrayTouched(this.consultationRows);
-    }
-
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
 
-    // Check if form is valid
-    if (this.generalInfoForm.invalid) {
-      this.toastService.show("Please fill all required fields", "danger");
-      return;
+    // Only validate and mark fields as touched for Registered status
+    if (this.currentPaperStatus === "Registered") {
+      this.submitted = true;
+      console.log("==this.generalInfoForm", this.generalInfoForm)
+
+      // Trigger validation checks for value delivery remarks before marking as touched
+      const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+      if (valueDeliveryGroup) {
+        // Check Cost Reduction - if $ is entered, both % and Remark are required
+        const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
+        const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
+        const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
+        const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
+        if (hasCostReductionValue) {
+          costReductionPercent?.setValidators([Validators.required]);
+          costReductionRemarks?.setValidators([Validators.required]);
+        } else {
+          costReductionPercent?.clearValidators();
+          costReductionRemarks?.clearValidators();
+        }
+        costReductionPercent?.updateValueAndValidity();
+        costReductionRemarks?.updateValueAndValidity();
+      }
+
+      // Mark all invalid form controls as touched to show validation errors
+      this.markFormGroupTouched(this.generalInfoForm);
+
+      // Mark all form arrays as touched
+      if (this.consultationRows) {
+        this.markFormArrayTouched(this.consultationRows);
+      }
+
+      // Check if form is valid
+      if (this.generalInfoForm.invalid) {
+        this.toastService.show("Please fill all required fields", "danger");
+        return;
+      }
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo

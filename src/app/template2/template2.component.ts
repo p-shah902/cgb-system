@@ -2134,139 +2134,142 @@ export class Template2Component implements AfterViewInit {
   }
 
   onSubmit() {
-    this.submitted = true;
     if (this.isSubmitting) return;
-    console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
-
-    // Trigger validation checks for value delivery remarks before marking as touched
-    const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
-    if (valueDeliveryGroup) {
-      // Check Cost Reduction - if $ is entered, both % and Remark are required
-      const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
-      const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
-      const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
-      const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
-      if (hasCostReductionValue) {
-        costReductionPercent?.setValidators([Validators.required]);
-        costReductionRemarks?.setValidators([Validators.required]);
-      } else {
-        costReductionPercent?.clearValidators();
-        costReductionRemarks?.clearValidators();
-      }
-      costReductionPercent?.updateValueAndValidity();
-      costReductionRemarks?.updateValueAndValidity();
-
-      // Check Operating Efficiency
-      const operatingEfficiencyPercent = valueDeliveryGroup.get('operatingEfficiencyPercent')?.value;
-      const operatingEfficiencyValue = valueDeliveryGroup.get('operatingEfficiencyValue')?.value;
-      const operatingEfficiencyRemarks = valueDeliveryGroup.get('operatingEfficiencyRemarks');
-      const hasOperatingEfficiencyValue = (operatingEfficiencyPercent !== null && operatingEfficiencyPercent !== undefined && operatingEfficiencyPercent !== '') ||
-                                         (operatingEfficiencyValue !== null && operatingEfficiencyValue !== undefined && operatingEfficiencyValue !== '');
-      if (hasOperatingEfficiencyValue) {
-        operatingEfficiencyRemarks?.setValidators([Validators.required]);
-      } else {
-        operatingEfficiencyRemarks?.clearValidators();
-      }
-      operatingEfficiencyRemarks?.updateValueAndValidity();
-
-      // Check Cost Avoidance
-      const costAvoidancePercent = valueDeliveryGroup.get('costAvoidancePercent')?.value;
-      const costAvoidanceValue = valueDeliveryGroup.get('costAvoidanceValue')?.value;
-      const costAvoidanceRemarks = valueDeliveryGroup.get('costAvoidanceRemarks');
-      const hasCostAvoidanceValue = (costAvoidancePercent !== null && costAvoidancePercent !== undefined && costAvoidancePercent !== '') ||
-                                   (costAvoidanceValue !== null && costAvoidanceValue !== undefined && costAvoidanceValue !== '');
-      if (hasCostAvoidanceValue) {
-        costAvoidanceRemarks?.setValidators([Validators.required]);
-      } else {
-        costAvoidanceRemarks?.clearValidators();
-      }
-      costAvoidanceRemarks?.updateValueAndValidity();
-    }
-
-    // Trigger validation checks for High Risk Contract CDD fields before marking as touched
-    const ccdGroup = this.generalInfoForm.get('ccd');
-    if (ccdGroup) {
-      const isHighRiskContract = ccdGroup.get('isHighRiskContract')?.value;
-      const highRiskExplanationControl = ccdGroup.get('highRiskExplanation');
-      const flagRaisedCDDControl = ccdGroup.get('flagRaisedCDD');
-      const additionalCDDControl = ccdGroup.get('additionalCDD');
-
-      if (isHighRiskContract === true) {
-        // Ensure validators are set and fields are enabled
-        highRiskExplanationControl?.setValidators([Validators.required]);
-        flagRaisedCDDControl?.setValidators([Validators.required]);
-        additionalCDDControl?.setValidators([Validators.required]);
-        highRiskExplanationControl?.enable({ emitEvent: false });
-        flagRaisedCDDControl?.enable({ emitEvent: false });
-        additionalCDDControl?.enable({ emitEvent: false });
-        highRiskExplanationControl?.updateValueAndValidity();
-        flagRaisedCDDControl?.updateValueAndValidity();
-        additionalCDDControl?.updateValueAndValidity();
-      } else {
-        // Clear validators and disable fields if not high risk
-        highRiskExplanationControl?.clearValidators();
-        flagRaisedCDDControl?.clearValidators();
-        additionalCDDControl?.clearValidators();
-        highRiskExplanationControl?.updateValueAndValidity();
-        flagRaisedCDDControl?.updateValueAndValidity();
-        additionalCDDControl?.updateValueAndValidity();
-      }
-    }
-
-    // Mark all invalid form controls as touched to show validation errors
-    this.markFormGroupTouched(this.generalInfoForm);
-
-    // Mark all date fields in legal entities array as touched
-    this.inviteToBid.controls.forEach((control) => {
-      const startDateControl = control.get('contractStartDate');
-      const endDateControl = control.get('contractEndDate');
-      const legalNameControl = control.get('legalName');
-      if (startDateControl && startDateControl.invalid) {
-        startDateControl.markAsTouched();
-      }
-      if (endDateControl && endDateControl.invalid) {
-        endDateControl.markAsTouched();
-      }
-      if (legalNameControl && legalNameControl.invalid) {
-        legalNameControl.markAsTouched();
-      }
-    });
-
-    // Mark all form arrays as touched
-    this.markFormArrayTouched(this.riskMitigation);
-    this.markFormArrayTouched(this.commericalEvaluation);
-    this.markFormArrayTouched(this.supplierTechnical);
-    this.markFormArrayTouched(this.consultationRows);
-
-    // Mark supplier technical fields as touched
-    this.supplierTechnical.controls.forEach((control) => {
-      const legalNameControl = control.get('legalName');
-      const thresholdPercentControl = control.get('thresholdPercent');
-      const technicalScorePercentControl = control.get('technicalScorePercent');
-      const resultOfHSSEControl = control.get('resultOfHSSE');
-      if (legalNameControl && legalNameControl.invalid) {
-        legalNameControl.markAsTouched();
-      }
-      if (thresholdPercentControl && thresholdPercentControl.invalid) {
-        thresholdPercentControl.markAsTouched();
-      }
-      if (technicalScorePercentControl && technicalScorePercentControl.invalid) {
-        technicalScorePercentControl.markAsTouched();
-      }
-      if (resultOfHSSEControl && resultOfHSSEControl.invalid) {
-        resultOfHSSEControl.markAsTouched();
-      }
-    });
-
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
 
-    // Check if form is valid
-    if (this.generalInfoForm.invalid) {
-      this.toastService.show("Please fill all required fields", "danger");
-      return;
+    // Only validate and mark fields as touched for Registered status
+    if (this.currentPaperStatus === "Registered") {
+      this.submitted = true;
+      console.log("==this.generalInfoForm?.value?", this.generalInfoForm)
+
+      // Trigger validation checks for value delivery remarks before marking as touched
+      const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
+      if (valueDeliveryGroup) {
+        // Check Cost Reduction - if $ is entered, both % and Remark are required
+        const costReductionValue = valueDeliveryGroup.get('costReductionValue')?.value;
+        const costReductionPercent = valueDeliveryGroup.get('costReductionPercent');
+        const costReductionRemarks = valueDeliveryGroup.get('costReductionRemarks');
+        const hasCostReductionValue = costReductionValue !== null && costReductionValue !== undefined && costReductionValue !== '' && costReductionValue !== 0;
+        if (hasCostReductionValue) {
+          costReductionPercent?.setValidators([Validators.required]);
+          costReductionRemarks?.setValidators([Validators.required]);
+        } else {
+          costReductionPercent?.clearValidators();
+          costReductionRemarks?.clearValidators();
+        }
+        costReductionPercent?.updateValueAndValidity();
+        costReductionRemarks?.updateValueAndValidity();
+
+        // Check Operating Efficiency
+        const operatingEfficiencyPercent = valueDeliveryGroup.get('operatingEfficiencyPercent')?.value;
+        const operatingEfficiencyValue = valueDeliveryGroup.get('operatingEfficiencyValue')?.value;
+        const operatingEfficiencyRemarks = valueDeliveryGroup.get('operatingEfficiencyRemarks');
+        const hasOperatingEfficiencyValue = (operatingEfficiencyPercent !== null && operatingEfficiencyPercent !== undefined && operatingEfficiencyPercent !== '') ||
+                                           (operatingEfficiencyValue !== null && operatingEfficiencyValue !== undefined && operatingEfficiencyValue !== '');
+        if (hasOperatingEfficiencyValue) {
+          operatingEfficiencyRemarks?.setValidators([Validators.required]);
+        } else {
+          operatingEfficiencyRemarks?.clearValidators();
+        }
+        operatingEfficiencyRemarks?.updateValueAndValidity();
+
+        // Check Cost Avoidance
+        const costAvoidancePercent = valueDeliveryGroup.get('costAvoidancePercent')?.value;
+        const costAvoidanceValue = valueDeliveryGroup.get('costAvoidanceValue')?.value;
+        const costAvoidanceRemarks = valueDeliveryGroup.get('costAvoidanceRemarks');
+        const hasCostAvoidanceValue = (costAvoidancePercent !== null && costAvoidancePercent !== undefined && costAvoidancePercent !== '') ||
+                                     (costAvoidanceValue !== null && costAvoidanceValue !== undefined && costAvoidanceValue !== '');
+        if (hasCostAvoidanceValue) {
+          costAvoidanceRemarks?.setValidators([Validators.required]);
+        } else {
+          costAvoidanceRemarks?.clearValidators();
+        }
+        costAvoidanceRemarks?.updateValueAndValidity();
+      }
+
+      // Trigger validation checks for High Risk Contract CDD fields before marking as touched
+      const ccdGroup = this.generalInfoForm.get('ccd');
+      if (ccdGroup) {
+        const isHighRiskContract = ccdGroup.get('isHighRiskContract')?.value;
+        const highRiskExplanationControl = ccdGroup.get('highRiskExplanation');
+        const flagRaisedCDDControl = ccdGroup.get('flagRaisedCDD');
+        const additionalCDDControl = ccdGroup.get('additionalCDD');
+
+        if (isHighRiskContract === true) {
+          // Ensure validators are set and fields are enabled
+          highRiskExplanationControl?.setValidators([Validators.required]);
+          flagRaisedCDDControl?.setValidators([Validators.required]);
+          additionalCDDControl?.setValidators([Validators.required]);
+          highRiskExplanationControl?.enable({ emitEvent: false });
+          flagRaisedCDDControl?.enable({ emitEvent: false });
+          additionalCDDControl?.enable({ emitEvent: false });
+          highRiskExplanationControl?.updateValueAndValidity();
+          flagRaisedCDDControl?.updateValueAndValidity();
+          additionalCDDControl?.updateValueAndValidity();
+        } else {
+          // Clear validators and disable fields if not high risk
+          highRiskExplanationControl?.clearValidators();
+          flagRaisedCDDControl?.clearValidators();
+          additionalCDDControl?.clearValidators();
+          highRiskExplanationControl?.updateValueAndValidity();
+          flagRaisedCDDControl?.updateValueAndValidity();
+          additionalCDDControl?.updateValueAndValidity();
+        }
+      }
+
+      // Mark all invalid form controls as touched to show validation errors
+      this.markFormGroupTouched(this.generalInfoForm);
+
+      // Mark all date fields in legal entities array as touched
+      this.inviteToBid.controls.forEach((control) => {
+        const startDateControl = control.get('contractStartDate');
+        const endDateControl = control.get('contractEndDate');
+        const legalNameControl = control.get('legalName');
+        if (startDateControl && startDateControl.invalid) {
+          startDateControl.markAsTouched();
+        }
+        if (endDateControl && endDateControl.invalid) {
+          endDateControl.markAsTouched();
+        }
+        if (legalNameControl && legalNameControl.invalid) {
+          legalNameControl.markAsTouched();
+        }
+      });
+
+      // Mark all form arrays as touched
+      this.markFormArrayTouched(this.riskMitigation);
+      this.markFormArrayTouched(this.commericalEvaluation);
+      this.markFormArrayTouched(this.supplierTechnical);
+      this.markFormArrayTouched(this.consultationRows);
+
+      // Mark supplier technical fields as touched
+      this.supplierTechnical.controls.forEach((control) => {
+        const legalNameControl = control.get('legalName');
+        const thresholdPercentControl = control.get('thresholdPercent');
+        const technicalScorePercentControl = control.get('technicalScorePercent');
+        const resultOfHSSEControl = control.get('resultOfHSSE');
+        if (legalNameControl && legalNameControl.invalid) {
+          legalNameControl.markAsTouched();
+        }
+        if (thresholdPercentControl && thresholdPercentControl.invalid) {
+          thresholdPercentControl.markAsTouched();
+        }
+        if (technicalScorePercentControl && technicalScorePercentControl.invalid) {
+          technicalScorePercentControl.markAsTouched();
+        }
+        if (resultOfHSSEControl && resultOfHSSEControl.invalid) {
+          resultOfHSSEControl.markAsTouched();
+        }
+      });
+
+      // Check if form is valid
+      if (this.generalInfoForm.invalid) {
+        this.toastService.show("Please fill all required fields", "danger");
+        return;
+      }
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo

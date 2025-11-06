@@ -1669,27 +1669,28 @@ export class Template5Component  implements AfterViewInit{
   }
 
   onSubmit(): void {
-    this.submitted = true;
-    console.log("==this.generalInfoForm", this.generalInfoForm)
-
-    // Mark all invalid form controls as touched to show validation errors
-    this.markFormGroupTouched(this.generalInfoForm);
-
-    // Mark all form arrays as touched
-    const consultationArray = this.generalInfoForm.get('consultation') as FormArray;
-    if (consultationArray) {
-      this.markFormArrayTouched(consultationArray);
-    }
-
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
     }
 
-    // Check if form is valid
-    if (this.generalInfoForm.invalid) {
-      this.toastService.show("Please fill all required fields", "danger");
-      return;
+    // Only validate and mark fields as touched for Registered status
+    if (this.currentPaperStatus === "Registered") {
+      this.submitted = true;
+      // Mark all invalid form controls as touched to show validation errors
+      this.markFormGroupTouched(this.generalInfoForm);
+
+      // Mark all form arrays as touched
+      const consultationArray = this.generalInfoForm.get('consultation') as FormArray;
+      if (consultationArray) {
+        this.markFormArrayTouched(consultationArray);
+      }
+
+      // Check if form is valid
+      if (this.generalInfoForm.invalid) {
+        this.toastService.show("Please fill all required fields", "danger");
+        return;
+      }
     }
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
