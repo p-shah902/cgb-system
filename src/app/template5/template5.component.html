@@ -430,6 +430,10 @@
                              *ngIf="submitted && generalInfo?.get('contractEndDate')?.hasError('required')">
                           <small class="text-danger">This field is required.</small>
                         </div>
+                        <div class="text-danger"
+                             *ngIf="(submitted || generalInfo?.get('contractEndDate')?.touched) && generalInfo?.get('contractEndDate')?.hasError('endDateBeforeOrEqualStartDate')">
+                          <small class="text-danger">End Date must be after Start Date.</small>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -457,6 +461,10 @@
                         <div class="text-danger"
                              *ngIf="submitted && generalInfo?.get('variationEndDate')?.hasError('required')">
                           <small class="text-danger">This field is required.</small>
+                        </div>
+                        <div class="text-danger"
+                             *ngIf="(submitted || generalInfo?.get('variationEndDate')?.touched) && generalInfo?.get('variationEndDate')?.hasError('endDateBeforeOrEqualStartDate')">
+                          <small class="text-danger">End Date must be after Start Date.</small>
                         </div>
                       </div>
                     </div>
