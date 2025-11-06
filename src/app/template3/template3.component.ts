@@ -268,6 +268,9 @@ export class Template3Component implements AfterViewInit {
       this.reEvaluateAllCommitteeCheckboxes();
     });
 
+    // Setup date validation
+    this.setupDateValidation();
+
     this.generalInfoForm.get('generalInfo.cgbAwardRefNo')?.valueChanges.subscribe((cgbAwardRefNo) => {
       this.updateCgbApprovalDate(Number(cgbAwardRefNo));
     });
@@ -424,9 +427,9 @@ export class Template3Component implements AfterViewInit {
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
         contractStartDate: [null, Validators.required],
-        contractEndDate: [null, Validators.required],
+        contractEndDate: [null, [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
         variationStartDate: [null, Validators.required],
-        variationEndDate: [null, Validators.required],
+        variationEndDate: [null, [Validators.required, this.endDateAfterStartDate('variationStartDate')]],
         psajv: [[], Validators.required],
         isLTCC: [null],
         ltccNotes: [''],
@@ -2266,6 +2269,35 @@ export class Template3Component implements AfterViewInit {
     return Object.values(errors).some(error => error) ? errors : null;
   }
 
+  // Custom validator to check if end date is after start date
+  endDateAfterStartDate(startDateControlName: string): (control: AbstractControl) => ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.parent) {
+        return null;
+      }
+
+      const startDateControl = control.parent.get(startDateControlName);
+      if (!startDateControl || !startDateControl.value || !control.value) {
+        return null; // Don't validate if either date is empty (required validator will handle that)
+      }
+
+      // Parse dates and compare only the date part (ignore time)
+      const startDate = new Date(startDateControl.value);
+      const endDate = new Date(control.value);
+      
+      // Set time to midnight to compare only dates
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+
+      // Check if end date is after start date (not equal or before)
+      if (endDate <= startDate) {
+        return { endDateBeforeOrEqualStartDate: true };
+      }
+
+      return null;
+    };
+  }
+
 
   onSubmit(): void {
     if (this.isSubmitting) return;
@@ -3089,6 +3121,18 @@ export class Template3Component implements AfterViewInit {
         },
       });
     }
+  }
+
+  setupDateValidation() {
+    // Re-validate contract end date when contract start date changes
+    this.generalInfoForm.get('generalInfo.contractStartDate')?.valueChanges.subscribe(() => {
+      this.generalInfoForm.get('generalInfo.contractEndDate')?.updateValueAndValidity();
+    });
+
+    // Re-validate variation end date when variation start date changes
+    this.generalInfoForm.get('generalInfo.variationStartDate')?.valueChanges.subscribe(() => {
+      this.generalInfoForm.get('generalInfo.variationEndDate')?.updateValueAndValidity();
+    });
   }
 
 }
