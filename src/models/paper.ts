@@ -102,7 +102,8 @@ export interface BidInvites {
   countryId: number
   countryName: string
   parentCompanyName: string
-  remarks: string
+  remarks: string,
+  vendorName: string
 }
 
 export interface RiskMitigations {
@@ -292,6 +293,7 @@ export interface LegalEntitiesAwarded {
   contractStartDate: string,
   contractEndDate: string,
   extensionOption: string,
+  vendorName: string
 }
 
 export interface SupplierTechnical{
@@ -302,12 +304,14 @@ export interface SupplierTechnical{
   technicalScorePercent:number,
   resultOfHSSE:string,
   commentary:string,
+  vendorName: string
 }
 
 export interface CommericalEvaluation{
   id:number,
   legalName:string,
   totalValue:number,
+  vendorName: string
 }
 
 export type AllowedValueType = "Original Value" | "Previous Value" | "This Value" | "Revised Value";

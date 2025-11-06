@@ -209,6 +209,7 @@ export class Template2Component implements AfterViewInit {
     this.setupScoreThresholdSync()
     this.setupTechnicalGoNoGoAutoUpdate()
     this.setupJVAlignedAutoReset()
+    this.setupProcurementDateValidation()
 
 
     // Note: Exchange rate is always manually entered, no auto-population from currency
@@ -1768,6 +1769,35 @@ export class Template2Component implements AfterViewInit {
     return Object.values(errors).some(error => error) ? errors : null;
   }
 
+  // Custom validator to check if end date is after start date
+  endDateAfterStartDate(startDateControlName: string): (control: AbstractControl) => ValidationErrors | null {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.parent) {
+        return null;
+      }
+
+      const startDateControl = control.parent.get(startDateControlName);
+      if (!startDateControl || !startDateControl.value || !control.value) {
+        return null; // Don't validate if either date is empty (required validator will handle that)
+      }
+
+      // Parse dates and compare only the date part (ignore time)
+      const startDate = new Date(startDateControl.value);
+      const endDate = new Date(control.value);
+      
+      // Set time to midnight to compare only dates
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+
+      // Check if end date is after start date (not equal or before)
+      if (endDate <= startDate) {
+        return { endDateBeforeOrEqualStartDate: true };
+      }
+
+      return null;
+    };
+  }
+
   setupValueDeliveryRemarksValidation() {
     const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
     if (!valueDeliveryGroup) return;
@@ -3202,26 +3232,35 @@ export class Template2Component implements AfterViewInit {
         }
 
         const legalNameValue = item.legalName || vendor?.legalName || '';
-        riskMitigationArray.push(
-          this.fb.group({
-            vendorId: [vendor?.id || item.vendorId || null],
-            legalName: [legalNameValue, Validators.required],
-            isLocalOrJV: [item.isLocalOrJV], // Checkbox
-            id: [item.id],
-            contractStartDate: [item.contractStartDate
-              ? format(new Date(item.contractStartDate), 'yyyy-MM-dd')
-              : '', Validators.required],
-            contractEndDate: [item.contractEndDate
-              ? format(new Date(item.contractEndDate), 'yyyy-MM-dd')
-              : '', Validators.required],
-            extensionOption: [item.extensionOption],
-            currencyCode: [item.currencyCode],
-            totalAwardValueUSD: [item.totalAwardValueUSD],
-            exchangeRate: [item.exchangeRate],
-            contractValue: [item.contractValue],
+        const newRow = this.fb.group({
+          vendorId: [vendor?.id || item.vendorId || null],
+          legalName: [legalNameValue, Validators.required],
+          isLocalOrJV: [item.isLocalOrJV], // Checkbox
+          id: [item.id],
+          contractStartDate: [item.contractStartDate
+            ? format(new Date(item.contractStartDate), 'yyyy-MM-dd')
+            : '', Validators.required],
+          contractEndDate: [item.contractEndDate
+            ? format(new Date(item.contractEndDate), 'yyyy-MM-dd')
+            : '', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
+          extensionOption: [item.extensionOption],
+          currencyCode: [item.currencyCode],
+          totalAwardValueUSD: [item.totalAwardValueUSD],
+          exchangeRate: [item.exchangeRate],
+          contractValue: [item.contractValue],
 
-          })
-        );
+        });
+        
+        // Setup date validation for the new row
+        const startDateControl = newRow.get('contractStartDate');
+        const endDateControl = newRow.get('contractEndDate');
+        if (startDateControl && endDateControl) {
+          startDateControl.valueChanges.subscribe(() => {
+            endDateControl.updateValueAndValidity();
+          });
+        }
+        
+        riskMitigationArray.push(newRow);
         // Calculate contractValue based on totalAwardValueUSD and exchangeRate
         const rowIndex = this.inviteToBid.length - 1;
         setTimeout(() => {
@@ -3230,21 +3269,30 @@ export class Template2Component implements AfterViewInit {
       });
       this.checkTotalAwardValueMismatch();
     } else {
-      this.inviteToBid.push(
-        this.fb.group({
-          vendorId: [null],
-          legalName: ['', Validators.required],
-          isLocalOrJV: [false],
-          contractStartDate: ['', Validators.required],
-          contractEndDate: ['', Validators.required],
-          extensionOption: [''],
-          currencyCode: [''],
-          totalAwardValueUSD: [0],
-          exchangeRate: [0],
-          contractValue: [0],
-          id: [0]
-        })
-      );
+      const newRow = this.fb.group({
+        vendorId: [null],
+        legalName: ['', Validators.required],
+        isLocalOrJV: [false],
+        contractStartDate: ['', Validators.required],
+        contractEndDate: ['', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
+        extensionOption: [''],
+        currencyCode: [''],
+        totalAwardValueUSD: [0],
+        exchangeRate: [0],
+        contractValue: [0],
+        id: [0]
+      });
+      
+      // Setup date validation for the new row
+      const startDateControl = newRow.get('contractStartDate');
+      const endDateControl = newRow.get('contractEndDate');
+      if (startDateControl && endDateControl) {
+        startDateControl.valueChanges.subscribe(() => {
+          endDateControl.updateValueAndValidity();
+        });
+      }
+      
+      this.inviteToBid.push(newRow);
       this.checkTotalAwardValueMismatch();
     }
   }
@@ -3398,6 +3446,26 @@ export class Template2Component implements AfterViewInit {
 
   toggleSection(section: string): void {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
+  }
+
+  setupProcurementDateValidation() {
+    // Setup validation for existing rows (when loading existing data)
+    this.setupDateValidationForRows();
+  }
+
+  private setupDateValidationForRows() {
+    // Re-validate end dates when start dates change in the legalEntitiesAwarded FormArray
+    this.inviteToBid.controls.forEach((row) => {
+      const startDateControl = row.get('contractStartDate');
+      const endDateControl = row.get('contractEndDate');
+      
+      if (startDateControl && endDateControl) {
+        // Subscribe to start date changes to re-validate end date
+        startDateControl.valueChanges.subscribe(() => {
+          endDateControl.updateValueAndValidity();
+        });
+      }
+    });
   }
 
   // Attachment methods

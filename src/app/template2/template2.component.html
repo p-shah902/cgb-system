@@ -727,6 +727,9 @@
                                 <div class="text-danger" *ngIf="submitted && inviteToBid.at(i)?.get('contractEndDate')?.hasError('required') && inviteToBid.at(i)?.get('contractEndDate')?.touched">
                                   <small>End Date is required.</small>
                                 </div>
+                                <div class="text-danger" *ngIf="(submitted || inviteToBid.at(i)?.get('contractEndDate')?.touched) && inviteToBid.at(i)?.get('contractEndDate')?.hasError('endDateBeforeOrEqualStartDate')">
+                                  <small>End Date must be after Start Date.</small>
+                                </div>
                               </div>
                             </td>
                             <td>

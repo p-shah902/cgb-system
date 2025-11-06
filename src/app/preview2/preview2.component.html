@@ -370,7 +370,7 @@
                             <tbody >
                             <tr *ngFor="let entity of legalEntitiesAwarded; let i = index">
                               <td>
-                                 <h6>{{entity.legalName}}</h6>
+                                 <h6>{{entity.vendorName}}</h6>
                               </td>
                               <td class="text-center align-middle">
                                 <h6>{{entity.isLocalOrJV ? 'Yes':'No'}}</h6>
@@ -540,7 +540,7 @@
                                 <tbody>
                                 <tr *ngFor="let supplierTech of supplierTechnical; let i = index">
                                   <td>
-                                    <h6>{{supplierTech.legalName}}</h6>
+                                    <h6>{{supplierTech.vendorName}}</h6>
                                   </td>
                                   <td>
                                     <h6>{{supplierTech.thresholdPercent}}</h6>
@@ -603,7 +603,7 @@
                               <tbody >
                               <tr *ngFor="let evalution of commericalEvaluation; let i = index" >
                                 <td>
-                                  <h6>{{evalution.legalName}}</h6>
+                                  <h6>{{evalution.vendorName}}</h6>
                                 </td>
                                 <td>
                                   <h6>{{evalution.totalValue}}</h6>
