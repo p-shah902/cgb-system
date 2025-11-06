@@ -383,55 +383,24 @@ export class Template4Component  implements AfterViewInit{
         steeringCommittee_SC: jvApprovalsData?.steeringCommittee_SC || false,
       });
 
-      // PSA/JV mappings
-      const psaNameToCheckbox: Record<string, string> = {
-        "ACG": "isACG",
-        "Shah Deniz": "isShah",
-        "SCP": "isSCP",
-        "BTC": "isBTC",
-        "Asiman": "isAsiman",
-        "BP Group": "isBPGroup"
-      };
-
-      // Assign PSA/JV values dynamically
+      // Assign PSA/JV values dynamically using getPSACheckboxControlName (like template3)
       costAllocationJVApprovalData.forEach((psa: any) => {
-        // Try exact match first, then case-insensitive match with trim
-        let checkboxKey = psaNameToCheckbox[psa.psaName as keyof typeof psaNameToCheckbox];
+        if (psa.psaName) {
+          const checkboxKey = this.getPSACheckboxControlName(psa.psaName);
+          const percentageKey = this.getPSAPercentageControlName(psa.psaName);
+          const valueKey = this.getPSAValueControlName(psa.psaName);
 
-        // If no exact match, try case-insensitive match
-        if (!checkboxKey && psa.psaName) {
-          const psaNameTrimmed = (psa.psaName || '').toString().trim();
-          const psaNameUpper = psaNameTrimmed.toUpperCase();
-          for (const [key, value] of Object.entries(psaNameToCheckbox)) {
-            if (key.toUpperCase() === psaNameUpper) {
-              checkboxKey = value;
-              break;
-            }
+          if (checkboxKey) {
+            console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
+            // Handle different types for psaValue (boolean, string, number)
+            const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
+                                 typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
+                                 typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
+                                 Boolean(psa.psaValue);
+            patchValues.costAllocation[checkboxKey] = psaValueBool;
+            patchValues.costAllocation[percentageKey] = psa.percentage;
+            patchValues.costAllocation[valueKey] = psa.value;
           }
-        }
-
-        if (checkboxKey) {
-          console.log('Setting PSA values:', psa.psaName, 'checkboxKey:', checkboxKey, 'psaValue:', psa.psaValue);
-          // Handle different types for psaValue (boolean, string, number)
-          const psaValueBool = typeof psa.psaValue === 'boolean' ? psa.psaValue :
-                               typeof psa.psaValue === 'string' ? psa.psaValue === 'true' :
-                               typeof psa.psaValue === 'number' ? psa.psaValue === 1 :
-                               Boolean(psa.psaValue);
-          patchValues.costAllocation[checkboxKey] = psaValueBool;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = psa.percentage;
-          patchValues.costAllocation[`value_${checkboxKey}`] = psa.value;
-        } else {
-          console.warn('PSA not found in mapping:', psa.psaName, 'Available keys:', Object.keys(psaNameToCheckbox));
-        }
-      });
-
-      // Assign default values for all PSA/JV fields if not in API data
-      Object.keys(psaNameToCheckbox).forEach(key => {
-        const checkboxKey = psaNameToCheckbox[key];
-        if (!patchValues.costAllocation.hasOwnProperty(checkboxKey)) {
-          patchValues.costAllocation[checkboxKey] = false;
-          patchValues.costAllocation[`percentage_${checkboxKey}`] = '';
-          patchValues.costAllocation[`value_${checkboxKey}`] = '';
         }
       });
 
@@ -527,7 +496,10 @@ export class Template4Component  implements AfterViewInit{
 
               // Ensure checkbox is true if PSA is selected
               if (checkboxControl) {
+                // Enable temporarily to set value, then disable again (readonly)
+                checkboxControl.enable({ emitEvent: false });
                 checkboxControl.setValue(true, { emitEvent: false });
+                checkboxControl.disable({ emitEvent: false });
               }
 
               // Enable percentage control for all selected PSAs (including BP Group)
@@ -1154,10 +1126,19 @@ export class Template4Component  implements AfterViewInit{
           this.addPSAJVFormControls(psaName);
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
-          costAllocationControl.get(checkboxControlName)?.setValue(true);
+          const checkboxControl = costAllocationControl.get(checkboxControlName);
+          if (checkboxControl) {
+            // Enable temporarily to set value, then disable again (readonly)
+            checkboxControl.enable({ emitEvent: false });
+            checkboxControl.setValue(true, { emitEvent: false });
+            checkboxControl.disable({ emitEvent: false });
+          }
           // Ensure As% (percentage) input is enabled like template1
           const percentageControlName = this.getPSAPercentageControlName(psaName);
-          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
+          const percentageControl = costAllocationControl.get(percentageControlName);
+          if (percentageControl) {
+            percentageControl.enable({ emitEvent: false });
+          }
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
@@ -1570,35 +1551,43 @@ export class Template4Component  implements AfterViewInit{
 
     const generalInfoValue = this.generalInfoForm?.value?.generalInfo
     const consultationsValue = this.generalInfoForm?.value?.consultation
-    const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+    const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
 
-    // Mapping PSAs from the costAllocation object
-    const psaMappings = [
-      { key: "isACG", name: "ACG" },
-      { key: "isShah", name: "Shah Deniz" },
-      { key: "isSCP", name: "SCP" },
-      { key: "isBTC", name: "BTC" },
-      { key: "isAsiman", name: "Sh-Asiman" },
-      { key: "isBPGroup", name: "BP Group" }
-    ];
+    // Build costAllocationJVApproval from costAllocation FormGroup (like template3)
+    // Mapping PSAs from the costAllocation object dynamically
+    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    const psaMappings = selectedPSAJV.map((psaName: string) => ({
+      key: this.getPSACheckboxControlName(psaName),
+      name: psaName
+    }));
 
     const costAllocationJVApproval = psaMappings
-      .map((psa, index) => {
+      .map((psa: any, index: number) => {
+        const checkboxKey = psa.key;
         const percentageKey = `percentage_${psa.key}`;
         const valueKey = `value_${psa.key}`;
 
-        if (costAllocationValues[percentageKey] !== undefined) {
+        // Check if checkbox is checked (PSA is selected)
+        const checkboxValue = costAllocationValues?.[checkboxKey];
+        const isChecked = checkboxValue === true || checkboxValue === 'true' || checkboxValue === 1;
+
+        // Include PSA if checkbox is checked, even if percentage is 0 or empty
+        if (isChecked && costAllocationValues) {
           return {
             id: index,
             psaName: psa.name,
             psaValue: true,
-            percentage: costAllocationValues[percentageKey] || 0,
-            value: costAllocationValues[valueKey] || 0
+            percentage: costAllocationValues[percentageKey] !== undefined && costAllocationValues[percentageKey] !== null && costAllocationValues[percentageKey] !== ''
+              ? Number(costAllocationValues[percentageKey]) || 0
+              : 0,
+            value: costAllocationValues[valueKey] !== undefined && costAllocationValues[valueKey] !== null && costAllocationValues[valueKey] !== ''
+              ? Number(costAllocationValues[valueKey]) || 0
+              : 0
           };
         }
         return null;
       })
-      .filter(item => item !== null);
+      .filter((item: any) => item !== null);
 
 
     const params = {

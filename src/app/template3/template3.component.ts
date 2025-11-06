@@ -282,7 +282,7 @@ export class Template3Component implements AfterViewInit {
     this.setupJVAlignedAutoReset()
 
   }
-  
+
   setupValueDeliveryRemarksValidation() {
     const valueDeliveryGroup = this.generalInfoForm.get('valueDelivery');
     if (!valueDeliveryGroup) return;
@@ -292,9 +292,9 @@ export class Template3Component implements AfterViewInit {
       const value = valueDeliveryGroup.get('costReductionValue')?.value;
       const percentControl = valueDeliveryGroup.get('costReductionPercent');
       const remarksControl = valueDeliveryGroup.get('costReductionRemarks');
-      
+
       const hasValue = value !== null && value !== undefined && value !== '' && value !== 0;
-      
+
       if (hasValue) {
         // If $ is entered, both % and Remark are required
         percentControl?.setValidators([Validators.required]);
@@ -1521,7 +1521,10 @@ export class Template3Component implements AfterViewInit {
 
               // Ensure checkbox is true if PSA is selected
               if (checkboxControl) {
+                // Enable temporarily to set value, then disable again (readonly)
+                checkboxControl.enable({ emitEvent: false });
                 checkboxControl.setValue(true, { emitEvent: false });
+                checkboxControl.disable({ emitEvent: false });
               }
 
               // Enable percentage control for all selected PSAs (including BP Group)
@@ -2063,7 +2066,13 @@ export class Template3Component implements AfterViewInit {
           this.addPSAJVFormControls(psaName);
           // Set checkbox to checked and readonly
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
-          costAllocationControl.get(checkboxControlName)?.setValue(true);
+          const checkboxControl = costAllocationControl.get(checkboxControlName);
+          if (checkboxControl) {
+            // Enable temporarily to set value, then disable again (readonly)
+            checkboxControl.enable({ emitEvent: false });
+            checkboxControl.setValue(true, { emitEvent: false });
+            checkboxControl.disable({ emitEvent: false });
+          }
           // Ensure As% (percentage) input is enabled like template1
           const percentageControlName = this.getPSAPercentageControlName(psaName);
           const percentageControl = costAllocationControl.get(percentageControlName);
@@ -2357,24 +2366,35 @@ export class Template3Component implements AfterViewInit {
     // Build costAllocationJVApproval from costAllocation FormGroup (like template1)
     // Mapping PSAs from the costAllocation object dynamically
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    console.log('======', selectedPSAJV);
     const psaMappings = selectedPSAJV.map((psaName: string) => ({
       key: this.getPSACheckboxControlName(psaName),
       name: psaName
     }));
+    console.log('======', psaMappings);
 
     const costAllocationJVApproval = psaMappings
       .map((psa: any, index: number) => {
+        const checkboxKey = psa.key;
         const percentageKey = `percentage_${psa.key}`;
         const valueKey = `value_${psa.key}`;
 
-        // Check if percentage exists (matching template1 logic)
-        if (costAllocationValues && costAllocationValues[percentageKey] !== undefined) {
+        // Check if checkbox is checked (PSA is selected)
+        const checkboxValue = costAllocationValues?.[checkboxKey];
+        const isChecked = checkboxValue === true || checkboxValue === 'true' || checkboxValue === 1;
+
+        // Include PSA if checkbox is checked, even if percentage is 0 or empty
+        if (isChecked && costAllocationValues) {
           return {
             id: index,
             psaName: psa.name,
-            psaValue: true, // Always true when percentage exists (matching template1)
-            percentage: costAllocationValues[percentageKey] || 0,
-            value: costAllocationValues[valueKey] || 0,
+            psaValue: true,
+            percentage: costAllocationValues[percentageKey] !== undefined && costAllocationValues[percentageKey] !== null && costAllocationValues[percentageKey] !== ''
+              ? Number(costAllocationValues[percentageKey]) || 0
+              : 0,
+            value: costAllocationValues[valueKey] !== undefined && costAllocationValues[valueKey] !== null && costAllocationValues[valueKey] !== ''
+              ? Number(costAllocationValues[valueKey]) || 0
+              : 0,
             valueType: 'Original Value'
           };
         }
@@ -2858,7 +2878,7 @@ export class Template3Component implements AfterViewInit {
     try {
       // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
       const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
-      
+
       // Convert base64 to blob
       const byteCharacters = atob(base64Content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -2867,17 +2887,17 @@ export class Template3Component implements AfterViewInit {
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
@@ -2985,12 +3005,17 @@ export class Template3Component implements AfterViewInit {
       const percentageControlName = this.getPSAPercentageControlName(psaName);
 
       if (costAllocationControl) {
-        if (costAllocationControl.get(checkboxControlName)) {
-          costAllocationControl.get(checkboxControlName)?.setValue(true);
+        const checkboxControl = costAllocationControl.get(checkboxControlName);
+        if (checkboxControl) {
+          // Enable temporarily to set value, then disable again (readonly)
+          checkboxControl.enable({ emitEvent: false });
+          checkboxControl.setValue(true, { emitEvent: false });
+          checkboxControl.disable({ emitEvent: false });
         }
         // Ensure percentage field is enabled
-        if (costAllocationControl.get(percentageControlName)) {
-          costAllocationControl.get(percentageControlName)?.enable();
+        const percentageControl = costAllocationControl.get(percentageControlName);
+        if (percentageControl) {
+          percentageControl.enable({ emitEvent: false });
         }
       }
     });

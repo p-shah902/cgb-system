@@ -1103,7 +1103,7 @@
                     <th *ngFor="let psa of getSelectedPSAJVColumns()">
                       <div class="form-check-list d-flex gap-3 flex-wrap">
                         <div class="form-check-box position-relative">
-                          <input [formControlName]="getPSACheckboxControlName(psa)" type="checkbox" readonly>
+                          <input [formControlName]="getPSACheckboxControlName(psa)" type="checkbox">
                           <label>{{ psa }}</label>
                         </div>
                       </div>
