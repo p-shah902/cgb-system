@@ -2610,8 +2610,8 @@ export class Template2Component implements AfterViewInit {
       riskMitigationsData?.forEach((item: any, index: number) => {
         riskMitigationArray.push(
           this.fb.group({
-            risks: [item.risks || '', Validators.required],
-            mitigations: [item.mitigations || '', Validators.required],
+            risks: [item.risks || ''],
+            mitigations: [item.mitigations || ''],
             id: [item.id]
           })
         );
@@ -2619,8 +2619,8 @@ export class Template2Component implements AfterViewInit {
     } else {
       this.riskMitigation.push(
         this.fb.group({
-          risks: ['', Validators.required],
-          mitigations: ['', Validators.required],
+          risks: [''],
+          mitigations: [''],
           id: [0]
         })
       );

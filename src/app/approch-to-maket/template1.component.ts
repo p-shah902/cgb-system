@@ -1745,10 +1745,10 @@ export class Template1Component implements AfterViewInit  {
           riskMitigationArray.push(
             this.fb.group({
               srNo: item.srNo || this.generateId(index), // Use API value or generate ID
-              risks: [item.risks || '', Validators.required],
-              mitigations: [item.mitigations || '', Validators.required],
+              risks: [item.risks || ''],
+              mitigations: [item.mitigations || ''],
               id: [item.id]
-            }, { validators: this.riskMitigationValidator })
+            })
           );
         });
       }
@@ -1759,7 +1759,7 @@ export class Template1Component implements AfterViewInit  {
           risks: [''],
           mitigations: [''],
           id: [0]
-        }, { validators: this.riskMitigationValidator })
+        })
       );
     }
   }
