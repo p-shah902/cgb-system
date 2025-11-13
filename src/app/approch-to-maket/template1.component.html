@@ -103,7 +103,7 @@
           </div>
 
 
-          <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
+          <form [formGroup]="generalInfoForm" (submit)="onSubmit($event)" (keydown)="onFormKeyDown($event)">
             <!-- Batch Paper Selection -->
             <div class="fb-form">
               <div class="row">
@@ -1623,7 +1623,6 @@
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.paperDetails?.paperStatusName"
                 [isLoading]="isSubmitting"
-                (setStatus)="handleStatusChange($event)"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"

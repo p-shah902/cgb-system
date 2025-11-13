@@ -93,7 +93,7 @@
               </svg>
             </span>
           </div>
-          <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()">
+          <form [formGroup]="generalInfoForm" (submit)="onSubmit($event)" (keydown)="onFormKeyDown($event)">
             <div *ngIf="sectionVisibility['section1']" class="fb-form" formGroupName="generalInfo">
               <div class="row">
                 <div class="col-sm-12 col-md-8">
@@ -640,11 +640,10 @@
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.paperDetails?.paperStatusName"
                 [isLoading]="isSubmitting"
-                (setStatus)="setPaperStatus($event, false)"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"
-                (returnToRequested)="setPaperStatus('On CGB')"
+                (returnToRequested)="setPaperStatus('On CGB', true)"
               ></app-action-bar>
             </div>
           </form>

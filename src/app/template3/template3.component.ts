@@ -83,6 +83,7 @@ export class Template3Component implements AfterViewInit {
   isExporting = false;
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
+  pendingStatus: string | null = null;
   paperDetails: any = null
   vendorList: VendorDetail[] = []
   userDetails: UserDetails[] = [];
@@ -2293,7 +2294,7 @@ export class Template3Component implements AfterViewInit {
       // Parse dates and compare only the date part (ignore time)
       const startDate = new Date(startDateControl.value);
       const endDate = new Date(control.value);
-      
+
       // Set time to midnight to compare only dates
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(0, 0, 0, 0);
@@ -2308,8 +2309,33 @@ export class Template3Component implements AfterViewInit {
   }
 
 
-  onSubmit(): void {
+  onFormKeyDown(event: KeyboardEvent): void {
+    // Allow Enter key in CKEditor - check if event target is within editor container
+    const target = event.target as HTMLElement;
+    if (target && (target.closest('.editor-container') || target.closest('ckeditor') || target.closest('.ck-editor'))) {
+      return; // Allow Enter in CKEditor
+    }
+    // Prevent Enter key from submitting form in regular inputs
+    if (event.key === 'Enter' && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
+      event.preventDefault();
+    }
+  }
+
+  onSubmit(event: SubmitEvent): void {
     if (this.isSubmitting) return;
+
+    // Get status from the submitter button
+    const statusFromButton = event.submitter?.getAttribute('data-status');
+    if (statusFromButton) {
+      this.pendingStatus = statusFromButton;
+      // Set paperStatusId and currentPaperStatus for form submission
+      const selectedStatus = this.paperStatusList.find(item => item.paperStatus === statusFromButton);
+      if (selectedStatus) {
+        this.paperStatusId = selectedStatus.id;
+        this.currentPaperStatus = selectedStatus.paperStatus;
+      }
+    }
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
@@ -2540,6 +2566,11 @@ export class Template3Component implements AfterViewInit {
           const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
+          // Call setPaperStatus only if in edit mode and pendingStatus exists
+          if (this.paperId && !this.isCopy && this.pendingStatus) {
+            this.setPaperStatus(this.pendingStatus, true);
+            this.pendingStatus = null; // Clear pending status
+          }
 
           this.generalInfoForm.reset();
           this.submitted = false;
@@ -2575,8 +2606,6 @@ export class Template3Component implements AfterViewInit {
     this.paperStatusId = this.paperStatusList.find(item => item.paperStatus === status)?.id ?? null;
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
     if (callAPI && this.paperId) {
-      if (this.isSubmitting) return;
-      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.paperId,
         existingStatusId: this.paperDetails?.paperDetails.paperStatusId,

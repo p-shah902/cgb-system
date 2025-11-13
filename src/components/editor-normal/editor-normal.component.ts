@@ -43,6 +43,7 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
   @ViewChild('editorToolbarElement') private editorToolbar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
   value: string = '';
+  private editorInstance: DecoupledEditor | null = null;
 
   onChange = (_: any) => { };
   onTouched = () => { };
@@ -56,7 +57,13 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
 
   // ControlValueAccessor methods
   writeValue(value: any): void {
-    this.value = value || '';
+    const newValue = value || '';
+    this.value = newValue;
+    
+    // If editor is already initialized, update its data
+    if (this.editorInstance) {
+      this.editorInstance.setData(newValue);
+    }
   }
 
   registerOnChange(fn: any): void {
@@ -374,6 +381,13 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
   }
 
   public onReady(editor: DecoupledEditor): void {
+    this.editorInstance = editor;
+    
+    // Set initial data if value was set before editor was ready
+    if (this.value) {
+      editor.setData(this.value);
+    }
+    
     Array.from(this.editorToolbar.nativeElement.children).forEach(child => child.remove());
     Array.from(this.editorMenuBar.nativeElement.children).forEach(child => child.remove());
 

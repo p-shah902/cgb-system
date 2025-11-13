@@ -81,6 +81,7 @@ export class Template2Component implements AfterViewInit {
   highlightClass = 'highlight';
   paperStatusId: number | null = null;
   currentPaperStatus: string | null = null;
+  pendingStatus: string | null = null;
   paperDetails: any = null
   vendorList: VendorDetail[] = []
   userDetails: UserDetails[] = [];
@@ -1765,7 +1766,7 @@ export class Template2Component implements AfterViewInit {
       // Parse dates and compare only the date part (ignore time)
       const startDate = new Date(startDateControl.value);
       const endDate = new Date(control.value);
-      
+
       // Set time to midnight to compare only dates
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(0, 0, 0, 0);
@@ -2117,8 +2118,6 @@ export class Template2Component implements AfterViewInit {
     this.currentPaperStatus = this.paperStatusList.find(item => item.paperStatus === status)?.paperStatus ?? null;
 
     if (callAPI && this.paperId && this.paperStatusId) {
-      if (this.isSubmitting) return;
-      this.isSubmitting = true;
       // For template2, paperDetails structure is different - use contractAwardDetails
       const existingStatusId = this.paperDetails?.contractAwardDetails?.paperStatusId ||
                                this.paperDetails?.paperDetails?.paperStatusId ||
@@ -2144,8 +2143,33 @@ export class Template2Component implements AfterViewInit {
     }
   }
 
-  onSubmit() {
+  onFormKeyDown(event: KeyboardEvent): void {
+    // Allow Enter key in CKEditor - check if event target is within editor container
+    const target = event.target as HTMLElement;
+    if (target && (target.closest('.editor-container') || target.closest('ckeditor') || target.closest('.ck-editor'))) {
+      return; // Allow Enter in CKEditor
+    }
+    // Prevent Enter key from submitting form in regular inputs
+    if (event.key === 'Enter' && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
+      event.preventDefault();
+    }
+  }
+
+  onSubmit(event: SubmitEvent): void {
     if (this.isSubmitting) return;
+
+    // Get status from the submitter button
+    const statusFromButton = event.submitter?.getAttribute('data-status');
+    if (statusFromButton) {
+      this.pendingStatus = statusFromButton;
+      // Set paperStatusId and currentPaperStatus for form submission
+      const selectedStatus = this.paperStatusList.find(item => item.paperStatus === statusFromButton);
+      if (selectedStatus) {
+        this.paperStatusId = selectedStatus.id;
+        this.currentPaperStatus = selectedStatus.paperStatus;
+      }
+    }
+
     if (!this.paperStatusId) {
       this.toastService.show("Paper status id not found", "danger")
       return
@@ -2505,6 +2529,12 @@ export class Template2Component implements AfterViewInit {
           const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
+
+          // Call setPaperStatus only if in edit mode and pendingStatus exists
+          if (this.paperId && !this.isCopy && this.pendingStatus) {
+            this.setPaperStatus(this.pendingStatus, true);
+            this.pendingStatus = null; // Clear pending status
+          }
 
           this.generalInfoForm.reset();
           this.submitted = false;
@@ -3242,7 +3272,7 @@ export class Template2Component implements AfterViewInit {
           contractValue: [item.contractValue],
 
         });
-        
+
         // Setup date validation for the new row
         const startDateControl = newRow.get('contractStartDate');
         const endDateControl = newRow.get('contractEndDate');
@@ -3251,7 +3281,7 @@ export class Template2Component implements AfterViewInit {
             endDateControl.updateValueAndValidity();
           });
         }
-        
+
         riskMitigationArray.push(newRow);
         // Calculate contractValue based on totalAwardValueUSD and exchangeRate
         const rowIndex = this.inviteToBid.length - 1;
@@ -3274,7 +3304,7 @@ export class Template2Component implements AfterViewInit {
         contractValue: [0],
         id: [0]
       });
-      
+
       // Setup date validation for the new row
       const startDateControl = newRow.get('contractStartDate');
       const endDateControl = newRow.get('contractEndDate');
@@ -3283,7 +3313,7 @@ export class Template2Component implements AfterViewInit {
           endDateControl.updateValueAndValidity();
         });
       }
-      
+
       this.inviteToBid.push(newRow);
       this.checkTotalAwardValueMismatch();
     }
@@ -3450,7 +3480,7 @@ export class Template2Component implements AfterViewInit {
     this.inviteToBid.controls.forEach((row) => {
       const startDateControl = row.get('contractStartDate');
       const endDateControl = row.get('contractEndDate');
-      
+
       if (startDateControl && endDateControl) {
         // Subscribe to start date changes to re-validate end date
         startDateControl.valueChanges.subscribe(() => {
@@ -3625,7 +3655,7 @@ export class Template2Component implements AfterViewInit {
     try {
       // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
       const base64Content = base64Data.replace(/^data:application\/pdf;base64,/, '');
-      
+
       // Convert base64 to blob
       const byteCharacters = atob(base64Content);
       const byteNumbers = new Array(byteCharacters.length);
@@ -3634,17 +3664,17 @@ export class Template2Component implements AfterViewInit {
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);

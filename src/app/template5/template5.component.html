@@ -88,7 +88,7 @@
           </div>
         </div>
         <div class="form-body">
-          <form [formGroup]="generalInfoForm" (ngSubmit)="onSubmit()" (keydown.enter)="$event.preventDefault()">
+          <form [formGroup]="generalInfoForm" (submit)="onSubmit($event)" (keydown)="onFormKeyDown($event)">
 
             <div id="section1" data-section="section1" (click)="toggleSection('section1')" class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
               <h4 class="mb-0">1. General Information</h4>
@@ -754,11 +754,10 @@
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.paperDetails?.paperStatusName"
                 [isLoading]="isSubmitting"
-                (setStatus)="setPaperStatus($event, false)"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"
-                (returnToRequested)="setPaperStatus('On CGB')"
+                (returnToRequested)="setPaperStatus('On CGB', true)"
               ></app-action-bar>
             </div>
           </form>

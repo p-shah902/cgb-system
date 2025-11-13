@@ -2,12 +2,12 @@
   <!-- Create mode: show Draft/Register -->
   <ng-container
     *ngIf="!paperId || (paperId && isCopy) && (permission.canShowDraftRegisterInEdit(roleName, statusName))">
-    <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')" [disabled]="isLoading">
+    <button class="btn  btn-outline-dark" type="submit" data-status="Draft" [disabled]="isLoading">
       <span *ngIf="!isLoading">Draft</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
     </button>
-    <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')" [disabled]="isLoading">
+    <button class="btn btn-dark" type="submit" data-status="Registered" [disabled]="isLoading">
       <span *ngIf="!isLoading">Register</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
@@ -17,13 +17,13 @@
   <!-- Edit mode -->
   <ng-container *ngIf="paperId && !isCopy">
     <!-- Draft/Register when not Registered -->
-      <button class="btn  btn-outline-dark" type="submit" (click)="setStatus.emit('Draft')"
+      <button class="btn  btn-outline-dark" type="submit" data-status="Draft"
         *ngIf=" permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Draft</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
         <span *ngIf="isLoading">Loading...</span>
       </button>
-      <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
+      <button class="btn btn-dark" type="submit" data-status="Registered"
         *ngIf="permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Register</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -31,7 +31,7 @@
       </button>
 
     <!-- Archive -->
-    <button class="btn btn-outline-dark" type="button" (click)="setStatus.emit('Archived')"
+    <button class="btn btn-outline-dark" type="submit" data-status="Archived"
       *ngIf="permission.canShowArchive(roleName, statusName)" [disabled]="isLoading">
       <span *ngIf="!isLoading">Archive</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -39,7 +39,7 @@
     </button>
 
     <!-- Send for PDM -->
-    <button class="btn btn-primary" type="button" (click)="setStatus.emit('Waiting for PDM')"
+    <button class="btn btn-primary" type="submit" data-status="Waiting for PDM"
       *ngIf="permission.canShowSendForPDM(roleName, statusName)" [disabled]="isLoading">
       <span *ngIf="!isLoading">Send For PDM</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -47,7 +47,7 @@
     </button>
 
     <!-- Update -->
-    <button class="btn btn-dark" type="submit" (click)="setStatus.emit('Registered')"
+    <button class="btn btn-dark" type="submit" data-status="Registered"
       *ngIf="permission.canShowUpdate(roleName, statusName)" [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
