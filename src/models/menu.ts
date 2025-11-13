@@ -37,25 +37,25 @@ export const menuItems: Menu[] = [
             <circle cx="13.3333" cy="4.66667" r="1.33333" stroke="#1B202B" stroke-width="1.06667"/>
           </svg>`
       },
-      {
-        path: '#',
-        title: 'CGB Cycle',
-        roleMap: 'Cgb Cycle',
-        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="8" cy="8" r="6.66667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8 2.66667V8L11.3333 10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>`
-      },
-      {
-        path: '#',
-        title: 'Reports',
-        roleMap: 'Reports',
-        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.33333 2.66667H12.6667C13.0349 2.66667 13.3333 2.96514 13.3333 3.33333V12.6667C13.3333 13.0349 13.0349 13.3333 12.6667 13.3333H3.33333C2.96514 13.3333 2.66667 13.0349 2.66667 12.6667V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M5.33333 6.66667H10.6667M5.33333 9.33333H8M5.33333 12H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 3.33333H14" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>`
-      },
+      // {
+      //   path: '#',
+      //   title: 'CGB Cycle',
+      //   roleMap: 'Cgb Cycle',
+      //   icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      //       <circle cx="8" cy="8" r="6.66667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+      //       <path d="M8 2.66667V8L11.3333 10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+      //     </svg>`
+      // },
+      // {
+      //   path: '#',
+      //   title: 'Reports',
+      //   roleMap: 'Reports',
+      //   icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      //       <path d="M3.33333 2.66667H12.6667C13.0349 2.66667 13.3333 2.96514 13.3333 3.33333V12.6667C13.3333 13.0349 13.0349 13.3333 12.6667 13.3333H3.33333C2.96514 13.3333 2.66667 13.0349 2.66667 12.6667V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+      //       <path d="M5.33333 6.66667H10.6667M5.33333 9.33333H8M5.33333 12H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+      //       <path d="M2 3.33333H14" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+      //     </svg>`
+      // },
     ],
   },
   // {
@@ -114,8 +114,10 @@ export const menuItems: Menu[] = [
             path: '/variation-paper',
             title: 'Variation',
             icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.3333 4.66667L13.3333 6.66667M2.66667 2.66667H7.33333L9.33333 4.66667L11.3333 2.66667H13.3333V4.66667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2.66667 13.3333V8.66667H4.66667M13.3333 8.66667V13.3333H11.3333" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.33333 2.66667H8L10.6667 5.33333V13.3333C10.6667 13.7015 10.3682 14 10 14H3.33333C2.96514 14 2.66667 13.7015 2.66667 13.3333V3.33333C2.66667 2.96514 2.96514 2.66667 3.33333 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 2.66667V5.33333H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.33333 8.66667H8M5.33333 11.3333H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 6.66667L13.3333 8L12 9.33333" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>`
           },
           {

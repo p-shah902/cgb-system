@@ -309,11 +309,91 @@
                           </div>
                         </div>
                       </th>
-                      <th>Paper Name</th>
-                      <th>Paper Type</th>
-                      <th>Contract Value (USD)</th>
-                      <th>Status</th>
-                      <th>Last Modify</th>
+                      <th class="sortable" (click)="sortByColumn('paperName')">
+                        <div class="d-flex align-items-center gap-2">
+                          <span>Paper Name</span>
+                          <span class="sort-icon">
+                            <svg *ngIf="getSortIcon('paperName') === 'asc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V10H8V5H10L5 0Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('paperName') === 'desc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 10L10 5H8V0H2V5H0L5 10Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('paperName') === 'both'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V5H8V5H10L5 0Z" fill="#C0C0C0" opacity="0.5"/>
+                              <path d="M5 10L10 5H8V5H2V5H0L5 10Z" fill="#C0C0C0" opacity="0.5"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </th>
+                      <th class="sortable" (click)="sortByColumn('paperType')">
+                        <div class="d-flex align-items-center gap-2">
+                          <span>Paper Type</span>
+                          <span class="sort-icon">
+                            <svg *ngIf="getSortIcon('paperType') === 'asc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V10H8V5H10L5 0Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('paperType') === 'desc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 10L10 5H8V0H2V5H0L5 10Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('paperType') === 'both'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V5H8V5H10L5 0Z" fill="#C0C0C0" opacity="0.5"/>
+                              <path d="M5 10L10 5H8V5H2V5H0L5 10Z" fill="#C0C0C0" opacity="0.5"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </th>
+                      <th class="sortable" (click)="sortByColumn('contractValue')">
+                        <div class="d-flex align-items-center gap-2">
+                          <span>Contract Value (USD)</span>
+                          <span class="sort-icon">
+                            <svg *ngIf="getSortIcon('contractValue') === 'asc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V10H8V5H10L5 0Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('contractValue') === 'desc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 10L10 5H8V0H2V5H0L5 10Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('contractValue') === 'both'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V5H8V5H10L5 0Z" fill="#C0C0C0" opacity="0.5"/>
+                              <path d="M5 10L10 5H8V5H2V5H0L5 10Z" fill="#C0C0C0" opacity="0.5"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </th>
+                      <th class="sortable" (click)="sortByColumn('status')">
+                        <div class="d-flex align-items-center gap-2">
+                          <span>Status</span>
+                          <span class="sort-icon">
+                            <svg *ngIf="getSortIcon('status') === 'asc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V10H8V5H10L5 0Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('status') === 'desc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 10L10 5H8V0H2V5H0L5 10Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('status') === 'both'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V5H8V5H10L5 0Z" fill="#C0C0C0" opacity="0.5"/>
+                              <path d="M5 10L10 5H8V5H2V5H0L5 10Z" fill="#C0C0C0" opacity="0.5"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </th>
+                      <th class="sortable" (click)="sortByColumn('lastModify')">
+                        <div class="d-flex align-items-center gap-2">
+                          <span>Last Modify</span>
+                          <span class="sort-icon">
+                            <svg *ngIf="getSortIcon('lastModify') === 'asc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V10H8V5H10L5 0Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('lastModify') === 'desc'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 10L10 5H8V0H2V5H0L5 10Z" fill="#626262"/>
+                            </svg>
+                            <svg *ngIf="getSortIcon('lastModify') === 'both'" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M5 0L0 5H2V5H8V5H10L5 0Z" fill="#C0C0C0" opacity="0.5"/>
+                              <path d="M5 10L10 5H8V5H2V5H0L5 10Z" fill="#C0C0C0" opacity="0.5"/>
+                            </svg>
+                          </span>
+                        </div>
+                      </th>
                       <th>Action</th>
                     </tr>
                   </thead>

@@ -94,6 +94,10 @@ export class PaperListComponent implements OnInit {
     'On CGB'
   ];
   tempPrice: number[] = [0, 0];  // Temporary values for slider
+  
+  // Sorting state
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   constructor(
     private authService: AuthService,
@@ -230,22 +234,33 @@ export class PaperListComponent implements OnInit {
       });
     }
 
-    // Sort by price if needed
+    // Sort by price if needed (from filter)
     if (this.tempFilter.sortLowToHigh) {
       filteredList.sort((a: any, b: any) => {
         const priceA = a.totalContractValue || a.price || 0;
         const priceB = b.totalContractValue || b.price || 0;
         return priceA - priceB;
       });
+      // Set sort state for contract value column
+      this.sortColumn = 'contractValue';
+      this.sortDirection = 'asc';
     } else if (this.tempFilter.sortHighToLow) {
       filteredList.sort((a: any, b: any) => {
         const priceA = a.totalContractValue || a.price || 0;
         const priceB = b.totalContractValue || b.price || 0;
         return priceB - priceA;
       });
+      // Set sort state for contract value column
+      this.sortColumn = 'contractValue';
+      this.sortDirection = 'desc';
     }
 
     this.paperList = filteredList;
+    
+    // Apply column sorting if set and not using filter sorting
+    if (this.sortColumn && !this.tempFilter.sortLowToHigh && !this.tempFilter.sortHighToLow) {
+      this.applySorting();
+    }
   }
 
   onSearchChange(): void {
@@ -520,6 +535,9 @@ export class PaperListComponent implements OnInit {
     this.isFilterApplied = false;
     this.filter = JSON.parse(JSON.stringify(this.tempFilter));
     this.dropdownRef.close();
+    // Clear column sorting when clearing all filters
+    this.sortColumn = '';
+    this.sortDirection = 'asc';
     this.applyFrontendFilters();
   }
 
@@ -590,5 +608,81 @@ export class PaperListComponent implements OnInit {
       '4': 'On CGB'
     };
     return map[suffix] || '';
+  }
+
+  sortByColumn(column: string): void {
+    // Clear filter-based sorting when using column sorting
+    if (this.tempFilter.sortLowToHigh || this.tempFilter.sortHighToLow) {
+      this.tempFilter.sortLowToHigh = false;
+      this.tempFilter.sortHighToLow = false;
+    }
+    
+    // If clicking the same column, toggle direction; otherwise, set to ascending
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    // Apply sorting
+    this.applySorting();
+  }
+
+  applySorting(): void {
+    if (!this.sortColumn) {
+      return;
+    }
+
+    this.paperList.sort((a: any, b: any) => {
+      let valueA: any;
+      let valueB: any;
+
+      switch (this.sortColumn) {
+        case 'paperName':
+          valueA = (a.description || '').toLowerCase();
+          valueB = (b.description || '').toLowerCase();
+          break;
+        case 'paperType':
+          valueA = (a.paperType || '').toLowerCase();
+          valueB = (b.paperType || '').toLowerCase();
+          break;
+        case 'contractValue':
+          valueA = a.totalContractValue || 0;
+          valueB = b.totalContractValue || 0;
+          break;
+        case 'status':
+          valueA = (a.statusName || '').toLowerCase();
+          valueB = (b.statusName || '').toLowerCase();
+          break;
+        case 'lastModify':
+          valueA = new Date(a.lastModifyDate || 0).getTime();
+          valueB = new Date(b.lastModifyDate || 0).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      // Handle null/undefined values
+      if (valueA == null && valueB == null) return 0;
+      if (valueA == null) return 1;
+      if (valueB == null) return -1;
+
+      // Compare values
+      if (valueA < valueB) {
+        return this.sortDirection === 'asc' ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return this.sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return 'both'; // Show both arrows when not sorted
+    }
+    return this.sortDirection === 'asc' ? 'asc' : 'desc';
   }
 }
