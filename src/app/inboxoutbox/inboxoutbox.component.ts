@@ -521,9 +521,9 @@ export class InboxoutboxComponent implements OnInit {
       return true;
     }
 
-    // Send For PDM button
-    if ((roleName === 'Procurement Tag' || roleName === 'CAM') &&
-        (status === 'Waiting for PDM' || status === 'Action Required by Pre-CGB')) {
+    // Send For PDM button - Only for Secretary and Super Admin when paper is Registered
+    if ((roleName === 'Secretary' || roleName === 'Super Admin') &&
+        status === 'Registered') {
       return true;
     }
 

@@ -60,9 +60,10 @@
                                 </button>
                               </div>
                               <button class="btn btn-primary" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4); $event.stopPropagation()"
-                                      *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB'))">
-                                Send For PDM {{inbox.paperStatus === 'Action Required by Pre-CGB' ? 'Review': 'Approval'}}
+                                      *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Registered'))">
+                                Send For PDM Approval
                               </button>
+                   
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
