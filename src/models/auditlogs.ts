@@ -1,6 +1,7 @@
 export interface ApiResponse<T> {
   message: string;
   errorMessages: any;
+  errors?: any; // Backend error format: { errors: { PaperIds: ["message"] } }
   exception: any;
   data: T;
   status: boolean;

@@ -97,7 +97,7 @@ export class PaperStatusComponent implements OnInit {
 
   onCheckboxChange() {
     this.showPreCGBButton = this.groupedPaper['On Pre-CGB'].some(item => item.checked);
-    this.showCGBButton = this.groupedPaper['On CGB'].some(item => item.checked);
+    this.showCGBButton = this.groupedPaper['Approved by Pre-CGB'].some(item => item.checked);
     this.showAddToCurrentCycleButton = this.groupedPaper['On CGB'].some(item => item.checked);
   }
 
@@ -175,7 +175,12 @@ export class PaperStatusComponent implements OnInit {
   }
 
   getSelectedPapers(type: string) {
-    return this.groupedPaper[type === 'pre' ? 'On Pre-CGB' : 'On CGB'].filter(item => item.checked);
+    if (type === 'pre') {
+      return this.groupedPaper['On Pre-CGB'].filter(item => item.checked);
+    } else if (type === 'cgb') {
+      return this.groupedPaper['Approved by Pre-CGB'].filter(item => item.checked);
+    }
+    return this.groupedPaper['On CGB'].filter(item => item.checked);
   }
 
   drop(event: CdkDragDrop<PaperConfig[]>) {
@@ -208,80 +213,109 @@ export class PaperStatusComponent implements OnInit {
       } else if (this.openType === 'cgb') {
         const selectedPapers = this.getSelectedPapers(this.openType);
         
-        // First, initiate the CGB cycle with deadline date
-        this.votingService.initiateCgbCycle({
-          paperIds: selectedPapers.map(f => f.paperID),
-          remarks: this.approvalRemark,
-          deadlineDate: this.deadlineDate
-        }).subscribe({
-          next: (response) => {
-            if (response.status && response.data) {
-              // Call getCgbCycle to get the vote cycle ID
-              this.votingService.getCgbCycle().subscribe({
-                next: (cycleResponse) => {
-                  if (cycleResponse.status && cycleResponse.data) {
-                    const voteCycleId = cycleResponse.data.voteCycleId || cycleResponse.data.id;
-                    
-                    if (voteCycleId) {
-                      // Update the paper order with the current drag & drop order
-                      const serialData = selectedPapers.map((paper, index) => ({
-                        paperId: paper.paperID,
-                        serialNumber: index + 1
-                      }));
+        // First, change paper status from "Approved by Pre-CGB" (7) to "On CGB" (10)
+        this.paperService.updateMultiplePaperStatus(selectedPapers.map(f => ({
+          paperId: f.paperID,
+          existingStatusId: Number(f.statusId), // Current status: 7 (Approved by Pre-CGB)
+          statusId: 10 // New status: 10 (On CGB)
+        }))).subscribe({
+          next: (statusResponse) => {
+            if (statusResponse.status) {
+              // After status change is successful, initiate the CGB cycle
+              this.votingService.initiateCgbCycle({
+                paperIds: selectedPapers.map(f => f.paperID),
+                remarks: this.approvalRemark,
+                deadlineDate: this.deadlineDate
+              }).subscribe({
+                next: (response) => {
+                  if (response.status && response.data) {
+                    // Call getCgbCycle to get the vote cycle ID
+                    this.votingService.getCgbCycle().subscribe({
+                      next: (cycleResponse) => {
+                        if (cycleResponse.status && cycleResponse.data) {
+                          const voteCycleId = cycleResponse.data.voteCycleId || cycleResponse.data.id;
+                          
+                          if (voteCycleId) {
+                            // Update the paper order with the current drag & drop order
+                            const serialData = selectedPapers.map((paper, index) => ({
+                              paperId: paper.paperID,
+                              serialNumber: index + 1
+                            }));
 
-                      this.votingService.updateCgbCycleOrder({
-                        votingCycleId: voteCycleId,
-                        serialData: serialData
-                      }).subscribe({
-                        next: (orderResponse) => {
-                          console.log('Paper order updated successfully', orderResponse);
-                          this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
-                            d.checked = false;
-                            return d;
-                          });
-                          this.showCGBButton = false;
-                          modal.close('Save click');
-                          this.resetModalFields();
-                        },
-                        error: (orderError) => {
-                          console.log('Error updating paper order', orderError);
-                          // Still close modal even if order update fails
-                          this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
-                            d.checked = false;
-                            return d;
-                          });
-                          this.showCGBButton = false;
-                          modal.close('Save click');
-                          this.resetModalFields();
+                            this.votingService.updateCgbCycleOrder({
+                              votingCycleId: voteCycleId,
+                              serialData: serialData
+                            }).subscribe({
+                              next: (orderResponse) => {
+                                console.log('Paper order updated successfully', orderResponse);
+                                // Reload paper list to reflect status changes
+                                this.loadPaperConfigList();
+                                this.groupedPaper['Approved by Pre-CGB'] = this.groupedPaper['Approved by Pre-CGB'].map(d => {
+                                  d.checked = false;
+                                  return d;
+                                });
+                                this.showCGBButton = false;
+                                modal.close('Save click');
+                                this.resetModalFields();
+                                this.toastService.show('CGB cycle initiated successfully', 'success');
+                              },
+                              error: (orderError) => {
+                                console.log('Error updating paper order', orderError);
+                                this.toastService.showError(orderError, 'Error updating paper order');
+                                // Still close modal even if order update fails
+                                this.loadPaperConfigList();
+                                this.groupedPaper['Approved by Pre-CGB'] = this.groupedPaper['Approved by Pre-CGB'].map(d => {
+                                  d.checked = false;
+                                  return d;
+                                });
+                                this.showCGBButton = false;
+                                modal.close('Save click');
+                                this.resetModalFields();
+                              }
+                            });
+                          } else {
+                            console.log('No vote cycle ID received from getCgbCycle');
+                            this.loadPaperConfigList();
+                            this.groupedPaper['Approved by Pre-CGB'] = this.groupedPaper['Approved by Pre-CGB'].map(d => {
+                              d.checked = false;
+                              return d;
+                            });
+                            this.showCGBButton = false;
+                            modal.close('Save click');
+                            this.resetModalFields();
+                          }
                         }
-                      });
-                    } else {
-                      console.log('No vote cycle ID received from getCgbCycle');
-                      this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
-                        d.checked = false;
-                        return d;
-                      });
-                      this.showCGBButton = false;
-                      modal.close('Save click');
-                      this.resetModalFields();
-                    }
+                      },
+                      error: (cycleError) => {
+                        console.log('Error getting CGB cycle', cycleError);
+                        this.toastService.showError(cycleError, 'Error getting CGB cycle');
+                        // Still close modal even if getCgbCycle fails
+                        this.loadPaperConfigList();
+                        this.groupedPaper['Approved by Pre-CGB'] = this.groupedPaper['Approved by Pre-CGB'].map(d => {
+                          d.checked = false;
+                          return d;
+                        });
+                        this.showCGBButton = false;
+                        modal.close('Save click');
+                        this.resetModalFields();
+                      }
+                    });
+                  } else {
+                    this.toastService.showError(response, 'Failed to initiate CGB cycle');
                   }
                 },
-                error: (cycleError) => {
-                  console.log('Error getting CGB cycle', cycleError);
-                  // Still close modal even if getCgbCycle fails
-                  this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
-                    d.checked = false;
-                    return d;
-                  });
-                  this.showCGBButton = false;
-                  modal.close('Save click');
-                  this.resetModalFields();
+                error: (initiateError) => {
+                  console.log('Error initiating CGB cycle', initiateError);
+                  this.toastService.showError(initiateError, 'Error initiating CGB cycle');
                 }
               });
+            } else {
+              this.toastService.showError(statusResponse, 'Failed to change paper status');
             }
-          }, error: (error) => {
-            console.log('error', error);
+          },
+          error: (statusError) => {
+            console.log('Error changing paper status', statusError);
+            this.toastService.showError(statusError, 'Error changing paper status to On CGB');
           }
         });
       }
@@ -346,12 +380,17 @@ export class PaperStatusComponent implements OnInit {
                 // Reload the paper list to reflect changes
                 this.loadPaperConfigList();
               } else {
-                this.toastService.show('Failed to add papers to current cycle', 'danger');
+                // Handle error response from backend
+                if (response.errors || response.errorMessages) {
+                  this.toastService.showError(response, 'Failed to add papers to current cycle');
+                } else {
+                  this.toastService.show(response.message || 'Failed to add papers to current cycle', 'danger');
+                }
               }
             },
             error: (error) => {
               console.log('Error adding papers to current cycle', error);
-              this.toastService.show('Error adding papers to current cycle', 'danger');
+              this.toastService.showError(error, 'Error adding papers to current cycle');
             }
           });
         } else {
