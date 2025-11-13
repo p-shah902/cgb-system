@@ -34,6 +34,7 @@ export class InboxoutboxComponent implements OnInit {
   selectedPaper: number = 0;
   reviewBy: string = '';
   isLoading: boolean = false;
+  isApproving: boolean = false;
   downloadingPapers: Set<number> = new Set();
   searchTerm: string = '';
   filterStatus: string = '';
@@ -353,7 +354,8 @@ export class InboxoutboxComponent implements OnInit {
   }
 
   approvePaper(modal: any, type: string) {
-    if (this.selectedPaper > 0) {
+    if (this.selectedPaper > 0 && !this.isApproving) {
+      this.isApproving = true;
       this.paperConfigService.approveRejectPaper({
         paperId: this.selectedPaper,
         remarks: this.reviewBy || '',
@@ -365,16 +367,38 @@ export class InboxoutboxComponent implements OnInit {
         .subscribe({
           next: (response) => {
             if (response.status && response.data) {
-              modal.close('Save click');
-              this.approvalRemark = ''; // Reset the approval remark
-              this.reviewBy = ''; // Reset the review by
-              this.selectedPaper = 0; // Reset the selected paper ID
-              this.getInboxOutBox();
+              this.toastService.show('Paper approved successfully', 'success');
+              // Reset form fields first
+              this.approvalRemark = '';
+              this.reviewBy = '';
+              const paperId = this.selectedPaper;
+              this.selectedPaper = 0;
+              // Close modal immediately
+              try {
+                modal.close('Approved');
+              } catch (e) {
+                console.log('Error closing modal:', e);
+              }
+              // Refresh inbox/outbox data after a short delay to ensure modal is closed
+              setTimeout(() => {
+                this.getInboxOutBox();
+              }, 300);
+            } else {
+              this.toastService.show(response?.message || 'Failed to approve paper', 'danger');
+              this.isApproving = false;
             }
           },
           error: (error) => {
             console.log('error', error);
+            this.toastService.showError(error);
+            this.isApproving = false;
           },
+          complete: () => {
+            // Reset isApproving flag after a delay to ensure UI updates
+            setTimeout(() => {
+              this.isApproving = false;
+            }, 500);
+          }
         });
     }
   }

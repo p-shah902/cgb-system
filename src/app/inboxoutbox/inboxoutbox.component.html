@@ -348,8 +348,10 @@
       type="button"
       class="btn btn-primary"
       (click)="approvePaper(modal, 'Approval')"
+      [disabled]="isApproving"
     >
-      Save
+      <span *ngIf="!isApproving">Approve</span>
+      <span *ngIf="isApproving">Approving...</span>
     </button>
   </div>
 </ng-template>
