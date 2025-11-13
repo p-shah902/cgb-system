@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
-import { UserDetails } from '../models/user';
+import { GetUsersListRequest, UserDetails } from '../models/user';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '../models/role';
 import { getUserDetailsByIdUri, getUserListUri, upsertUserUri } from '../utils/api/api';
@@ -17,8 +17,17 @@ export class UserService {
   public isUpsertUser$ = this.isUpsertUserSubject.asObservable();
   constructor(private http:HttpClient) { }
 
-  getUserDetailsList():Observable<ApiResponse<UserDetails[]>>{
-      return this.http.get<ApiResponse<UserDetails[]>>(getUserListUri).pipe(
+  getUserDetailsList(request?: GetUsersListRequest):Observable<ApiResponse<UserDetails[]>>{
+      // Default request payload if not provided
+      const payload: GetUsersListRequest = request || {
+        filter: {},
+        paging: {
+          start: 0,
+          length: 20
+        }
+      };
+      
+      return this.http.post<ApiResponse<UserDetails[]>>(getUserListUri, payload).pipe(
         tap(response=>{
           if(response.status && response.data)
           {

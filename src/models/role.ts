@@ -55,6 +55,20 @@ export interface UserRole {
   createdDate: string;
 }
 
+export interface GetUserRolesListFilter {
+  roleName?: string;
+}
+
+export interface GetUserRolesListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetUserRolesListRequest {
+  filter?: GetUserRolesListFilter;
+  paging?: GetUserRolesListPaging;
+}
+
 export interface UserRoleAccess {
   roleId: number;
   roleName: string;

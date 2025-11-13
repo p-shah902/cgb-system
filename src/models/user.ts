@@ -27,3 +27,20 @@ export interface LoginUser {
   roleId: number
   roleName: string
 }
+
+export interface GetUsersListFilter {
+  username?: string;
+  email?: string;
+  roleName?: string;
+  departmentName?: string;
+}
+
+export interface GetUsersListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetUsersListRequest {
+  filter?: GetUsersListFilter;
+  paging?: GetUsersListPaging;
+}

@@ -3,6 +3,7 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, catchError, Observable, of, tap} from 'rxjs';
 import {
   ApiResponse,
+  GetUserRolesListRequest,
   ParticularType,
   UpsertUserRolesPaylod,
   UserRole,
@@ -90,8 +91,17 @@ export class RoleService {
     );
   }
 
-  getUserRolesList(): Observable<ApiResponse<UserRole[]>> {
-    return this.http.get<ApiResponse<UserRole[]>>(getUserRolesUri)
+  getUserRolesList(request?: GetUserRolesListRequest): Observable<ApiResponse<UserRole[]>> {
+    // Default request payload if not provided
+    const payload: GetUserRolesListRequest = request || {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 20
+      }
+    };
+    
+    return this.http.post<ApiResponse<UserRole[]>>(getUserRolesUri, payload)
       .pipe(
         tap(response => {
           if (response.status && response.data) {
