@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, TemplateRef} from '@angular/core';
+import {Component, inject, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {PaperConfig} from '../../models/paper';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
@@ -32,6 +32,8 @@ import {Router} from '@angular/router';
   styleUrl: './paper-status.component.scss'
 })
 export class PaperStatusComponent implements OnInit {
+  @ViewChild('dropdownRef') dropdownRef!: NgbDropdown;
+  
   paperList: PaperConfig[] = [];
   private paperService = inject(PaperConfigService);
   private votingService = inject(VotingService);
@@ -43,6 +45,26 @@ export class PaperStatusComponent implements OnInit {
   approvalRemark = "";
   deadlineDate: string = "";
   isLoading: boolean = false
+  
+  // Search, Sort, and Filter
+  searchText: string = '';
+  sortColumn: string = '';
+  sortDirection: 'asc' | 'desc' = 'asc';
+  filterStatusIds: number[] = [];
+  filterFromDate: string = '';
+  filterToDate: string = '';
+  isFilterApplied: boolean = false;
+  originalGroupedPaper: { [key: string]: PaperConfig[] } = {
+    'Registered': [],
+    'Waiting for PDM': [],
+    'Approved by PDM': [],
+    'On Pre-CGB': [],
+    'Approved by Pre-CGB': [],
+    'On CGB': [],
+    'Approved by CGB': [],
+    'Approved': [],
+  };
+  
   groupedPaper: { [key: string]: PaperConfig[] } = {
     'Registered': [],
     'Waiting for PDM': [],
@@ -160,10 +182,12 @@ export class PaperStatusComponent implements OnInit {
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter(d => d.statusName !== 'Draft' && d.paperType !== 'Batch Paper');
-          Object.keys(this.groupedPaper).forEach(key => {
-            this.groupedPaper[key] = this.paperList.filter(f => f.statusName === key);
-          })
-
+          Object.keys(this.originalGroupedPaper).forEach(key => {
+            this.originalGroupedPaper[key] = this.paperList.filter(f => f.statusName === key);
+          });
+          
+          // Apply filters and search
+          this.applyFilters();
         }
       }, error: (error) => {
         console.log('error', error);
@@ -172,6 +196,162 @@ export class PaperStatusComponent implements OnInit {
       }
     });
 
+  }
+  
+  applyFilters(): void {
+    // Reset grouped paper
+    Object.keys(this.groupedPaper).forEach(key => {
+      this.groupedPaper[key] = [];
+    });
+    
+    // Apply filters to each status group
+    Object.keys(this.originalGroupedPaper).forEach(key => {
+      let filteredPapers = [...this.originalGroupedPaper[key]];
+      
+      // Apply search filter
+      if (this.searchText && this.searchText.trim()) {
+        const searchLower = this.searchText.toLowerCase().trim();
+        filteredPapers = filteredPapers.filter((paper: any) => {
+          return (
+            (paper.purposeTitle?.toLowerCase().includes(searchLower)) ||
+            (paper.description?.toLowerCase().includes(searchLower)) ||
+            (paper.paperType?.toLowerCase().includes(searchLower)) ||
+            (paper.statusName?.toLowerCase().includes(searchLower)) ||
+            (paper.paperID?.toString().includes(searchLower))
+          );
+        });
+      }
+      
+      // Apply status filter
+      if (this.filterStatusIds && this.filterStatusIds.length > 0) {
+        filteredPapers = filteredPapers.filter((paper: any) => {
+          return this.filterStatusIds.includes(paper.statusId);
+        });
+      }
+      
+      // Apply date filter
+      if (this.filterFromDate) {
+        filteredPapers = filteredPapers.filter((paper: any) => {
+          const paperDate = new Date(paper.lastModifyDate || paper.createdDate);
+          const fromDate = new Date(this.filterFromDate);
+          return paperDate >= fromDate;
+        });
+      }
+      
+      if (this.filterToDate) {
+        filteredPapers = filteredPapers.filter((paper: any) => {
+          const paperDate = new Date(paper.lastModifyDate || paper.createdDate);
+          const toDate = new Date(this.filterToDate);
+          toDate.setHours(23, 59, 59, 999);
+          return paperDate <= toDate;
+        });
+      }
+      
+      // Apply sorting
+      if (this.sortColumn) {
+        filteredPapers.sort((a: any, b: any) => {
+          let valueA: any;
+          let valueB: any;
+          
+          switch (this.sortColumn) {
+            case 'description':
+              valueA = (a.description || '').toLowerCase();
+              valueB = (b.description || '').toLowerCase();
+              break;
+            case 'paperType':
+              valueA = (a.paperType || '').toLowerCase();
+              valueB = (b.paperType || '').toLowerCase();
+              break;
+            case 'lastModify':
+              valueA = new Date(a.lastModifyDate || 0).getTime();
+              valueB = new Date(b.lastModifyDate || 0).getTime();
+              break;
+            default:
+              return 0;
+          }
+          
+          if (valueA == null && valueB == null) return 0;
+          if (valueA == null) return 1;
+          if (valueB == null) return -1;
+          
+          if (valueA < valueB) {
+            return this.sortDirection === 'asc' ? -1 : 1;
+          }
+          if (valueA > valueB) {
+            return this.sortDirection === 'asc' ? 1 : -1;
+          }
+          return 0;
+        });
+      }
+      
+      this.groupedPaper[key] = filteredPapers;
+    });
+    
+    this.checkFilterApplied();
+  }
+  
+  onSearchChange(): void {
+    this.applyFilters();
+  }
+  
+  onSortChange(): void {
+    // Toggle sort direction
+    if (this.sortColumn) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // First time sorting - default to description
+      this.sortColumn = 'description';
+      this.sortDirection = 'asc';
+    }
+    this.applyFilters();
+  }
+  
+  onStatusFilterChange(statusId: number, event: any): void {
+    if (event.target.checked) {
+      if (!this.filterStatusIds.includes(statusId)) {
+        this.filterStatusIds.push(statusId);
+      }
+    } else {
+      this.filterStatusIds = this.filterStatusIds.filter(id => id !== statusId);
+    }
+    this.applyFilters();
+  }
+  
+  onDateChange(): void {
+    this.applyFilters();
+  }
+  
+  clearStatusFilters(): void {
+    this.filterStatusIds = [];
+    this.applyFilters();
+  }
+  
+  clearDateFilters(): void {
+    this.filterFromDate = '';
+    this.filterToDate = '';
+    this.applyFilters();
+  }
+  
+  clearAllFilters(): void {
+    this.searchText = '';
+    this.filterStatusIds = [];
+    this.filterFromDate = '';
+    this.filterToDate = '';
+    this.sortColumn = '';
+    this.sortDirection = 'asc';
+    this.applyFilters();
+  }
+  
+  checkFilterApplied(): void {
+    this.isFilterApplied = !!(this.searchText || 
+      (this.filterStatusIds && this.filterStatusIds.length > 0) || 
+      this.filterFromDate || 
+      this.filterToDate ||
+      this.sortColumn);
+  }
+  
+  cancelFilters(): void {
+    this.dropdownRef.close();
   }
 
   getSelectedPapers(type: string) {

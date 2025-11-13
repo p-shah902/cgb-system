@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, TemplateRef } from '@angular/core';
-import { NgbDropdownItem, NgbModal, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../service/toast.service';
 import { CommonModule } from '@angular/common';
 import { InboxOutbox } from '../../models/inbox-outbox';
@@ -14,11 +14,12 @@ import { PaperService } from '../../service/paper.service';
 @Component({
   selector: 'app-inboxoutbox',
   standalone: true,
-  imports: [NgbNavModule, NgbToastModule, CommonModule, RouterLink, FormsModule],
+  imports: [NgbNavModule, NgbToastModule, CommonModule, RouterLink, FormsModule, NgbDropdown, NgbDropdownMenu, NgbDropdownToggle],
   templateUrl: './inboxoutbox.component.html',
   styleUrl: './inboxoutbox.component.scss'
 })
 export class InboxoutboxComponent implements OnInit {
+  @ViewChild('dropdownRef') dropdownRef!: NgbDropdown;
 
   public toastService = inject(ToastService)
   private paperConfigService = inject(PaperConfigService);
@@ -39,6 +40,14 @@ export class InboxoutboxComponent implements OnInit {
   filterPaperType: string = '';
   isFilterOpen: boolean = false;
   isDesc: boolean = false;
+  isFilterApplied: boolean = false;
+  
+  // Pagination
+  currentPageInbox: number = 1;
+  currentPageOutbox: number = 1;
+  itemsPerPage: number = 10; // 3x3 grid
+  paginatedInboxData: InboxOutbox[] = [];
+  paginatedOutboxData: InboxOutbox[] = [];
 
   private readonly _mdlSvc = inject(NgbModal);
 
@@ -47,7 +56,7 @@ export class InboxoutboxComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getInboxOutBox()
+    this.getInboxOutBox();
   }
 
   private slugify(text: string): string {
@@ -145,13 +154,142 @@ export class InboxoutboxComponent implements OnInit {
 
     this.filteredInboxData = filteredInbox;
     this.filteredOutboxData = filteredOutbox;
+    
+    // Reset to first page when filters change
+    this.currentPageInbox = 1;
+    this.currentPageOutbox = 1;
+    
+    // Apply pagination
+    this.applyPagination();
+  }
+  
+  applyPagination(): void {
+    const inboxStart = (this.currentPageInbox - 1) * this.itemsPerPage;
+    const inboxEnd = inboxStart + this.itemsPerPage;
+    this.paginatedInboxData = this.filteredInboxData.slice(inboxStart, inboxEnd);
+    
+    const outboxStart = (this.currentPageOutbox - 1) * this.itemsPerPage;
+    const outboxEnd = outboxStart + this.itemsPerPage;
+    this.paginatedOutboxData = this.filteredOutboxData.slice(outboxStart, outboxEnd);
+  }
+  
+  getTotalPagesInbox(): number {
+    return Math.ceil(this.filteredInboxData.length / this.itemsPerPage);
+  }
+  
+  getTotalPagesOutbox(): number {
+    return Math.ceil(this.filteredOutboxData.length / this.itemsPerPage);
+  }
+  
+  goToPageInbox(page: number): void {
+    const totalPages = this.getTotalPagesInbox();
+    if (page >= 1 && page <= totalPages) {
+      this.currentPageInbox = page;
+      this.applyPagination();
+      // Scroll to top of content
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  
+  goToPageOutbox(page: number): void {
+    const totalPages = this.getTotalPagesOutbox();
+    if (page >= 1 && page <= totalPages) {
+      this.currentPageOutbox = page;
+      this.applyPagination();
+      // Scroll to top of content
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+  
+  nextPageInbox(): void {
+    const totalPages = this.getTotalPagesInbox();
+    if (this.currentPageInbox < totalPages) {
+      this.goToPageInbox(this.currentPageInbox + 1);
+    }
+  }
+  
+  prevPageInbox(): void {
+    if (this.currentPageInbox > 1) {
+      this.goToPageInbox(this.currentPageInbox - 1);
+    }
+  }
+  
+  nextPageOutbox(): void {
+    const totalPages = this.getTotalPagesOutbox();
+    if (this.currentPageOutbox < totalPages) {
+      this.goToPageOutbox(this.currentPageOutbox + 1);
+    }
+  }
+  
+  prevPageOutbox(): void {
+    if (this.currentPageOutbox > 1) {
+      this.goToPageOutbox(this.currentPageOutbox - 1);
+    }
+  }
+  
+  getPageNumbersInbox(): number[] {
+    const totalPages = this.getTotalPagesInbox();
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (this.currentPageInbox <= 3) {
+        for (let i = 1; i <= maxVisible; i++) {
+          pages.push(i);
+        }
+      } else if (this.currentPageInbox >= totalPages - 2) {
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        for (let i = this.currentPageInbox - 2; i <= this.currentPageInbox + 2; i++) {
+          pages.push(i);
+        }
+      }
+    }
+    
+    return pages;
+  }
+  
+  getPageNumbersOutbox(): number[] {
+    const totalPages = this.getTotalPagesOutbox();
+    const pages: number[] = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (this.currentPageOutbox <= 3) {
+        for (let i = 1; i <= maxVisible; i++) {
+          pages.push(i);
+        }
+      } else if (this.currentPageOutbox >= totalPages - 2) {
+        for (let i = totalPages - maxVisible + 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        for (let i = this.currentPageOutbox - 2; i <= this.currentPageOutbox + 2; i++) {
+          pages.push(i);
+        }
+      }
+    }
+    
+    return pages;
   }
 
   onSearchChange(): void {
+    this.checkFilterApplied();
     this.applyFilters();
   }
 
   onFilterChange(): void {
+    this.checkFilterApplied();
     this.applyFilters();
   }
 
@@ -159,7 +297,33 @@ export class InboxoutboxComponent implements OnInit {
     this.searchTerm = '';
     this.filterStatus = '';
     this.filterPaperType = '';
+    this.isFilterApplied = false;
     this.applyFilters();
+    this.dropdownRef.close();
+  }
+
+  clearStatusFilter(): void {
+    this.filterStatus = '';
+    this.checkFilterApplied();
+    this.applyFilters();
+  }
+
+  clearPaperTypeFilter(): void {
+    this.filterPaperType = '';
+    this.checkFilterApplied();
+    this.applyFilters();
+  }
+
+  cancelFilters(): void {
+    this.dropdownRef.close();
+  }
+
+  onFilterDropdownOpen(): void {
+    // This method is called when dropdown opens/closes
+  }
+
+  checkFilterApplied(): void {
+    this.isFilterApplied = !!(this.filterStatus || this.filterPaperType || this.searchTerm);
   }
 
   toggleSort(): void {

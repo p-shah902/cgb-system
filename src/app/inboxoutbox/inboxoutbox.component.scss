@@ -238,3 +238,132 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.filter-dropdown-div {
+  width: 363px;
+  box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+  .flt-head {
+    h5 {
+      font-size: 16px;
+      line-height: 19px;
+      color: #000000;
+    }
+  }
+  .flt-body {
+    label {
+      font-size: 14px;
+      line-height: 17px;
+      color: #838383;
+    }
+    .btn {
+      font-size: 14px;
+      line-height: 17px;
+      color: #582AA2;
+    }
+    p {
+      font-size: 14px;
+      line-height: 17px;
+      color: #1B202B;
+      margin-bottom: 0;
+    }
+    .form-select {
+      font-size: 14px;
+      border: 1px solid #DCDCDC;
+      border-radius: 8px;
+      padding: 8px 12px;
+      &:focus {
+        border-color: #582AA2;
+        box-shadow: 0 0 0 0.2rem rgba(88, 42, 162, 0.25);
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .filter-dropdown-div {
+    width: 320px;
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    .flt-head {
+      h5 {
+        font-size: 14px;
+      }
+    }
+    .flt-body {
+      label {
+        font-size: 12px;
+      }
+      .btn {
+        font-size: 12px;
+      }
+      p {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.pagination-wrapper {
+  padding: 20px 0;
+  border-top: 1px solid #E8E8E8;
+  
+  .pagination-info {
+    font-size: 14px;
+    color: #626262;
+  }
+  
+  .pagination-controls {
+    .btn {
+      min-width: 36px;
+      height: 36px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      
+      &:hover:not(:disabled) {
+        background-color: #582AA2;
+        color: #ffffff;
+        border-color: #582AA2;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      &.btn-primary {
+        background-color: #582AA2;
+        border-color: #582AA2;
+        color: #ffffff;
+      }
+      
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .pagination-wrapper {
+    .d-flex {
+      flex-direction: column;
+      gap: 15px;
+      align-items: flex-start !important;
+    }
+    
+    .pagination-controls {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

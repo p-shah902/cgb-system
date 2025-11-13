@@ -35,7 +35,7 @@
                     <div class="inbox-col">
                       <div class="inbox-body">
                         <div class="row mt-1" >
-                          <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let inbox of filteredInboxData">
+                          <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let inbox of paginatedInboxData">
                             <div class="inbox-card cursor-pointer" (click)="gotoPaper(inbox.paperID, inbox.paperType)">
                               <h5 class="mb-0">{{ inbox.paperProvision }}</h5>
                               <div>
@@ -101,6 +101,43 @@
                           </div>
                         </div>
                       </div>
+                      <!-- Pagination for Inbox -->
+                      <div class="pagination-wrapper mt-4" *ngIf="getTotalPagesInbox() > 1">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="pagination-info">
+                            <span class="text-muted">
+                              Showing {{ (currentPageInbox - 1) * itemsPerPage + 1 }} - 
+                              {{ currentPageInbox * itemsPerPage > filteredInboxData.length ? filteredInboxData.length : currentPageInbox * itemsPerPage }} 
+                              of {{ filteredInboxData.length }} items
+                            </span>
+                          </div>
+                          <div class="pagination-controls d-flex align-items-center gap-2">
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    (click)="prevPageInbox()" 
+                                    [disabled]="currentPageInbox === 1">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </button>
+                            <div class="d-flex gap-1">
+                              <button *ngFor="let page of getPageNumbersInbox()" 
+                                      class="btn btn-sm"
+                                      [class.btn-primary]="page === currentPageInbox"
+                                      [class.btn-outline-secondary]="page !== currentPageInbox"
+                                      (click)="goToPageInbox(page)">
+                                {{ page }}
+                              </button>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    (click)="nextPageInbox()" 
+                                    [disabled]="currentPageInbox === getTotalPagesInbox()">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </ng-template>
                 </li>
@@ -110,7 +147,7 @@
                     <div class="inbox-col">
                       <div class="inbox-body">
                         <div class="row mt-1">
-                          <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let outbox of filteredOutboxData">
+                          <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let outbox of paginatedOutboxData">
                             <div class="inbox-card mb-3 cursor-pointer"
                                  (click)="gotoPaper(outbox.paperID, outbox.paperType)">
                               <h5 class="mb-0">{{ outbox.paperProvision }}</h5>
@@ -143,6 +180,43 @@
                           </div>
                         </div>
                       </div>
+                      <!-- Pagination for Outbox -->
+                      <div class="pagination-wrapper mt-4" *ngIf="getTotalPagesOutbox() > 1">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="pagination-info">
+                            <span class="text-muted">
+                              Showing {{ (currentPageOutbox - 1) * itemsPerPage + 1 }} - 
+                              {{ currentPageOutbox * itemsPerPage > filteredOutboxData.length ? filteredOutboxData.length : currentPageOutbox * itemsPerPage }} 
+                              of {{ filteredOutboxData.length }} items
+                            </span>
+                          </div>
+                          <div class="pagination-controls d-flex align-items-center gap-2">
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    (click)="prevPageOutbox()" 
+                                    [disabled]="currentPageOutbox === 1">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </button>
+                            <div class="d-flex gap-1">
+                              <button *ngFor="let page of getPageNumbersOutbox()" 
+                                      class="btn btn-sm"
+                                      [class.btn-primary]="page === currentPageOutbox"
+                                      [class.btn-outline-secondary]="page !== currentPageOutbox"
+                                      (click)="goToPageOutbox(page)">
+                                {{ page }}
+                              </button>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    (click)="nextPageOutbox()" 
+                                    [disabled]="currentPageOutbox === getTotalPagesOutbox()">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </ng-template>
                 </li>
@@ -155,34 +229,7 @@
             </li>
           </ng-template>
           <div class="col-md-7">
-            <div class="filter-head d-flex justify-content-end gap-3 mb-4 position-relative">
-              <!-- Filter Dropdown -->
-              <div class="position-absolute top-100 end-0 mt-2 bg-white border rounded shadow-lg p-3" 
-                   style="min-width: 250px; z-index: 1000;"
-                   *ngIf="isFilterOpen">
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Status</label>
-                  <select class="form-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
-                    <option value="">All Statuses</option>
-                    <option *ngFor="let status of getUniqueStatuses()" [value]="status">{{ status }}</option>
-                  </select>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label fw-bold">Paper Type</label>
-                  <select class="form-select" [(ngModel)]="filterPaperType" (change)="onFilterChange()">
-                    <option value="">All Types</option>
-                    <option *ngFor="let type of getUniquePaperTypes()" [value]="type">{{ type }}</option>
-                  </select>
-                </div>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-secondary btn-sm flex-fill" (click)="clearFilters()">
-                    Clear
-                  </button>
-                  <button class="btn btn-primary btn-sm flex-fill" (click)="isFilterOpen = false">
-                    Close
-                  </button>
-                </div>
-              </div>
+            <div class="filter-head d-flex justify-content-end gap-3 mb-4">
               <div class="fh-search">
                 <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path fill-rule="evenodd" clip-rule="evenodd"
@@ -194,17 +241,63 @@
                        [(ngModel)]="searchTerm"
                        (input)="onSearchChange()"/>
               </div>
-              <div class="filter-btn-div">
-                <button class="btn btn-outline-secondary d-flex gap-2 align-items-center"
-                        (click)="isFilterOpen = !isFilterOpen">
+              <div ngbDropdown class="filter-btn-div" #dropdownRef="ngbDropdown" [autoClose]="'outside'" (openChange)="onFilterDropdownOpen()">
+                <button class="btn d-flex gap-2 align-items-center"
+                        [ngClass]="isFilterApplied ? 'create-btn' : 'btn-outline-secondary'"
+                        ngbDropdownToggle>
                   <svg width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
                           d="M7 11.8515V14.0515H13V11.8515H7ZM4 6.35146V8.55147H16V6.35146H4ZM0 0.851562V3.05156H20V0.851562H0Z"
-                          fill="#898989"/>
+                          fill="#898989" />
                   </svg>
                   Filter
                 </button>
+
+                <div class="filter-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                  <!-- Header -->
+                  <div class="flt-head d-flex justify-content-between align-items-center p-2 border-bottom">
+                    <h5 class="mb-0">Filter</h5>
+                    <button type="button" class="btn-close" aria-label="Close" (click)="cancelFilters()"></button>
+                  </div>
+
+                  <div class="flt-body">
+                    <!-- Status Filter -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
+                      <label class="text-secondary mb-0">Status</label>
+                      <a href="#" class="text-primary small" (click)="clearStatusFilter(); $event.preventDefault()">Clear</a>
+                    </div>
+
+                    <div class="mb-3">
+                      <select class="form-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+                        <option value="">All Statuses</option>
+                        <option *ngFor="let status of getUniqueStatuses()" [value]="status">{{ status }}</option>
+                      </select>
+                    </div>
+
+                    <!-- Paper Type Filter -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <label class="text-secondary mb-0">Paper Type</label>
+                      <a href="#" class="text-primary small" (click)="clearPaperTypeFilter(); $event.preventDefault()">Clear</a>
+                    </div>
+
+                    <div class="mb-3">
+                      <select class="form-select" [(ngModel)]="filterPaperType" (change)="onFilterChange()">
+                        <option value="">All Types</option>
+                        <option *ngFor="let type of getUniquePaperTypes()" [value]="type">{{ type }}</option>
+                      </select>
+                    </div>
+
+                    <!-- Footer Buttons -->
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <button class="btn btn-sm w-100" (click)="clearFilters()">Clear All</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
+             
+            
               <div class="filter-btn-div">
                 <button class="btn btn-outline-secondary d-flex gap-2 align-items-center"
                         (click)="toggleSort()">

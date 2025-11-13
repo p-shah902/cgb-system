@@ -23,10 +23,15 @@
                   d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
                   fill="#84818A"/>
           </svg>
-          <input class="form-control" placeholder="Search Field"/>
+          <input class="form-control" 
+                 placeholder="Search Field"
+                 [(ngModel)]="searchText"
+                 (input)="onSearchChange()"/>
         </div>
-        <div class="filter-btn-div">
-          <button class="btn btn-outline-secondary d-flex gap-2 align-items-center">
+        <div ngbDropdown class="filter-btn-div" #dropdownRef="ngbDropdown" [autoClose]="'outside'">
+          <button class="btn d-flex gap-2 align-items-center"
+                  [ngClass]="isFilterApplied ? 'create-btn' : 'btn-outline-secondary'"
+                  ngbDropdownToggle>
             <svg width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd"
                     d="M7 11.8515V14.0515H13V11.8515H7ZM4 6.35146V8.55147H16V6.35146H4ZM0 0.851562V3.05156H20V0.851562H0Z"
@@ -34,9 +39,89 @@
             </svg>
             Filter
           </button>
+          <div class="filter-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <div class="flt-head d-flex justify-content-between align-items-center p-2 border-bottom">
+              <h5 class="mb-0">Filter</h5>
+              <button type="button" class="btn-close" aria-label="Close" (click)="cancelFilters()"></button>
+            </div>
+            <div class="flt-body">
+              <!-- Date Filter -->
+              <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
+                <label class="text-secondary mb-0">Select Date</label>
+                <a href="#" class="text-primary small" (click)="clearDateFilters(); $event.preventDefault()">Clear</a>
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <input type="date" class="form-control" [(ngModel)]="filterFromDate" (change)="onDateChange()" />
+                </div>
+                <div class="col-6">
+                  <input type="date" class="form-control" [(ngModel)]="filterToDate" (change)="onDateChange()" />
+                </div>
+              </div>
+              
+              <!-- Status Filter -->
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="text-secondary mb-0">Status</label>
+                <a href="#" class="text-primary small" (click)="clearStatusFilters(); $event.preventDefault()">Clear</a>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>Approved by PDM</span>
+                <div class="form-check form-switch m-0">
+                  <input type="checkbox"
+                         class="form-check-input"
+                         [checked]="filterStatusIds.includes(5)"
+                         (change)="onStatusFilterChange(5, $event)"
+                         id="flt-sw1" />
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>On Pre-CGB</span>
+                <div class="form-check form-switch m-0">
+                  <input type="checkbox"
+                         class="form-check-input"
+                         [checked]="filterStatusIds.includes(6)"
+                         (change)="onStatusFilterChange(6, $event)"
+                         id="flt-sw2" />
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>Approved by Pre-CGB</span>
+                <div class="form-check form-switch m-0">
+                  <input type="checkbox"
+                         class="form-check-input"
+                         [checked]="filterStatusIds.includes(7)"
+                         (change)="onStatusFilterChange(7, $event)"
+                         id="flt-sw3" />
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>On CGB</span>
+                <div class="form-check form-switch m-0">
+                  <input type="checkbox"
+                         class="form-check-input"
+                         [checked]="filterStatusIds.includes(10)"
+                         (change)="onStatusFilterChange(10, $event)"
+                         id="flt-sw4" />
+                </div>
+              </div>
+              
+              <!-- Footer Buttons -->
+              <div class="row mt-3">
+                <div class="col-12">
+                  <button class="btn btn-sm w-100" (click)="clearAllFilters()">Clear All</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div ngbDropdown class="filter-btn-div">
-          <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" ngbDropdownToggle>
+          <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" 
+                  (click)="onSortChange()"
+                  [ngClass]="sortColumn ? 'create-btn' : ''">
             <svg width="9" height="24" viewBox="0 0 9 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M0.450271 8.45H8.5505C8.63251 8.4497 8.7129 8.42386 8.78301 8.37524C8.85312 8.32662 8.91031 8.25707 8.9484 8.17408C8.9865 8.09108 9.00406 7.99779 8.99921 7.90423C8.99436 7.81068 8.96727 7.72041 8.92086 7.64314L4.87075 0.957886C4.70289 0.680705 4.29878 0.680705 4.13048 0.957886L0.0803605 7.64314C0.0334803 7.72025 0.00598872 7.81056 0.000872541 7.90427C-0.00424364 7.99798 0.0132113 8.0915 0.0513409 8.17467C0.0894705 8.25784 0.146816 8.32748 0.217148 8.37602C0.28748 8.42456 0.368108 8.45015 0.450271 8.45Z"
@@ -45,98 +130,8 @@
                 d="M0.450271 14.45H8.5505C8.63251 14.4503 8.7129 14.4799 8.78301 14.5354C8.85312 14.591 8.91031 14.6705 8.9484 14.7653C8.9865 14.8602 9.00406 14.9668 8.99921 15.0737C8.99436 15.1807 8.96727 15.2838 8.92086 15.3721L4.87075 23.0124C4.70289 23.3292 4.29878 23.3292 4.13048 23.0124L0.0803605 15.3721C0.0334803 15.284 0.00598872 15.1808 0.000872541 15.0737C-0.00424364 14.9666 0.0132113 14.8597 0.0513409 14.7647C0.0894705 14.6696 0.146816 14.59 0.217148 14.5345C0.28748 14.4791 0.368108 14.4498 0.450271 14.45Z"
                 fill="#898989"/>
             </svg>
-            A Z
+            {{ sortDirection === 'asc' ? 'A Z' : 'Z A' }}
           </button>
-          <div class="filter-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-            <div class="flt-head">
-              <div class="row">
-                <div class="col-12">
-                  <h5>Filter</h5>
-                </div>
-              </div>
-            </div>
-            <div class="flt-body">
-              <div class="row">
-                <div class="col-6">
-                  <label class="text-secondary">Select Date</label>
-                </div>
-                <div class="col-6 text-end">
-                  <button class="btn p-0 h-auto">
-                    Clear
-                  </button>
-                </div>
-                <div class="col-6">
-                  <input type="date" class="form-control"/>
-                </div>
-                <div class="col-6 text-end">
-                  <input type="date" class="form-control"/>
-                </div>
-              </div>
-              <hr/>
-              <div class="row mt-2">
-                <div class="col-8">
-                  <label class="text-secondary">Select Date</label>
-                </div>
-                <div class="col-4 text-end">
-                  <button class="btn p-0 h-auto">
-                    Clear
-                  </button>
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col-8">
-                  <p>
-                    Approved by PDM
-                  </p>
-                </div>
-                <div class="col-4">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw1">
-                    <label class="form-check-label" for="flt-sw1"></label>
-                  </div>
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col-8">
-                  <p>
-                    On Pre-CGB
-                  </p>
-                </div>
-                <div class="col-4">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw2">
-                    <label class="form-check-label" for="flt-sw2"></label>
-                  </div>
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col-8">
-                  <p>
-                    Approved by Pre-CGB
-                  </p>
-                </div>
-                <div class="col-4">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw3">
-                    <label class="form-check-label" for="flt-sw3"></label>
-                  </div>
-                </div>
-              </div>
-              <div class="row mt-2">
-                <div class="col-8">
-                  <p>
-                    On CGB
-                  </p>
-                </div>
-                <div class="col-4">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="flt-sw4">
-                    <label class="form-check-label" for="flt-sw4"></label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 <!--        <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="open($event, content, 'pre')" *ngIf="showPreCGBButton">-->
 <!--          Initiate Pre CGB Cycle-->
