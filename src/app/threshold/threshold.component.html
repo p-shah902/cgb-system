@@ -10,15 +10,6 @@
   <div class="row">
     <div class="col-md-12">
       <div class="page-card-div position-relative">
-        <!-- Loading Overlay -->
-        <div *ngIf="isLoading" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px; border-radius: 12px;">
-          <div class="table-loader">
-            <div class="spinner"></div>
-            <p>Loading data, please wait...</p>
-          </div>
-        </div>
-        <!-- Content - Hidden while loading -->
-        <div [style.display]="isLoading ? 'none' : 'block'">
 
         <div class="row row-gap-3">
           <div class="col-md-5">
@@ -42,6 +33,14 @@
                                 </tr>
                               </thead>
                               <tbody>
+                                <tr *ngIf="internalThresholds.length === 0">
+                                  <td [attr.colspan]="5" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center justify-content-center">
+                                      <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No thresholds found</p>
+                                      <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+                                    </div>
+                                  </td>
+                                </tr>
                                 <tr *ngFor="let threshold of internalThresholds">
                                   <td>{{ threshold.thresholdName }}</td>
                                   <td>
@@ -62,8 +61,8 @@
                                   </td>
                                   <td>{{ threshold.contractValueLimit }}</td>
                                   <td>
-                                    <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
-                                      <button type="button" class="btn" ngbDropdownToggle>
+                                    <div ngbDropdown placement="bottom-end" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
+                                      <button type="button" class="btn" [id]="'dropdown-internal-' + threshold.id" ngbDropdownToggle>
                                         <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
                                           xmlns="http://www.w3.org/2000/svg">
                                           <path fill-rule="evenodd" clip-rule="evenodd"
@@ -71,7 +70,7 @@
                                             fill="#898989" />
                                         </svg>
                                       </button>
-                                      <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                                      <div class="action-menu" ngbDropdownMenu [attr.aria-labelledby]="'dropdown-internal-' + threshold.id">
                                         <a class="links cursor-pointer" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>
                                           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M10.9174 1.5127L9.59395 2.83613L13.1486 6.39082L14.4721 5.06738C15.1557 4.38379 15.1557 3.27637 14.4721 2.59277L13.3947 1.5127C12.7111 0.829102 11.6037 0.829102 10.9201 1.5127H10.9174ZM8.97598 3.4541L2.60215 9.83066C2.31778 10.115 2.10997 10.4678 1.99512 10.8533L1.02715 14.1428C0.958795 14.3752 1.02169 14.624 1.19122 14.7936C1.36075 14.9631 1.60958 15.026 1.83926 14.9604L5.12872 13.9924C5.51426 13.8775 5.867 13.6697 6.15137 13.3854L12.5307 7.00879L8.97598 3.4541Z" stroke="#626262" stroke-width="1.2"/>
@@ -114,6 +113,14 @@
                                 </tr>
                               </thead>
                               <tbody>
+                                <tr *ngIf="partnerThresholds.length === 0">
+                                  <td [attr.colspan]="5" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center justify-content-center">
+                                      <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No thresholds found</p>
+                                      <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+                                    </div>
+                                  </td>
+                                </tr>
                                 <tr *ngFor="let threshold of partnerThresholds">
                                   <td>{{ threshold.thresholdName }}</td>
                                   <td>
@@ -135,8 +142,8 @@
                                   </td>
                                   <td>{{ threshold.contractValueLimit }}</td>
                                   <td>
-                                    <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
-                                      <button type="button" class="btn" ngbDropdownToggle>
+                                    <div ngbDropdown placement="bottom-end" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
+                                      <button type="button" class="btn" [id]="'dropdown-partner-' + threshold.id" ngbDropdownToggle>
                                         <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
                                           xmlns="http://www.w3.org/2000/svg">
                                           <path fill-rule="evenodd" clip-rule="evenodd"
@@ -144,7 +151,7 @@
                                             fill="#898989" />
                                         </svg>
                                       </button>
-                                      <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic2">
+                                      <div class="action-menu" ngbDropdownMenu [attr.aria-labelledby]="'dropdown-partner-' + threshold.id">
                                         <a class="links cursor-pointer" [routerLink]="['/threshold-add', threshold.thresholdType.toLowerCase(), threshold.id]" ngbDropdownItem>
                                           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M10.9174 1.5127L9.59395 2.83613L13.1486 6.39082L14.4721 5.06738C15.1557 4.38379 15.1557 3.27637 14.4721 2.59277L13.3947 1.5127C12.7111 0.829102 11.6037 0.829102 10.9201 1.5127H10.9174ZM8.97598 3.4541L2.60215 9.83066C2.31778 10.115 2.10997 10.4678 1.99512 10.8533L1.02715 14.1428C0.958795 14.3752 1.02169 14.624 1.19122 14.7936C1.36075 14.9631 1.60958 15.026 1.83926 14.9604L5.12872 13.9924C5.51426 13.8775 5.867 13.6697 6.15137 13.3854L12.5307 7.00879L8.97598 3.4541Z" stroke="#626262" stroke-width="1.2"/>
@@ -173,19 +180,37 @@
             </div>
           </div>
           <div class="col-md-7">
-            <div class="role-btn-div text-end d-flex justify-content-end">
-              <a (click)="navigateToThreshold()" class="btn btn-light ms-auto">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667"
-                    stroke-linecap="round" stroke-linejoin="round" />
+            <div class="filter-head d-flex justify-content-end gap-3 mb-4">
+              <div class="fh-search" [class.searching]="isSearching">
+                <svg *ngIf="!isSearching" width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                        fill="#84818A"/>
                 </svg>
-                Add New Value
-              </a>
+                <div *ngIf="isSearching" class="search-spinner">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+                <input class="form-control" 
+                       placeholder="Search by threshold name..."
+                       [(ngModel)]="searchText"
+                       (input)="onSearchChange()"
+                       [disabled]="isSearching"/>
+              </div>
+              <div class="role-btn-div text-end d-flex justify-content-end">
+                <a (click)="navigateToThreshold()" class="btn btn-light ms-auto">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667"
+                      stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  Add New Value
+                </a>
+              </div>
             </div>
           </div>
         </div>
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
-        </div>
       </div>
     </div>
   </div>

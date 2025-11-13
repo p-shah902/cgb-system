@@ -18,21 +18,32 @@
       <div class="page-card-div">
         <div class="form-header mb-4">
           <div class="row align-items-center">
-            <div class="col-6">
+            <div class="col-5">
               <div class="fh-title">
                 <h3>List of Dictionaries</h3>
               </div>
-
             </div>
-            <div class="col-6">
-              <div class="role-btn-div text-end">
-                <button class="btn btn-light ms-auto" (click)="nevigate()">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+            <div class="col-7">
+              <div class="filter-head d-flex justify-content-end gap-3 mb-4">
+                <div class="fh-search">
+                  <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                          fill="#84818A"/>
                   </svg>
-                  Add New Dictionary
-                </button>
-
+                  <input class="form-control" 
+                         placeholder="Search dictionary items..."
+                         [(ngModel)]="searchText"
+                         (input)="onSearchChange()"/>
+                </div>
+                <div class="role-btn-div text-end">
+                  <button class="btn btn-light ms-auto" (click)="nevigate()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Add New Dictionary
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -41,6 +52,10 @@
           <div class="dictionaries-detail">
             <div class="d-flex">       
               <div ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-pills flex-column" orientation="vertical">
+              <div *ngIf="dictionaryItem.length === 0" class="text-center py-5 px-3">
+                <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No dictionary items found</p>
+                <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+              </div>
               <ng-container *ngFor="let item of dictionaryItem;let i=index"> 
                 <ng-container [ngbNavItem]="item.itemName">
                   <button ngbNavLink (click)="loadDictionaryDetails(item.itemName)">{{item.itemName}}</button>
@@ -60,6 +75,14 @@
                          </tr>
                        </thead>
                        <tbody>
+                        <tr *ngIf="dictionaryDetail.length === 0 && !isLoading">
+                          <td [attr.colspan]="4" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center justify-content-center">
+                              <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No dictionary items found</p>
+                              <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+                            </div>
+                          </td>
+                        </tr>
                         <tr *ngFor="let detail of dictionaryDetail">
                          <td>{{detail.itemValue}}</td>
                          <td>

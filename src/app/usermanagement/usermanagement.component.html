@@ -57,6 +57,14 @@
                               </tr>
                             </thead>
                             <tbody>
+                              <tr *ngIf="getActiveUsers().length === 0">
+                                <td [attr.colspan]="8" class="text-center py-5">
+                                  <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No users found</p>
+                                    <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+                                  </div>
+                                </td>
+                              </tr>
                               <tr
                                 *ngFor="
                                   let user of getActiveUsers();
@@ -284,6 +292,14 @@
                               </tr>
                             </thead>
                             <tbody>
+                              <tr *ngIf="getInActiveUsers().length === 0">
+                                <td [attr.colspan]="9" class="text-center py-5">
+                                  <div class="d-flex flex-column align-items-center justify-content-center">
+                                    <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No users found</p>
+                                    <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+                                  </div>
+                                </td>
+                              </tr>
                               <tr
                                 *ngFor="
                                   let user of getInActiveUsers();

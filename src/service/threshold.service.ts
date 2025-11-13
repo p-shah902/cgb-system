@@ -5,7 +5,7 @@ import {BehaviorSubject, catchError,Observable, of, tap} from 'rxjs';
 import {
   CreateThresholdUri, deleteThresholdByIdUri, getThresholdByIdUri, GetThresholdList, updateThresholdUri
 } from '../utils/api/api';
-import {ThresholdType} from '../models/threshold';
+import {GetThresholdListRequest, ThresholdType} from '../models/threshold';
 import {ApiResponse} from '../models/role';
 import {Paper} from '../models/paper';
 
@@ -27,8 +27,17 @@ export class ThresholdService {
   constructor(private http: HttpClient) {
   }
 
-  getThresholdList(): Observable<ApiResponse<ThresholdType[]>> {
-    return this.http.get<ApiResponse<ThresholdType[]>>(`${GetThresholdList}`)
+  getThresholdList(request?: GetThresholdListRequest): Observable<ApiResponse<ThresholdType[]>> {
+    // Default request payload if not provided
+    const payload: GetThresholdListRequest = request || {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 1000
+      }
+    };
+
+    return this.http.post<ApiResponse<ThresholdType[]>>(`${GetThresholdList}`, payload)
       .pipe(
         tap(response => {
           if (response.status && response.data) {

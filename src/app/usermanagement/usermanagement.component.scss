@@ -212,6 +212,7 @@
   .custom-nav-div {
     .nav.nav-tabs {
       display: flex;
+      flex-direction: row;
       border: 1px solid #E8E8E8;
       border-radius: 8px;
       overflow: hidden;
@@ -228,6 +229,8 @@
           gap: 10px;
           width: 100%;
           border-radius: 0;
+          justify-content: center;
+          align-items: center;
           &.active {
             background-color: #582AA2;
             color: #ffffff;

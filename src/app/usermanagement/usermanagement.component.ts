@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { NgbDropdownModule, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from '../../service/user.service';
 import { GetUsersListRequest, UserDetails } from '../../models/user';
 import { Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../service/toast.service';
 import { FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-usermanagement',
   standalone: true,
@@ -13,7 +14,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './usermanagement.component.html',
   styleUrl: './usermanagement.component.scss'
 })
-export class UsermanagementComponent implements OnInit{
+export class UsermanagementComponent implements OnInit, OnDestroy{
   private readonly userService=inject(UserService);
   private readonly router=inject(Router);
   public toastService=inject(ToastService);
@@ -25,6 +26,8 @@ export class UsermanagementComponent implements OnInit{
   
   // Search and Pagination
   searchText: string = '';
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
   
   // Pagination
   currentPage: number = 1;
@@ -33,58 +36,136 @@ export class UsermanagementComponent implements OnInit{
   paginatedUserDetails: UserDetails[] = [];
 
   ngOnInit(): void {
+      this.setupSearchDebounce();
       this.loadUserDetails();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  setupSearchDebounce(): void {
+    this.searchSubject.pipe(
+      debounceTime(500), // Wait 500ms after user stops typing
+      distinctUntilChanged(), // Only trigger if value changed
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      this.performSearch(searchTerm);
+    });
   }
 
   loadUserDetails(){
     this.isLoading=true;
     
-    // Build request payload - no filters, just pagination
+    // Build request payload with search filter
+    // Fetch all matching results (large page size) for frontend pagination
     const request: GetUsersListRequest = {
-      filter: {},
+      filter: this.buildFilter(),
       paging: {
-        start: (this.currentPage - 1) * this.itemsPerPage,
-        length: this.itemsPerPage
+        start: 0,
+        length: 1000 // Large number to get all matching results for frontend pagination
       }
     };
     
     this.userService.getUserDetailsList(request).subscribe({
       next: (response)=>{
-        if(response.status && response.data)
+        // Check if response has errors (e.g., "User List Not Found")
+        if (response.errors && response.errors.User && response.errors.User.length > 0) {
+          // Handle "User List Not Found" error gracefully
+          this.allUserDetails = [];
+          this.userDetails = [];
+          this.totalItems = 0;
+          this.isLoading = false;
+          return;
+        }
+        
+        if(response.status && response.data && response.data.length > 0)
         {
           this.allUserDetails = response.data;
           this.userDetails = response.data;
           this.totalItems = response.data.length;
-          this.applyFilters(); // Apply search filter
           console.log('user details',this.userDetails);
+        } else {
+          // No data returned
+          this.allUserDetails = [];
+          this.userDetails = [];
+          this.totalItems = 0;
         }
+        this.isLoading = false;
       },error:(error)=>{
         console.log('error',error);
-      },complete:()=>{
-        this.isLoading=false;
+        // On error, set empty arrays
+        this.allUserDetails = [];
+        this.userDetails = [];
+        this.totalItems = 0;
+        this.isLoading = false;
+        this.toastService.showError(error);
       }
     })
 
   }
-  
-  applyFilters(): void {
-    let filtered = [...this.allUserDetails];
+
+  buildFilter(): GetUsersListRequest['filter'] {
+    const filter: GetUsersListRequest['filter'] = {};
     
-    // Apply search filter - search across all fields
+    // If search text exists, send it to username field (assuming backend handles general search)
+    // You can adjust this based on your API's search implementation
     if (this.searchText && this.searchText.trim()) {
-      const searchLower = this.searchText.toLowerCase().trim();
-      filtered = filtered.filter(user => {
-        return (
-          (user.displayName?.toLowerCase().includes(searchLower)) ||
-          (user.email?.toLowerCase().includes(searchLower)) ||
-          (user.roleName?.toLowerCase().includes(searchLower)) ||
-          (user.departmentName?.toLowerCase().includes(searchLower)) ||
-          (user.id?.toString().includes(searchLower))
-        );
-      });
+      filter.username = this.searchText.trim();
     }
     
-    this.userDetails = filtered;
+    return filter;
+  }
+
+  performSearch(searchTerm: string): void {
+    this.currentPage = 1; // Reset to first page on search
+    this.isLoading = true;
+    
+    // Build request payload with search filter
+    // Fetch all matching results (large page size) for frontend pagination
+    const request: GetUsersListRequest = {
+      filter: searchTerm ? { username: searchTerm.trim() } : {},
+      paging: {
+        start: 0,
+        length: 1000 // Large number to get all matching results for frontend pagination
+      }
+    };
+    
+    this.userService.getUserDetailsList(request).subscribe({
+      next: (response)=>{
+        // Check if response has errors (e.g., "User List Not Found")
+        if (response.errors && response.errors.User && response.errors.User.length > 0) {
+          // Handle "User List Not Found" error gracefully
+          this.allUserDetails = [];
+          this.userDetails = [];
+          this.totalItems = 0;
+          this.isLoading = false;
+          return;
+        }
+        
+        if(response.status && response.data && response.data.length > 0)
+        {
+          this.allUserDetails = response.data;
+          this.userDetails = response.data;
+          this.totalItems = response.data.length;
+        } else {
+          // No data returned
+          this.allUserDetails = [];
+          this.userDetails = [];
+          this.totalItems = 0;
+        }
+        this.isLoading = false;
+      },error:(error)=>{
+        console.log('error',error);
+        // On error, set empty arrays
+        this.allUserDetails = [];
+        this.userDetails = [];
+        this.totalItems = 0;
+        this.isLoading = false;
+        this.toastService.showError(error);
+      }
+    });
   }
   
   applyPagination(): void {
@@ -115,24 +196,34 @@ export class UsermanagementComponent implements OnInit{
   }
   
   onSearchChange(): void {
-    this.currentPage = 1; // Reset to first page
-    this.applyFilters();
+    // Emit search term to subject for debouncing
+    this.searchSubject.next(this.searchText);
+  }
+
+  onSearchButtonClick(): void {
+    // Trigger search immediately when button is clicked
+    this.searchSubject.next(this.searchText);
   }
   
   onTabChange(): void {
     this.currentPage = 1; // Reset to first page when switching tabs
+    // Reload data when switching tabs
+    this.loadUserDetails();
   }
   
   clearSearch(): void {
     this.searchText = '';
     this.currentPage = 1;
-    this.applyFilters();
+    // Trigger search with empty term to reload all data
+    this.searchSubject.next('');
   }
   
   goToPage(page: number, isActiveTab: boolean = true): void {
     const totalPages = isActiveTab ? this.getTotalPagesForActive() : this.getTotalPagesForInactive();
     if (page >= 1 && page <= totalPages) {
       this.currentPage = page;
+      // Reload data with current search and new page
+      this.loadUserDetails();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }

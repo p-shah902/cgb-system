@@ -18,21 +18,32 @@
       <div class="page-card-div">
         <div class="form-header mb-4">
           <div class="row align-items-center">
-            <div class="col-6">
+            <div class="col-5">
               <div class="fh-title">
                 <h3>List of Vendors</h3>
               </div>
-
             </div>
-            <div class="col-6">
-              <div class="role-btn-div text-end">
-                <button class="btn btn-light ms-auto" (click)="nevigate()">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+            <div class="col-7">
+              <div class="filter-head d-flex justify-content-end gap-3 mb-4">
+                <div class="fh-search">
+                  <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                          d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
+                          fill="#84818A"/>
                   </svg>
-                  Add New Vendor
-                </button>
-
+                  <input class="form-control" 
+                         placeholder="Search by vendor name, country, email..."
+                         [(ngModel)]="searchText"
+                         (input)="onSearchChange()"/>
+                </div>
+                <div class="role-btn-div text-end">
+                  <button class="btn btn-light ms-auto" (click)="nevigate()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Add New Vendor
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -66,6 +77,14 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr *ngIf="vendorDetails.length === 0">
+                  <td [attr.colspan]="9" class="text-center py-5">
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                      <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No vendors found</p>
+                      <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
+                    </div>
+                  </td>
+                </tr>
                 <tr *ngFor="let vendor of vendorDetails; let i = index">
                   <td>
                     <div class="form-check-list d-flex gap-3 flex-wrap">
@@ -95,13 +114,13 @@
                   </td>
                   <td>{{ (vendor.modifiedDate || vendor.createdDate) | date: 'dd MMMM yyyy' }}</td>
                   <td>
-                    <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
-                      <button type="button" class="btn" id="dropdownBasic1" ngbDropdownToggle>
+                    <div ngbDropdown placement="bottom-end" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
+                      <button type="button" class="btn" [id]="'dropdown-' + vendor.id" ngbDropdownToggle>
                         <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 10C5.4 10 4.5 10.9 4.5 12C4.5 13.1 5.4 14 6.5 14C7.6 14 8.5 13.1 8.5 12C8.5 10.9 7.6 10 6.5 10ZM18.5 10C17.4 10 16.5 10.9 16.5 12C16.5 13.1 17.4 14 18.5 14C19.6 14 20.5 13.1 20.5 12C20.5 10.9 19.6 10 18.5 10ZM12.5 10C11.4 10 10.5 10.9 10.5 12C10.5 13.1 11.4 14 12.5 14C13.6 14 14.5 13.1 14.5 12C14.5 10.9 13.6 10 12.5 10Z" fill="#898989"/>
                         </svg>
                       </button>
-                      <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                      <div class="action-menu" ngbDropdownMenu [attr.aria-labelledby]="'dropdown-' + vendor.id">
                         <a class="links cursor-pointer" [routerLink]="['/vendor-detail', vendor.id]" ngbDropdownItem>
                           <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_202_1532)">

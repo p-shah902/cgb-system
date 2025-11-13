@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
-import { DictionaryDetail, Item } from '../models/dictionary';
+import { DictionaryDetail, GetDictionaryItemsListRequest, Item } from '../models/dictionary';
 import { ApiResponse } from '../models/role';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { getDictionaryItemsListUri, getDictionaryListByItemNameUri, upsertDictionariesUri } from '../utils/api/api';
@@ -21,9 +21,18 @@ export class DictionaryService {
 
      constructor(private http:HttpClient) { }
   
-    getDictionaryItemList(): Observable<ApiResponse<Item[]>> {
+    getDictionaryItemList(request?: GetDictionaryItemsListRequest): Observable<ApiResponse<Item[]>> {
+      // Default request payload if not provided
+      const payload: GetDictionaryItemsListRequest = request || {
+        filter: {},
+        paging: {
+          start: 0,
+          length: 1000
+        }
+      };
+
       return this.http
-        .get<ApiResponse<Item[]>>(getDictionaryItemsListUri)
+        .post<ApiResponse<Item[]>>(getDictionaryItemsListUri, payload)
         .pipe(
           tap((response)=>{
             if(response.status&&response.data)

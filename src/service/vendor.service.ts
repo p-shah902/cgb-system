@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { VendorDetail, VendorInfo } from '../models/vendor';
+import { GetVendorsListRequest, VendorDetail, VendorInfo } from '../models/vendor';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '../models/role';
@@ -18,17 +18,23 @@ export class VendorService {
 
     constructor(private http:HttpClient) { }
 
-    getVendorDetailsList():Observable<ApiResponse<VendorDetail[]>>{
+    getVendorDetailsList(request?: GetVendorsListRequest):Observable<ApiResponse<VendorDetail[]>>{
+        // Default request payload if not provided
+        const payload: GetVendorsListRequest = request || {
+          filter: {},
+          paging: {
+            start: 0,
+            length: 1000
+          }
+        };
 
-        return this.http.get<ApiResponse<VendorDetail[]>>(getVendorListUri).pipe(
+        return this.http.post<ApiResponse<VendorDetail[]>>(getVendorListUri, payload).pipe(
           tap(response=>{
             if(response.status && response.data)
             {
               this.vendorListSubject.next(response.data);
-
             }
           })
-
         );
     }
 

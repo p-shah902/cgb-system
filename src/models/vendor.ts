@@ -28,3 +28,19 @@ export interface VendorInfo {
   vendorDetails: VendorDetail[],
   documents: Documents[]
 }
+
+export interface GetVendorsListFilter {
+  vendorName?: string;
+  countryName?: string;
+  contactEmail?: string;
+}
+
+export interface GetVendorsListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetVendorsListRequest {
+  filter?: GetVendorsListFilter;
+  paging?: GetVendorsListPaging;
+}

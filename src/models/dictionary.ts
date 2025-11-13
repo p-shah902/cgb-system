@@ -13,3 +13,17 @@ export interface DictionaryDetail {
   modifiedBy: string | null;
   modifiedDate: string;
 }
+
+export interface GetDictionaryItemsListFilter {
+  itemNames?: string;
+}
+
+export interface GetDictionaryItemsListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetDictionaryItemsListRequest {
+  filter?: GetDictionaryItemsListFilter;
+  paging?: GetDictionaryItemsListPaging;
+}

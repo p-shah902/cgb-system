@@ -30,4 +30,21 @@ export interface ThresholdType {
   modifiedBy: number | null;
   modifiedByName: string | null;
   modifiedDate: string | null;
+  sourcingTypeName?: string; // Added for display
+}
+
+export interface GetThresholdListFilter {
+  thresholdName?: string;
+  paperType?: string;
+  sourcingType?: string;
+}
+
+export interface GetThresholdListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetThresholdListRequest {
+  filter?: GetThresholdListFilter;
+  paging?: GetThresholdListPaging;
 }
