@@ -36,10 +36,14 @@
   }
   .role-access-table {
     overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 300px);
+    position: relative;
     .table {
       width: 100%;
-      table-layout: auto;
-      border-collapse: collapse;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
       thead {
         tr {
           display: table-row;
@@ -53,6 +57,8 @@
             top: 0;
             z-index: 10;
             white-space: nowrap;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
             small {
               font-weight: 600;
               font-size: 14px;
@@ -70,11 +76,14 @@
               text-align: left;
               width: 300px;
               min-width: 300px;
+              max-width: 300px;
               position: sticky;
               left: 0;
-              z-index: 11;
+              top: 0;
+              z-index: 12;
               background-color: #F8F9FB;
               white-space: normal;
+              box-shadow: 2px 2px 2px -1px rgba(0, 0, 0, 0.1);
               small {
                 width: 100%;
                 font-size: 14px;
@@ -83,6 +92,7 @@
             }
             &:not(:first-child) {
               min-width: 150px;
+              width: 150px;
             }
           }
         }
@@ -123,8 +133,9 @@
             .table {
               margin: 0;
               width: 100%;
-              table-layout: auto;
-              border-collapse: collapse;
+              table-layout: fixed;
+              border-collapse: separate;
+              border-spacing: 0;
               tr {
                 display: table-row;
                 td {
@@ -133,6 +144,8 @@
                   vertical-align: middle;
                   border-bottom: 1px solid #F0F0F0;
                   white-space: nowrap;
+                  background-color: #ffffff;
+                  box-sizing: border-box;
                   .ps-5 {
                     padding-left: 40px!important;
                     font-size: 14px;
@@ -142,11 +155,13 @@
                     text-align: left;
                     width: 300px;
                     min-width: 300px;
+                    max-width: 300px;
                     position: sticky;
                     left: 0;
-                    z-index: 5;
+                    z-index: 6;
                     background-color: #ffffff;
                     white-space: normal;
+                    box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1);
                     .table-title-div {
                       width: 100%;
                       text-align: left;
@@ -157,6 +172,7 @@
                   }
                   &:not(:first-child) {
                     min-width: 150px;
+                    width: 150px;
                   }
                   .table-title-div {
                     width: 100%;
@@ -164,6 +180,14 @@
                     font-size: 14px;
                     word-break: break-word;
                     padding: 0;
+                  }
+                }
+                &:nth-child(even) {
+                  td {
+                    background-color: #F8F9FB;
+                    &:first-child {
+                      background-color: #F8F9FB;
+                    }
                   }
                 }
               }
@@ -185,7 +209,6 @@
   }
   .table-width-set {
     width: 100%;
-    overflow-x: auto;
     tr {
       .col-17-td {
         padding: 0;
