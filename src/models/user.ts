@@ -15,7 +15,9 @@ export interface UserDetails {
   createdDate: string,
   modifiedDate: string,
   tempRoleId: number,
-  isTOPTUser: boolean
+  isTOPTUser: boolean,
+  commiteeType?: string,
+  psa?: string
 }
 
 export interface LoginUser {

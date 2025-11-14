@@ -33,6 +33,7 @@ export class UserdetailsComponent implements OnInit {
   userRoles: UserRole[] = [];
   isEditMode = false;
   isSubmitting = false;
+  psaOptions: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -57,6 +58,8 @@ export class UserdetailsComponent implements OnInit {
       // isAssignRoles: [false],
       tempRoleId: [0],
       isTOPTUser: [true],
+      commiteeType: [''],
+      psa: [''],
     });
 
     const formValues = this.userForm.value;
@@ -71,12 +74,27 @@ export class UserdetailsComponent implements OnInit {
     this.loadDepartment();
     this.loadRole();
 
+    // Subscribe to role changes to clear committee fields when role is not Partner
+    this.userForm.get('roleId')?.valueChanges.subscribe(roleId => {
+      if (!this.isPartnerRole(roleId)) {
+        this.userForm.patchValue({ commiteeType: '', psa: '' });
+        this.psaOptions = [];
+      }
+    });
+
+    // Subscribe to committee type changes to update PSA options
+    this.userForm.get('commiteeType')?.valueChanges.subscribe(value => {
+      this.updatePsaOptions(value);
+      // Reset PSA when committee type changes
+      this.userForm.patchValue({ psa: '' });
+    });
+
     this.activateRoute.params.subscribe(params => {
       const idParam=params['id'];
-      
+
       if (idParam) {
         const id = Number(idParam);
-        
+
         if (isNaN(id)) {
           this.toastService.show('Invalid User ID', 'danger');
           this.router.navigate(['/usermanagement']);
@@ -86,7 +104,7 @@ export class UserdetailsComponent implements OnInit {
         this.isEditMode=true;
         this.loadUserById(id);
       }
-      
+
     });
   }
 
@@ -107,8 +125,8 @@ export class UserdetailsComponent implements OnInit {
             else{
               this.toastService.show('User Addded Successfully','success');
             }
-            this.router.navigate(['/usermanagement']); 
-           
+            this.router.navigate(['/usermanagement']);
+
           }
           else{
             this.toastService.show('Something Went Wrong','warning');
@@ -142,6 +160,10 @@ export class UserdetailsComponent implements OnInit {
     if(this.isEditMode&&this.editUserDetail)
     {
       this.userForm.patchValue({...this.editUserDetail});
+      // Update PSA options based on committee type when editing
+      if (this.editUserDetail.commiteeType) {
+        this.updatePsaOptions(this.editUserDetail.commiteeType);
+      }
     }else{
       this.userForm.reset({
         id: 0,
@@ -152,7 +174,10 @@ export class UserdetailsComponent implements OnInit {
         // isEditPaper: false,
         // isAssignRoles: false,
         isTOPTUser: true,
+        commiteeType: '',
+        psa: '',
       });
+      this.psaOptions = [];
     }
     this.mapFormValues();
   }
@@ -209,28 +234,60 @@ export class UserdetailsComponent implements OnInit {
           if(this.editUserDetail)
           {
             this.userForm.patchValue({...this.editUserDetail});
+            // Update PSA options based on committee type when loading user
+            if (this.editUserDetail.commiteeType) {
+              this.updatePsaOptions(this.editUserDetail.commiteeType);
+            }
           }else{
             this.toastService.show("Please Select Valid User",'danger');
-            this.router.navigate(['/usermanagement']); 
+            this.router.navigate(['/usermanagement']);
           }
 
         }else{
           this.toastService.show("Please Select Valid User",'danger');
-          this.router.navigate(['/usermanagement']); 
+          this.router.navigate(['/usermanagement']);
         }
 
       },error:(error)=>{
         console.log('error',error);
         this.toastService.show("Something Went Wrong",'danger');
-        this.router.navigate(['/usermanagement']); 
+        this.router.navigate(['/usermanagement']);
 
       }
     })
   }
 
+  isPartnerRole(roleId: number | null | undefined): boolean {
+    // Handle undefined, null, or zero values
+    if (roleId === null || roleId === undefined || roleId === 0) {
+      return false;
+    }
+    // Check if userRoles is loaded
+    if (!this.userRoles || this.userRoles.length === 0) {
+      return false;
+    }
+    const role = this.userRoles.find(r => r.id === Number(roleId));
+    return role?.name?.toLowerCase() === 'partner';
+  }
+
+  get isPartnerRoleSelected(): boolean {
+    const roleId = this.userForm.get('roleId')?.value;
+    return this.isPartnerRole(roleId);
+  }
+
+  private updatePsaOptions(commiteeType: string): void {
+    if (commiteeType === '1st Commitee') {
+      this.psaOptions = ['CMC', 'SDCC', 'SCP Co CC', 'BTC CC'];
+    } else if (commiteeType === '2nd Commitee') {
+      this.psaOptions = ['SC', 'SDMC', 'SCP Board'];
+    } else {
+      this.psaOptions = [];
+    }
+  }
+
   private getValidationErrorMessage(): string {
     const controls = this.userForm.controls;
-    
+
     // Check email field
     if (controls['email'].invalid) {
       if (controls['email'].errors?.['required']) {
@@ -240,7 +297,7 @@ export class UserdetailsComponent implements OnInit {
         return 'Please enter a valid email address';
       }
     }
-    
+
     // Check phone field
     if (controls['phone'].invalid) {
       if (controls['phone'].errors?.['required']) {
@@ -250,35 +307,35 @@ export class UserdetailsComponent implements OnInit {
         return 'Please enter a valid phone number';
       }
     }
-    
+
     // Check displayName field
     if (controls['displayName'].invalid) {
       if (controls['displayName'].errors?.['required']) {
         return 'Full name is required';
       }
     }
-    
+
     // Check password field
     if (controls['password'].invalid) {
       if (controls['password'].errors?.['minlength']) {
         return 'Password must be at least 4 characters long';
       }
     }
-    
+
     // Check roleId field
     if (controls['roleId'].invalid) {
       if (controls['roleId'].errors?.['min']) {
         return 'Please select a role';
       }
     }
-    
+
     // Check departmentId field
     if (controls['departmentId'].invalid) {
       if (controls['departmentId'].errors?.['min']) {
         return 'Please select a department';
       }
     }
-    
+
     // Default fallback message
     return 'Please fill all required fields correctly';
   }
