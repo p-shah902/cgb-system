@@ -725,11 +725,11 @@
                                 </select>
                               </td>
                               <td class="text-center align-middle">
-                                <input type="checkbox" formControlName="isLocalOrJV"/>
+                                <input type="checkbox" formControlName="isLocalOrJV" [disabled]="true" readonly/>
                               </td>
                               <td>
                                 <div class="form-group mb-3">
-                                  <select class="form-control" formControlName="countryId">
+                                  <select class="form-control" formControlName="countryId" [disabled]="true">
                                     <option [ngValue]="''">Select country</option>
                                     <option *ngFor="let con of countryDetails" [ngValue]="con.id">
                                       {{ con.countryName }}

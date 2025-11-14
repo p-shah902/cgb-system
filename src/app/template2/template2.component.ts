@@ -1142,18 +1142,35 @@ export class Template2Component implements AfterViewInit {
     }
 
     const legalNameControl = row.get('legalName');
+    const isLocalOrJVControl = row.get('isLocalOrJV');
 
     // Get the value from the form control instead of the event
     const selectedValue = row.get('vendorId')?.value;
 
     const vendorIdNum = Number(selectedValue);
-    if (vendorIdNum && !isNaN(vendorIdNum) && legalNameControl) {
+    if (vendorIdNum && !isNaN(vendorIdNum)) {
       const selectedVendor = this.vendorList.find(vendor => vendor.id === vendorIdNum);
       if (selectedVendor) {
-        legalNameControl.setValue(selectedVendor.legalName);
+        // Set legal name
+        if (legalNameControl) {
+          legalNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
+        }
+        
+        // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only (only for inviteToBid)
+        if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && isLocalOrJVControl) {
+          isLocalOrJVControl.setValue(selectedVendor.isCGBRegistered || false);
+          isLocalOrJVControl.disable();
+        }
       }
-    } else if (legalNameControl) {
-      legalNameControl.setValue('');
+    } else {
+      // Clear fields when no vendor is selected and enable them
+      if (legalNameControl) {
+        legalNameControl.setValue('');
+      }
+      if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && isLocalOrJVControl) {
+        isLocalOrJVControl.setValue(false);
+        isLocalOrJVControl.enable();
+      }
     }
   }
 
@@ -2384,7 +2401,7 @@ export class Template2Component implements AfterViewInit {
 
     const filteredBids = this.inviteToBid.controls
       .filter(group => group.valid)
-      .map(group => group.value);
+      .map(group => group.getRawValue()); // Use getRawValue to include disabled fields
 
     const filterSupplierTechnical = this.supplierTechnical.controls
       .filter(group => group.valid)

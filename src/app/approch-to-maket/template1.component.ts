@@ -1538,18 +1538,54 @@ export class Template1Component implements AfterViewInit  {
   onVendorSelectionChange(rowIndex: number) {
     const row = this.inviteToBid.at(rowIndex);
     const parentCompanyNameControl = row.get('parentCompanyName');
+    const isLocalOrJVControl = row.get('isLocalOrJV');
+    const countryIdControl = row.get('countryId');
 
     // Get the value from the form control instead of the event
     const selectedValue = row.get('legalName')?.value;
 
     const vendorIdNum = Number(selectedValue);
-    if (vendorIdNum && !isNaN(vendorIdNum) && parentCompanyNameControl) {
+    if (vendorIdNum && !isNaN(vendorIdNum)) {
       const selectedVendor = this.vendorData.find(vendor => vendor.id === vendorIdNum);
       if (selectedVendor) {
-        parentCompanyNameControl.setValue(selectedVendor.legalName);
+        // Set parent company name
+        if (parentCompanyNameControl) {
+          parentCompanyNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
+        }
+        
+        // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only
+        if (isLocalOrJVControl) {
+          isLocalOrJVControl.setValue(selectedVendor.isCGBRegistered || false);
+          isLocalOrJVControl.disable();
+        }
+        
+        // Auto-populate Country dropdown based on countryName and make it read-only
+        if (countryIdControl && selectedVendor.countryName) {
+          const matchedCountry = this.countryDetails.find(
+            country => country.countryName === selectedVendor.countryName
+          );
+          if (matchedCountry) {
+            countryIdControl.setValue(matchedCountry.id);
+          } else if (selectedVendor.countryId) {
+            // Fallback to countryId if countryName doesn't match
+            countryIdControl.setValue(selectedVendor.countryId);
+          }
+          countryIdControl.disable();
+        }
       }
-    } else if (parentCompanyNameControl) {
-      parentCompanyNameControl.setValue('');
+    } else {
+      // Clear fields when no vendor is selected and enable them
+      if (parentCompanyNameControl) {
+        parentCompanyNameControl.setValue('');
+      }
+      if (isLocalOrJVControl) {
+        isLocalOrJVControl.setValue(false);
+        isLocalOrJVControl.enable();
+      }
+      if (countryIdControl) {
+        countryIdControl.setValue('');
+        countryIdControl.enable();
+      }
     }
   }
 
@@ -2186,7 +2222,7 @@ export class Template1Component implements AfterViewInit  {
 
     const filteredBids = this.inviteToBid.controls
       .filter(group => group.valid)
-      .map(group => group.value); // only include valid rows
+      .map(group => group.getRawValue()); // Use getRawValue to include disabled fields
 
     const params = {
       papers: {
