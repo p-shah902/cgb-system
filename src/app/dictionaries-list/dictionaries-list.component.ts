@@ -80,7 +80,8 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
         }
         
         if (response.status && response.data && response.data.length > 0) {
-          this.dictionaryItem = response.data;
+          // Filter out "Subsector" from the dictionary items list
+          this.dictionaryItem = response.data.filter(item => item.itemName !== 'Subsector');
           console.log('Dictionary Item', this.dictionaryItem);
           if (this.dictionaryItem.length > 0) {
             const iteamName = this.dictionaryItem[0].itemName;
@@ -137,7 +138,8 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
         }
         
         if (response.status && response.data && response.data.length > 0) {
-          this.dictionaryItem = response.data;
+          // Filter out "Subsector" from the dictionary items list
+          this.dictionaryItem = response.data.filter(item => item.itemName !== 'Subsector');
           if (this.dictionaryItem.length > 0) {
             const iteamName = this.dictionaryItem[0].itemName;
             this.loadDictionaryDetails(iteamName);
