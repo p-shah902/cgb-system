@@ -18,7 +18,7 @@ import {
 } from '@angular/forms';
 import { CURRENCY_LIST } from '../../utils/constant';
 import { UserService } from '../../service/user.service';
-import { LoginUser, UserDetails } from '../../models/user';
+import { LoginUser, UserDetails, GetUsersListRequest } from '../../models/user';
 import { PaperService } from '../../service/paper.service';
 import { CountryDetail } from '../../models/general';
 import { Generalervice } from '../../service/general.service';
@@ -1477,7 +1477,15 @@ export class Template1Component implements AfterViewInit  {
 
 
   loadUserDetails() {
-    this.userService.getUserDetailsList().subscribe({
+    const request: GetUsersListRequest = {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 1000
+      }
+    };
+    
+    this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];

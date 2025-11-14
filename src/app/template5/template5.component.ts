@@ -15,7 +15,7 @@ import {
   ValidationErrors
 } from '@angular/forms';
 import {UserService} from '../../service/user.service';
-import {LoginUser, UserDetails} from '../../models/user';
+import {LoginUser, UserDetails, GetUsersListRequest} from '../../models/user';
 import {PaperService} from '../../service/paper.service';
 import {CountryDetail} from '../../models/general';
 import {Generalervice} from '../../service/general.service';
@@ -963,7 +963,15 @@ export class Template5Component  implements AfterViewInit{
   }
 
   loadUserDetails() {
-    this.userService.getUserDetailsList().subscribe({
+    const request: GetUsersListRequest = {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 1000
+      }
+    };
+    
+    this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           this.userDetails = response.data;

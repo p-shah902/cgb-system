@@ -20,7 +20,7 @@ import { UploadService } from '../../service/document.service';
 import { ToastService } from '../../service/toast.service';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { DictionaryDetail } from '../../models/dictionary';
-import { LoginUser, UserDetails } from '../../models/user';
+import { LoginUser, UserDetails, GetUsersListRequest } from '../../models/user';
 import { UserService } from '../../service/user.service';
 import { PaperService } from '../../service/paper.service';
 import { CountryDetail } from '../../models/general';
@@ -983,7 +983,15 @@ export class Template3Component implements AfterViewInit {
   }
 
   loadUserDetails() {
-    this.userService.getUserDetailsList().subscribe({
+    const request: GetUsersListRequest = {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 1000
+      }
+    };
+    
+    this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];

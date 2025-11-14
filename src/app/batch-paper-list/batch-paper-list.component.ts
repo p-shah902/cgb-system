@@ -22,7 +22,7 @@ import { PaperService } from '../../service/paper.service';
 import { Router, RouterLink } from '@angular/router';
 import { PaperFilter } from '../../models/general';
 import {PaperConfig, PaperStatusType} from '../../models/paper';
-import {LoginUser, UserDetails} from '../../models/user';
+import {LoginUser, UserDetails, GetUsersListRequest} from '../../models/user';
 import { AuthService } from '../../service/auth.service';
 import { Select2 } from 'ng-select2-component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -91,7 +91,15 @@ export class BatchPaperListComponent implements OnInit {
   }
 
   loadUserDetails() {
-    this.userService.getUserDetailsList().subscribe({
+    const request: GetUsersListRequest = {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 1000
+      }
+    };
+    
+    this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
