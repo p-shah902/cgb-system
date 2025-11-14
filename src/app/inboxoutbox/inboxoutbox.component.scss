@@ -258,6 +258,31 @@
   }
 }
 
+.no-data-found {
+  padding: 40px 20px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  svg {
+    opacity: 0.6;
+  }
+  
+  h5 {
+    font-weight: 600;
+    font-size: 18px;
+    color: #626262;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 14px;
+    color: #787878;
+    margin: 0;
+  }
+}
+
 .table-loader {
   display: flex;
   flex-direction: column;

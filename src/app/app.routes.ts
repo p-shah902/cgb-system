@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../guards/auth.guard';
 import {NoAuthGuard} from '../guards/no-auth.guard';
+import {AdminRoleGuard} from '../guards/admin-role.guard';
 import {BatchPaperListComponent} from './batch-paper-list/batch-paper-list.component';
 
 export const routes: Routes = [
@@ -87,12 +88,12 @@ export const routes: Routes = [
   {
     path: 'roleaccess',
     loadComponent: () => import('./roleaccess/roleaccess.component').then(m => m.RoleaccessComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'usermanagement',
     loadComponent: () => import('./usermanagement/usermanagement.component').then(m => m.UsermanagementComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'userdetails',
@@ -173,50 +174,50 @@ export const routes: Routes = [
   {
     path: 'vendors',
     loadComponent: () => import('./vendors/vendors.component').then(m => m.VendorsComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'vendor-detail',
     loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
 
   },
   {
     path: 'vendor-detail/:id',
     loadComponent: () => import('./vendor-detail/vendor-detail.component').then(m => m.VendorDetailComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'dictionaries-list',
     loadComponent: () => import('./dictionaries-list/dictionaries-list.component').then(m => m.DictionariesListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'dictionaries-edit/:itemName',
     loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'dictionaries-edit/:itemName/:id',
     loadComponent: () => import('./dictionaries-edit/dictionaries-edit.component').then(m => m.DictionariesEditComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'threshold',
     loadComponent: () => import('./threshold/threshold.component').then(m => m.ThresholdComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'threshold-add/:type', // e.g., internal or external
     loadComponent: () =>
       import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'threshold-add/:type/:id', // for editing
     loadComponent: () =>
       import('./threshold-add/threshold-add.component').then(m => m.ThresholdAddComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
   {
     path: 'temp',
@@ -236,6 +237,6 @@ export const routes: Routes = [
   {
     path: 'audit-logs',
     loadComponent: () => import('./audit-logs/audit-logs.component').then(m => m.AuditLogsComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, AdminRoleGuard]
   },
 ];

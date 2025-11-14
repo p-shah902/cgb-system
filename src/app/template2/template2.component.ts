@@ -1165,7 +1165,7 @@ export class Template2Component implements AfterViewInit {
     } else {
       // Clear fields when no vendor is selected and enable them
       if (legalNameControl) {
-        legalNameControl.setValue('');
+      legalNameControl.setValue('');
       }
       if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && isLocalOrJVControl) {
         isLocalOrJVControl.setValue(false);

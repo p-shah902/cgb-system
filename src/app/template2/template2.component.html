@@ -289,7 +289,7 @@
                   <div class="form-group mb-3">
                     <label>Subsector<span class="danger">*</span></label>
                     <input type="text" class="form-control allow-comments" 
-                           [class.is-invalid]="submitted && generalInfo?.get('subSector')?.invalid && generalInfo?.get('subSector')?.touched"
+                            [class.is-invalid]="submitted && generalInfo?.get('subSector')?.invalid && generalInfo?.get('subSector')?.touched"
                            formControlName="subSector" id="subSector" placeholder="Enter subsector"/>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required') && generalInfo?.get('subSector')?.touched">
                       <small class="text-danger">This field is required.</small>

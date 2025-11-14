@@ -55,7 +55,7 @@
             background-color: #F8F9FB;
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 25;
             white-space: nowrap;
             box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
@@ -80,7 +80,7 @@
               position: sticky;
               left: 0;
               top: 0;
-              z-index: 12;
+              z-index: 26;
               background-color: #F8F9FB;
               white-space: normal;
               box-shadow: 2px 2px 2px -1px rgba(0, 0, 0, 0.1);
@@ -103,6 +103,7 @@
           border-radius: 0 !important;
           border-bottom: none;
           .accordion-header {
+            
             position: sticky;
             left: 0;
             z-index: 20;

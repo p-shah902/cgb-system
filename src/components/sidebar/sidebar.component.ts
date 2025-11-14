@@ -59,6 +59,9 @@ export class SidebarComponent {
 
     // Roles allowed to see "Create" and "My Drafts" menu items
     const allowedRolesForCreateAndDrafts = ['Secretary', 'Procurement Tag', 'CAM', "Super Admin"];
+    
+    // Roles allowed to see "Administration" menu item
+    const allowedRolesForAdministration = ['Super Admin', 'Secretary'];
 
     for (const item of items) {
       // Check if this is "Create" or "My Drafts" menu item
@@ -67,6 +70,14 @@ export class SidebarComponent {
       if (isCreateOrMyDrafts) {
         // Only show if user has one of the allowed roles
         if (!this.loggedInUserRole || !allowedRolesForCreateAndDrafts.includes(this.loggedInUserRole)) {
+          continue; // Skip this menu item
+        }
+      }
+      
+      // Check if this is "Administration" menu item
+      if (item.title === 'Administration') {
+        // Only show if user has one of the allowed roles
+        if (!this.loggedInUserRole || !allowedRolesForAdministration.includes(this.loggedInUserRole)) {
           continue; // Skip this menu item
         }
       }

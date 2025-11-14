@@ -136,7 +136,7 @@
           </div>
 
           <div class="filter-btn-div ms-auto d-flex gap-2">
-            <button class="btn create-btn d-flex gap-2" (click)="togalArchived()">
+            <button *ngIf="user?.roleName === 'Procurement Tag'" class="btn create-btn d-flex gap-2" (click)="togalArchived()">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
                 fill="#ffffff">
                 <path

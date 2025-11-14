@@ -34,7 +34,18 @@
                   <ng-template ngbNavContent>
                     <div class="inbox-col">
                       <div class="inbox-body">
-                        <div class="row mt-1" >
+                        <div *ngIf="paginatedInboxData.length === 0" class="no-data-found">
+                          <div class="text-center py-5">
+                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+                              <path d="M40 10C23.4315 10 10 23.4315 10 40C10 56.5685 23.4315 70 40 70C56.5685 70 70 56.5685 70 40C70 23.4315 56.5685 10 40 10ZM40 65C26.7452 65 15 53.2548 15 40C15 26.7452 26.7452 15 40 15C53.2548 15 65 26.7452 65 40C65 53.2548 53.2548 65 40 65Z" fill="#DCDCDC"/>
+                              <path d="M40 25C38.8954 25 38 25.8954 38 27V41C38 42.1046 38.8954 43 40 43C41.1046 43 42 42.1046 42 41V27C42 25.8954 41.1046 25 40 25Z" fill="#DCDCDC"/>
+                              <path d="M40 47C38.8954 47 38 47.8954 38 49V53C38 54.1046 38.8954 55 40 55C41.1046 55 42 54.1046 42 53V49C42 47.8954 41.1046 47 40 47Z" fill="#DCDCDC"/>
+                            </svg>
+                            <h5 class="text-muted mb-2" style="font-weight: 600; font-size: 18px; color: #626262;">No Data Found</h5>
+                            <p class="text-muted mb-0" style="font-size: 14px; color: #787878;">There are no items in your inbox at the moment.</p>
+                          </div>
+                        </div>
+                        <div class="row mt-1" *ngIf="paginatedInboxData.length > 0">
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let inbox of paginatedInboxData">
                             <div class="inbox-card cursor-pointer" (click)="gotoPaper(inbox.paperID, inbox.paperType)">
                               <h5 class="mb-0">{{ inbox.paperProvision }}</h5>
@@ -147,7 +158,18 @@
                   <ng-template ngbNavContent>
                     <div class="inbox-col">
                       <div class="inbox-body">
-                        <div class="row mt-1">
+                        <div *ngIf="paginatedOutboxData.length === 0" class="no-data-found">
+                          <div class="text-center py-5">
+                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+                              <path d="M40 10C23.4315 10 10 23.4315 10 40C10 56.5685 23.4315 70 40 70C56.5685 70 70 56.5685 70 40C70 23.4315 56.5685 10 40 10ZM40 65C26.7452 65 15 53.2548 15 40C15 26.7452 26.7452 15 40 15C53.2548 15 65 26.7452 65 40C65 53.2548 53.2548 65 40 65Z" fill="#DCDCDC"/>
+                              <path d="M40 25C38.8954 25 38 25.8954 38 27V41C38 42.1046 38.8954 43 40 43C41.1046 43 42 42.1046 42 41V27C42 25.8954 41.1046 25 40 25Z" fill="#DCDCDC"/>
+                              <path d="M40 47C38.8954 47 38 47.8954 38 49V53C38 54.1046 38.8954 55 40 55C41.1046 55 42 54.1046 42 53V49C42 47.8954 41.1046 47 40 47Z" fill="#DCDCDC"/>
+                            </svg>
+                            <h5 class="text-muted mb-2" style="font-weight: 600; font-size: 18px; color: #626262;">No Data Found</h5>
+                            <p class="text-muted mb-0" style="font-size: 14px; color: #787878;">There are no items in your outbox at the moment.</p>
+                          </div>
+                        </div>
+                        <div class="row mt-1" *ngIf="paginatedOutboxData.length > 0">
                           <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let outbox of paginatedOutboxData">
                             <div class="inbox-card mb-3 cursor-pointer"
                                  (click)="gotoPaper(outbox.paperID, outbox.paperType)">

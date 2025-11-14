@@ -1551,7 +1551,7 @@ export class Template1Component implements AfterViewInit  {
         // Set parent company name
         if (parentCompanyNameControl) {
           parentCompanyNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
-        }
+      }
         
         // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only
         if (isLocalOrJVControl) {
@@ -1576,7 +1576,7 @@ export class Template1Component implements AfterViewInit  {
     } else {
       // Clear fields when no vendor is selected and enable them
       if (parentCompanyNameControl) {
-        parentCompanyNameControl.setValue('');
+      parentCompanyNameControl.setValue('');
       }
       if (isLocalOrJVControl) {
         isLocalOrJVControl.setValue(false);
