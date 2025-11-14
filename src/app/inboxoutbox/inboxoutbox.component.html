@@ -47,7 +47,7 @@
                               </p>
                               <hr class="my-2" *ngIf="hasActionButtons(inbox)">
                               <div class="ic-btn-div d-flex justify-content-end gap-2 mb-2">
-                                <button class="btn btn-outline-primary btn-sm" 
+                                <button class="btn btn-outline-primary" 
                                         (click)="goToPreview(inbox); $event.stopPropagation()">
                                   Preview
                                 </button>
@@ -159,7 +159,7 @@
                                 · {{ outbox.paperType }}</p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end gap-2 mb-2">
-                                <button class="btn btn-outline-primary btn-sm" 
+                                <button class="btn btn-outline-primary" 
                                         (click)="goToPreview(outbox); $event.stopPropagation()">
                                   Preview
                                 </button>
@@ -350,7 +350,7 @@
       (click)="approvePaper(modal, 'Approval')"
       [disabled]="isApproving"
     >
-      <span *ngIf="!isApproving">Approve</span>
+      <span *ngIf="!isApproving" class="btn btn-outline-primary">Approve</span>
       <span *ngIf="isApproving">Approving...</span>
     </button>
   </div>

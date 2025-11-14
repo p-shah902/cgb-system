@@ -243,11 +243,7 @@ export class Preview2Component implements OnInit {
               break;
 
             case 'Subsector':
-              this.subsectorData = (response.data || []).filter(item => item.isActive);
-              if (this.contractAwardDetails && this.contractAwardDetails?.subSector) {
-                const data = this.subsectorData.find(item => item.id === Number(this.contractAwardDetails?.subSector))
-                this.contractAwardDetails = { ... this.contractAwardDetails, subSector: data?.itemValue || "" }
-              }
+              // Subsector is now a text field, no dictionary lookup needed
               break;
 
             default:

@@ -173,21 +173,10 @@ export class PreviewComponent implements OnInit {
               break;
 
             case 'Subsector':
-              this.subsectorData = (response.data || []).filter(item => item.isActive);
-              if(this.paperInfo && this.paperInfo?.subSector) {
-                const data  = this.subsectorData.find(item => item.id === Number(this.paperInfo?.subSector))
-                this.paperInfo = {...this.paperInfo, subSector: data?.itemValue || ""}
-              }
-              break;
-
-            default:
-              console.log('Unknown item:', itemName);
+              // Subsector is now a text field, no dictionary lookup needed
               break;
           }
         }
-      },
-      error: (error) => {
-        console.log('Error:', error);
       }
     });
   }
