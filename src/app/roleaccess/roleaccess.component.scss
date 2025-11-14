@@ -37,7 +37,7 @@
   .role-access-table {
     overflow-x: auto;
     overflow-y: auto;
-    max-height: calc(100vh - 300px);
+    max-height: calc(100vh - 220px);
     position: relative;
     .table {
       width: 100%;
@@ -184,9 +184,9 @@
                 }
                 &:nth-child(even) {
                   td {
-                    background-color: #F8F9FB;
+                    background-color:transparent;
                     &:first-child {
-                      background-color: #F8F9FB;
+                      background-color:transparent;
                     }
                   }
                 }

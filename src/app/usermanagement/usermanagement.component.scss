@@ -170,6 +170,16 @@
       font-size: 12px;
     }
   }
+  
+  .user-table-wrapper {
+    overflow: auto;
+    max-height: calc(100vh - 350px);
+    
+    .approach-table {
+      overflow: visible;
+      max-height: none;
+    }
+  }
 }
 
 .table-loader {
@@ -216,7 +226,7 @@
       border: 1px solid #E8E8E8;
       border-radius: 8px;
       overflow: hidden;
-      max-width: 240px;
+      max-width: 350px;
       .nav-item {
         flex: 0 0 50%;
         .nav-link {
