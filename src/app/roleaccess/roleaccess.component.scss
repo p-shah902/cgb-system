@@ -101,8 +101,18 @@
         .accordion-item {
           border: none;
           border-radius: 0 !important;
+          border-bottom: none;
           .accordion-header {
-            position: relative;
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background-color: #F1EBFA;
+            width: 300px;
+            min-width: 300px;
+            max-width: 300px;
+            box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.1), 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+            border-bottom: none !important;
+            margin-bottom: 0;
             .accordion-button {
               padding-left: 40px;
               background-color: #F1EBFA;
@@ -111,6 +121,14 @@
               gap: 10px;
               font-weight: 600;
               font-size: 16px;
+              border-bottom: none !important;
+              border: none !important;
+              &::before {
+                display: none;
+              }
+              &::after {
+                z-index: 21;
+              }
             }
 
             .btn-edit {
@@ -127,9 +145,15 @@
               left: 15px;
             }
           }
+          .accordion-collapse {
+            border-top: none;
+            border-bottom: none;
+          }
           .accordion-body {
             padding: 0;
             overflow-x: visible;
+            border-top: none;
+            border-bottom: none;
             .table {
               margin: 0;
               width: 100%;
@@ -138,6 +162,11 @@
               border-spacing: 0;
               tr {
                 display: table-row;
+                &:first-child {
+                  td {
+                    border-top: none;
+                  }
+                }
                 td {
                   padding: 12px 15px;
                   text-align: center;
@@ -186,7 +215,7 @@
                   td {
                     background-color:transparent;
                     &:first-child {
-                      background-color:transparent;
+                      background-color:white;
                     }
                   }
                 }
@@ -209,9 +238,18 @@
   }
   .table-width-set {
     width: 100%;
-    tr {
+      tr {
       .col-17-td {
         padding: 0;
+        position: sticky;
+        left: 0;
+        z-index: 19;
+        width: 300px;
+        min-width: 300px;
+        max-width: 300px;
+        background-color: #ffffff;
+        border-bottom: none !important;
+        border-top: none !important;
       }
     }
   }
