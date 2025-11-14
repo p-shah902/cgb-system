@@ -13,7 +13,7 @@ import type {
   EditorConfig,
   ButtonView as ButtonViewType
 } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import {environment} from '../../environments/environment';
+import {environment} from '../../app/core/app-config';
 import {AuthService} from '../../service/auth.service';
 import {EditorService} from '../../service/editor.service';
 

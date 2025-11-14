@@ -1,4 +1,4 @@
-import {environment} from '../../environments/environment';
+import {environment} from '../../app/core/app-config';
 
 export const baseUri = environment.apiUrl;
 // ACCOUNTS API

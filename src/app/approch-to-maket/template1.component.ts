@@ -30,7 +30,7 @@ import { DictionaryService } from '../../service/dictionary.service';
 import { DictionaryDetail, Item } from '../../models/dictionary';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { Paper, PaperStatusType } from '../../models/paper';
-import { environment } from '../../environments/environment';
+import { environment } from '../core/app-config';
 import { EditorComponent } from '../../components/editor/editor.component';
 import { format } from 'date-fns';
 import { CommentableDirective } from '../../directives/commentable.directive';

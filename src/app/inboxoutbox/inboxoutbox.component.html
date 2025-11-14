@@ -46,7 +46,7 @@
                           </div>
                         </div>
                         <div class="row mt-1" *ngIf="paginatedInboxData.length > 0">
-                          <div class="col-md-6 col-lg-6 col-xl-3" *ngFor="let inbox of paginatedInboxData">
+                          <div class="col-md-6 col-lg-6 col-xl-3 pb-2" *ngFor="let inbox of paginatedInboxData">
                             <div class="inbox-card cursor-pointer" (click)="gotoPaper(inbox.paperID, inbox.paperType)">
                               <h5 class="mb-0">{{ inbox.paperProvision }}</h5>
                               <div>
@@ -56,9 +56,9 @@
                               <p>
                                 Last Updated · {{ inbox.paperLastModifyDate | date: 'dd-MMM-YYYY, hh:mm a' }}
                               </p>
-                              <hr class="my-2" *ngIf="hasActionButtons(inbox)">
+                              <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end gap-2 mb-2">
-                                <button class="btn btn-outline-primary" 
+                                <button class="btn btn-outline-primary"
                                         (click)="goToPreview(inbox); $event.stopPropagation()">
                                   Preview
                                 </button>
@@ -74,7 +74,7 @@
                                       *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Registered'))">
                                 Send For PDM Approval
                               </button>
-                   
+
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
@@ -118,21 +118,21 @@
                         <div class="d-flex justify-content-between align-items-center">
                           <div class="pagination-info">
                             <span class="text-muted">
-                              Showing {{ (currentPageInbox - 1) * itemsPerPage + 1 }} - 
-                              {{ currentPageInbox * itemsPerPage > filteredInboxData.length ? filteredInboxData.length : currentPageInbox * itemsPerPage }} 
+                              Showing {{ (currentPageInbox - 1) * itemsPerPage + 1 }} -
+                              {{ currentPageInbox * itemsPerPage > filteredInboxData.length ? filteredInboxData.length : currentPageInbox * itemsPerPage }}
                               of {{ filteredInboxData.length }} items
                             </span>
                           </div>
                           <div class="pagination-controls d-flex align-items-center gap-2">
-                            <button class="btn btn-outline-secondary btn-sm" 
-                                    (click)="prevPageInbox()" 
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    (click)="prevPageInbox()"
                                     [disabled]="currentPageInbox === 1">
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
                             </button>
                             <div class="d-flex gap-1">
-                              <button *ngFor="let page of getPageNumbersInbox()" 
+                              <button *ngFor="let page of getPageNumbersInbox()"
                                       class="btn btn-sm"
                                       [class.btn-primary]="page === currentPageInbox"
                                       [class.btn-outline-secondary]="page !== currentPageInbox"
@@ -140,8 +140,8 @@
                                 {{ page }}
                               </button>
                             </div>
-                            <button class="btn btn-outline-secondary btn-sm" 
-                                    (click)="nextPageInbox()" 
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    (click)="nextPageInbox()"
                                     [disabled]="currentPageInbox === getTotalPagesInbox()">
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -181,7 +181,7 @@
                                 · {{ outbox.paperType }}</p>
                               <hr class="my-2">
                               <div class="ic-btn-div d-flex justify-content-end gap-2 mb-2">
-                                <button class="btn btn-outline-primary" 
+                                <button class="btn btn-outline-primary"
                                         (click)="goToPreview(outbox); $event.stopPropagation()">
                                   Preview
                                 </button>
@@ -208,21 +208,21 @@
                         <div class="d-flex justify-content-between align-items-center">
                           <div class="pagination-info">
                             <span class="text-muted">
-                              Showing {{ (currentPageOutbox - 1) * itemsPerPage + 1 }} - 
-                              {{ currentPageOutbox * itemsPerPage > filteredOutboxData.length ? filteredOutboxData.length : currentPageOutbox * itemsPerPage }} 
+                              Showing {{ (currentPageOutbox - 1) * itemsPerPage + 1 }} -
+                              {{ currentPageOutbox * itemsPerPage > filteredOutboxData.length ? filteredOutboxData.length : currentPageOutbox * itemsPerPage }}
                               of {{ filteredOutboxData.length }} items
                             </span>
                           </div>
                           <div class="pagination-controls d-flex align-items-center gap-2">
-                            <button class="btn btn-outline-secondary btn-sm" 
-                                    (click)="prevPageOutbox()" 
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    (click)="prevPageOutbox()"
                                     [disabled]="currentPageOutbox === 1">
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
                             </button>
                             <div class="d-flex gap-1">
-                              <button *ngFor="let page of getPageNumbersOutbox()" 
+                              <button *ngFor="let page of getPageNumbersOutbox()"
                                       class="btn btn-sm"
                                       [class.btn-primary]="page === currentPageOutbox"
                                       [class.btn-outline-secondary]="page !== currentPageOutbox"
@@ -230,8 +230,8 @@
                                 {{ page }}
                               </button>
                             </div>
-                            <button class="btn btn-outline-secondary btn-sm" 
-                                    (click)="nextPageOutbox()" 
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    (click)="nextPageOutbox()"
                                     [disabled]="currentPageOutbox === getTotalPagesOutbox()">
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -259,7 +259,7 @@
                         d="M16 14H15.21L14.93 13.73C15.91 12.59 16.5 11.11 16.5 9.5C16.5 5.91 13.59 3 10 3C6.41 3 3.5 5.91 3.5 9.5C3.5 13.09 6.41 16 10 16C11.61 16 13.09 15.41 14.23 14.43L14.5 14.71V15.5L19.5 20.49L20.99 19L16 14ZM10 14C7.51 14 5.5 11.99 5.5 9.5C5.5 7.01 7.51 5 10 5C12.49 5 14.5 7.01 14.5 9.5C14.5 11.99 12.49 14 10 14Z"
                         fill="#84818A"/>
                 </svg>
-                <input class="form-control" 
+                <input class="form-control"
                        placeholder="Search Field"
                        [(ngModel)]="searchTerm"
                        (input)="onSearchChange()"/>
@@ -319,8 +319,8 @@
                   </div>
                 </div>
               </div>
-             
-            
+
+
               <div class="filter-btn-div">
                 <button class="btn btn-outline-secondary d-flex gap-2 align-items-center"
                         (click)="toggleSort()">

@@ -42,11 +42,11 @@ export class InboxoutboxComponent implements OnInit {
   isFilterOpen: boolean = false;
   isDesc: boolean = false;
   isFilterApplied: boolean = false;
-  
+
   // Pagination
   currentPageInbox: number = 1;
   currentPageOutbox: number = 1;
-  itemsPerPage: number = 10; // 3x3 grid
+  itemsPerPage: number = 12; // 3x3 grid
   paginatedInboxData: InboxOutbox[] = [];
   paginatedOutboxData: InboxOutbox[] = [];
 
@@ -102,13 +102,13 @@ export class InboxoutboxComponent implements OnInit {
     // Apply search filter
     if (this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
-      filteredInbox = filteredInbox.filter(item => 
+      filteredInbox = filteredInbox.filter(item =>
         item.paperProvision?.toLowerCase().includes(searchLower) ||
         item.paperType?.toLowerCase().includes(searchLower) ||
         item.paperStatus?.toLowerCase().includes(searchLower) ||
         item.purposeRequired?.toLowerCase().includes(searchLower)
       );
-      filteredOutbox = filteredOutbox.filter(item => 
+      filteredOutbox = filteredOutbox.filter(item =>
         item.paperProvision?.toLowerCase().includes(searchLower) ||
         item.paperType?.toLowerCase().includes(searchLower) ||
         item.paperStatus?.toLowerCase().includes(searchLower) ||
@@ -155,33 +155,33 @@ export class InboxoutboxComponent implements OnInit {
 
     this.filteredInboxData = filteredInbox;
     this.filteredOutboxData = filteredOutbox;
-    
+
     // Reset to first page when filters change
     this.currentPageInbox = 1;
     this.currentPageOutbox = 1;
-    
+
     // Apply pagination
     this.applyPagination();
   }
-  
+
   applyPagination(): void {
     const inboxStart = (this.currentPageInbox - 1) * this.itemsPerPage;
     const inboxEnd = inboxStart + this.itemsPerPage;
     this.paginatedInboxData = this.filteredInboxData.slice(inboxStart, inboxEnd);
-    
+
     const outboxStart = (this.currentPageOutbox - 1) * this.itemsPerPage;
     const outboxEnd = outboxStart + this.itemsPerPage;
     this.paginatedOutboxData = this.filteredOutboxData.slice(outboxStart, outboxEnd);
   }
-  
+
   getTotalPagesInbox(): number {
     return Math.ceil(this.filteredInboxData.length / this.itemsPerPage);
   }
-  
+
   getTotalPagesOutbox(): number {
     return Math.ceil(this.filteredOutboxData.length / this.itemsPerPage);
   }
-  
+
   goToPageInbox(page: number): void {
     const totalPages = this.getTotalPagesInbox();
     if (page >= 1 && page <= totalPages) {
@@ -191,7 +191,7 @@ export class InboxoutboxComponent implements OnInit {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-  
+
   goToPageOutbox(page: number): void {
     const totalPages = this.getTotalPagesOutbox();
     if (page >= 1 && page <= totalPages) {
@@ -201,38 +201,38 @@ export class InboxoutboxComponent implements OnInit {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-  
+
   nextPageInbox(): void {
     const totalPages = this.getTotalPagesInbox();
     if (this.currentPageInbox < totalPages) {
       this.goToPageInbox(this.currentPageInbox + 1);
     }
   }
-  
+
   prevPageInbox(): void {
     if (this.currentPageInbox > 1) {
       this.goToPageInbox(this.currentPageInbox - 1);
     }
   }
-  
+
   nextPageOutbox(): void {
     const totalPages = this.getTotalPagesOutbox();
     if (this.currentPageOutbox < totalPages) {
       this.goToPageOutbox(this.currentPageOutbox + 1);
     }
   }
-  
+
   prevPageOutbox(): void {
     if (this.currentPageOutbox > 1) {
       this.goToPageOutbox(this.currentPageOutbox - 1);
     }
   }
-  
+
   getPageNumbersInbox(): number[] {
     const totalPages = this.getTotalPagesInbox();
     const pages: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -252,15 +252,15 @@ export class InboxoutboxComponent implements OnInit {
         }
       }
     }
-    
+
     return pages;
   }
-  
+
   getPageNumbersOutbox(): number[] {
     const totalPages = this.getTotalPagesOutbox();
     const pages: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -280,7 +280,7 @@ export class InboxoutboxComponent implements OnInit {
         }
       }
     }
-    
+
     return pages;
   }
 

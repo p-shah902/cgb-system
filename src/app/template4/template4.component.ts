@@ -23,7 +23,7 @@ import {UploadService} from '../../service/document.service';
 import {Select2} from 'ng-select2-component';
 import {ToastService} from '../../service/toast.service';
 import {NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
-import {environment} from '../../environments/environment';
+import {environment} from '../core/app-config';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {EditorService} from '../../service/editor.service';
 import {CommentService} from '../../service/comment.service';

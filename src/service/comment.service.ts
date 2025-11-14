@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '@ckeditor/ckeditor5-angular';
-import {environment} from '../environments/environment';
+import {environment} from '../app/core/app-config';
 import {ContextConfig} from 'ckeditor5';
 import {EditorService} from './editor.service';
 

@@ -1,7 +1,7 @@
 import {Directive, ElementRef, Input, OnInit, OnChanges} from '@angular/core';
 import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '@ckeditor/ckeditor5-angular';
 import {ContextConfig} from 'ckeditor5';
-import {environment} from '../environments/environment';
+import {environment} from '../app/core/app-config';
 import {EditorService} from '../service/editor.service';
 
 const cloudConfig = {

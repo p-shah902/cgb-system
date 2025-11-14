@@ -13,7 +13,7 @@ import type {
   DecoupledEditor,
   EditorConfig,
 } from 'https://cdn.ckeditor.com/typings/ckeditor5.d.ts';
-import { environment } from '../../environments/environment';
+import { environment } from '../../app/core/app-config';
 import { AuthService } from '../../service/auth.service';
 
 const cloudConfig = {

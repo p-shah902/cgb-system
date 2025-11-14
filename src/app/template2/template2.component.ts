@@ -12,7 +12,7 @@ import {
 } from '@angular/forms';
 import {NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {CommonModule} from '@angular/common';
-import {environment} from '../../environments/environment';
+import {environment} from '../core/app-config';
 import {Select2} from 'ng-select2-component';
 import {DictionaryService} from '../../service/dictionary.service';
 import {Generalervice} from '../../service/general.service';

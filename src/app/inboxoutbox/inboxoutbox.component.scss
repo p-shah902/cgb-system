@@ -83,7 +83,6 @@
         flex-direction: column;
         transition: all 0.3s ease;
         margin-top: 0;
-        margin-bottom: 1rem;
         min-height: 100%;
         height: 100%;
         &:hover {
@@ -264,18 +263,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   svg {
     opacity: 0.6;
   }
-  
+
   h5 {
     font-weight: 600;
     font-size: 18px;
     color: #626262;
     margin-bottom: 8px;
   }
-  
+
   p {
     font-size: 14px;
     color: #787878;
@@ -382,12 +381,12 @@
 .pagination-wrapper {
   padding: 20px 0;
   border-top: 1px solid #E8E8E8;
-  
+
   .pagination-info {
     font-size: 14px;
     color: #626262;
   }
-  
+
   .pagination-controls {
     .btn {
       min-width: 36px;
@@ -400,24 +399,24 @@
       font-size: 14px;
       font-weight: 500;
       transition: all 0.2s ease;
-      
+
       &:hover:not(:disabled) {
         background-color: #582AA2;
         color: #ffffff;
         border-color: #582AA2;
       }
-      
+
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
-      
+
       &.btn-primary {
         background-color: #582AA2;
         border-color: #582AA2;
         color: #ffffff;
       }
-      
+
       svg {
         width: 16px;
         height: 16px;
@@ -433,7 +432,7 @@
       gap: 15px;
       align-items: flex-start !important;
     }
-    
+
     .pagination-controls {
       width: 100%;
       justify-content: center;
