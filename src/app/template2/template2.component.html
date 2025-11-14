@@ -288,16 +288,9 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Subsector<span class="danger">*</span></label>
-                    <select class="form-control allow-comments" 
-                            [class.is-invalid]="submitted && generalInfo?.get('subSector')?.invalid && generalInfo?.get('subSector')?.touched"
-                            formControlName="subSector" id="subSector">
-                      <option [value]="''">Select</option>
-                      <ng-container *ngFor="let item of subsectorData?.length ? subsectorData : []">
-                        <option [value]="item.id.toString()">
-                          {{ item.itemValue }}
-                        </option>
-                      </ng-container>
-                    </select>
+                    <input type="text" class="form-control allow-comments" 
+                           [class.is-invalid]="submitted && generalInfo?.get('subSector')?.invalid && generalInfo?.get('subSector')?.touched"
+                           formControlName="subSector" id="subSector" placeholder="Enter subsector"/>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('subSector')?.hasError('required') && generalInfo?.get('subSector')?.touched">
                       <small class="text-danger">This field is required.</small>
                     </div>
