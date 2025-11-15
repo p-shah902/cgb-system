@@ -517,10 +517,10 @@ export class PaperStatusComponent implements OnInit {
   }
 
   addToCurrentCycle() {
-    const selectedPapers = this.groupedPaper['On CGB'].filter(item => item.checked);
+    const selectedPapers = this.groupedPaper['Approved by Pre-CGB'].filter(item => item.checked);
 
     if (selectedPapers.length === 0) {
-      this.toastService.show('Please select papers from On CGB column', 'warning');
+      this.toastService.show('Please select papers from Approved by Pre-CGB column', 'warning');
       return;
     }
 
@@ -560,7 +560,7 @@ export class PaperStatusComponent implements OnInit {
                 this.toastService.show('Papers added to current cycle successfully', 'success');
 
                 // Uncheck the selected papers
-                this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
+                this.groupedPaper['Approved by Pre-CGB'] = this.groupedPaper['Approved by Pre-CGB'].map(d => {
                   d.checked = false;
                   return d;
                 });

@@ -50,7 +50,7 @@
                       <td>
                         <div class="paper-name">
                           <div class="paper-detail">
-                            <p [class]="paper.paperType === 'Batch Paper' ? '' : 'cursor-pointer paper-title'" 
+                            <p [class]="paper.paperType === 'Batch Paper' ? '' : 'cursor-pointer paper-title'"
                                (click)="paper.paperType !== 'Batch Paper' ? goToApproachToMarket(paper) : null">
                               {{ paper.description }}
                             </p>
@@ -155,6 +155,6 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="addReview(modal)">Initiate Cycle</button>
+    <button type="button" class="btn btn-primary" (click)="addReview(modal)">Add comment</button>
   </div>
 </ng-template>

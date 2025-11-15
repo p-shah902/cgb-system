@@ -135,6 +135,8 @@ export class CgbComponent implements OnInit {
             }
           })
 
+          console.log("=====", this.cycleObject);
+
           this.currentCgbCycle?.papersData.forEach(item => {
             let userThere = this.users.find(d => item.userID === d.userId);
             if (!userThere) {

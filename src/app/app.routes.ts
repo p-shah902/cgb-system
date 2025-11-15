@@ -2,18 +2,19 @@ import { Routes } from '@angular/router';
 import { AuthGuard } from '../guards/auth.guard';
 import {NoAuthGuard} from '../guards/no-auth.guard';
 import {AdminRoleGuard} from '../guards/admin-role.guard';
+import {PermissionGuard} from '../guards/permission.guard';
 import {BatchPaperListComponent} from './batch-paper-list/batch-paper-list.component';
 
 export const routes: Routes = [
   {
     path: 'approach-to-market',
     loadComponent: () => import('./approch-to-maket/template1.component').then(m => m.Template1Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'approach-to-market/:id',
     loadComponent: () => import('./approch-to-maket/template1.component').then(m => m.Template1Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'preview/approach-to-market/:id',
@@ -23,12 +24,12 @@ export const routes: Routes = [
   {
     path: 'contract-award',
     loadComponent: () => import('./template2/template2.component').then(m => m.Template2Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'contract-award/:id',
     loadComponent: () => import('./template2/template2.component').then(m => m.Template2Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'preview/contract-award/:id',
@@ -53,37 +54,37 @@ export const routes: Routes = [
   {
     path: 'variation-paper',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'variation-paper/:id',
     loadComponent: () => import('./template3/template3.component').then(m => m.Template3Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'approval-of-sale-disposal-form',
     loadComponent: () => import('./template4/template4.component').then(m => m.Template4Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'approval-of-sale-disposal-form/:id',
     loadComponent: () => import('./template4/template4.component').then(m => m.Template4Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'info-note',
     loadComponent: () => import('./template5/template5.component').then(m => m.Template5Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'info-note/:id',
     loadComponent: () => import('./template5/template5.component').then(m => m.Template5Component),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'cgb-voting',
     loadComponent: () => import('./cgb/cgb.component').then(m => m.CgbComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'roleaccess',
@@ -118,27 +119,27 @@ export const routes: Routes = [
   {
     path: 'my-drafts',
     loadComponent: () => import('./my-drafts/paper-list.component').then(m => m.PaperListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'all-papers',
     loadComponent: () => import('./paper-list/paper-list.component').then(m => m.PaperListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'batch-papers',
     loadComponent: () => import('./batch-paper-list/batch-paper-list.component').then(m => m.BatchPaperListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'pre-cgb-review',
     loadComponent: () => import('./pre-cgb-review/pre-cgb-review.component').then(m => m.PreCgbReviewComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'createpaper',
     loadComponent: () => import('./createpaper/createpaper.component').then(m => m.CreatepaperComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'dashboard',
@@ -148,7 +149,7 @@ export const routes: Routes = [
   {
     path: 'paper-status',
     loadComponent: () => import('./paper-status/paper-status.component').then(m => m.PaperStatusComponent),
-    canActivate: [AuthGuard]
+    canActivate: [PermissionGuard]
   },
   {
     path: 'approve-request',
