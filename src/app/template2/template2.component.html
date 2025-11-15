@@ -299,18 +299,9 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Accountable Manager<span class="danger">*</span></label>
-
-
-                    <select class="form-control allow-comments"
-                            [class.is-invalid]="submitted && generalInfo?.get('camUserId')?.invalid && generalInfo?.get('camUserId')?.touched"
-                            formControlName="camUserId" id="camUserId">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
+                    <ng-select2 placeholder="Select" displaySearchStatus="always" class="allow-comments"
+                                [class.is-invalid]="submitted && generalInfo?.get('camUserId')?.invalid && generalInfo?.get('camUserId')?.touched"
+                                formControlName="camUserId" id="camUserId" [data]="camOptions"></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required') && generalInfo?.get('camUserId')?.touched">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -319,7 +310,7 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>Procurement SPA<span class="danger">*</span></label>
-                    <ng-select2 placeholder="Select" displaySearchStatus="hidden" class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
+                    <ng-select2 placeholder="Select" displaySearchStatus="always" class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
                                 [data]="procurementTagUsers"
                                 multiple></ng-select2>
                     <div class="text-danger"
@@ -663,13 +654,9 @@
                           <tbody formArrayName="legalEntitiesAwarded">
                           <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
                             <td>
-                              <select class="form-control"
-                                      formControlName="vendorId" (change)="onVendorSelectionChange(i)">
-                                <option [ngValue]="null">Select vendor</option>
-                                <option *ngFor="let vendor of getVendorOptions()" [ngValue]="vendor.value">
-                                  {{ vendor.label }}
-                                </option>
-                              </select>
+                              <ng-select2 placeholder="Select vendor" displaySearchStatus="always"
+                                          formControlName="vendorId" [data]="vendorOptions"
+                                          (update)="onVendorSelectionChange(i)"></ng-select2>
                               <input type="hidden" formControlName="legalName"/>
                               <div class="text-danger" *ngIf="submitted && inviteToBid.at(i)?.get('legalName')?.hasError('required') && inviteToBid.at(i)?.get('legalName')?.touched">
                                 <small>Legal Entity Name is required.</small>
@@ -980,13 +967,9 @@
                           <tbody formArrayName="supplierTechnical">
                           <tr *ngFor="let risk of supplierTechnical.controls; let i = index" [formGroupName]="i">
                             <td>
-                              <select class="form-control"
-                                      formControlName="vendorId" (change)="onVendorSelectionChange(i, 'supplierTechnical')">
-                                <option [ngValue]="null">Select vendor</option>
-                                <option *ngFor="let vendor of getVendorOptions()" [ngValue]="vendor.value">
-                                  {{ vendor.label }}
-                                </option>
-                              </select>
+                              <ng-select2 placeholder="Select vendor" displaySearchStatus="always"
+                                          formControlName="vendorId" [data]="vendorOptions"
+                                          (update)="onVendorSelectionChange(i, 'supplierTechnical')"></ng-select2>
                               <div class="text-danger" *ngIf="submitted && supplierTechnical.at(i)?.get('vendorId')?.hasError('required') && supplierTechnical.at(i)?.get('vendorId')?.touched">
                                 <small>Vendor is required.</small>
                               </div>
@@ -1098,12 +1081,9 @@
                         <tbody formArrayName="commericalEvaluation">
                         <tr *ngFor="let risk of commericalEvaluation.controls; let i = index" [formGroupName]="i">
                           <td>
-                            <select class="form-control shadow-none" formControlName="vendorId" (change)="onVendorSelectionChange(i, 'commericalEvaluation')">
-                              <option [ngValue]="null">Select vendor</option>
-                              <option *ngFor="let vendor of getVendorsWithTechnicalGo()" [ngValue]="vendor.value">
-                                {{ vendor.label }}
-                              </option>
-                            </select>
+                            <ng-select2 placeholder="Select vendor" displaySearchStatus="always"
+                                        formControlName="vendorId" [data]="getVendorsWithTechnicalGo()"
+                                        (update)="onVendorSelectionChange(i, 'commericalEvaluation')"></ng-select2>
                             <input type="hidden" formControlName="legalName"/>
                           </td>
                           <td>

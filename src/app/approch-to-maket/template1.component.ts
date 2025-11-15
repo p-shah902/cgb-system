@@ -160,6 +160,8 @@ export class Template1Component implements AfterViewInit  {
   public Editor: typeof ClassicEditor | null = null;
   public config: EditorConfig | null = null;
   public psaJvOptions: { value: string; label: string }[] = [];
+  public vendorOptions: { value: string; label: string }[] = [];
+  public camOptions: { value: string; label: string }[] = [];
 
 
   public ngOnInit(): void {
@@ -1502,6 +1504,10 @@ export class Template1Component implements AfterViewInit  {
             label: t.displayName,
             value: t.id
           }));
+          this.camOptions = this.userDetails
+            .filter(user => user.roleName === 'CAM')
+            .map(user => ({ value: user.id.toString(), label: user.displayName }))
+            .sort((a, b) => a.label.localeCompare(b.label));
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1528,6 +1534,10 @@ export class Template1Component implements AfterViewInit  {
       next: (response) => {
         if (response.status && response.data) {
           this.vendorData = response.data.filter(vendor => vendor.isActive);
+          this.vendorOptions = this.vendorData
+            .filter(vendor => vendor.legalName)
+            .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
+            .sort((a, b) => a.label.localeCompare(b.label));
           this.incrementAndCheck();
         }
       }, error: (error) => {

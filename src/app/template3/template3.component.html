@@ -240,12 +240,9 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Full Legal Name <span class="danger">*</span></label>
-                    <select class="form-control allow-comments" id="fullLegalName" formControlName="fullLegalName" (change)="onVendorSelectionChange()">
-                      <option [value]="null">Select vendor</option>
-                      <option *ngFor="let vendor of getVendorOptions()" [value]="vendor.value">
-                        {{ vendor.label }}
-                      </option>
-                    </select>
+                    <ng-select2 placeholder="Select vendor" displaySearchStatus="always" id="fullLegalName" class="allow-comments"
+                                formControlName="fullLegalName" [data]="vendorOptions"
+                                (update)="onVendorSelectionChange()"></ng-select2>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('fullLegalName')?.hasError('required')">
                       <small class="text-danger">Please select value.</small>
@@ -336,14 +333,8 @@
                 <div class="col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Account Manager (CAM)<span class="danger">*</span></label>
-                    <select class="form-control allow-comments" formControlName="camUserId" id="camUserId">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
+                    <ng-select2 placeholder="Select" displaySearchStatus="always" class="allow-comments"
+                                formControlName="camUserId" id="camUserId" [data]="camOptions"></ng-select2>
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('camUserId')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -352,7 +343,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Procurement SPA<span class="danger">*</span></label>
-                    <ng-select2 placeholder="Select" displaySearchStatus="hidden" class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
+                    <ng-select2 placeholder="Select" displaySearchStatus="always" class="allow-comments" id="procurementSPAUsers" formControlName="procurementSPAUsers"
                                 [data]="procurementTagUsers"
                                 multiple></ng-select2>
                     <div class="text-danger"

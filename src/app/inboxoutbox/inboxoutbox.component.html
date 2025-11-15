@@ -197,9 +197,9 @@
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
                                         (click)="exportToPDF(outbox.paperID, $event)"
                                         [disabled]="isDownloading(outbox.paperID)">
-                                  <span *ngIf="!isDownloading(outbox.paperID)">Download</span>
+                                  <span *ngIf="!isDownloading(outbox.paperID)">Export</span>
                                   <span *ngIf="isDownloading(outbox.paperID)" class="d-flex align-items-center gap-2">
-                                    Downloading...
+                                    Exporting...
                                   </span>
                                 </button>
                               </div>

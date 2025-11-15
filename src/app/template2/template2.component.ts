@@ -88,6 +88,9 @@ export class Template2Component implements AfterViewInit {
   procurementTagUsers: any[] = [];
   paperMappingData: PaperMappingType[] = [];
   cgbAtmRefOptions: { value: string; label: string }[] = [];
+  camOptions: { value: string; label: string }[] = [];
+  vendorOptions: { value: string; label: string }[] = [];
+  vendorsWithTechnicalGoOptions: { value: string; label: string }[] = [];
   countryDetails: CountryDetail[] = [];
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
@@ -307,6 +310,12 @@ export class Template2Component implements AfterViewInit {
 
 
   loadForm() {
+    let camId = null
+
+    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+      camId = this.loggedInUser?.id || null
+    }
+
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
@@ -323,7 +332,7 @@ export class Template2Component implements AfterViewInit {
         operatingFunction: ['', Validators.required],
         subSector: ['', Validators.required],
         sourcingType: ['', Validators.required],
-        camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        camUserId: [camId, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
@@ -369,7 +378,7 @@ export class Template2Component implements AfterViewInit {
         submittedBids: [0],
         previousContractLearning: [''],
         performanceImprovements: [''],
-        previousSupplierSpendInfo: ['', Validators.required],
+        previousSupplierSpendInfo: [''],
         benchMarking: [''],
         commericalEvaluation: this.fb.array([]),
         supplierTechnical: this.fb.array([]),
@@ -955,7 +964,7 @@ export class Template2Component implements AfterViewInit {
         length: 1000
       }
     };
-    
+
     this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -965,6 +974,10 @@ export class Template2Component implements AfterViewInit {
             label: t.displayName,
             value: t.id
           }));
+          this.camOptions = this.userDetails
+            .filter(user => user.roleName === 'CAM')
+            .map(user => ({ value: user.id.toString(), label: user.displayName }))
+            .sort((a, b) => a.label.localeCompare(b.label));
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1089,6 +1102,10 @@ export class Template2Component implements AfterViewInit {
       next: (reponse) => {
         if (reponse.status && reponse.data) {
           this.vendorList = reponse.data.filter(vendor => vendor.isActive);
+          this.vendorOptions = this.vendorList
+            .filter(vendor => vendor.legalName)
+            .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
+            .sort((a, b) => a.label.localeCompare(b.label));
           console.log('vendor:', this.vendorList);
           this.incrementAndCheck();
         }
@@ -1121,12 +1138,15 @@ export class Template2Component implements AfterViewInit {
     });
 
     // Filter vendorList to only include vendors with Technical Go = Yes
-    return this.vendorList
-      .filter(vendor => technicalGoVendorIds.has(vendor.id))
+    this.vendorsWithTechnicalGoOptions = this.vendorList
+      .filter(vendor => technicalGoVendorIds.has(vendor.id) && vendor.legalName)
       .map(vendor => ({
-        value: vendor.id,
-        label: vendor.legalName
-      }));
+        value: vendor.id.toString(),
+        label: vendor.legalName!
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+    
+    return this.vendorsWithTechnicalGoOptions;
   }
 
   onVendorSelectionChange(rowIndex: number, formArray?: string) {
@@ -1155,7 +1175,7 @@ export class Template2Component implements AfterViewInit {
         if (legalNameControl) {
           legalNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
         }
-        
+
         // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only (only for inviteToBid)
         if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && isLocalOrJVControl) {
           isLocalOrJVControl.setValue(selectedVendor.isCGBRegistered || false);

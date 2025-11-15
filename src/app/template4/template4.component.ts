@@ -92,6 +92,7 @@ export class Template4Component  implements AfterViewInit{
   sourcingTypeData: DictionaryDetail[] = [];
   subsectorData: DictionaryDetail[] = [];
   userDetails: UserDetails[] = [];
+  camOptions: { value: string; label: string }[] = [];
   countryDetails: CountryDetail[] = [];
   procurementTagUsers: any[] = [];
   highlightClass = 'highlight'; // CSS class for highlighting
@@ -178,6 +179,12 @@ export class Template4Component  implements AfterViewInit{
     this.loadPaperStatusListData();
     this.loadThresholdData();
 
+    let camId = null
+
+    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+      camId = this.loggedInUser?.id || null
+    }
+
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
@@ -186,7 +193,7 @@ export class Template4Component  implements AfterViewInit{
         cgbItemRef: [{value: '', disabled: true}],
         referenceNo: ['', Validators.required],
         cgbCirculationDate: [{value: '', disabled: true}],
-        technicalApprover: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        technicalApprover: [camId, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         operatingFunction: ['', Validators.required],
         bltMember: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
@@ -1207,11 +1214,16 @@ export class Template4Component  implements AfterViewInit{
     this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.userDetails = response.data;
-          this.procurementTagUsers = response.data.filter(user => user.roleName !== 'Procurement Tag').map(t => ({
+          const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
+          this.userDetails = dataList;
+          this.procurementTagUsers = dataList.filter(user => user.roleName !== 'Procurement Tag').map(t => ({
             label: t.displayName,
             value: t.id
           }));
+          this.camOptions = this.userDetails
+            .filter(user => user.roleName === 'CAM')
+            .map(user => ({ value: user.id.toString(), label: user.displayName }))
+            .sort((a, b) => a.label.localeCompare(b.label));
 
           console.log('user details', this.userDetails);
         }

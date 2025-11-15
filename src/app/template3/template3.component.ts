@@ -88,6 +88,8 @@ export class Template3Component implements AfterViewInit {
   vendorList: VendorDetail[] = []
   userDetails: UserDetails[] = [];
   procurementTagUsers: any[] = [];
+  camOptions: { value: string; label: string }[] = [];
+  vendorOptions: { value: string; label: string }[] = [];
   countryDetails: CountryDetail[] = [];
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
@@ -396,11 +398,12 @@ export class Template3Component implements AfterViewInit {
   }
 
   loadForm() {
-    // let camId = null
-    //
-    // if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
-    //   camId = this.loggedInUser?.id || null
-    // }
+    let camId = null
+
+    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+      camId = this.loggedInUser?.id || null
+    }
+
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
         paperProvision: ['', Validators.required],
@@ -419,7 +422,7 @@ export class Template3Component implements AfterViewInit {
         fullLegalName: ['', Validators.required],
         contractNo: [''],
         globalCGB: ['', Validators.required],
-        camUserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
+        camUserId: [camId, [Validators.required, Validators.pattern("^[0-9]+$")]],
         vP1UserId: [null, [Validators.required, Validators.pattern("^[0-9]+$")]],
         procurementSPAUsers: [[], Validators.required],
         pdManagerName: [null, Validators.required],
@@ -940,6 +943,10 @@ export class Template3Component implements AfterViewInit {
       next: (reponse) => {
         if (reponse.status && reponse.data) {
           this.vendorList = reponse.data.filter(vendor => vendor.isActive);
+          this.vendorOptions = this.vendorList
+            .filter(vendor => vendor.legalName)
+            .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
+            .sort((a, b) => a.label.localeCompare(b.label));
           this.incrementAndCheck();
         }
       },
@@ -1000,6 +1007,10 @@ export class Template3Component implements AfterViewInit {
             label: t.displayName,
             value: t.id
           }));
+          this.camOptions = this.userDetails
+            .filter(user => user.roleName === 'CAM')
+            .map(user => ({ value: user.id.toString(), label: user.displayName }))
+            .sort((a, b) => a.label.localeCompare(b.label));
           this.incrementAndCheck();
         }
       }, error: (error) => {

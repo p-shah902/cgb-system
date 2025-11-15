@@ -199,15 +199,8 @@
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
                     <label>Contract Account Manager (CAM)<span class="danger">*</span></label>
-                    <select id="technicalApprover" class="form-control allow-comments"
-                            formControlName="technicalApprover">
-                      <option [value]="null">Select</option>
-                      <ng-container *ngFor="let user of userDetails">
-                        <option *ngIf="user.roleName === 'CAM'" [value]="user.id">
-                          {{ user.displayName }}
-                        </option>
-                      </ng-container>
-                    </select>
+                    <ng-select2 placeholder="Select" displaySearchStatus="always" id="technicalApprover" class="allow-comments"
+                                formControlName="technicalApprover" [data]="camOptions"></ng-select2>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('technicalApprover')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -218,7 +211,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>Procurement SPA<span class="danger">*</span></label>
-                    <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
+                    <ng-select2 placeholder="Select" displaySearchStatus="always" id="procurementSPAUsers" class="allow-comments" formControlName="procurementSPAUsers"
                                 [data]="procurementTagUsers" multiple></ng-select2>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('procurementSPAUsers')?.hasError('required')">
