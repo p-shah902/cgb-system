@@ -670,14 +670,14 @@
                     </thead>
                     <tbody formArrayName="consultation">
                     <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
-                      <td><select class="form-control" formControlName="psa">
+                      <td><select class="form-control" formControlName="psa" [disabled]="true">
                         <option [value]="''">Select</option>
                         <option *ngFor="let psaOption of psaJvOptions" [value]="psaOption.value">
                           {{ psaOption.label }}
                         </option>
                       </select></td>
                       <td>
-                        <select aria-readonly="true" [disabled]="true" class="form-control"
+                        <select class="form-control" [disabled]="true"
                                 formControlName="technicalCorrect">
                           <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">

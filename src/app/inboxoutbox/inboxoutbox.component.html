@@ -71,8 +71,10 @@
                                 </button>
                               </div>
                               <button class="btn btn-primary" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4); $event.stopPropagation()"
-                                      *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Registered'))">
-                                Send For PDM Approval
+                                      *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Registered'))"
+                                      [disabled]="isUpdating(inbox.paperID)">
+                                <span *ngIf="!isUpdating(inbox.paperID)">Send For PDM Approval</span>
+                                <span *ngIf="isUpdating(inbox.paperID)">Updating...</span>
                               </button>
 
                               <div class="ic-btn-div d-flex justify-content-end"
@@ -105,8 +107,10 @@
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="loggedInUser?.roleName === 'Procurement Tag' && inbox.paperStatus === 'Action Required by CGB'">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                                        (click)="updateProject(inbox.paperID, inbox.paperStatusId); $event.stopPropagation()">
-                                  Return to requested
+                                        (click)="updateProject(inbox.paperID, inbox.paperStatusId); $event.stopPropagation()"
+                                        [disabled]="isUpdating(inbox.paperID)">
+                                  <span *ngIf="!isUpdating(inbox.paperID)">Return to requested</span>
+                                  <span *ngIf="isUpdating(inbox.paperID)">Updating...</span>
                                 </button>
                               </div>
                             </div>
@@ -413,7 +417,7 @@
       class="btn btn-primary"
       (click)="approvePaper(modal, 'Return to Originator')"
     >
-      Save
+      Return
     </button>
   </div>
 </ng-template>

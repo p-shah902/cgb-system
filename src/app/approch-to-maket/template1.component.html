@@ -178,7 +178,7 @@
                   <div class="col-sm-6 col-md-4">
                     <div class="form-group mb-3">
                       <label>PSA/JV<span class="danger">*</span></label>
-                      <ng-select2 placeholder="Select" displaySearchStatus="hidden" id="psajv" class="allow-comments"
+                      <ng-select2 placeholder="Select" displaySearchStatus="always" id="psajv" class="allow-comments"
                                   formControlName="psajv" [data]="psaJvOptions"
                                   multiple></ng-select2>
                       <div class="text-danger" *ngIf="submitted && generalInfo?.get('psajv')?.hasError('required')">
@@ -1464,14 +1464,14 @@
                       </thead>
                       <tbody formArrayName="consultation">
                       <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
-                        <td><select class="form-control" formControlName="psa">
+                        <td><select class="form-control" formControlName="psa" [disabled]="true">
                           <option [value]="''">Select</option>
                           <option *ngFor="let psaOption of psaJvOptions" [value]="psaOption.value">
                             {{ psaOption.label }}
                           </option>
                         </select></td>
                         <td>
-                          <select aria-readonly="true" [disabled]="true" class="form-control"
+                          <select class="form-control" [disabled]="true"
                                   formControlName="technicalCorrect">
                             <option [value]="null">Select</option>
                             <ng-container *ngFor="let user of userDetails">

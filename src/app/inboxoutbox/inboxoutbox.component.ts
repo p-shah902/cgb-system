@@ -36,6 +36,7 @@ export class InboxoutboxComponent implements OnInit {
   isLoading: boolean = false;
   isApproving: boolean = false;
   downloadingPapers: Set<number> = new Set();
+  updatingPapers: Set<number> = new Set();
   searchTerm: string = '';
   filterStatus: string = '';
   filterPaperType: string = '';
@@ -404,13 +405,28 @@ export class InboxoutboxComponent implements OnInit {
   }
 
   updateProject(paperId: any, currentStatus: any, id: number = 10) {
+    // Add paperId to updating set
+    this.updatingPapers.add(paperId);
+
     this.paperConfigService.updateMultiplePaperStatus([{
       paperId: paperId,
       existingStatusId: Number(currentStatus),
       statusId: id
-    }]).subscribe(value => {
-      this.getInboxOutBox();
-      this.toastService.show('Paper status updated.');
+    }]).subscribe({
+      next: (value) => {
+        this.getInboxOutBox();
+        this.toastService.show('Paper status updated.');
+      },
+      error: (error) => {
+        console.error('Error updating paper status:', error);
+        this.toastService.show('Failed to update paper status.', 'danger');
+        // Remove paperId from updating set on error
+        this.updatingPapers.delete(paperId);
+      },
+      complete: () => {
+        // Remove paperId from updating set when complete
+        this.updatingPapers.delete(paperId);
+      }
     });
   }
 
@@ -498,6 +514,10 @@ export class InboxoutboxComponent implements OnInit {
 
   isDownloading(paperId: number): boolean {
     return this.downloadingPapers.has(paperId);
+  }
+
+  isUpdating(paperId: number): boolean {
+    return this.updatingPapers.has(paperId);
   }
 
   private downloadPDFFromBase64(fileName: string, base64Data: string) {

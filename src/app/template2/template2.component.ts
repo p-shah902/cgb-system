@@ -2987,9 +2987,9 @@ export class Template2Component implements AfterViewInit {
         }
 
         const formGroup = this.fb.group({
-          psa: [psaValue, Validators.required],
+          psa: [{ value: psaValue, disabled: true }, Validators.required],
           technicalCorrect: [
-            { value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false },
+            { value: item.technicalCorrect || item.technicalCorrectId || null, disabled: true },
             Validators.required
           ],
           budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
@@ -3012,8 +3012,8 @@ export class Template2Component implements AfterViewInit {
       }
       this.consultationRows.push(
         this.fb.group({
-          psa: ['', Validators.required],
-          technicalCorrect: [{value: camUserId ? Number(camUserId) : null, disabled: false}, Validators.required],
+          psa: [{ value: '', disabled: true }, Validators.required],
+          technicalCorrect: [{value: camUserId ? Number(camUserId) : null, disabled: true}, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
           jvAligned: [{ value: false, disabled: true }],
@@ -3065,9 +3065,9 @@ export class Template2Component implements AfterViewInit {
 
     this.consultationRows.push(
       this.fb.group({
-        psa: [jvValue, Validators.required],
+        psa: [{ value: jvValue, disabled: true }, Validators.required],
         technicalCorrect: [
-          { value: camUserId ? Number(camUserId) : null, disabled: false },
+          { value: camUserId ? Number(camUserId) : null, disabled: true },
           Validators.required
         ],
         budgetStatement: [null, Validators.required],

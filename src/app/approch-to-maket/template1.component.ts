@@ -1883,9 +1883,9 @@ export class Template1Component implements AfterViewInit  {
 
     this.consultationRows.push(
       this.fb.group({
-        psa: [jvValue, Validators.required],
+        psa: [{ value: jvValue, disabled: true }, Validators.required],
         technicalCorrect: [
-          { value: camUserId ? Number(camUserId) : null, disabled: false },
+          { value: camUserId ? Number(camUserId) : null, disabled: true },
           Validators.required
         ],
         budgetStatement: [null, Validators.required],
@@ -1954,8 +1954,8 @@ export class Template1Component implements AfterViewInit  {
       riskMitigationsData.forEach((item: any, index) => {
         console.log('Creating consultation row:', index, item);
         const formGroup = this.fb.group({
-          psa: [item.psa || item.psaValue || '', Validators.required],
-          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: false }, Validators.required],
+          psa: [{ value: item.psa || item.psaValue || '', disabled: true }, Validators.required],
+          technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: true }, Validators.required],
           budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
           jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
           jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }], // JV Aligned checkbox - disabled by default
@@ -1977,8 +1977,8 @@ export class Template1Component implements AfterViewInit  {
       }
       this.consultationRows.push(
         this.fb.group({
-          psa: ['', Validators.required],
-          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: false }, Validators.required],
+          psa: [{ value: '', disabled: true }, Validators.required],
+          technicalCorrect: [{ value: camUserId ? Number(camUserId) : null, disabled: true }, Validators.required],
           budgetStatement: [null, Validators.required],
           jvReview: [null, Validators.required],
           jvAligned: [{ value: false, disabled: true }], // JV Aligned checkbox - disabled by default
