@@ -453,6 +453,13 @@ export class EditorComponent implements OnInit,ControlValueAccessor {
       },
       table: {
         contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+      },
+      autosave: {
+        save: editor => {
+          console.log('======', editor);
+          return new Promise((resolve, reject) => resolve(1));
+        },
+        waitingTime: 2000
       }
     };
 

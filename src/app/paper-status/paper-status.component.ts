@@ -33,7 +33,7 @@ import {Router} from '@angular/router';
 })
 export class PaperStatusComponent implements OnInit {
   @ViewChild('dropdownRef') dropdownRef!: NgbDropdown;
-  
+
   paperList: PaperConfig[] = [];
   private paperService = inject(PaperConfigService);
   private votingService = inject(VotingService);
@@ -45,7 +45,7 @@ export class PaperStatusComponent implements OnInit {
   approvalRemark = "";
   deadlineDate: string = "";
   isLoading: boolean = false
-  
+
   // Search, Sort, and Filter
   searchText: string = '';
   sortColumn: string = '';
@@ -62,9 +62,12 @@ export class PaperStatusComponent implements OnInit {
     'Approved by Pre-CGB': [],
     'On CGB': [],
     'Approved by CGB': [],
+    'On JV approval': [],
+    'On Partner Approval 1st': [],
+    'On Partner Approval 2nd': [],
     'Approved': [],
   };
-  
+
   groupedPaper: { [key: string]: PaperConfig[] } = {
     'Registered': [],
     'Waiting for PDM': [],
@@ -73,6 +76,9 @@ export class PaperStatusComponent implements OnInit {
     'Approved by Pre-CGB': [],
     'On CGB': [],
     'Approved by CGB': [],
+    'On JV approval': [],
+    'On Partner Approval 1st': [],
+    'On Partner Approval 2nd': [],
     'Approved': [],
   };
   statusData: { label: string, value: number }[] = [
@@ -83,6 +89,9 @@ export class PaperStatusComponent implements OnInit {
     {label: 'Approved by Pre-CGB', value: 7},
     {label: 'On CGB', value: 10},
     {label: 'Approved by CGB', value: 11},
+    {label: 'On JV approval', value: 14},
+    {label: 'On Partner Approval 1st', value: 17},
+    {label: 'On Partner Approval 2nd', value: 17},
     {label: 'Approved', value: 19},
   ];
   private readonly _mdlSvc = inject(NgbModal);
@@ -185,7 +194,7 @@ export class PaperStatusComponent implements OnInit {
           Object.keys(this.originalGroupedPaper).forEach(key => {
             this.originalGroupedPaper[key] = this.paperList.filter(f => f.statusName === key);
           });
-          
+
           // Apply filters and search
           this.applyFilters();
         }
@@ -197,17 +206,17 @@ export class PaperStatusComponent implements OnInit {
     });
 
   }
-  
+
   applyFilters(): void {
     // Reset grouped paper
     Object.keys(this.groupedPaper).forEach(key => {
       this.groupedPaper[key] = [];
     });
-    
+
     // Apply filters to each status group
     Object.keys(this.originalGroupedPaper).forEach(key => {
       let filteredPapers = [...this.originalGroupedPaper[key]];
-      
+
       // Apply search filter
       if (this.searchText && this.searchText.trim()) {
         const searchLower = this.searchText.toLowerCase().trim();
@@ -221,14 +230,14 @@ export class PaperStatusComponent implements OnInit {
           );
         });
       }
-      
+
       // Apply status filter
       if (this.filterStatusIds && this.filterStatusIds.length > 0) {
         filteredPapers = filteredPapers.filter((paper: any) => {
           return this.filterStatusIds.includes(paper.statusId);
         });
       }
-      
+
       // Apply date filter
       if (this.filterFromDate) {
         filteredPapers = filteredPapers.filter((paper: any) => {
@@ -237,7 +246,7 @@ export class PaperStatusComponent implements OnInit {
           return paperDate >= fromDate;
         });
       }
-      
+
       if (this.filterToDate) {
         filteredPapers = filteredPapers.filter((paper: any) => {
           const paperDate = new Date(paper.lastModifyDate || paper.createdDate);
@@ -246,13 +255,13 @@ export class PaperStatusComponent implements OnInit {
           return paperDate <= toDate;
         });
       }
-      
+
       // Apply sorting
       if (this.sortColumn) {
         filteredPapers.sort((a: any, b: any) => {
           let valueA: any;
           let valueB: any;
-          
+
           switch (this.sortColumn) {
             case 'description':
               valueA = (a.description || '').toLowerCase();
@@ -269,11 +278,11 @@ export class PaperStatusComponent implements OnInit {
             default:
               return 0;
           }
-          
+
           if (valueA == null && valueB == null) return 0;
           if (valueA == null) return 1;
           if (valueB == null) return -1;
-          
+
           if (valueA < valueB) {
             return this.sortDirection === 'asc' ? -1 : 1;
           }
@@ -283,17 +292,17 @@ export class PaperStatusComponent implements OnInit {
           return 0;
         });
       }
-      
+
       this.groupedPaper[key] = filteredPapers;
     });
-    
+
     this.checkFilterApplied();
   }
-  
+
   onSearchChange(): void {
     this.applyFilters();
   }
-  
+
   onSortChange(): void {
     // Toggle sort direction
     if (this.sortColumn) {
@@ -305,7 +314,7 @@ export class PaperStatusComponent implements OnInit {
     }
     this.applyFilters();
   }
-  
+
   onStatusFilterChange(statusId: number, event: any): void {
     if (event.target.checked) {
       if (!this.filterStatusIds.includes(statusId)) {
@@ -316,22 +325,22 @@ export class PaperStatusComponent implements OnInit {
     }
     this.applyFilters();
   }
-  
+
   onDateChange(): void {
     this.applyFilters();
   }
-  
+
   clearStatusFilters(): void {
     this.filterStatusIds = [];
     this.applyFilters();
   }
-  
+
   clearDateFilters(): void {
     this.filterFromDate = '';
     this.filterToDate = '';
     this.applyFilters();
   }
-  
+
   clearAllFilters(): void {
     this.searchText = '';
     this.filterStatusIds = [];
@@ -341,15 +350,15 @@ export class PaperStatusComponent implements OnInit {
     this.sortDirection = 'asc';
     this.applyFilters();
   }
-  
+
   checkFilterApplied(): void {
-    this.isFilterApplied = !!(this.searchText || 
-      (this.filterStatusIds && this.filterStatusIds.length > 0) || 
-      this.filterFromDate || 
+    this.isFilterApplied = !!(this.searchText ||
+      (this.filterStatusIds && this.filterStatusIds.length > 0) ||
+      this.filterFromDate ||
       this.filterToDate ||
       this.sortColumn);
   }
-  
+
   cancelFilters(): void {
     this.dropdownRef.close();
   }
@@ -392,7 +401,7 @@ export class PaperStatusComponent implements OnInit {
         });
       } else if (this.openType === 'cgb') {
         const selectedPapers = this.getSelectedPapers(this.openType);
-        
+
         // First, change paper status from "Approved by Pre-CGB" (7) to "On CGB" (10)
         this.paperService.updateMultiplePaperStatus(selectedPapers.map(f => ({
           paperId: f.paperID,
@@ -414,7 +423,7 @@ export class PaperStatusComponent implements OnInit {
                       next: (cycleResponse) => {
                         if (cycleResponse.status && cycleResponse.data) {
                           const voteCycleId = cycleResponse.data.voteCycleId || cycleResponse.data.id;
-                          
+
                           if (voteCycleId) {
                             // Update the paper order with the current drag & drop order
                             const serialData = selectedPapers.map((paper, index) => ({
@@ -509,7 +518,7 @@ export class PaperStatusComponent implements OnInit {
 
   addToCurrentCycle() {
     const selectedPapers = this.groupedPaper['On CGB'].filter(item => item.checked);
-    
+
     if (selectedPapers.length === 0) {
       this.toastService.show('Please select papers from On CGB column', 'warning');
       return;
@@ -521,7 +530,7 @@ export class PaperStatusComponent implements OnInit {
         if (cycleResponse.status && cycleResponse.data) {
           const votingCycleId = cycleResponse.data.voteCycleId || cycleResponse.data.id;
           const deadlineDate = cycleResponse.data.deadlineDate;
-          
+
           if (!votingCycleId) {
             this.toastService.show('No active CGB cycle found', 'danger');
             return;
@@ -549,14 +558,14 @@ export class PaperStatusComponent implements OnInit {
             next: (response) => {
               if (response.status) {
                 this.toastService.show('Papers added to current cycle successfully', 'success');
-                
+
                 // Uncheck the selected papers
                 this.groupedPaper['On CGB'] = this.groupedPaper['On CGB'].map(d => {
                   d.checked = false;
                   return d;
                 });
                 this.showAddToCurrentCycleButton = false;
-                
+
                 // Reload the paper list to reflect changes
                 this.loadPaperConfigList();
               } else {

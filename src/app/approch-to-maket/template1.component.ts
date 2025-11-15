@@ -1,4 +1,12 @@
-import { Component, inject, Renderer2, ViewChild, ElementRef, TemplateRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  Renderer2,
+  ViewChild,
+  ElementRef,
+  TemplateRef,
+  AfterViewInit,
+} from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DummyCompComponent } from '../dummy-comp/dummy-comp.component';
 import { CKEditorModule, loadCKEditorCloud, CKEditorCloudResult } from '@ckeditor/ckeditor5-angular';
@@ -1484,7 +1492,7 @@ export class Template1Component implements AfterViewInit  {
         length: 1000
       }
     };
-    
+
     this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -1552,13 +1560,13 @@ export class Template1Component implements AfterViewInit  {
         if (parentCompanyNameControl) {
           parentCompanyNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
       }
-        
+
         // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only
         if (isLocalOrJVControl) {
           isLocalOrJVControl.setValue(selectedVendor.isCGBRegistered || false);
           isLocalOrJVControl.disable();
         }
-        
+
         // Auto-populate Country dropdown based on countryName and make it read-only
         if (countryIdControl && selectedVendor.countryName) {
           const matchedCountry = this.countryDetails.find(
