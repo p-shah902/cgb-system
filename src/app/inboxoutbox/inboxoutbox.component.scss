@@ -99,6 +99,8 @@
           line-height: 22px;
           color: #1B202B;
           transition: color 0.3s ease;
+          max-width: 100%;
+          word-break: break-word;
         }
         span {
           display: inline-block;
