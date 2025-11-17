@@ -76,29 +76,40 @@
                       </p>
                     </div>
                   </td>
-                  @for (user of paper.value.users; track user.userID) {
-                    @if (paper.value.paperInfo.result !== 'Withdrawn') {
-                      @if (user.userID === loggedInUser?.id && user.userRoleId === loggedInUser?.roleId) {
-                        <td class="cgb-td">
-                          <div
-                            [ngClass]="{'cgb-vote w-100': user.voteStatus === 'Pending', 'cgb-status': user.voteStatus !== 'Pending'}">
-                            @if (user.voteStatus === 'Pending') {
-                              <button class="btn btn-dark w-100"
-                                      (click)="open($event, content, paper.value.paperInfo.paperID)">
-                                Vote
-                              </button>
-                            } @else {
-                              <label class="{{classMap[user.voteStatus]}}-status">
-                                {{ user.voteStatus }}
+                  @for (headerUser of users; track headerUser.userId) {
+                    @let paperUser = findUserVote(paper.value.users, headerUser.userId, headerUser.role);
+                    @if (paperUser) {
+                      @if (paper.value.paperInfo.result !== 'Withdrawn') {
+                        @if (paperUser.userID === loggedInUser?.id && paperUser.userRoleId === loggedInUser?.roleId) {
+                          <td class="cgb-td">
+                            <div
+                              [ngClass]="{'cgb-vote w-100': paperUser.voteStatus === 'Pending', 'cgb-status': paperUser.voteStatus !== 'Pending'}">
+                              @if (paperUser.voteStatus === 'Pending') {
+                                <button class="btn btn-dark w-100"
+                                        (click)="open($event, content, paper.value.paperInfo.paperID)">
+                                  Vote
+                                </button>
+                              } @else {
+                                <label class="{{classMap[paperUser.voteStatus]}}-status">
+                                  {{ paperUser.voteStatus }}
+                                </label>
+                              }
+                            </div>
+                          </td>
+                        } @else {
+                          <td>
+                            <div class="cgb-status">
+                              <label class="{{classMap[paperUser.voteStatus]}}-status">
+                                {{ paperUser.voteStatus }}
                               </label>
-                            }
-                          </div>
-                        </td>
+                            </div>
+                          </td>
+                        }
                       } @else {
                         <td>
                           <div class="cgb-status">
-                            <label class="{{classMap[user.voteStatus]}}-status">
-                              {{ user.voteStatus }}
+                            <label class="{{classMap[paperUser.voteStatus]}}-status">
+                              {{ paperUser.voteStatus }}
                             </label>
                           </div>
                         </td>
@@ -106,9 +117,7 @@
                     } @else {
                       <td>
                         <div class="cgb-status">
-                          <label class="{{classMap[user.voteStatus]}}-status">
-                            {{ user.voteStatus }}
-                          </label>
+                          <label class="inprocess-status">-</label>
                         </div>
                       </td>
                     }

@@ -7,12 +7,12 @@ import { VotingCycle } from '../../models/voting';
 import { LoginUser } from '../../models/user';
 import { AuthService } from '../../service/auth.service';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cgb',
   standalone: true,
-  imports: [NgbToastModule, CommonModule, FormsModule, RouterLink],
+  imports: [NgbToastModule, CommonModule, FormsModule],
   templateUrl: './cgb.component.html',
   styleUrl: './cgb.component.scss'
 })
@@ -120,18 +120,25 @@ export class CgbComponent implements OnInit {
           });
 
           Object.keys(this.cycleObject).forEach(key => {
-            this.cycleObject[key].paperInfo.result = "Approved";
-            let result = this.cycleObject[key].users.find(d => d.voteStatus === 'Pending');
-            if (result) {
-              this.cycleObject[key].paperInfo.result = "Pending";
-            }
-            result = this.cycleObject[key].users.find(d => d.voteStatus === 'Action Required');
-            if (result) {
-              this.cycleObject[key].paperInfo.result = "Action Required";
-            }
-            result = this.cycleObject[key].users.find(d => d.voteStatus === 'Withdrawn');
+            const paperUsers = this.cycleObject[key].users;
+            
+            // Priority: Withdrawn > Action Required > Pending > Approved
+            let result = paperUsers.find(d => d.voteStatus === 'Withdrawn');
             if (result) {
               this.cycleObject[key].paperInfo.result = "Withdrawn";
+            } else {
+              result = paperUsers.find(d => d.voteStatus === 'Action Required');
+              if (result) {
+                this.cycleObject[key].paperInfo.result = "Action Required";
+              } else {
+                result = paperUsers.find(d => d.voteStatus === 'Pending');
+                if (result) {
+                  this.cycleObject[key].paperInfo.result = "Pending";
+                } else {
+                  // All votes are Approved
+                  this.cycleObject[key].paperInfo.result = "Approved";
+                }
+              }
             }
           })
 
@@ -172,5 +179,12 @@ export class CgbComponent implements OnInit {
         console.log('error', error);
       }
     })
+  }
+
+  /**
+   * Find user vote for a specific paper
+   */
+  findUserVote(paperUsers: any[], userId: number, roleId: number): any | null {
+    return paperUsers.find(u => u.userID === userId && u.userRoleId === roleId) || null;
   }
 }
