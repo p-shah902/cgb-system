@@ -1184,6 +1184,26 @@ export class Template2Component implements AfterViewInit {
     return this.vendorsWithTechnicalGoOptions;
   }
 
+  getVendorsWithTechnicalGoList() {
+    // Get all vendor IDs that have Technical Go/No Go = Yes
+    const technicalGoVendorIds = new Set<number>();
+
+    this.supplierTechnical.controls.forEach(control => {
+      const vendorId = control.get('vendorId')?.value;
+      const isTechnical = control.get('isTechnical')?.value;
+
+      // Only include vendors where isTechnical is true
+      if (vendorId && isTechnical === true) {
+        technicalGoVendorIds.add(Number(vendorId));
+      }
+    });
+
+    // Return filtered vendor list (vendor objects, not options)
+    return this.vendorList
+      .filter(vendor => technicalGoVendorIds.has(vendor.id) && vendor.legalName)
+      .sort((a, b) => (a.legalName || a.vendorName || '').localeCompare(b.legalName || b.vendorName || ''));
+  }
+
   onVendorSelectionChange(rowIndex: number, formArray?: string) {
     let row: any;
 

@@ -634,7 +634,7 @@
                 </div>
                 <div class="col-sm-12 col-md-12">
                   <div class="form-group mb-3 allow-comments" id="legalEntitiesAwarded">
-                    <div class="overflow-auto">
+                    <div class="overflow-auto vendor-table-container">
                       <div class="key-risks-table custom-table">
                         <table class="table">
                           <thead>
@@ -653,11 +653,14 @@
                           </thead>
                           <tbody formArrayName="legalEntitiesAwarded">
                           <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
-                            <td>
-                              <ng-select2 placeholder="Select vendor" displaySearchStatus="always"
-                                          formControlName="vendorId" [data]="vendorOptions"
-                                          (update)="onVendorSelectionChange(i)"></ng-select2>
-                              <input type="hidden" formControlName="legalName"/>
+                            <td class="vendor-select-cell">
+                              <select class="form-control" formControlName="vendorId" (change)="onVendorSelectionChange(i)">
+                                <option [value]="''">Select vendor</option>
+                                <option *ngFor="let vendor of vendorList" [value]="vendor.id.toString()">
+                                  {{ vendor.legalName || vendor.vendorName }}
+                                </option>
+                              </select>
+                              <input type="hidden" formControlName="legalName" style="display: none !important;"/>
                               <div class="text-danger" *ngIf="submitted && inviteToBid.at(i)?.get('legalName')?.hasError('required') && inviteToBid.at(i)?.get('legalName')?.touched">
                                 <small>Legal Entity Name is required.</small>
                               </div>
@@ -967,9 +970,12 @@
                           <tbody formArrayName="supplierTechnical">
                           <tr *ngFor="let risk of supplierTechnical.controls; let i = index" [formGroupName]="i">
                             <td>
-                              <ng-select2 placeholder="Select vendor" displaySearchStatus="always"
-                                          formControlName="vendorId" [data]="vendorOptions"
-                                          (update)="onVendorSelectionChange(i, 'supplierTechnical')"></ng-select2>
+                              <select class="form-control" formControlName="vendorId" (change)="onVendorSelectionChange(i, 'supplierTechnical')">
+                                <option [value]="''">Select vendor</option>
+                                <option *ngFor="let vendor of vendorList" [value]="vendor.id.toString()">
+                                  {{ vendor.legalName || vendor.vendorName }}
+                                </option>
+                              </select>
                               <div class="text-danger" *ngIf="submitted && supplierTechnical.at(i)?.get('vendorId')?.hasError('required') && supplierTechnical.at(i)?.get('vendorId')?.touched">
                                 <small>Vendor is required.</small>
                               </div>
@@ -1081,9 +1087,12 @@
                         <tbody formArrayName="commericalEvaluation">
                         <tr *ngFor="let risk of commericalEvaluation.controls; let i = index" [formGroupName]="i">
                           <td>
-                            <ng-select2 placeholder="Select vendor" displaySearchStatus="always"
-                                        formControlName="vendorId" [data]="getVendorsWithTechnicalGo()"
-                                        (update)="onVendorSelectionChange(i, 'commericalEvaluation')"></ng-select2>
+                            <select class="form-control" formControlName="vendorId" (change)="onVendorSelectionChange(i, 'commericalEvaluation')">
+                              <option [value]="''">Select vendor</option>
+                              <option *ngFor="let vendor of getVendorsWithTechnicalGoList()" [value]="vendor.id.toString()">
+                                {{ vendor.legalName || vendor.vendorName }}
+                              </option>
+                            </select>
                             <input type="hidden" formControlName="legalName"/>
                           </td>
                           <td>

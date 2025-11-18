@@ -98,6 +98,61 @@
   background-color: yellow !important;
 }
 
+// Fix for vendor dropdown in table - prevent visible input and scroll issues
+.vendor-table-container {
+  position: relative;
+  
+  .key-risks-table {
+    table {
+      tbody {
+        tr {
+          td.vendor-select-cell {
+            position: relative;
+            overflow: visible !important;
+            
+            // Ensure hidden inputs stay hidden
+            input[type="hidden"] {
+              display: none !important;
+              visibility: hidden !important;
+              position: absolute !important;
+              width: 0 !important;
+              height: 0 !important;
+              opacity: 0 !important;
+            }
+            
+            // Fix select2 dropdown positioning
+            ::ng-deep .select2-container {
+              position: relative;
+              z-index: 1;
+              width: 100% !important;
+              
+              .select2-selection {
+                min-height: 38px;
+              }
+              
+              .select2-dropdown {
+                position: absolute !important;
+                z-index: 9999 !important;
+                margin-top: 1px;
+                width: 100% !important;
+                min-width: 200px;
+              }
+              
+              &.select2-container--open {
+                z-index: 10000 !important;
+                
+                .select2-dropdown {
+                  z-index: 10001 !important;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 .key-risks-table {
   overflow-x: auto;
   width: 100%;
@@ -298,4 +353,26 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+// Global fix to ensure select2 dropdowns work correctly in tables
+::ng-deep {
+  .vendor-table-container {
+    .key-risks-table {
+      .select2-container {
+        .select2-dropdown {
+          z-index: 9999 !important;
+          position: absolute !important;
+        }
+        
+        &.select2-container--open {
+          z-index: 10000 !important;
+          
+          .select2-dropdown {
+            z-index: 10001 !important;
+          }
+        }
+      }
+    }
+  }
 }
