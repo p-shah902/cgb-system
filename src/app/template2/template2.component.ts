@@ -92,6 +92,7 @@ export class Template2Component implements AfterViewInit {
   vendorOptions: { value: string; label: string }[] = [];
   vendorsWithTechnicalGoOptions: { value: string; label: string }[] = [];
   countryDetails: CountryDetail[] = [];
+  private isProgrammaticFormUpdate = false;
   paperStatusList: PaperStatusType[] = [];
   isRegisterPaper: boolean = false
   private completedCount = 0;
@@ -175,6 +176,12 @@ export class Template2Component implements AfterViewInit {
             this.getPaperCommentLogs(Number(this.paperId));
           } else {
             this.isExpanded = false;
+            if(!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'CAM') {
+              setTimeout(() => {
+                const camId = this.loggedInUser?.id ? this.loggedInUser.id.toString() : null;
+                this.generalInfoForm.get('generalInfo.camUserId')?.setValue(camId);
+              }, 1000)
+            }
           }
           console.log('Paper ID:', this.paperId);
         });
@@ -276,7 +283,60 @@ export class Template2Component implements AfterViewInit {
   }
   private setupJVAlignedAutoReset() {
     if (!this.generalInfoForm) { return; }
+    
+    // Flag to track if jvAligned is being changed (to skip reset)
+    let isJVAlignedChanging = false;
+    // Track subscribed controls to avoid duplicates
+    const subscribedControls = new Set<any>();
+    
+    // Subscribe to each jvAligned control individually to detect when they change
+    const setupJVAlignedListeners = () => {
+      const rows = this.consultationRows;
+      rows.controls.forEach((row) => {
+        const ctrl = row.get('jvAligned');
+        if (ctrl && !subscribedControls.has(ctrl)) {
+          subscribedControls.add(ctrl);
+          ctrl.valueChanges.subscribe(() => {
+            isJVAlignedChanging = true;
+            // Reset flag after a delay to ensure generalInfoForm.valueChanges has processed
+            setTimeout(() => {
+              isJVAlignedChanging = false;
+            }, 50);
+          });
+        }
+      });
+    };
+    
+    // Initial setup of listeners
+    setupJVAlignedListeners();
+    
+    // Also setup listeners when rows are added/removed (check length changes)
+    let previousRowCount = this.consultationRows.length;
+    this.consultationRows.valueChanges.subscribe(() => {
+      const currentRowCount = this.consultationRows.length;
+      if (currentRowCount !== previousRowCount) {
+        previousRowCount = currentRowCount;
+        setupJVAlignedListeners();
+      }
+    });
+    
     this.generalInfoForm.valueChanges.subscribe(() => {
+      // Skip reset during initial load to preserve values from edit mode
+      if (this.isInitialLoad) {
+        return;
+      }
+      
+      // Skip reset if change came from jvAligned control itself
+      if (isJVAlignedChanging) {
+        return;
+      }
+      
+      // Skip reset during programmatic form updates (like ensureCostAllocationFormControls)
+      if (this.isProgrammaticFormUpdate) {
+        return;
+      }
+      
+      // Reset jvAligned for other form changes
       const rows = this.consultationRows;
       rows.controls.forEach((row) => {
         const ctrl = row.get('jvAligned');
@@ -2264,6 +2324,9 @@ export class Template2Component implements AfterViewInit {
     // Ensure section6 is visible so form controls are created and committee logic runs
     if (!this.sectionVisibility['section6']) {
       this.sectionVisibility['section6'] = true;
+      // Set flag to prevent jvAligned reset during programmatic form updates
+      this.isProgrammaticFormUpdate = true;
+      
       // Ensure form controls are created for selected PSAs
       const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
       selectedPSAJV.forEach((psaName: string) => {
@@ -2286,6 +2349,9 @@ export class Template2Component implements AfterViewInit {
           this.triggerCommitteeLogicForPSA(psaName, true);
         }
       });
+      
+      // Keep flag set until after payload is built to prevent any form changes from resetting jvAligned
+      // We'll reset it after reading form values
     }
 
     // Get status from the submitter button
@@ -2446,6 +2512,11 @@ export class Template2Component implements AfterViewInit {
     const costSharingValues = this.generalInfoForm?.value?.costSharing
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
+    
+    // Reset flag immediately after reading form values to allow normal auto-reset behavior
+    // The flag was only needed to prevent reset during programmatic form setup
+    this.isProgrammaticFormUpdate = false;
+    
     const consultationsValue = this.consultationRows.controls
       .filter(group => group.valid)
       .map(group => {
@@ -3118,6 +3189,10 @@ export class Template2Component implements AfterViewInit {
             psaValue = psaOption.value;
           }
         }
+        
+        // Get the initial jvAligned value from API
+        const initialJVAlignedValue = item.isJVReviewDone || item.jvAligned || false;
+        const jvReviewValue = item.jvReview || item.jvReviewId || null;
 
         const formGroup = this.fb.group({
           psa: [{ value: psaValue, disabled: true }, Validators.required],
@@ -3126,15 +3201,15 @@ export class Template2Component implements AfterViewInit {
             Validators.required
           ],
           budgetStatement: [item.budgetStatement || item.budgetStatementId || null, Validators.required],
-          jvReview: [item.jvReview || item.jvReviewId || null, Validators.required],
-          jvAligned: [{ value: item.isJVReviewDone || item.jvAligned || false, disabled: true }],
+          jvReview: [jvReviewValue, Validators.required],
+          jvAligned: [{ value: initialJVAlignedValue, disabled: true }],
           id: [item.id || 0]
         });
         riskMitigationArray.push(formGroup);
 
         // Set JV Aligned checkbox state based on JV Review user
+        // Use setTimeout to ensure form is fully initialized
         setTimeout(() => {
-          const jvReviewValue = item.jvReview || item.jvReviewId || null;
           this.onJVReviewChange(index, jvReviewValue);
         }, 0);
       });
@@ -3186,14 +3261,24 @@ export class Template2Component implements AfterViewInit {
     const row = this.consultationRows.at(rowIndex);
     const jvAlignedControl = row.get('jvAligned');
     if (jvAlignedControl) {
+      // Store the current value before making any changes
+      const currentValue = jvAlignedControl.value;
+      
       if (this.canEditJVAligned(jvReviewUserId)) {
         jvAlignedControl.enable();
+        // Preserve the value when enabling
+        if (currentValue !== jvAlignedControl.value) {
+          jvAlignedControl.setValue(currentValue, { emitEvent: false });
+        }
       } else {
         jvAlignedControl.disable();
         // Preserve existing value if it's already true (from isJVReviewDone), only set to false if currently false
-        const currentValue = jvAlignedControl.value;
+        // Use emitEvent: false to prevent triggering auto-reset
         if (currentValue !== true) {
-          jvAlignedControl.setValue(false); // Only uncheck if not already checked
+          jvAlignedControl.setValue(false, { emitEvent: false }); // Only uncheck if not already checked
+        } else {
+          // Ensure the value stays true even when disabled
+          jvAlignedControl.setValue(true, { emitEvent: false });
         }
       }
     }
