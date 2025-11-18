@@ -24,110 +24,6 @@
               (input)="onSearchChange()"
             />
           </div>
-          <div *ngIf="!isArchived" ngbDropdown class="filter-btn-div" #dropdownRef="ngbDropdown" [autoClose]="'outside'" (openChange)="openDropdown()">
-            <button class="btn d-flex gap-2 align-items-center"
-                    [ngClass]="isFilterApplied ? 'create-btn' : 'btn-outline-secondary'"
-                    ngbDropdownToggle>
-              <svg width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M7 11.8515V14.0515H13V11.8515H7ZM4 6.35146V8.55147H16V6.35146H4ZM0 0.851562V3.05156H20V0.851562H0Z"
-                      fill="#898989" />
-              </svg>
-              Filter
-            </button>
-
-            <div class="filter-dropdown-div" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-              <!-- Header -->
-              <div class="flt-head d-flex justify-content-between align-items-center p-2 border-bottom">
-                <h5 class="mb-0">Filter</h5>
-                <button type="button" class="btn-close" aria-label="Close" (click)="cancelFilters()"></button>
-              </div>
-
-              <div class="flt-body">
-                <!-- Date Filter -->
-                <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
-                  <label class="text-secondary mb-0">Select Date</label>
-                  <a href="#" class="text-primary small" (click)="clearDates(); $event.preventDefault()">Clear</a>
-                </div>
-
-                <div class="row g-2 mb-3">
-                  <div class="col-6">
-                    <input type="date" class="form-control" [(ngModel)]="tempFilter.fromDate" (change)="onDateChange()" />
-                  </div>
-                  <div class="col-6">
-                    <input type="date" class="form-control" [(ngModel)]="tempFilter.toDate" (change)="onDateChange()" />
-                  </div>
-                </div>
-
-                <!-- Status Filter -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="text-secondary mb-0">Status</label>
-                  <a href="#" class="text-primary small" (click)="clearStatusFilters(); $event.preventDefault()">Clear</a>
-                </div>
-
-                <div *ngFor="let status of paperStatusList; let i = index" class="d-flex justify-content-between align-items-center mb-2">
-                  <span>{{ status.paperStatus }}</span>
-                  <div class="form-check form-switch m-0">
-                    <input type="checkbox"
-                           class="form-check-input"
-                           [checked]="tempFilter.statusIds?.includes(status.id)"
-                           (change)="onSwitchChange($event, status.paperStatus)"
-                           [id]="'flt-sw' + (i + 1)" />
-                  </div>
-                </div>
-
-                <!-- Price Filter -->
-                <hr />
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="text-secondary mb-0">Price</label>
-                  <a href="#" class="text-primary small" (click)="clearPriceFilters(); $event.preventDefault()">Clear</a>
-                </div>
-
-
-
-                <!-- Price Low to High -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span>Price Low to High</span>
-                  <div class="form-check form-switch m-0">
-                    <input type="checkbox"
-                           class="form-check-input"
-                           id="sortLowToHigh"
-                           [checked]="tempFilter.sortLowToHigh"
-                           (change)="onSortChange('low')"></div>
-                </div>
-
-                <!-- Price High to Low -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span>Price High to Low</span>
-                  <div class="form-check form-switch m-0">
-
-                    <input type="checkbox"
-                           class="form-check-input"
-                           id="sortHighToLow"
-                           [checked]="tempFilter.sortHighToLow"
-                           (change)="onSortChange('high')"></div>
-                </div>
-
-
-                <!-- Slider -->
-                <label class="text-secondary mb-1">Price Range</label>
-                <ngx-slider
-                  [(value)]="tempPrice[0]"
-                  [(highValue)]="tempPrice[1]"
-                  [options]="priceSliderOptions"
-                  (userChangeEnd)="onPriceChange()"
-                ></ngx-slider>
-                <p class="text-muted text-center mt-2 mb-3">${{ tempPrice[0] }} - ${{ tempPrice[1] }}</p>
-
-                <!-- Footer Buttons -->
-                <div class="row mt-3">
-                  <div class="col-12">
-                    <button class="btn btn-sm w-100" (click)="clearAllFilters()">Clear All</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
          
           <div class="filter-btn-div">
             <button class="btn btn-outline-secondary d-flex gap-2 align-items-center" (click)="togalView()">
@@ -144,9 +40,6 @@
               </svg>
               {{ isArchived ? "Unarchived Paper" : "Archived Paper" }}
             </button>
-            <!-- <button class="btn create-btn" (click)="open($event, content)">
-              Create Paper
-            </button> -->
           </div>
         </div>
 

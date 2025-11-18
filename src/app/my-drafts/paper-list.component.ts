@@ -80,6 +80,8 @@ export class PaperListComponent implements OnInit {
   isCardView: boolean = false;
   isArchived: boolean = false;
   paperStatusList: PaperStatusType[] = [];
+  allPaperStatusList: PaperStatusType[] = []; // Store all statuses to find Draft statusId
+  draftStatusId: number | null = null; // Store Draft statusId
   isFilterApplied = false;
   tempFilter: PaperFilter = { ...this.filter };
   priceSliderOptions: Options = {
@@ -119,8 +121,9 @@ export class PaperListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadPaperConfigList();
-    this.loadPaperStatusListData()
+    // Load status list first to get Draft statusId
+    // loadPaperConfigList will be called from loadPaperStatusListData after statusId is found
+    this.loadPaperStatusListData();
   }
 
   private getCleanFilter(filter: PaperFilter): Partial<PaperFilter> {
@@ -157,7 +160,28 @@ export class PaperListComponent implements OnInit {
     
     // Calculate start index based on current page
     const start = (this.currentPage - 1) * this.itemsPerPage;
-    const cleanedFilter = this.getCleanFilter({...this.filter, statusIds: []});
+    
+    // Use draft statusId if available, otherwise fallback to empty array
+    const statusIds = this.draftStatusId !== null ? [this.draftStatusId] : [];
+    
+    // Build filter with draft statusId and search text if provided
+    const filter: PaperFilter = {
+      statusIds: statusIds,
+      orderType: this.filter.orderType || 'DESC',
+      fromDate: '',
+      toDate: '',
+      priceMin: null,
+      priceMax: null,
+      sortLowToHigh: false,
+      sortHighToLow: false
+    };
+    
+    // Add search text if provided (assuming backend supports title search)
+    if (this.searchText && this.searchText.trim()) {
+      filter.title = this.searchText.trim();
+    }
+    
+    const cleanedFilter = this.getCleanFilter(filter);
     
     // Build request payload with backend pagination
     const request: GetPaperConfigurationsListRequest = {
@@ -181,9 +205,9 @@ export class PaperListComponent implements OnInit {
     }).subscribe({
       next: ({ data, count }) => {
         if (data.status && data.data) {
-          // Filter out drafts and batch papers
+          // Filter out batch papers only (drafts are already filtered by statusId)
           this.paperList = data.data.filter((paper: any) =>
-            paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
+            paper.paperType !== 'Batch Paper'
           );
         } else {
           this.paperList = [];
@@ -191,9 +215,9 @@ export class PaperListComponent implements OnInit {
         
         // Get total count from count response
         if (count.status && count.data) {
-          // Filter count response the same way
+          // Filter count response the same way (only exclude batch papers)
           const filteredCount = count.data.filter((paper: any) =>
-            paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
+            paper.paperType !== 'Batch Paper'
           );
           this.totalItems = count.totalCount || count.recordsTotal || count.recordsFiltered || filteredCount.length;
         } else {
@@ -214,13 +238,10 @@ export class PaperListComponent implements OnInit {
   }
 
   applyFrontendFilters(): void {
-    // Sync tempFilter to filter so it persists when reopening modal
-    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
-    
     // Reset to first page when filters change
     this.currentPage = 1;
     
-    // Reload data from backend with new filters
+    // Reload data from backend
     this.loadPaperConfigList();
   }
   
@@ -349,13 +370,33 @@ export class PaperListComponent implements OnInit {
     this.paperService.getPaperStatusList().subscribe({
       next: (response) => {
         if (response.status && response.data) {
+          // Store all statuses
+          this.allPaperStatusList = response.data;
+          
+          // Find Draft statusId
+          const draftStatus = response.data.find((status: any) => 
+            status.paperStatus?.toLowerCase() === 'draft'
+          );
+          if (draftStatus) {
+            this.draftStatusId = draftStatus.id;
+          }
+          
+          // Filter for allowed statuses (for display purposes)
           this.paperStatusList = response.data.filter((status: any) =>
             this.allowedStatusNames.includes(status.paperStatus)
           );
+          
+          // Load paper list with draft statusId (will use empty array if not found)
+          this.loadPaperConfigList();
+        } else {
+          // If status list fails, still try to load papers (fallback)
+          this.loadPaperConfigList();
         }
       },
       error: (error) => {
         console.log('error', error);
+        // If status list fails, still try to load papers (fallback)
+        this.loadPaperConfigList();
       },
     });
   }

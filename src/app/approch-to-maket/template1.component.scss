@@ -190,3 +190,77 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+// Fix for select2 dropdown in table cells
+.vendor-table-container {
+  position: relative;
+  
+  .key-risks-table {
+    position: relative;
+    
+    table {
+      tbody {
+        tr {
+          td.vendor-select-cell {
+            position: relative;
+            overflow: visible !important;
+            z-index: auto;
+            
+            .vendor-select-wrapper {
+              position: relative;
+              z-index: 1;
+              min-width: 200px;
+              
+              // Ensure select2 dropdown can escape table boundaries
+              ::ng-deep .select2-container {
+                position: relative;
+                z-index: 1000;
+                width: 100% !important;
+                
+                .select2-selection {
+                  min-height: 38px;
+                }
+                
+                .select2-dropdown {
+                  position: absolute !important;
+                  z-index: 9999 !important;
+                  margin-top: 1px;
+                  width: 100% !important;
+                  min-width: 200px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Global fix for select2 dropdowns in tables - ensure dropdown appears above everything
+::ng-deep {
+  .key-risks-table {
+    .select2-container {
+      .select2-dropdown {
+        z-index: 9999 !important;
+        position: absolute !important;
+      }
+      
+      &.select2-container--open {
+        z-index: 10000 !important;
+        
+        .select2-dropdown {
+          z-index: 10001 !important;
+          position: absolute !important;
+        }
+      }
+    }
+  }
+  
+  // Ensure select2 dropdowns in table cells can escape overflow constraints
+  .vendor-table-container {
+    .select2-dropdown {
+      z-index: 10000 !important;
+    }
+  }
+}
