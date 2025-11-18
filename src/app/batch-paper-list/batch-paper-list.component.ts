@@ -20,7 +20,7 @@ import { ToastService } from '../../service/toast.service';
 import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperService } from '../../service/paper.service';
 import { Router, RouterLink } from '@angular/router';
-import { PaperFilter } from '../../models/general';
+import { GetPaperConfigurationsListRequest, PaperFilter } from '../../models/general';
 import {PaperConfig, PaperStatusType} from '../../models/paper';
 import {LoginUser, UserDetails, GetUsersListRequest} from '../../models/user';
 import { AuthService } from '../../service/auth.service';
@@ -112,10 +112,19 @@ export class BatchPaperListComponent implements OnInit {
   }
 
   loadPaperConfigList() {
-    this.paperConfigService.getPaperConfigList({
-      orderType: 'DESC',
-      statusIds: []
-    }).subscribe({
+    // Build request payload with pagination
+    const request: GetPaperConfigurationsListRequest = {
+      filter: {
+        orderType: 'DESC',
+        statusIds: []
+      },
+      paging: {
+        start: 0,
+        length: 1000 // Large number to get all matching results
+      }
+    };
+    
+    this.paperConfigService.getPaperConfigList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter((paper: any) =>

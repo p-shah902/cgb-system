@@ -5,6 +5,9 @@ export interface ApiResponse<T> {
   exception: any;
   data: T;
   status: boolean;
+  totalCount?: number; // Total count of records (for pagination)
+  recordsTotal?: number; // Alternative field name for total count
+  recordsFiltered?: number; // Filtered count (for pagination)
 }
 
 export interface Particular {

@@ -17,6 +17,24 @@ export interface PaperFilter {
   priceMax?: number | null,
   sortHighToLow?: boolean
   sortLowToHigh?: boolean
+  title?: string,
+  vendor?: number,
+  paperType?: string,
+  cgbItemRef?: string,
+  cgbApprovalFromDate?: string,
+  cgbApprovalToDate?: string,
+  ptName?: string,
+  contractNo?: string
+}
+
+export interface GetPaperConfigurationsListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetPaperConfigurationsListRequest {
+  filter?: Partial<PaperFilter>;
+  paging?: GetPaperConfigurationsListPaging;
 }
 
 export interface Documents{

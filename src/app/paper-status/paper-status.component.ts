@@ -2,7 +2,7 @@ import {Component, inject, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
 import {PaperConfig} from '../../models/paper';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
-import {PaperFilter} from '../../models/general';
+import {GetPaperConfigurationsListRequest, PaperFilter} from '../../models/general';
 import {CommonModule, KeyValuePipe, NgForOf, NgIf} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ToastService} from '../../service/toast.service';
@@ -187,12 +187,27 @@ export class PaperStatusComponent implements OnInit {
 
   loadPaperConfigList() {
     this.isLoading = true;
-    this.paperService.getPaperConfigList(this.filter).subscribe({
+    
+    // Build request payload with pagination
+    const request: GetPaperConfigurationsListRequest = {
+      filter: this.filter,
+      paging: {
+        start: 0,
+        length: 1000 // Large number to get all matching results
+      }
+    };
+    
+    this.paperService.getPaperConfigList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter(d => d.statusName !== 'Draft' && d.paperType !== 'Batch Paper');
           Object.keys(this.originalGroupedPaper).forEach(key => {
-            this.originalGroupedPaper[key] = this.paperList.filter(f => f.statusName === key);
+            // Case-insensitive matching for status names
+            this.originalGroupedPaper[key] = this.paperList.filter(f => {
+              const paperStatus = (f.statusName || '').toLowerCase().trim();
+              const keyStatus = key.toLowerCase().trim();
+              return paperStatus === keyStatus;
+            });
           });
 
           // Apply filters and search

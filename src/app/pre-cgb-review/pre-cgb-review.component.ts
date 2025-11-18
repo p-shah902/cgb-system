@@ -17,7 +17,7 @@ import { ToastService } from '../../service/toast.service';
 import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperService } from '../../service/paper.service';
 import { Router, RouterLink } from '@angular/router';
-import { PaperFilter } from '../../models/general';
+import { GetPaperConfigurationsListRequest, PaperFilter } from '../../models/general';
 import { PaperConfig } from '../../models/paper';
 import { LoginUser } from '../../models/user';
 import { AuthService } from '../../service/auth.service';
@@ -111,7 +111,17 @@ export class PreCgbReviewComponent implements OnInit {
 
   loadPaperConfigList() {
     this.isLoading = true;
-    this.paperConfigService.getPaperConfigList(this.filter).subscribe({
+    
+    // Build request payload with pagination
+    const request: GetPaperConfigurationsListRequest = {
+      filter: this.filter,
+      paging: {
+        start: 0,
+        length: 1000 // Large number to get all matching results
+      }
+    };
+    
+    this.paperConfigService.getPaperConfigList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
           this.paperList = response.data.filter((paper: any) =>
