@@ -401,7 +401,7 @@ export class Template3Component implements AfterViewInit {
     let camId = null
 
     if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
-      camId = this.loggedInUser?.id || null
+      camId = this.loggedInUser?.id ? this.loggedInUser.id.toString() : null
     }
 
     this.generalInfoForm = this.fb.group({
@@ -767,7 +767,7 @@ export class Template3Component implements AfterViewInit {
           fullLegalName: contractGeneralInfo?.vendorId || null,
           contractNo: contractGeneralInfo?.contractNo || '',
           globalCGB: contractGeneralInfo?.globalCGB ? contractGeneralInfo.globalCGB.toString() : '',
-          camUserId: contractGeneralInfo?.camUserId || null,
+          camUserId: contractGeneralInfo?.camUserId ? contractGeneralInfo.camUserId.toString() : null,
           vP1UserId: contractGeneralInfo?.vP1UserId || null,
           procurementSPAUsers: selectedValuesProcurementTagUsers,
           pdManagerName: contractGeneralInfo?.pdManagerNameId || contractGeneralInfo?.pdManagerName || null,
@@ -1011,6 +1011,15 @@ export class Template3Component implements AfterViewInit {
             .filter(user => user.roleName === 'CAM')
             .map(user => ({ value: user.id.toString(), label: user.displayName }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If form exists and camUserId is set, ensure it's properly formatted
+          if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.camUserId')) {
+            const currentCamUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value;
+            if (currentCamUserId) {
+              // Ensure the value is a string to match camOptions format
+              this.generalInfoForm.get('generalInfo.camUserId')?.setValue(currentCamUserId.toString(), { emitEvent: false });
+            }
+          }
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1303,7 +1312,7 @@ export class Template3Component implements AfterViewInit {
             fullLegalName: generatlInfoData.fullLegalName || null,
             contractNo: generatlInfoData.contractNo || '',
             globalCGB: generatlInfoData.globalCGB || null,
-            camUserId: generatlInfoData.camUserId || null,
+            camUserId: generatlInfoData.camUserId ? generatlInfoData.camUserId.toString() : null,
             vP1UserId: generatlInfoData.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: generatlInfoData?.pdManagerNameId || null,

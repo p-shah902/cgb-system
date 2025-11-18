@@ -182,7 +182,7 @@ export class Template4Component  implements AfterViewInit{
     let camId = null
 
     if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
-      camId = this.loggedInUser?.id || null
+      camId = this.loggedInUser?.id ? this.loggedInUser.id.toString() : null
     }
 
     this.generalInfoForm = this.fb.group({
@@ -463,7 +463,7 @@ export class Template4Component  implements AfterViewInit{
             bltMember: paperDetailData?.bltMemberId || null,
             operatingFunction: paperDetailData?.operatingFunction || '',
             purchaserName: paperDetailData?.purchaserName || '',
-            technicalApprover: paperDetailData?.technicalApprover ? Number(paperDetailData?.technicalApprover) : null,
+            technicalApprover: paperDetailData?.technicalApprover ? paperDetailData.technicalApprover.toString() : null,
             vP1UserId: paperDetailData?.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: paperDetailData?.pdManagerNameId || null,
@@ -1224,6 +1224,15 @@ export class Template4Component  implements AfterViewInit{
             .filter(user => user.roleName === 'CAM')
             .map(user => ({ value: user.id.toString(), label: user.displayName }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If form exists and technicalApprover is set, ensure it's properly formatted
+          if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.technicalApprover')) {
+            const currentTechnicalApprover = this.generalInfoForm.get('generalInfo.technicalApprover')?.value;
+            if (currentTechnicalApprover) {
+              // Ensure the value is a string to match camOptions format
+              this.generalInfoForm.get('generalInfo.technicalApprover')?.setValue(currentTechnicalApprover.toString(), { emitEvent: false });
+            }
+          }
 
           console.log('user details', this.userDetails);
         }

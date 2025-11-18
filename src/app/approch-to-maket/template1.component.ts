@@ -218,7 +218,7 @@ export class Template1Component implements AfterViewInit  {
     let camId = null
 
     if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
-      camId = this.loggedInUser?.id || null
+      camId = this.loggedInUser?.id ? this.loggedInUser.id.toString() : null
     }
 
     this.generalInfoForm = this.fb.group({
@@ -769,7 +769,7 @@ export class Template1Component implements AfterViewInit  {
             operatingFunction: paperDetailData?.operatingFunction || '',
             subSector: paperDetailData?.subSector || '',
             sourcingType: paperDetailData?.sourcingType || '',
-            camUserId: paperDetailData?.camUserId || null,
+            camUserId: paperDetailData?.camUserId ? paperDetailData.camUserId.toString() : null,
             vP1UserId: paperDetailData?.vP1UserId || null,
             procurementSPAUsers: selectedValuesProcurementTagUsers,
             pdManagerName: paperDetailData?.pdManagerNameId || null,
@@ -1508,6 +1508,15 @@ export class Template1Component implements AfterViewInit  {
             .filter(user => user.roleName === 'CAM')
             .map(user => ({ value: user.id.toString(), label: user.displayName }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If form exists and camUserId is set, ensure it's properly formatted
+          if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.camUserId')) {
+            const currentCamUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value;
+            if (currentCamUserId) {
+              // Ensure the value is a string to match camOptions format
+              this.generalInfoForm.get('generalInfo.camUserId')?.setValue(currentCamUserId.toString(), { emitEvent: false });
+            }
+          }
           this.incrementAndCheck();
         }
       }, error: (error) => {
