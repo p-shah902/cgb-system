@@ -1639,7 +1639,11 @@ export class Template5Component  implements AfterViewInit{
         jvAlignedControl.enable();
       } else {
         jvAlignedControl.disable();
-        jvAlignedControl.setValue(false);
+        // Preserve existing value if it's already true (from isJVReviewDone), only set to false if currently false
+        const currentValue = jvAlignedControl.value;
+        if (currentValue !== true) {
+          jvAlignedControl.setValue(false); // Only uncheck if not already checked
+        }
       }
     }
   }

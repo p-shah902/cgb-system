@@ -48,7 +48,25 @@
 
     <!-- Update -->
     <button class="btn btn-dark" type="submit" data-status="Registered"
-      *ngIf="permission.canShowUpdate(roleName, statusName) || (statusName === 'On JV Approval' && canShowUpdateForJVApproval) || ((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB')"
+      *ngIf="permission.canShowUpdate(roleName, statusName)"
+      [disabled]="isLoading">
+      <span *ngIf="!isLoading">Update</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
+
+    <!-- Update -->
+    <button class="btn btn-dark" type="submit" data-status="On Pre-CGB"
+      *ngIf="((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB')"
+      [disabled]="isLoading">
+      <span *ngIf="!isLoading">Update</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
+
+    <!-- Update -->
+    <button class="btn btn-dark" type="submit" data-status="On JV Approval"
+      *ngIf="(statusName === 'On JV Approval' && canShowUpdateForJVApproval)"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>

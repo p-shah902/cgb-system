@@ -90,8 +90,8 @@ export class PaperStatusComponent implements OnInit {
     {label: 'On CGB', value: 10},
     {label: 'Approved by CGB', value: 11},
     {label: 'On JV approval', value: 14},
-    {label: 'On Partner Approval 1st', value: 17},
-    {label: 'On Partner Approval 2nd', value: 17},
+    {label: 'On Partner Approval 1st', value: 23},
+    {label: 'On Partner Approval 2nd', value: 24},
     {label: 'Approved', value: 19},
   ];
   private readonly _mdlSvc = inject(NgbModal);
