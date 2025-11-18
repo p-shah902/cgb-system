@@ -30,7 +30,7 @@
             <div class="custom-nav-div">
               <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
                 <li [ngbNavItem]="1">
-                  <button ngbNavLink>Inbox <span>{{ filteredInboxData.length }}</span></button>
+                  <button ngbNavLink>Inbox <span>{{ totalItemsInbox }}</span></button>
                   <ng-template ngbNavContent>
                     <div class="inbox-col">
                       <div class="inbox-body">
@@ -70,7 +70,7 @@
                                   Vote Now
                                 </button>
                               </div>
-                              <button class="btn btn-primary" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4); $event.stopPropagation()"
+                              <button class="btn btn-outline-primary" size="sm" type="button" (click)="updateProject(inbox.paperID, inbox.paperStatusId, 4); $event.stopPropagation()"
                                       *ngIf="(loggedInUser?.roleName === 'Procurement Tag' || loggedInUser?.roleName === 'CAM') && ((inbox.paperStatus === 'Registered'))"
                                       [disabled]="isUpdating(inbox.paperID)">
                                 <span *ngIf="!isUpdating(inbox.paperID)">Send For PDM Approval</span>
@@ -78,14 +78,14 @@
                               </button>
 
                               <div class="ic-btn-div d-flex justify-content-end"
-                                   *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
+                                   *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM')">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
                                         (click)="open($event, content3, inbox.paperID); $event.stopPropagation()">
                                   Return to Originator
                                 </button>
                               </div>
                               <div class="ic-btn-div d-flex justify-content-end"
-                                   *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM' || inbox.paperStatus === 'Action Required by Pre-CGB')">
+                                   *ngIf="loggedInUser?.roleName === 'PDM' && (inbox.paperStatus === 'Waiting for PDM')">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
                                         (click)="open($event, content2, inbox.paperID); $event.stopPropagation()">
                                   Approve
@@ -118,15 +118,24 @@
                         </div>
                       </div>
                       <!-- Pagination for Inbox -->
-                      <div class="pagination-wrapper mt-4" *ngIf="getTotalPagesInbox() > 1">
-                        <div class="d-flex justify-content-between align-items-center">
+                      <div class="pagination-wrapper mt-4" *ngIf="getTotalPagesInbox() > 0">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                          <!-- Page Size Selector -->
+                          <div class="d-flex align-items-center gap-2">
+                            <label class="text-muted mb-0">Items per page:</label>
+                            <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="itemsPerPage" (change)="onPageSizeChange()">
+                              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+                            </select>
+                          </div>
+                          
+                          <!-- Pagination Info -->
                           <div class="pagination-info">
                             <span class="text-muted">
-                              Showing {{ (currentPageInbox - 1) * itemsPerPage + 1 }} -
-                              {{ currentPageInbox * itemsPerPage > filteredInboxData.length ? filteredInboxData.length : currentPageInbox * itemsPerPage }}
-                              of {{ filteredInboxData.length }} items
+                              Showing {{ getStartItemInbox() }} - {{ getEndItemInbox() }} of {{ totalItemsInbox }} items
                             </span>
                           </div>
+                          
+                          <!-- Pagination Controls -->
                           <div class="pagination-controls d-flex align-items-center gap-2">
                             <button class="btn btn-outline-secondary btn-sm"
                                     (click)="prevPageInbox()"
@@ -158,7 +167,7 @@
                   </ng-template>
                 </li>
                 <li [ngbNavItem]="2">
-                  <button ngbNavLink>Outbox <span>{{ filteredOutboxData.length }}</span></button>
+                  <button ngbNavLink>Outbox <span>{{ totalItemsOutbox }}</span></button>
                   <ng-template ngbNavContent>
                     <div class="inbox-col">
                       <div class="inbox-body">
@@ -208,15 +217,24 @@
                         </div>
                       </div>
                       <!-- Pagination for Outbox -->
-                      <div class="pagination-wrapper mt-4" *ngIf="getTotalPagesOutbox() > 1">
-                        <div class="d-flex justify-content-between align-items-center">
+                      <div class="pagination-wrapper mt-4" *ngIf="getTotalPagesOutbox() > 0">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                          <!-- Page Size Selector -->
+                          <div class="d-flex align-items-center gap-2">
+                            <label class="text-muted mb-0">Items per page:</label>
+                            <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="itemsPerPage" (change)="onPageSizeChange()">
+                              <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+                            </select>
+                          </div>
+                          
+                          <!-- Pagination Info -->
                           <div class="pagination-info">
                             <span class="text-muted">
-                              Showing {{ (currentPageOutbox - 1) * itemsPerPage + 1 }} -
-                              {{ currentPageOutbox * itemsPerPage > filteredOutboxData.length ? filteredOutboxData.length : currentPageOutbox * itemsPerPage }}
-                              of {{ filteredOutboxData.length }} items
+                              Showing {{ getStartItemOutbox() }} - {{ getEndItemOutbox() }} of {{ totalItemsOutbox }} items
                             </span>
                           </div>
+                          
+                          <!-- Pagination Controls -->
                           <div class="pagination-controls d-flex align-items-center gap-2">
                             <button class="btn btn-outline-secondary btn-sm"
                                     (click)="prevPageOutbox()"

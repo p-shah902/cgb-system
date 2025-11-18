@@ -2,7 +2,7 @@ import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../service/toast.service';
 import { CommonModule } from '@angular/common';
-import { InboxOutbox } from '../../models/inbox-outbox';
+import { InboxOutbox, InboxOutboxRequest } from '../../models/inbox-outbox';
 import { InboxOutboxService } from '../../service/inbox-outbox.service';
 import {Router, RouterLink} from '@angular/router';
 import { LoginUser } from '../../models/user';
@@ -10,6 +10,7 @@ import { AuthService } from '../../service/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperService } from '../../service/paper.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-inboxoutbox',
@@ -48,8 +49,11 @@ export class InboxoutboxComponent implements OnInit {
   currentPageInbox: number = 1;
   currentPageOutbox: number = 1;
   itemsPerPage: number = 12; // 3x3 grid
+  pageSizeOptions: number[] = [12, 24, 48, 96];
   paginatedInboxData: InboxOutbox[] = [];
   paginatedOutboxData: InboxOutbox[] = [];
+  totalItemsInbox: number = 0;
+  totalItemsOutbox: number = 0;
 
   private readonly _mdlSvc = inject(NgbModal);
 
@@ -77,117 +81,168 @@ export class InboxoutboxComponent implements OnInit {
 
   getInboxOutBox() {
     this.isLoading = true;
-    this.inboxOutboxService.getPaperInboxOutbox().subscribe({
-      next: response => {
-        if (response.status && response.data) {
-          this.inboxData = response.data.inbox;
-          this.outboxData = response.data.outbox;
-          this.applyFilters();
+    
+    // Calculate start index for inbox
+    const inboxStart = (this.currentPageInbox - 1) * this.itemsPerPage;
+    // Calculate start index for outbox
+    const outboxStart = (this.currentPageOutbox - 1) * this.itemsPerPage;
+    
+    // Build request for inbox
+    const inboxRequest: InboxOutboxRequest = {
+      orderType: this.isDesc ? 'ASC' : 'DESC',
+      paging: {
+        start: inboxStart,
+        length: this.itemsPerPage
+      }
+    };
+    
+    // Build request for outbox
+    const outboxRequest: InboxOutboxRequest = {
+      orderType: this.isDesc ? 'ASC' : 'DESC',
+      paging: {
+        start: outboxStart,
+        length: this.itemsPerPage
+      }
+    };
+    
+    // Add filters if present
+    if (this.searchTerm.trim()) {
+      inboxRequest.paperName = this.searchTerm.trim();
+      outboxRequest.paperName = this.searchTerm.trim();
+    }
+    
+    if (this.filterStatus) {
+      // Convert status name to status ID if needed
+      // For now, we'll filter on frontend after getting data
+    }
+    
+    // Make parallel requests for inbox and outbox
+    forkJoin({
+      inbox: this.inboxOutboxService.getPaperInboxOutbox(inboxRequest),
+      outbox: this.inboxOutboxService.getPaperInboxOutbox(outboxRequest),
+      inboxCount: this.inboxOutboxService.getPaperInboxOutbox({
+        ...inboxRequest,
+        paging: { start: 0, length: 10000 } // Get all for count
+      }),
+      outboxCount: this.inboxOutboxService.getPaperInboxOutbox({
+        ...outboxRequest,
+        paging: { start: 0, length: 10000 } // Get all for count
+      })
+    }).subscribe({
+      next: ({ inbox, outbox, inboxCount, outboxCount }) => {
+        if (inbox.status && inbox.data) {
+          let inboxList = inbox.data.inbox || [];
+          let outboxList = outbox.data.outbox || [];
+          
+          // Apply frontend filters (status, paper type) if needed
+          if (this.filterStatus) {
+            inboxList = inboxList.filter((item: InboxOutbox) => item.paperStatus === this.filterStatus);
+          }
+          if (this.filterPaperType) {
+            inboxList = inboxList.filter((item: InboxOutbox) => item.paperType === this.filterPaperType);
+          }
+          
+          if (this.filterStatus) {
+            outboxList = outboxList.filter((item: InboxOutbox) => item.paperStatus === this.filterStatus);
+          }
+          if (this.filterPaperType) {
+            outboxList = outboxList.filter((item: InboxOutbox) => item.paperType === this.filterPaperType);
+          }
+          
+          this.paginatedInboxData = inboxList;
+          this.paginatedOutboxData = outboxList;
+          
+          // Get total counts
+          if (inboxCount.status && inboxCount.data) {
+            let countList = inboxCount.data.inbox || [];
+            if (this.filterStatus) {
+              countList = countList.filter((item: InboxOutbox) => item.paperStatus === this.filterStatus);
+            }
+            if (this.filterPaperType) {
+              countList = countList.filter((item: InboxOutbox) => item.paperType === this.filterPaperType);
+            }
+            this.totalItemsInbox = inboxCount.totalCount || inboxCount.recordsTotal || inboxCount.recordsFiltered || countList.length;
+          } else {
+            this.totalItemsInbox = inboxList.length;
+          }
+          
+          if (outboxCount.status && outboxCount.data) {
+            let countList = outboxCount.data.outbox || [];
+            if (this.filterStatus) {
+              countList = countList.filter((item: InboxOutbox) => item.paperStatus === this.filterStatus);
+            }
+            if (this.filterPaperType) {
+              countList = countList.filter((item: InboxOutbox) => item.paperType === this.filterPaperType);
+            }
+            this.totalItemsOutbox = outboxCount.totalCount || outboxCount.recordsTotal || outboxCount.recordsFiltered || countList.length;
+          } else {
+            this.totalItemsOutbox = outboxList.length;
+          }
+        } else {
+          this.paginatedInboxData = [];
+          this.paginatedOutboxData = [];
+          this.totalItemsInbox = 0;
+          this.totalItemsOutbox = 0;
         }
       },
       error: err => {
         console.log('ERROR', err);
+        this.paginatedInboxData = [];
+        this.paginatedOutboxData = [];
+        this.totalItemsInbox = 0;
+        this.totalItemsOutbox = 0;
         this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
       }
-    })
+    });
   }
 
   applyFilters(): void {
-    // Filter inbox data
-    let filteredInbox = [...this.inboxData];
-    let filteredOutbox = [...this.outboxData];
-
-    // Apply search filter
-    if (this.searchTerm.trim()) {
-      const searchLower = this.searchTerm.toLowerCase().trim();
-      filteredInbox = filteredInbox.filter(item =>
-        item.paperProvision?.toLowerCase().includes(searchLower) ||
-        item.paperType?.toLowerCase().includes(searchLower) ||
-        item.paperStatus?.toLowerCase().includes(searchLower) ||
-        item.purposeRequired?.toLowerCase().includes(searchLower)
-      );
-      filteredOutbox = filteredOutbox.filter(item =>
-        item.paperProvision?.toLowerCase().includes(searchLower) ||
-        item.paperType?.toLowerCase().includes(searchLower) ||
-        item.paperStatus?.toLowerCase().includes(searchLower) ||
-        item.purposeRequired?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply status filter
-    if (this.filterStatus) {
-      filteredInbox = filteredInbox.filter(item => item.paperStatus === this.filterStatus);
-      filteredOutbox = filteredOutbox.filter(item => item.paperStatus === this.filterStatus);
-    }
-
-    // Apply paper type filter
-    if (this.filterPaperType) {
-      filteredInbox = filteredInbox.filter(item => item.paperType === this.filterPaperType);
-      filteredOutbox = filteredOutbox.filter(item => item.paperType === this.filterPaperType);
-    }
-
-    // Apply sorting
-    if (this.isDesc) {
-      filteredInbox.sort((a, b) => {
-        const nameA = (a.paperProvision || '').toLowerCase();
-        const nameB = (b.paperProvision || '').toLowerCase();
-        return nameB.localeCompare(nameA);
-      });
-      filteredOutbox.sort((a, b) => {
-        const nameA = (a.paperProvision || '').toLowerCase();
-        const nameB = (b.paperProvision || '').toLowerCase();
-        return nameB.localeCompare(nameA);
-      });
-    } else {
-      filteredInbox.sort((a, b) => {
-        const nameA = (a.paperProvision || '').toLowerCase();
-        const nameB = (b.paperProvision || '').toLowerCase();
-        return nameA.localeCompare(nameB);
-      });
-      filteredOutbox.sort((a, b) => {
-        const nameA = (a.paperProvision || '').toLowerCase();
-        const nameB = (b.paperProvision || '').toLowerCase();
-        return nameA.localeCompare(nameB);
-      });
-    }
-
-    this.filteredInboxData = filteredInbox;
-    this.filteredOutboxData = filteredOutbox;
-
     // Reset to first page when filters change
     this.currentPageInbox = 1;
     this.currentPageOutbox = 1;
-
-    // Apply pagination
-    this.applyPagination();
-  }
-
-  applyPagination(): void {
-    const inboxStart = (this.currentPageInbox - 1) * this.itemsPerPage;
-    const inboxEnd = inboxStart + this.itemsPerPage;
-    this.paginatedInboxData = this.filteredInboxData.slice(inboxStart, inboxEnd);
-
-    const outboxStart = (this.currentPageOutbox - 1) * this.itemsPerPage;
-    const outboxEnd = outboxStart + this.itemsPerPage;
-    this.paginatedOutboxData = this.filteredOutboxData.slice(outboxStart, outboxEnd);
+    
+    // Reload data from backend with new filters
+    this.getInboxOutBox();
   }
 
   getTotalPagesInbox(): number {
-    return Math.ceil(this.filteredInboxData.length / this.itemsPerPage);
+    return Math.ceil(this.totalItemsInbox / this.itemsPerPage);
   }
 
   getTotalPagesOutbox(): number {
-    return Math.ceil(this.filteredOutboxData.length / this.itemsPerPage);
+    return Math.ceil(this.totalItemsOutbox / this.itemsPerPage);
   }
+  
+  getStartItemInbox(): number {
+    if (this.totalItemsInbox === 0) return 0;
+    return (this.currentPageInbox - 1) * this.itemsPerPage + 1;
+  }
+  
+  getEndItemInbox(): number {
+    const end = this.currentPageInbox * this.itemsPerPage;
+    return end > this.totalItemsInbox ? this.totalItemsInbox : end;
+  }
+  
+  getStartItemOutbox(): number {
+    if (this.totalItemsOutbox === 0) return 0;
+    return (this.currentPageOutbox - 1) * this.itemsPerPage + 1;
+  }
+  
+  getEndItemOutbox(): number {
+    const end = this.currentPageOutbox * this.itemsPerPage;
+    return end > this.totalItemsOutbox ? this.totalItemsOutbox : end;
+  }
+
+
 
   goToPageInbox(page: number): void {
     const totalPages = this.getTotalPagesInbox();
     if (page >= 1 && page <= totalPages) {
       this.currentPageInbox = page;
-      this.applyPagination();
+      this.getInboxOutBox();
       // Scroll to top of content
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -197,7 +252,7 @@ export class InboxoutboxComponent implements OnInit {
     const totalPages = this.getTotalPagesOutbox();
     if (page >= 1 && page <= totalPages) {
       this.currentPageOutbox = page;
-      this.applyPagination();
+      this.getInboxOutBox();
       // Scroll to top of content
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -227,6 +282,12 @@ export class InboxoutboxComponent implements OnInit {
     if (this.currentPageOutbox > 1) {
       this.goToPageOutbox(this.currentPageOutbox - 1);
     }
+  }
+  
+  onPageSizeChange(): void {
+    this.currentPageInbox = 1;
+    this.currentPageOutbox = 1;
+    this.getInboxOutBox();
   }
 
   getPageNumbersInbox(): number[] {
@@ -287,12 +348,16 @@ export class InboxoutboxComponent implements OnInit {
 
   onSearchChange(): void {
     this.checkFilterApplied();
-    this.applyFilters();
+    this.currentPageInbox = 1;
+    this.currentPageOutbox = 1;
+    this.getInboxOutBox();
   }
 
   onFilterChange(): void {
     this.checkFilterApplied();
-    this.applyFilters();
+    this.currentPageInbox = 1;
+    this.currentPageOutbox = 1;
+    this.getInboxOutBox();
   }
 
   clearFilters(): void {
@@ -330,21 +395,23 @@ export class InboxoutboxComponent implements OnInit {
 
   toggleSort(): void {
     this.isDesc = !this.isDesc;
-    this.applyFilters();
+    this.currentPageInbox = 1;
+    this.currentPageOutbox = 1;
+    this.getInboxOutBox();
   }
 
   getUniqueStatuses(): string[] {
     const allStatuses = [
-      ...this.inboxData.map(item => item.paperStatus),
-      ...this.outboxData.map(item => item.paperStatus)
+      ...this.paginatedInboxData.map(item => item.paperStatus),
+      ...this.paginatedOutboxData.map(item => item.paperStatus)
     ];
     return [...new Set(allStatuses)].filter(s => s).sort();
   }
 
   getUniquePaperTypes(): string[] {
     const allTypes = [
-      ...this.inboxData.map(item => item.paperType),
-      ...this.outboxData.map(item => item.paperType)
+      ...this.paginatedInboxData.map(item => item.paperType),
+      ...this.paginatedOutboxData.map(item => item.paperType)
     ];
     return [...new Set(allTypes)].filter(t => t).sort();
   }

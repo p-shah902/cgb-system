@@ -27,3 +27,17 @@ export interface GetDictionaryItemsListRequest {
   filter?: GetDictionaryItemsListFilter;
   paging?: GetDictionaryItemsListPaging;
 }
+
+export interface GetDictionaryListByItemNameFilter {
+  itemNames?: string;
+}
+
+export interface GetDictionaryListByItemNamePaging {
+  start: number;
+  length: number;
+}
+
+export interface GetDictionaryListByItemNameRequest {
+  filter?: GetDictionaryListByItemNameFilter;
+  paging?: GetDictionaryListByItemNamePaging;
+}

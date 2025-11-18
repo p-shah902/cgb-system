@@ -17,18 +17,18 @@
   <!-- Edit mode -->
   <ng-container *ngIf="paperId && !isCopy">
     <!-- Draft/Register when not Registered -->
-      <button class="btn  btn-outline-dark" type="submit" data-status="Draft"
-        *ngIf=" permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Draft</span>
-        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
-        <span *ngIf="isLoading">Loading...</span>
-      </button>
-      <button class="btn btn-dark" type="submit" data-status="Registered"
-        *ngIf="permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Register</span>
-        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
-        <span *ngIf="isLoading">Loading...</span>
-      </button>
+    <button class="btn  btn-outline-dark" type="submit" data-status="Draft"
+      *ngIf=" permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Draft</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
+    <button class="btn btn-dark" type="submit" data-status="Registered"
+      *ngIf="permission.canShowDraftRegisterInEdit(roleName, statusName)" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Register</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
 
     <!-- Archive -->
     <button class="btn btn-outline-dark" type="submit" data-status="Archived"
@@ -48,7 +48,8 @@
 
     <!-- Update -->
     <button class="btn btn-dark" type="submit" data-status="Registered"
-      *ngIf="permission.canShowUpdate(roleName, statusName)" [disabled]="isLoading">
+      *ngIf="permission.canShowUpdate(roleName, statusName) || ((roleName === 'Secretary'|| roleName==='Super Admin' ) && statusName === 'On Pre-CGB')"
+      [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
@@ -57,12 +58,12 @@
     <!-- PDM actions (kept generic with outputs) -->
     <div class="d-flex align-items-center justify-content-between gap-3"
       *ngIf="roleName === 'PDM' && statusName === 'Waiting for PDM'">
-      <button class="btn normal-btn" (click)="openReturn.emit($event)" [disabled]="isLoading">
+      <button class="btn btn-outline-secondary" (click)="openReturn.emit($event)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Return to Originator</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
         <span *ngIf="isLoading">Loading...</span>
       </button>
-      <button class="btn update-btn" (click)="openApprove.emit($event)" [disabled]="isLoading">
+      <button class="btn btn-dark" (click)="openApprove.emit($event)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Approve</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
         <span *ngIf="isLoading">Loading...</span>

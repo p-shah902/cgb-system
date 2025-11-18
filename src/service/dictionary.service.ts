@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
-import { DictionaryDetail, GetDictionaryItemsListRequest, Item } from '../models/dictionary';
+import { DictionaryDetail, GetDictionaryItemsListRequest, GetDictionaryListByItemNameRequest, Item } from '../models/dictionary';
 import { ApiResponse } from '../models/role';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { getDictionaryItemsListUri, getDictionaryListByItemNameUri, upsertDictionariesUri } from '../utils/api/api';
@@ -43,10 +43,35 @@ export class DictionaryService {
         );
     }
 
-    getDictionaryListByItem(itemName:string): Observable<ApiResponse<DictionaryDetail[]>> {
-      const params = new HttpParams().set('ItemName', itemName);
+    getDictionaryListByItem(itemName:string, request?: GetDictionaryListByItemNameRequest): Observable<ApiResponse<DictionaryDetail[]>> {
+      // Build payload with default values if not provided
+      const payload: GetDictionaryListByItemNameRequest = request || {
+        filter: {
+          itemNames: itemName
+        },
+        paging: {
+          start: 0,
+          length: 1000
+        }
+      };
+      
+      // Ensure itemNames is set if not provided in request
+      if (!payload.filter) {
+        payload.filter = { itemNames: itemName };
+      } else if (!payload.filter.itemNames) {
+        payload.filter.itemNames = itemName;
+      }
+      
+      // Ensure paging is set
+      if (!payload.paging) {
+        payload.paging = {
+          start: 0,
+          length: 1000
+        };
+      }
+      
       return this.http
-        .get<ApiResponse<DictionaryDetail[]>>(getDictionaryListByItemNameUri,{params})
+        .post<ApiResponse<DictionaryDetail[]>>(getDictionaryListByItemNameUri, payload)
         .pipe(
           tap((response)=>{
             if(response.status&&response.data)
