@@ -2033,6 +2033,7 @@
                 [roleName]="loggedInUser?.roleName"
                 [statusName]="paperDetails?.contractAwardDetails?.paperStatusName"
                 [isLoading]="isSubmitting"
+                [canShowUpdateForJVApproval]="canShowUpdateForJVApproval()"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"

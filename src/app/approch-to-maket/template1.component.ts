@@ -1508,7 +1508,7 @@ export class Template1Component implements AfterViewInit  {
             .filter(user => user.roleName === 'CAM')
             .map(user => ({ value: user.id.toString(), label: user.displayName }))
             .sort((a, b) => a.label.localeCompare(b.label));
-          
+
           // If form exists and camUserId is set, ensure it's properly formatted
           if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.camUserId')) {
             const currentCamUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value;
@@ -1547,7 +1547,7 @@ export class Template1Component implements AfterViewInit  {
             .filter(vendor => vendor.legalName)
             .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
             .sort((a, b) => a.label.localeCompare(b.label));
-          
+
           // If inviteToBid formArray exists, ensure all legalName values are strings
           if (this.inviteToBid && this.inviteToBid.length > 0) {
             this.inviteToBid.controls.forEach((control, index) => {
@@ -1866,7 +1866,7 @@ export class Template1Component implements AfterViewInit  {
         // Find vendor by ID first, then by name
         let vendor = null;
         // Check if legalName is actually a vendor ID (number)
-        const legalNameAsNumber = typeof item.legalName === 'number' ? item.legalName : 
+        const legalNameAsNumber = typeof item.legalName === 'number' ? item.legalName :
                                    (typeof item.legalName === 'string' && !isNaN(Number(item.legalName)) ? Number(item.legalName) : null);
         if (legalNameAsNumber) {
           vendor = this.vendorData.find(v => v.id === legalNameAsNumber);
@@ -1963,8 +1963,26 @@ export class Template1Component implements AfterViewInit  {
     if (!this.loggedInUser || !jvReviewUserId) {
       return false;
     }
+    // Check if paper status is "On JV Approval" and logged-in user matches jvReview user
+    const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
+    if (paperStatus === 'On JV Approval') {
+      return this.loggedInUser.id === jvReviewUserId;
+    }
     // JV Aligned is only editable by the user selected in JV Review column
     return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  // Method to check if update button should be shown for JV Approval
+  canShowUpdateForJVApproval(): boolean {
+    const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
+    if (paperStatus !== 'On JV Approval' || !this.loggedInUser) {
+      return false;
+    }
+    // Check if logged-in user matches any jvReview user in consultation rows
+    return this.consultationRows.controls.some(row => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId;
+    });
   }
 
   // Method to handle JV Review user change and enable/disable JV Aligned

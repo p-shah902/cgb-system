@@ -162,8 +162,6 @@ export class PaperService {
     let url = getPaperDetails;
     if (type === 'approch') {
       url = getPaperApproachToMarketByPaperId;
-      // Use query parameter for approach to market API
-      return this.http.get<ApiResponse<Paper>>(url, { params: { paperID: paperId.toString() } });
     }
     else if (type === 'contract') {
       url = getPaperContractAwardByPaperId;

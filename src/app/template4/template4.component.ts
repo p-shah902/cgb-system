@@ -1210,7 +1210,7 @@ export class Template4Component  implements AfterViewInit{
         length: 1000
       }
     };
-    
+
     this.userService.getUserDetailsList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -1224,7 +1224,7 @@ export class Template4Component  implements AfterViewInit{
             .filter(user => user.roleName === 'CAM')
             .map(user => ({ value: user.id.toString(), label: user.displayName }))
             .sort((a, b) => a.label.localeCompare(b.label));
-          
+
           // If form exists and technicalApprover is set, ensure it's properly formatted
           if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.technicalApprover')) {
             const currentTechnicalApprover = this.generalInfoForm.get('generalInfo.technicalApprover')?.value;
@@ -1450,7 +1450,25 @@ export class Template4Component  implements AfterViewInit{
     if (!this.loggedInUser || !jvReviewUserId) {
       return false;
     }
+    // Check if paper status is "On JV Approval" and logged-in user matches jvReview user
+    const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
+    if (paperStatus === 'On JV Approval') {
+      return this.loggedInUser.id === jvReviewUserId;
+    }
     return this.loggedInUser.id === jvReviewUserId;
+  }
+
+  // Method to check if update button should be shown for JV Approval
+  canShowUpdateForJVApproval(): boolean {
+    const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
+    if (paperStatus !== 'On JV Approval' || !this.loggedInUser) {
+      return false;
+    }
+    // Check if logged-in user matches any jvReview user in consultation rows
+    return this.consultationRows.controls.some(row => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId;
+    });
   }
 
   onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {

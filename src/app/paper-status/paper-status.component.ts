@@ -62,7 +62,7 @@ export class PaperStatusComponent implements OnInit {
     'Approved by Pre-CGB': [],
     'On CGB': [],
     'Approved by CGB': [],
-    'On JV approval': [],
+    'On JV Approval': [],
     'On Partner Approval 1st': [],
     'On Partner Approval 2nd': [],
     'Approved': [],
@@ -76,7 +76,7 @@ export class PaperStatusComponent implements OnInit {
     'Approved by Pre-CGB': [],
     'On CGB': [],
     'Approved by CGB': [],
-    'On JV approval': [],
+    'On JV Approval': [],
     'On Partner Approval 1st': [],
     'On Partner Approval 2nd': [],
     'Approved': [],
@@ -187,7 +187,7 @@ export class PaperStatusComponent implements OnInit {
 
   loadPaperConfigList() {
     this.isLoading = true;
-    
+
     // Build request payload with pagination
     const request: GetPaperConfigurationsListRequest = {
       filter: this.filter,
@@ -196,7 +196,7 @@ export class PaperStatusComponent implements OnInit {
         length: 1000 // Large number to get all matching results
       }
     };
-    
+
     this.paperService.getPaperConfigList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
@@ -209,6 +209,7 @@ export class PaperStatusComponent implements OnInit {
               return paperStatus === keyStatus;
             });
           });
+          console.log('this.originalGroupedPaper', this.originalGroupedPaper, this.paperList);
 
           // Apply filters and search
           this.applyFilters();

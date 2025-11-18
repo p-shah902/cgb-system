@@ -48,7 +48,7 @@
 
     <!-- Update -->
     <button class="btn btn-dark" type="submit" data-status="Registered"
-      *ngIf="permission.canShowUpdate(roleName, statusName) || ((roleName === 'Secretary'|| roleName==='Super Admin' ) && statusName === 'On Pre-CGB')"
+      *ngIf="permission.canShowUpdate(roleName, statusName) || (statusName === 'On JV Approval' && canShowUpdateForJVApproval) || ((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB')"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
