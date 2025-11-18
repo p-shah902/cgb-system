@@ -1547,6 +1547,16 @@ export class Template1Component implements AfterViewInit  {
             .filter(vendor => vendor.legalName)
             .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If inviteToBid formArray exists, ensure all legalName values are strings
+          if (this.inviteToBid && this.inviteToBid.length > 0) {
+            this.inviteToBid.controls.forEach((control, index) => {
+              const legalNameControl = control.get('legalName');
+              if (legalNameControl && legalNameControl.value) {
+                legalNameControl.setValue(legalNameControl.value.toString(), { emitEvent: false });
+              }
+            });
+          }
           this.incrementAndCheck();
         }
       }, error: (error) => {
@@ -1853,11 +1863,26 @@ export class Template1Component implements AfterViewInit  {
       riskMitigationArray.clear(); // Clear existing controls
 
       riskMitigationsData.forEach((item, index) => {
-        // Find vendor by legalName to get vendorId
-        const vendor = this.vendorData.find(v => v.vendorName === item.legalName);
+        // Find vendor by ID first, then by name
+        let vendor = null;
+        // Check if legalName is actually a vendor ID (number)
+        const legalNameAsNumber = typeof item.legalName === 'number' ? item.legalName : 
+                                   (typeof item.legalName === 'string' && !isNaN(Number(item.legalName)) ? Number(item.legalName) : null);
+        if (legalNameAsNumber) {
+          vendor = this.vendorData.find(v => v.id === legalNameAsNumber);
+        }
+        // If not found by ID, try by name
+        if (!vendor && typeof item.legalName === 'string') {
+          vendor = this.vendorData.find(v => v.vendorName === item.legalName || v.legalName === item.legalName);
+        }
+        // Also check if item has vendorId field
+        if (!vendor && (item as any).vendorId) {
+          vendor = this.vendorData.find(v => v.id === (item as any).vendorId);
+        }
+        const vendorId = vendor?.id || legalNameAsNumber || (item as any).vendorId || null;
         riskMitigationArray.push(
           this.fb.group({
-            legalName: [vendor?.id || null, Validators.required], // Now stores vendorId
+            legalName: [vendorId ? vendorId.toString() : null, Validators.required], // Now stores vendorId as string
             isLocalOrJV: [item.isLocalOrJV], // Checkbox
             countryId: [item.countryId, Validators.required],
             parentCompanyName: [item.parentCompanyName],

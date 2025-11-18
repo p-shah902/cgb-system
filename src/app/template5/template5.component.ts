@@ -451,7 +451,7 @@ export class Template5Component  implements AfterViewInit{
             reasontoChangeRequired: generatlInfoData?.reasontoChangeRequired || '',
             cgbItemRefNo: generatlInfoData?.cgbItemRefNo || '',
             cgbCirculationDate: generatlInfoData?.cgbCirculationDate || '',
-            legalName: generatlInfoData?.vendorId || null,
+            legalName: generatlInfoData?.vendorId ? generatlInfoData.vendorId.toString() : null,
             contractNumber: generatlInfoData?.contractNumber || '',
             operatingFunction: generatlInfoData?.operatingFunction || '',
             bltMember: generatlInfoData?.bltMemberId || null,
@@ -1204,6 +1204,15 @@ export class Template5Component  implements AfterViewInit{
             .filter(vendor => vendor.legalName)
             .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If form exists and legalName is set, ensure it's properly formatted
+          if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.legalName')) {
+            const currentLegalName = this.generalInfoForm.get('generalInfo.legalName')?.value;
+            if (currentLegalName) {
+              // Ensure the value is a string to match vendorOptions format
+              this.generalInfoForm.get('generalInfo.legalName')?.setValue(currentLegalName.toString(), { emitEvent: false });
+            }
+          }
           this.incrementAndCheck();
         }
       },

@@ -764,7 +764,7 @@ export class Template3Component implements AfterViewInit {
             : null,
           purposeRequired: contractGeneralInfo?.purposeRequired || '',
           otherRelatedCgbPapers: contractGeneralInfo?.otherRelatedCgbPapers || '',
-          fullLegalName: contractGeneralInfo?.vendorId || null,
+          fullLegalName: contractGeneralInfo?.vendorId ? contractGeneralInfo.vendorId.toString() : null,
           contractNo: contractGeneralInfo?.contractNo || '',
           globalCGB: contractGeneralInfo?.globalCGB ? contractGeneralInfo.globalCGB.toString() : '',
           camUserId: contractGeneralInfo?.camUserId ? contractGeneralInfo.camUserId.toString() : null,
@@ -947,6 +947,15 @@ export class Template3Component implements AfterViewInit {
             .filter(vendor => vendor.legalName)
             .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If form exists and fullLegalName is set, ensure it's properly formatted
+          if (this.generalInfoForm && this.generalInfoForm.get('generalInfo.fullLegalName')) {
+            const currentFullLegalName = this.generalInfoForm.get('generalInfo.fullLegalName')?.value;
+            if (currentFullLegalName) {
+              // Ensure the value is a string to match vendorOptions format
+              this.generalInfoForm.get('generalInfo.fullLegalName')?.setValue(currentFullLegalName.toString(), { emitEvent: false });
+            }
+          }
           this.incrementAndCheck();
         }
       },
@@ -1309,7 +1318,7 @@ export class Template3Component implements AfterViewInit {
             cgbApprovalDate: generatlInfoData.cgbApprovalDate
               ? format(new Date(generatlInfoData.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
-            fullLegalName: generatlInfoData.fullLegalName || null,
+            fullLegalName: generatlInfoData.fullLegalName ? generatlInfoData.fullLegalName.toString() : null,
             contractNo: generatlInfoData.contractNo || '',
             globalCGB: generatlInfoData.globalCGB || null,
             camUserId: generatlInfoData.camUserId ? generatlInfoData.camUserId.toString() : null,

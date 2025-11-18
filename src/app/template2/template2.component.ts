@@ -1115,6 +1115,32 @@ export class Template2Component implements AfterViewInit {
             .filter(vendor => vendor.legalName)
             .map(vendor => ({ value: vendor.id.toString(), label: vendor.legalName! }))
             .sort((a, b) => a.label.localeCompare(b.label));
+          
+          // If formArrays exist, ensure all vendorId values are strings
+          if (this.inviteToBid && this.inviteToBid.length > 0) {
+            this.inviteToBid.controls.forEach((control: any) => {
+              const vendorIdControl = control.get('vendorId');
+              if (vendorIdControl && vendorIdControl.value) {
+                vendorIdControl.setValue(vendorIdControl.value.toString(), { emitEvent: false });
+              }
+            });
+          }
+          if (this.supplierTechnical && this.supplierTechnical.length > 0) {
+            this.supplierTechnical.controls.forEach((control: any) => {
+              const vendorIdControl = control.get('vendorId');
+              if (vendorIdControl && vendorIdControl.value) {
+                vendorIdControl.setValue(vendorIdControl.value.toString(), { emitEvent: false });
+              }
+            });
+          }
+          if (this.commericalEvaluation && this.commericalEvaluation.length > 0) {
+            this.commericalEvaluation.controls.forEach((control: any) => {
+              const vendorIdControl = control.get('vendorId');
+              if (vendorIdControl && vendorIdControl.value) {
+                vendorIdControl.setValue(vendorIdControl.value.toString(), { emitEvent: false });
+              }
+            });
+          }
           console.log('vendor:', this.vendorList);
           this.incrementAndCheck();
         }
@@ -2710,9 +2736,10 @@ export class Template2Component implements AfterViewInit {
         }
 
         const legalNameValue = item.legalName || vendor?.legalName || '';
+        const vendorIdValue = vendor?.id || item.vendorId || null;
         riskMitigationArray.push(
           this.fb.group({
-            vendorId: [vendor?.id || item.vendorId || null],
+            vendorId: [vendorIdValue ? vendorIdValue.toString() : null],
             legalName: [legalNameValue, Validators.required],
             totalValue: [item.totalValue || 0, Validators.required],
             id: [item.id]
@@ -2760,8 +2787,9 @@ export class Template2Component implements AfterViewInit {
         }
 
         const legalNameValue = item.legalName || vendor?.legalName || '';
+        const vendorIdValue = vendor?.id || item.vendorId || null;
         const rowGroup = this.fb.group({
-          vendorId: [vendor?.id || item.vendorId || null],
+          vendorId: [vendorIdValue ? vendorIdValue.toString() : null],
           legalName: [legalNameValue, Validators.required],
           resultOfHSSE: [item.resultOfHSSE, Validators.required],
           commentary: [item.commentary],
@@ -3308,8 +3336,9 @@ export class Template2Component implements AfterViewInit {
         }
 
         const legalNameValue = item.legalName || vendor?.legalName || '';
+        const vendorIdValue = vendor?.id || item.vendorId || null;
         const newRow = this.fb.group({
-          vendorId: [vendor?.id || item.vendorId || null],
+          vendorId: [vendorIdValue ? vendorIdValue.toString() : null],
           legalName: [legalNameValue, Validators.required],
           isLocalOrJV: [item.isLocalOrJV], // Checkbox
           id: [item.id],
