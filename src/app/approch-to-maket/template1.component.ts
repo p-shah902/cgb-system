@@ -871,6 +871,9 @@ export class Template1Component implements AfterViewInit  {
               }
             });
 
+          // Calculate totals after all values are patched
+          this.calculateTotal();
+
           this.isInitialLoad = false;
         }, 500)
 
@@ -2193,6 +2196,30 @@ export class Template1Component implements AfterViewInit  {
   onSubmit(event: SubmitEvent): void {
     if (this.isSubmitting) return;
 
+    // Ensure section4 is visible so form controls are created and committee logic runs
+    if (!this.sectionVisibility['section4']) {
+      this.sectionVisibility['section4'] = true;
+      this.ensureCostAllocationFormControls();
+      
+      // Get costAllocation FormGroup to access raw values
+      const costAllocationFormGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
+      const rawCostAllocationValues = costAllocationFormGroup?.getRawValue() || {};
+      
+      // Trigger committee logic for all selected PSAs to ensure checkbox values are set
+      const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+      selectedPSAJV.forEach((psaName: string) => {
+        const checkboxControlName = this.getPSACheckboxControlName(psaName);
+        // Check both regular value and raw value since controls might be disabled
+        const isChecked = rawCostAllocationValues[checkboxControlName] === true || 
+                         costAllocationFormGroup?.get(checkboxControlName)?.value === true;
+        
+        if (isChecked) {
+          // Re-evaluate committee checkboxes based on current form values
+          this.triggerCommitteeLogicForPSA(psaName, true);
+        }
+      });
+    }
+
     // Get status from the submitter button
     const statusFromButton = event.submitter?.getAttribute('data-status');
     if (statusFromButton) {
@@ -2261,7 +2288,7 @@ export class Template1Component implements AfterViewInit  {
     const consultationsValue = this.generalInfoForm?.value?.consultation
     const costSharingValues = this.generalInfoForm?.value?.costSharing
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
-    const costAllocationValues = this.generalInfoForm?.value?.costAllocation
+    const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
 
     // Mapping PSAs from the costAllocation object dynamically
     const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
@@ -2383,21 +2410,58 @@ export class Template1Component implements AfterViewInit  {
         risks: risk.risks,
         mitigations: risk.mitigations
       })) || [],
-      jvApproval: {
-        contractCommittee_SDCC: costAllocationValues?.contractCommittee_SDCC || false,
-        contractCommittee_BTC_CCInfoNote: costAllocationValues?.contractCommittee_BTC_CCInfoNote || false,
-        contractCommittee_ShAsimanValue: 0, // This field is not in the form, setting to 0
-        contractCommittee_SCP_Co_CC: costAllocationValues?.contractCommittee_SCP_Co_CC || false,
-        contractCommittee_SCP_Co_CCInfoNote: costAllocationValues?.contractCommittee_SCP_Co_CCInfoNote || false,
-        contractCommittee_BPGroupValue: 0, // This field is not in the form, setting to 0
-        contractCommittee_BTC_CC: costAllocationValues?.contractCommittee_BTC_CC || false,
-        contractCommittee_CGB: costAllocationValues?.contractCommittee_CGB || false,
-        coVenturers_CMC: costAllocationValues?.coVenturers_CMC || false,
-        coVenturers_SDMC: costAllocationValues?.coVenturers_SDMC || false,
-        coVenturers_SCP: costAllocationValues?.coVenturers_SCP || false,
-        coVenturers_SCP_Board: costAllocationValues?.coVenturers_SCP_Board || false,
-        steeringCommittee_SC: costAllocationValues?.steeringCommittee_SC || false
-      },
+      jvApproval: (() => {
+        // Initialize all jvApproval fields to false
+        const jvApprovalObj: any = {
+          contractCommittee_SDCC: false,
+          contractCommittee_BTC_CCInfoNote: false,
+          contractCommittee_ShAsimanValue: 0, // This field is not in the form, setting to 0
+          contractCommittee_SCP_Co_CC: false,
+          contractCommittee_SCP_Co_CCInfoNote: false,
+          contractCommittee_BPGroupValue: 0, // This field is not in the form, setting to 0
+          contractCommittee_BTC_CC: false,
+          contractCommittee_CGB: false,
+          coVenturers_CMC: false,
+          coVenturers_SDMC: false,
+          coVenturers_SCP: false,
+          coVenturers_SCP_Board: false,
+          steeringCommittee_SC: false
+        };
+
+        debugger;
+        // Read committee checkbox values directly from form controls
+        // Use getRawValue() on the costAllocation FormGroup to ensure disabled controls are included
+        const costAllocationFormGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
+        if (costAllocationFormGroup) {
+          // Get raw values from the form group (includes disabled controls)
+          const rawCostAllocationValues = costAllocationFormGroup.getRawValue();
+          
+          // Debug: Log the raw values to see what's actually in the form
+          console.log('Raw costAllocation values:', rawCostAllocationValues);
+          
+          Object.keys(jvApprovalObj).forEach((key) => {
+            if (key !== 'contractCommittee_ShAsimanValue' && key !== 'contractCommittee_BPGroupValue') {
+              // Read from raw values (includes disabled controls)
+              const controlValue = rawCostAllocationValues?.[key];
+              
+              // Also try reading directly from the control as a fallback
+              const control = costAllocationFormGroup.get(key);
+              const directControlValue = control ? (control as any)._value : undefined;
+              
+              // Use direct control value if raw value is false/undefined
+              const finalValue = (controlValue !== undefined && controlValue !== null && controlValue !== false) 
+                ? controlValue 
+                : (directControlValue !== undefined ? directControlValue : controlValue);
+              
+              if (finalValue !== undefined && finalValue !== null) {
+                jvApprovalObj[key] = finalValue === true || finalValue === 'true' || finalValue === 1;
+              }
+            }
+          });
+        }
+
+        return jvApprovalObj;
+      })(),
       costAllocationJVApproval: costAllocationJVApproval || []
     }
 
@@ -2416,6 +2480,8 @@ export class Template1Component implements AfterViewInit  {
       this.generatePaper(updatedParams)
     } else if (!this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
       this.toastService.show("Please fill all mandatory fields", "danger")
+    } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval") {
+      this.generatePaper(params)
     }
   }
 

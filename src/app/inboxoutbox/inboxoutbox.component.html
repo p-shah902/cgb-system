@@ -91,6 +91,12 @@
                                   Approve
                                 </button>
                               </div>
+                              <div class="ic-btn-div d-flex justify-content-end"
+                                   *ngIf="loggedInUser?.roleName === 'JV Admin' && (inbox.paperStatus === 'On JV Approval')">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                                  Approve
+                                </button>
+                              </div>
                               <div class="ic-btn-div d-flex justify-content-end" *ngIf="
                       (loggedInUser?.roleName === 'CGB Chair' ||
                         loggedInUser?.roleName === 'CPO' ||
@@ -127,14 +133,14 @@
                               <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
                             </select>
                           </div>
-                          
+
                           <!-- Pagination Info -->
                           <div class="pagination-info">
                             <span class="text-muted">
                               Showing {{ getStartItemInbox() }} - {{ getEndItemInbox() }} of {{ totalItemsInbox }} items
                             </span>
                           </div>
-                          
+
                           <!-- Pagination Controls -->
                           <div class="pagination-controls d-flex align-items-center gap-2">
                             <button class="btn btn-outline-secondary btn-sm"
@@ -226,14 +232,14 @@
                               <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
                             </select>
                           </div>
-                          
+
                           <!-- Pagination Info -->
                           <div class="pagination-info">
                             <span class="text-muted">
                               Showing {{ getStartItemOutbox() }} - {{ getEndItemOutbox() }} of {{ totalItemsOutbox }} items
                             </span>
                           </div>
-                          
+
                           <!-- Pagination Controls -->
                           <div class="pagination-controls d-flex align-items-center gap-2">
                             <button class="btn btn-outline-secondary btn-sm"

@@ -87,12 +87,12 @@ export class PaperStatusComponent implements OnInit {
     {label: 'Approved by PDM', value: 5},
     {label: 'On Pre-CGB', value: 6},
     {label: 'Approved by Pre-CGB', value: 7},
-    {label: 'On CGB', value: 10},
+    // {label: 'On CGB', value: 10},
     {label: 'Approved by CGB', value: 11},
-    {label: 'On JV approval', value: 14},
-    {label: 'On Partner Approval 1st', value: 23},
-    {label: 'On Partner Approval 2nd', value: 24},
-    {label: 'Approved', value: 19},
+    // {label: 'On JV Approval', value: 14},
+    // {label: 'On Partner Approval 1st', value: 23},
+    // {label: 'On Partner Approval 2nd', value: 24},
+    // {label: 'Approved', value: 19},
   ];
   private readonly _mdlSvc = inject(NgbModal);
   private router = inject(Router);
@@ -164,6 +164,7 @@ export class PaperStatusComponent implements OnInit {
       let movingPapers = [...JSON.parse(JSON.stringify(this.groupedPaper[groupKey].filter(d => d.checked)))];
       this.groupedPaper[groupKey] = this.groupedPaper[groupKey].filter(d => !d.checked);
       const findStatus = this.statusData.find(d => d.value == event.target.value);
+      console.log('====', this.groupedPaper, groupKey, findStatus);
       this.groupedPaper[findStatus!.label].push(...movingPapers.map(d => {
         d.checked = false;
         return d;

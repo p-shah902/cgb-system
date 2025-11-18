@@ -1494,12 +1494,13 @@
                         <td>
                           <div class="form-check">
                             <input
+                              id="aligned_{{i}}"
                               class="form-check-input"
                               type="checkbox"
                               formControlName="jvAligned"
                               [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
                               (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
-                            <label class="form-check-label">
+                            <label class="form-check-label" for="aligned_{{i}}">
                               JV Aligned
                             </label>
                           </div>
