@@ -256,14 +256,16 @@ export class Template2Component implements AfterViewInit {
     });
 
     this.generalInfoForm.get('generalInfo.cgbAtmRefNo')?.valueChanges.subscribe((cgbAtmRefNo) => {
-      this.updateCgbApprovalDate(Number(cgbAtmRefNo));
-      // Auto-populate Contract Value when ATM Ref No is selected
-      if (cgbAtmRefNo) {
-        const paperId = typeof cgbAtmRefNo === 'string' ? Number(cgbAtmRefNo) : cgbAtmRefNo;
-        this.fetchATMPaperDetails(paperId);
+      // Handle value extraction - ng-select2 might return object or string
+      const refNoValue = typeof cgbAtmRefNo === 'object' && cgbAtmRefNo !== null ? cgbAtmRefNo.value : cgbAtmRefNo;
+      const refNoNumber = refNoValue ? Number(refNoValue) : null;
+      
+      if (refNoNumber && !isNaN(refNoNumber)) {
+        this.updateCgbApprovalDate(refNoNumber);
       } else {
         // Clear ATM contract value when ATM is deselected
         this.atmPaperContactValueUSD = 0;
+        this.updateCgbApprovalDate(null);
       }
     });
 
@@ -1007,6 +1009,7 @@ export class Template2Component implements AfterViewInit {
 
             // Create formatted options for Select2
             // Format: "CGB ref number, Value, Title (first 50 symbols), Date"
+            // Store paperID as value (not cgbItemRefNo) so we can pass it to API
             this.cgbAtmRefOptions = this.paperMappingData
               .filter((item) => item.cgbItemRefNo != null) // Filter out items with null cgbItemRefNo
               .map((item) => {
@@ -1021,7 +1024,7 @@ export class Template2Component implements AfterViewInit {
                 const label = `${refNo}, ${title}, ${date}`;
 
                 return {
-                  value: refNo,
+                  value: item.paperID.toString(), // Store paperID as value (not refNo) for API calls
                   label: label
                 };
               });
@@ -3190,24 +3193,46 @@ export class Template2Component implements AfterViewInit {
       this.toastService.show('Please select CGB ATM Ref No first', 'warning');
       return;
     }
-    // Handle both string and number IDs
-    const paperId = typeof cgbAtmRefNo === 'string' ? Number(cgbAtmRefNo) : cgbAtmRefNo;
+    // Handle value extraction - ng-select2 stores paperID as value (not refNo)
+    const refNoValue = typeof cgbAtmRefNo === 'object' && cgbAtmRefNo !== null ? cgbAtmRefNo.value : cgbAtmRefNo;
+    const paperId = refNoValue ? Number(refNoValue) : null;
+    
+    if (!paperId || isNaN(paperId)) {
+      this.toastService.show('Invalid CGB ATM Ref No', 'warning');
+      return;
+    }
+    
+    // Pass paperID to API
     this.fetchATMPaperDetails(paperId);
   }
 
   fetchATMPaperDetails(paperId: number) {
-    this.paperService.getPaperDetails(paperId, 'approch').subscribe((value) => {
+    if (!this.generalInfoForm) {
+      this.toastService.show('Form not initialized. Please try again.', 'warning');
+      return;
+    }
+
+    this.paperService.getPaperDetailsWithPreview(paperId, 'approch').subscribe({
+      next: (value) => {
+        if (!value || !value.data) {
+          this.toastService.show('No data received from the selected paper.', 'warning');
+          return;
+        }
       const atmPaperDetails = value.data as any;
-      const atmGeneralInfo = atmPaperDetails?.paperDetails || null;
-      const atmValueData = atmPaperDetails?.valueDeliveriesCostsharing[0] || null;
-      const atmJvApprovalsData = atmPaperDetails?.jvApprovals[0] || null;
-      const atmCostAllocationJVApprovalData = atmPaperDetails?.costAllocationJVApproval || [];
+      console.log('ATM Paper Details from API:', atmPaperDetails);
+      
+      // For ATM papers, data structure is: value.data.paperDetails.paperDetails (main details)
+      // and value.data.paperDetails.valueDeliveriesCostsharing, jvApprovals, etc.
+      const atmGeneralInfo = atmPaperDetails?.paperDetails?.paperDetails || atmPaperDetails?.paperDetails || null;
+      const atmValueData = atmPaperDetails?.paperDetails?.valueDeliveriesCostsharing?.[0] || atmPaperDetails?.valueDeliveriesCostsharing?.[0] || null;
+      const atmJvApprovalsData = atmPaperDetails?.paperDetails?.jvApprovals?.[0] || atmPaperDetails?.jvApprovals?.[0] || null;
+      const atmCostAllocationJVApprovalData = atmPaperDetails?.paperDetails?.costAllocationJVApproval || atmPaperDetails?.costAllocationJVApproval || [];
 
       // Store ATM contract value for comparison
       // In ATM paper, contractValue is the USD value, so use that
       this.atmPaperContactValueUSD = atmGeneralInfo?.contractValue || atmGeneralInfo?.totalAwardValueUSD || atmGeneralInfo?.contractValueUsd || 0;
 
-      // Map PSA/JV values
+      // Start with PSAs from atmGeneralInfo
       const selectedValuesPSAJV = atmGeneralInfo?.psajv
         ? atmGeneralInfo.psajv
           .split(',')
@@ -3216,13 +3241,49 @@ export class Template2Component implements AfterViewInit {
           .filter((value: any) => value != null)
         : [];
 
-      const selectedValuesProcurementTagUsers = atmGeneralInfo?.procurementSPAUsers
-        ? atmGeneralInfo.procurementSPAUsers
+      // Also include PSAs from costAllocationJVApproval that have values
+      const psasFromCostAllocation = atmCostAllocationJVApprovalData
+        .filter((psa: any) => psa.psaValue === true)
+        .map((psa: any) => {
+          // Find the PSA value from psaJvOptions by matching the psaName
+          const psaOption = this.psaJvOptions.find(option =>
+            option.label === psa.psaName || option.value === psa.psaName
+          );
+          return psaOption?.value;
+        })
+        .filter((value: any) => value != null);
+
+      // Merge and deduplicate
+      const allSelectedValuesPSAJV = [...new Set([...selectedValuesPSAJV, ...psasFromCostAllocation])];
+
+      // IMPORTANT: Create form controls BEFORE patching values, otherwise values will be lost
+      allSelectedValuesPSAJV.forEach((psaName: string) => {
+        this.addPSAJVFormControls(psaName);
+      });
+
+      // Handle procurementSPAUsers - it might be comma-separated IDs or names
+      let selectedValuesProcurementTagUsers: any[] = [];
+      if (atmGeneralInfo?.procurementSPAUsers) {
+        const userIds = atmGeneralInfo.procurementSPAUsers
           .split(',')
-          .map((id: any) => id.trim())
-          .map((id: any) => this.procurementTagUsers.find((option: any) => option.value === Number(id))?.value)
-          .filter((value: any) => value != null)
-        : [];
+          .map((id: any) => id.trim());
+
+        // If procurementTagUsers is loaded, map IDs to values
+        if (this.procurementTagUsers && this.procurementTagUsers.length > 0) {
+          selectedValuesProcurementTagUsers = userIds
+            .map((id: any) => {
+              const numId = Number(id);
+              const found = this.procurementTagUsers.find((option: any) => option.value === numId);
+              return found ? found.value : numId; // Return the ID if not found in options
+            })
+            .filter((value: any) => value != null);
+        } else {
+          // If procurementTagUsers not loaded yet, use the IDs directly
+          selectedValuesProcurementTagUsers = userIds
+            .map((id: any) => Number(id))
+            .filter((id: any) => !isNaN(id));
+        }
+      }
 
       // Prepare cost allocation patch values
       const patchValues: any = { costAllocation: {} };
@@ -3260,26 +3321,27 @@ export class Template2Component implements AfterViewInit {
       const atmContractValueUSD = atmGeneralInfo?.contractValue || atmGeneralInfo?.totalAwardValueUSD || atmGeneralInfo?.contractValueUsd || 0;
 
       // Patch all matching fields from ATM paper to Contract template
+      // Ensure proper type conversions for IDs (convert to strings for ng-select2 compatibility)
       this.generalInfoForm.patchValue({
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
           purposeRequired: atmGeneralInfo?.purposeRequired || '',
-          globalCGB: atmGeneralInfo?.globalCGB || '',
-          bltMember: atmGeneralInfo?.bltMemberId ? Number(atmGeneralInfo.bltMemberId) : null,
-          operatingFunction: atmGeneralInfo?.operatingFunction || '',
-          subSector: atmGeneralInfo?.subSector || '',
-          sourcingType: atmGeneralInfo?.sourcingType || '',
-          camUserId: atmGeneralInfo?.camUserId || null,
+          globalCGB: atmGeneralInfo?.globalCGB ? atmGeneralInfo.globalCGB.toString() : '',
+          bltMember: atmGeneralInfo?.bltMemberId ? Number(atmGeneralInfo.bltMemberId) : atmGeneralInfo?.bltMember || null,
+          operatingFunction: atmGeneralInfo?.operatingFunction ? atmGeneralInfo.operatingFunction.toString() : '',
+          subSector: atmGeneralInfo?.subSector ? atmGeneralInfo.subSector.toString() : '',
+          sourcingType: atmGeneralInfo?.sourcingType ? atmGeneralInfo.sourcingType.toString() : '',
+          camUserId: atmGeneralInfo?.camUserId ? atmGeneralInfo.camUserId.toString() : null,
           vP1UserId: atmGeneralInfo?.vP1UserId || null,
           procurementSPAUsers: selectedValuesProcurementTagUsers,
-          pdManagerName: atmGeneralInfo?.pdManagerNameId || null,
+          pdManagerName: atmGeneralInfo?.pdManagerNameId || atmGeneralInfo?.pdManagerName || null,
           currencyCode: atmGeneralInfo?.currencyCode || '',
           totalAwardValueUSD: atmContractValueUSD, // Set Contract Value (USD) from ATM paper
           exchangeRate: atmGeneralInfo?.exchangeRate || 0,
           // Don't set contractValue directly - it will be calculated from totalAwardValueUSD * exchangeRate
-          remunerationType: atmGeneralInfo?.remunerationType || '',
+          remunerationType: atmGeneralInfo?.remunerationType ? atmGeneralInfo.remunerationType.toString() : '',
           workspaceNo: atmGeneralInfo?.workspaceNo || '',
-          psajv: selectedValuesPSAJV,
+          psajv: allSelectedValuesPSAJV,
           isLTCC: atmGeneralInfo?.isLTCC || false,
           ltccNotes: atmGeneralInfo?.ltccNotes || '',
           isGovtReprAligned: atmGeneralInfo?.isGovtReprAligned || false,
@@ -3313,13 +3375,18 @@ export class Template2Component implements AfterViewInit {
       setTimeout(() => {
         this.updateContractValueOriginalCurrency();
         this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.setValue(selectedValuesProcurementTagUsers, { emitEvent: false });
-        this.generalInfoForm.get('generalInfo.psajv')?.setValue(selectedValuesPSAJV, { emitEvent: false });
+        this.generalInfoForm.get('generalInfo.psajv')?.setValue(allSelectedValuesPSAJV, { emitEvent: false });
       }, 100);
 
       // Setup PSA listeners after patching values
       setTimeout(() => {
         this.setupPSAListeners();
       }, 500);
+      },
+      error: (error) => {
+        console.error('Error fetching ATM paper details:', error);
+        this.toastService.show('Failed to load paper details. Please try again.', 'danger');
+      }
     });
   }
 
