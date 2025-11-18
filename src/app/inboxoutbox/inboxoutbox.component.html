@@ -97,6 +97,12 @@
                                   Approve
                                 </button>
                               </div>
+                              <div class="ic-btn-div d-flex justify-content-end"
+                                   *ngIf="loggedInUser?.roleName === 'Partner' && (inbox.paperStatus === 'On Partner Approval 1st' || inbox.paperStatus === 'On Partner Approval 2nd')">
+                                <button class="btn btn-outline-secondary d-flex align-items-center gap-3">
+                                  Approve
+                                </button>
+                              </div>
                               <div class="ic-btn-div d-flex justify-content-end" *ngIf="
                       (loggedInUser?.roleName === 'CGB Chair' ||
                         loggedInUser?.roleName === 'CPO' ||

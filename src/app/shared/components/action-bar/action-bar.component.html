@@ -118,5 +118,20 @@
         <span *ngIf="isLoading">Loading...</span>
       </button>
     </div>
+
+    <!-- Partner Approval/Rejection -->
+    <div class="d-flex align-items-center justify-content-between gap-3"
+      *ngIf="roleName === 'Partner' && (statusName === 'On Partner Approval 1st' || statusName === 'On Partner Approval 2nd')">
+      <button class="btn btn-outline-secondary" (click)="partnerApproveReject.emit('Rejected')" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Reject</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isLoading">Loading...</span>
+      </button>
+      <button class="btn btn-dark" (click)="partnerApproveReject.emit('Approved')" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Approve</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isLoading">Loading...</span>
+      </button>
+    </div>
   </ng-container>
 </div>

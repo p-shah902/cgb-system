@@ -4,7 +4,7 @@ import {PaperConfig} from '../../models/paper';
 import {HttpClient} from '@angular/common/http';
 import {ApiResponse} from '../../models/role';
 import {GetPaperConfigurationsListRequest, PaperFilter} from '../../models/general';
-import {approveRejectPaper, getArchivedPaperListUri, getPaperConfigurationsList, multipleStatuUpdate} from '../../utils/api/api';
+import {approveRejectPaper, getArchivedPaperListUri, getPaperConfigurationsList, multipleStatuUpdate, updatePartnerApprovalStatus} from '../../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -121,5 +121,12 @@ export class PaperConfigService {
 
   updateMultiplePaperStatus(paper: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(multipleStatuUpdate, paper);
+  }
+
+  updatePartnerApprovalStatus(paperId: number, status: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(updatePartnerApprovalStatus, {
+      paperId: paperId,
+      status: status
+    });
   }
 }

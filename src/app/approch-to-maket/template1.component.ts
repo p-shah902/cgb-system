@@ -2570,11 +2570,11 @@ export class Template1Component implements AfterViewInit  {
     } else if (!this.generalInfoForm.valid && this.currentPaperStatus === "Registered") {
       this.toastService.show("Please fill all mandatory fields", "danger")
     } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval") {
-      this.generatePaper(params)
+      this.generatePaper(params, false)
     }
   }
 
-  generatePaper(params: any) {
+  generatePaper(params: any, updateStatus = true) {
     this.isSubmitting = true;
     this.paperService.upsertApproachToMarkets(params).subscribe({
       next: (response) => {
@@ -2589,10 +2589,12 @@ export class Template1Component implements AfterViewInit  {
             this.addPaperToBatch(selectedBatch.id, docId);
           }
 
-          // Call setPaperStatus only if in edit mode and pendingStatus exists
-          if (this.paperId && !this.isCopy && this.pendingStatus) {
-            this.setPaperStatus(this.pendingStatus, true);
-            this.pendingStatus = null; // Clear pending status
+          if (updateStatus) {
+            // Call setPaperStatus only if in edit mode and pendingStatus exists
+            if (this.paperId && !this.isCopy && this.pendingStatus) {
+              this.setPaperStatus(this.pendingStatus, true);
+              this.pendingStatus = null; // Clear pending status
+            }
           }
 
           this.generalInfoForm.reset();
@@ -2774,6 +2776,35 @@ export class Template1Component implements AfterViewInit  {
           },
         });
     }
+  }
+
+  handlePartnerApproveReject(status: string) {
+    if (!this.paperId) {
+      this.toastService.show('Paper ID not found', 'danger');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.paperConfigService.updatePartnerApprovalStatus(Number(this.paperId), status)
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            this.toastService.show(`Paper ${status.toLowerCase()} successfully`, 'success');
+            setTimeout(() => {
+              this.router.navigate(['/all-papers']);
+            }, 2000);
+          } else {
+            this.toastService.show(response.message || 'Something went wrong', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error updating partner approval status:', error);
+          this.toastService.show('Failed to update approval status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
   }
 
   addReview(modal: any) {

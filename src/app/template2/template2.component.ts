@@ -283,12 +283,12 @@ export class Template2Component implements AfterViewInit {
   }
   private setupJVAlignedAutoReset() {
     if (!this.generalInfoForm) { return; }
-    
+
     // Flag to track if jvAligned is being changed (to skip reset)
     let isJVAlignedChanging = false;
     // Track subscribed controls to avoid duplicates
     const subscribedControls = new Set<any>();
-    
+
     // Subscribe to each jvAligned control individually to detect when they change
     const setupJVAlignedListeners = () => {
       const rows = this.consultationRows;
@@ -306,10 +306,10 @@ export class Template2Component implements AfterViewInit {
         }
       });
     };
-    
+
     // Initial setup of listeners
     setupJVAlignedListeners();
-    
+
     // Also setup listeners when rows are added/removed (check length changes)
     let previousRowCount = this.consultationRows.length;
     this.consultationRows.valueChanges.subscribe(() => {
@@ -319,23 +319,23 @@ export class Template2Component implements AfterViewInit {
         setupJVAlignedListeners();
       }
     });
-    
+
     this.generalInfoForm.valueChanges.subscribe(() => {
       // Skip reset during initial load to preserve values from edit mode
       if (this.isInitialLoad) {
         return;
       }
-      
+
       // Skip reset if change came from jvAligned control itself
       if (isJVAlignedChanging) {
         return;
       }
-      
+
       // Skip reset during programmatic form updates (like ensureCostAllocationFormControls)
       if (this.isProgrammaticFormUpdate) {
         return;
       }
-      
+
       // Reset jvAligned for other form changes
       const rows = this.consultationRows;
       rows.controls.forEach((row) => {
@@ -2326,30 +2326,30 @@ export class Template2Component implements AfterViewInit {
       this.sectionVisibility['section6'] = true;
       // Set flag to prevent jvAligned reset during programmatic form updates
       this.isProgrammaticFormUpdate = true;
-      
+
       // Ensure form controls are created for selected PSAs
       const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
       selectedPSAJV.forEach((psaName: string) => {
         this.addPSAJVFormControls(psaName);
       });
-      
+
       // Get costAllocation FormGroup to access raw values
       const costAllocationFormGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
       const rawCostAllocationValues = costAllocationFormGroup?.getRawValue() || {};
-      
+
       // Trigger committee logic for all selected PSAs to ensure checkbox values are set
       selectedPSAJV.forEach((psaName: string) => {
         const checkboxControlName = this.getPSACheckboxControlName(psaName);
         // Check both regular value and raw value since controls might be disabled
-        const isChecked = rawCostAllocationValues[checkboxControlName] === true || 
+        const isChecked = rawCostAllocationValues[checkboxControlName] === true ||
                          costAllocationFormGroup?.get(checkboxControlName)?.value === true;
-        
+
         if (isChecked) {
           // Re-evaluate committee checkboxes based on current form values
           this.triggerCommitteeLogicForPSA(psaName, true);
         }
       });
-      
+
       // Keep flag set until after payload is built to prevent any form changes from resetting jvAligned
       // We'll reset it after reading form values
     }
@@ -2512,11 +2512,11 @@ export class Template2Component implements AfterViewInit {
     const costSharingValues = this.generalInfoForm?.value?.costSharing
     const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
-    
+
     // Reset flag immediately after reading form values to allow normal auto-reset behavior
     // The flag was only needed to prevent reset during programmatic form setup
     this.isProgrammaticFormUpdate = false;
-    
+
     const consultationsValue = this.consultationRows.controls
       .filter(group => group.valid)
       .map(group => {
@@ -2712,12 +2712,12 @@ export class Template2Component implements AfterViewInit {
         if (costAllocationFormGroup) {
           // Get raw values from the form group (includes disabled controls)
           const rawCostAllocationValues = costAllocationFormGroup.getRawValue();
-          
+
           Object.keys(jvApprovalObj).forEach((key) => {
             if (key !== 'contractCommittee_ShAsimanValue' && key !== 'contractCommittee_BPGroupValue' && key !== 'id') {
               // Read from raw values (includes disabled controls)
               const controlValue = rawCostAllocationValues?.[key];
-              
+
               if (controlValue !== undefined && controlValue !== null) {
                 jvApprovalObj[key] = controlValue === true || controlValue === 'true' || controlValue === 1;
               }
@@ -2744,11 +2744,11 @@ export class Template2Component implements AfterViewInit {
 
       this.generatePaper(updatedParams)
     } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval") {
-      this.generatePaper(params)
+      this.generatePaper(params, false)
     }
   }
 
-  generatePaper(params: any) {
+  generatePaper(params: any, updateStatus = true) {
     this.isSubmitting = true;
     this.paperService.upsertContractAward(params).subscribe({
       next: (response) => {
@@ -2757,10 +2757,12 @@ export class Template2Component implements AfterViewInit {
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
 
-          // Call setPaperStatus only if in edit mode and pendingStatus exists
-          if (this.paperId && !this.isCopy && this.pendingStatus) {
-            this.setPaperStatus(this.pendingStatus, true);
-            this.pendingStatus = null; // Clear pending status
+          if (updateStatus) {
+            // Call setPaperStatus only if in edit mode and pendingStatus exists
+            if (this.paperId && !this.isCopy && this.pendingStatus) {
+              this.setPaperStatus(this.pendingStatus, true);
+              this.pendingStatus = null; // Clear pending status
+            }
           }
 
           this.generalInfoForm.reset();
@@ -3189,7 +3191,7 @@ export class Template2Component implements AfterViewInit {
             psaValue = psaOption.value;
           }
         }
-        
+
         // Get the initial jvAligned value from API
         const initialJVAlignedValue = item.isJVReviewDone || item.jvAligned || false;
         const jvReviewValue = item.jvReview || item.jvReviewId || null;
@@ -3263,7 +3265,7 @@ export class Template2Component implements AfterViewInit {
     if (jvAlignedControl) {
       // Store the current value before making any changes
       const currentValue = jvAlignedControl.value;
-      
+
       if (this.canEditJVAligned(jvReviewUserId)) {
         jvAlignedControl.enable();
         // Preserve the value when enabling
@@ -3744,6 +3746,35 @@ export class Template2Component implements AfterViewInit {
           },
         });
     }
+  }
+
+  handlePartnerApproveReject(status: string) {
+    if (!this.paperId) {
+      this.toastService.show('Paper ID not found', 'danger');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.paperConfigService.updatePartnerApprovalStatus(Number(this.paperId), status)
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            this.toastService.show(`Paper ${status.toLowerCase()} successfully`, 'success');
+            setTimeout(() => {
+              this.router.navigate(['/all-papers']);
+            }, 2000);
+          } else {
+            this.toastService.show(response.message || 'Something went wrong', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error updating partner approval status:', error);
+          this.toastService.show('Failed to update approval status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
   }
 
   addReview(modal: any) {
