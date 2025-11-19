@@ -48,7 +48,25 @@
 
     <!-- Update -->
     <button class="btn btn-dark" type="submit" data-status="Registered"
-      *ngIf="permission.canShowUpdate(roleName, statusName) || (statusName === 'On JV Approval' && canShowUpdateForJVApproval) || ((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB')"
+      *ngIf="permission.canShowUpdate(roleName, statusName)"
+      [disabled]="isLoading">
+      <span *ngIf="!isLoading">Update</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
+
+    <!-- Update -->
+    <button class="btn btn-dark" type="submit" data-status="On Pre-CGB"
+      *ngIf="((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB')"
+      [disabled]="isLoading">
+      <span *ngIf="!isLoading">Update</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
+
+    <!-- Update -->
+    <button class="btn btn-dark" type="submit" data-status="On JV Approval"
+      *ngIf="(statusName === 'On JV Approval' && canShowUpdateForJVApproval)"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -96,6 +114,21 @@
       <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
         (click)="returnToRequested.emit()" [disabled]="isLoading">
         <span *ngIf="!isLoading">Return to requested</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isLoading">Loading...</span>
+      </button>
+    </div>
+
+    <!-- Partner Approval/Rejection -->
+    <div class="d-flex align-items-center justify-content-between gap-3"
+      *ngIf="roleName === 'Partner' && (statusName === 'On Partner Approval 1st' || statusName === 'On Partner Approval 2nd')">
+      <button class="btn btn-outline-secondary" (click)="partnerApproveReject.emit('Rejected')" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Reject</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isLoading">Loading...</span>
+      </button>
+      <button class="btn btn-dark" (click)="partnerApproveReject.emit('Approved')" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Approve</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
         <span *ngIf="isLoading">Loading...</span>
       </button>

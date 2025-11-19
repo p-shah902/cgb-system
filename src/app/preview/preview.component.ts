@@ -629,6 +629,35 @@ this.loadUserDetails()
     }
   }
 
+  handlePartnerApproveReject(status: string) {
+    if (!this.paperId) {
+      this.toastService.show('Paper ID not found', 'danger');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.paperConfigService.updatePartnerApprovalStatus(Number(this.paperId), status)
+      .subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            this.toastService.show(`Paper ${status.toLowerCase()} successfully`, 'success');
+            setTimeout(() => {
+              this.router.navigate(['/all-papers']);
+            }, 2000);
+          } else {
+            this.toastService.show(response.message || 'Something went wrong', 'danger');
+          }
+        },
+        error: (error) => {
+          console.error('Error updating partner approval status:', error);
+          this.toastService.show('Failed to update approval status', 'danger');
+        },
+        complete: () => {
+          this.isSubmitting = false;
+        }
+      });
+  }
+
   getPaperStatusName(): string | null | undefined {
     return (this.paperDetails?.paperDetails as any)?.paperStatusName;
   }

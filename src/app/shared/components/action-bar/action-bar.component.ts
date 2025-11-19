@@ -23,6 +23,7 @@ export class ActionBarComponent {
   @Output() openApprove = new EventEmitter<Event>();
   @Output() openAddReview = new EventEmitter<Event>();
   @Output() returnToRequested = new EventEmitter<void>();
+  @Output() partnerApproveReject = new EventEmitter<string>();
 
   constructor(public permission: PermissionService) {}
 }

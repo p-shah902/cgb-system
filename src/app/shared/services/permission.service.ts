@@ -26,7 +26,6 @@ export class PermissionService {
 
   // Update: PT, CAM, Secretary and status Registered
   canShowUpdate(role: UserRole, status: PaperStatus): boolean {
-    console.log(role, status);
     return this.is(role, ['Procurement Tag', 'CAM', 'Secretary', "Super Admin"]) && status === 'Registered';
   }
 }

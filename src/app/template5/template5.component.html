@@ -700,10 +700,10 @@
                       </td>
                       <td>
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" formControlName="jvAligned"
+                          <input class="form-check-input" type="checkbox" formControlName="jvAligned" id="aligned_{{i}}"
                                  [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
                                  (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
-                          <label class="form-check-label">JV Aligned</label>
+                          <label class="form-check-label" for="aligned_{{i}}">JV Aligned</label>
                         </div>
                       </td>
                     </tr>
@@ -743,6 +743,7 @@
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"
                 (returnToRequested)="setPaperStatus('On CGB', true)"
+                (partnerApproveReject)="handlePartnerApproveReject($event)"
               ></app-action-bar>
             </div>
           </form>

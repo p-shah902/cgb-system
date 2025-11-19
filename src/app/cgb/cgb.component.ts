@@ -145,8 +145,9 @@ export class CgbComponent implements OnInit {
           console.log("=====", this.cycleObject);
 
           this.currentCgbCycle?.papersData.forEach(item => {
-            let userThere = this.users.find(d => item.userID === d.userId);
-            if (!userThere) {
+            // Check if role already exists (not userId) to avoid duplicate columns for same role
+            let roleExists = this.users.find(d => d.role === item.userRoleId);
+            if (!roleExists) {
               this.users.push({
                 userId: item.userID,
                 role: item.userRoleId,
@@ -154,6 +155,9 @@ export class CgbComponent implements OnInit {
               })
             }
           })
+
+          // Sort users in the specified order: CGB Chair, CPO, Legal VP, BLT, PHCA
+          this.sortUsersByRoleOrder();
         }
       }, error: err => {
         console.log('ERROR', err);
@@ -163,6 +167,32 @@ export class CgbComponent implements OnInit {
         this.isLoading = false;
       }
     })
+  }
+
+  /**
+   * Sort users array by role order: CGB Chair, CPO, Legal VP, BLT, PHCA
+   */
+  private sortUsersByRoleOrder() {
+    const roleOrder: { [key: string]: number } = {
+      'CGB Chair': 1,
+      'CPO': 2,
+      'Legal VP': 3,
+      'Legal VP-1': 3,
+      'BLT': 4,
+      'PHCA': 5
+    };
+
+    this.users.sort((a, b) => {
+      const orderA = roleOrder[a.roleName] || 999; // Unknown roles go to the end
+      const orderB = roleOrder[b.roleName] || 999;
+      
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      
+      // If same order, maintain original order (or sort by userId)
+      return a.userId - b.userId;
+    });
   }
 
   updateVote(modal: any) {
@@ -182,9 +212,10 @@ export class CgbComponent implements OnInit {
   }
 
   /**
-   * Find user vote for a specific paper
+   * Find user vote for a specific paper by roleId (not userId) to handle multiple users with same role
    */
   findUserVote(paperUsers: any[], userId: number, roleId: number): any | null {
-    return paperUsers.find(u => u.userID === userId && u.userRoleId === roleId) || null;
+    // Match by roleId only, not userId, since multiple users can have the same role
+    return paperUsers.find(u => u.userRoleId === roleId) || null;
   }
 }
