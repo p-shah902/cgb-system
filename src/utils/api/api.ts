@@ -11,7 +11,7 @@ export const getAuditLogs = baseUri + '/AuditLog/GetAuditLogsList';
 
 // APPROVAL API
 export const multipleStatuUpdate = baseUri + '/Approval/ChangeMultiplePaperStatuses';
-export const updatePartnerApprovalStatus = baseUri + '/Approval/UpdatePartnerApprovalStatus';
+export const updatePartnerApprovalStatus = baseUri + '/Approval/UpadatePartnerApprovalStatus';
 export const getPartnerApprovalStatus = baseUri + '/Approval/GetPartnerApprovalStatus';
 
 // BATCH API
