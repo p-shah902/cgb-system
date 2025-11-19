@@ -316,12 +316,14 @@
                     <label>Aligned with Government Representative </label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
-                        <input type="radio" name="isGovtReprAligned" [value]="true" formControlName="isGovtReprAligned">
+                        <input type="radio" name="isGovtReprAligned" [value]="true" formControlName="isGovtReprAligned"
+                               [disabled]="!permission.canEditGovtReprAligned(loggedInUser?.roleName)">
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
                         <input type="radio" name="isGovtReprAligned" formControlName="isGovtReprAligned"
-                               [value]="false">
+                               [value]="false"
+                               [disabled]="!permission.canEditGovtReprAligned(loggedInUser?.roleName)">
                         <label>No</label>
                       </div>
                     </div>
@@ -343,9 +345,10 @@
 
                 <div class="col-md-6">
                   <div class="form-group mb-3">
-                    <label>Government Representative Comment</label>
+                    <label>Government Representative Comment <span class="text-muted">(not printed)</span></label>
                     <textarea type="text" class="form-control allow-comments" placeholder="Write Description"
-                              formControlName="govtReprAlignedComment"></textarea>
+                              formControlName="govtReprAlignedComment"
+                              [disabled]="!permission.canEditGovtReprComment(loggedInUser?.roleName, paperDetails?.paperDetails?.paperStatusName, isBPGroup100Percent())"></textarea>
 
                   </div>
                 </div>

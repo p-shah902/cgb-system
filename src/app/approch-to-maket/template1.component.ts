@@ -957,6 +957,15 @@ export class Template1Component implements AfterViewInit  {
         setTimeout(() => {
           this.applyJVAdminReadOnlyMode();
         }, 1200);
+
+        // Apply read-only mode for CGB Member (Non-Voting)
+        this.applyCGBMemberNonVotingReadOnlyMode();
+        setTimeout(() => {
+          this.applyCGBMemberNonVotingReadOnlyMode();
+        }, 600);
+        setTimeout(() => {
+          this.applyCGBMemberNonVotingReadOnlyMode();
+        }, 1200);
       }
       },
       error: (error) => {
@@ -2261,6 +2270,132 @@ export class Template1Component implements AfterViewInit  {
 
     // Note: Consultation section is NOT disabled - it has its own enable/disable logic
     // based on canEditJVAligned() method
+  }
+
+  /**
+   * Apply read-only mode for CGB Member (Non-Voting) users
+   * Disables all fields except Government Representative Comment (if BP Group != 100%)
+   */
+  applyCGBMemberNonVotingReadOnlyMode(): void {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'CGB Member (Non-Voting)') {
+      return; // Only apply for CGB Member (Non-Voting)
+    }
+
+    const statusName = this.paperDetails?.paperDetails?.paperStatusName || '';
+    const isBPGroup100 = this.isBPGroup100Percent();
+    
+    // Check if status is after PDM Approval
+    const pdmApprovedStatuses = [
+      'approved by pdm',
+      'on pre-cgb',
+      'approved by pre-cgb',
+      'on cgb',
+      'approved by cgb',
+      'on jv approval',
+      'on partner approval 1st',
+      'on partner approval 2nd',
+      'approved'
+    ];
+    
+    const statusLower = statusName.toLowerCase().trim();
+    const isAfterPDMApproved = pdmApprovedStatuses.some(s => statusLower === s);
+    
+    if (!isAfterPDMApproved) {
+      return; // Only apply after PDM Approval
+    }
+
+    // Disable section dropdown
+    if (this.sectionDropdown && this.sectionDropdown.nativeElement) {
+      this.sectionDropdown.nativeElement.disabled = true;
+    }
+
+    // Disable all form groups
+    const formGroupsToDisable = [
+      'generalInfo',
+      'procurementDetails',
+      'valueDelivery',
+      'costSharing',
+      'costAllocation'
+    ];
+
+    formGroupsToDisable.forEach(groupName => {
+      const group = this.generalInfoForm.get(groupName) as FormGroup;
+      if (group) {
+        Object.keys(group.controls).forEach(key => {
+          // Skip government comment field if BP Group != 100%
+          if (key === 'govtReprAlignedComment' && !isBPGroup100) {
+            return; // Keep this field enabled
+          }
+          
+          const control = group.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+      }
+    });
+
+    // Disable batchPaper field
+    const batchPaperControl = this.generalInfoForm.get('batchPaper');
+    if (batchPaperControl && !batchPaperControl.disabled) {
+      batchPaperControl.disable({ emitEvent: false });
+    }
+
+    // Disable isNoExistingBudget field
+    const isNoExistingBudgetControl = this.generalInfoForm.get('isNoExistingBudget');
+    if (isNoExistingBudgetControl && !isNoExistingBudgetControl.disabled) {
+      isNoExistingBudgetControl.disable({ emitEvent: false });
+    }
+
+    // Disable riskMitigation and inviteToBid form arrays
+    const riskMitigationArray = this.generalInfoForm.get('procurementDetails.riskMitigation') as FormArray;
+    if (riskMitigationArray) {
+      riskMitigationArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const inviteToBidArray = this.generalInfoForm.get('procurementDetails.inviteToBid') as FormArray;
+    if (inviteToBidArray) {
+      inviteToBidArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    // Disable "Aligned with Government Representative" field (only Procurement Tag can edit)
+    // Since we're in CGB Member (Non-Voting) method, always disable this field
+    const isGovtReprAlignedControl = this.generalInfoForm.get('generalInfo.isGovtReprAligned');
+    if (isGovtReprAlignedControl && !isGovtReprAlignedControl.disabled) {
+      isGovtReprAlignedControl.disable({ emitEvent: false });
+    }
+
+    // If BP Group = 100%, also disable government comment field
+    if (isBPGroup100) {
+      const govtCommentControl = this.generalInfoForm.get('generalInfo.govtReprAlignedComment');
+      if (govtCommentControl && !govtCommentControl.disabled) {
+        govtCommentControl.disable({ emitEvent: false });
+      }
+    } else {
+      // If BP Group != 100%, ensure government comment field is enabled
+      const govtCommentControl = this.generalInfoForm.get('generalInfo.govtReprAlignedComment');
+      if (govtCommentControl && govtCommentControl.disabled) {
+        govtCommentControl.enable({ emitEvent: false });
+      }
+    }
   }
 
   // Method to handle JV Review user change and enable/disable JV Aligned

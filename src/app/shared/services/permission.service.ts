@@ -165,6 +165,53 @@ export class PermissionService {
     // All other roles can edit all fields if they have edit access
     return true;
   }
+
+  /**
+   * Check if user can edit "Aligned with Government Representative" field
+   * Only Procurement Tag can edit this field
+   */
+  canEditGovtReprAligned(role: UserRole): boolean {
+    if (!role) return false;
+    return this.is(role, ['Procurement Tag']);
+  }
+
+  /**
+   * Check if user can edit "Government Representative Comment" field
+   * Only CGB Member (Non-Voting) can edit after PDM Approval, except if BP Group = 100%
+   */
+  canEditGovtReprComment(
+    role: UserRole,
+    status: PaperStatus,
+    isBPGroup100Percent?: boolean
+  ): boolean {
+    if (!role || !status) return false;
+
+    const statusLower = status.toLowerCase().trim();
+
+    // Only CGB Member (Non-Voting) can edit this field
+    if (this.is(role, ['CGB Member (Non-Voting)']) || role === 'CGB Member (Non-Voting)') {
+      const pdmApprovedStatuses = [
+        'approved by pdm',
+        'on pre-cgb',
+        'approved by pre-cgb',
+        'on cgb',
+        'approved by cgb',
+        'on jv approval',
+        'on partner approval 1st',
+        'on partner approval 2nd',
+        'approved'
+      ];
+      
+      const isAfterPDMApproved = pdmApprovedStatuses.some(s => statusLower === s);
+      
+      if (isAfterPDMApproved) {
+        // If BP Group = 100%, they cannot edit even the comment field
+        return !isBPGroup100Percent;
+      }
+    }
+
+    return false;
+  }
 }
 
 

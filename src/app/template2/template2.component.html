@@ -567,12 +567,14 @@
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isGovtReprAligned" [value]="true"
-                               formControlName="isGovtReprAligned"/>
+                               formControlName="isGovtReprAligned"
+                               [disabled]="!permission.canEditGovtReprAligned(loggedInUser?.roleName)"/>
                         <label>Yes</label>
                       </div>
                       <div class="radio-box position-relative">
                         <input type="radio" name="isGovtReprAligned" [value]="false"
-                               formControlName="isGovtReprAligned"/>
+                               formControlName="isGovtReprAligned"
+                               [disabled]="!permission.canEditGovtReprAligned(loggedInUser?.roleName)"/>
                         <label>No</label>
                       </div>
                     </div>
@@ -582,10 +584,11 @@
                   </div>
 
                   <div class="form-group mb-3">
-                    <label>Government Representative Comment</label>
+                    <label>Government Representative Comment <span class="text-muted">(not printed)</span></label>
                     <textarea type="text" id="govtReprAlignedComment" class="form-control allow-comments"
                               placeholder="Write Description"
-                              formControlName="govtReprAlignedComment"></textarea>
+                              formControlName="govtReprAlignedComment"
+                              [disabled]="!permission.canEditGovtReprComment(loggedInUser?.roleName, paperDetails?.contractAwardDetails?.paperStatusName, isBPGroup100Percent())"></textarea>
 <!--                    <div class="text-danger"-->
 <!--                         *ngIf="submitted && generalInfo?.get('govtReprAlignedComment')?.hasError('required')">-->
 <!--                      <small class="text-danger">This field is required.</small>-->
