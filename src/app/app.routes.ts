@@ -87,6 +87,11 @@ export const routes: Routes = [
     canActivate: [PermissionGuard]
   },
   {
+    path: 'partners-approvals',
+    loadComponent: () => import('./partners-approvals/partners-approvals.component').then(m => m.PartnersApprovalsComponent),
+    canActivate: [PermissionGuard]
+  },
+  {
     path: 'roleaccess',
     loadComponent: () => import('./roleaccess/roleaccess.component').then(m => m.RoleaccessComponent),
     canActivate: [AuthGuard, AdminRoleGuard]
