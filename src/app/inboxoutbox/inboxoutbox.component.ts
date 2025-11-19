@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from '../../service/toast.service';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,8 @@ import { AuthService } from '../../service/auth.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperService } from '../../service/paper.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-inboxoutbox',
@@ -19,7 +20,7 @@ import { forkJoin } from 'rxjs';
   templateUrl: './inboxoutbox.component.html',
   styleUrl: './inboxoutbox.component.scss'
 })
-export class InboxoutboxComponent implements OnInit {
+export class InboxoutboxComponent implements OnInit, OnDestroy {
   @ViewChild('dropdownRef') dropdownRef!: NgbDropdown;
 
   public toastService = inject(ToastService)
@@ -44,6 +45,10 @@ export class InboxoutboxComponent implements OnInit {
   isFilterOpen: boolean = false;
   isDesc: boolean = false;
   isFilterApplied: boolean = false;
+  
+  // Debouncing for search
+  private searchSubject = new Subject<string>();
+  private searchSubscription: any;
 
   // Pagination
   currentPageInbox: number = 1;
@@ -62,6 +67,32 @@ export class InboxoutboxComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getInboxOutBox();
+    this.setupSearchDebounce();
+  }
+  
+  ngOnDestroy() {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+  }
+  
+  setupSearchDebounce(): void {
+    this.searchSubscription = this.searchSubject
+      .pipe(
+        debounceTime(500), // Wait 500ms after user stops typing
+        distinctUntilChanged() // Only trigger if value actually changed
+      )
+      .subscribe(searchTerm => {
+        this.performSearch(searchTerm);
+      });
+  }
+  
+  performSearch(searchTerm: string): void {
+    this.searchTerm = searchTerm;
+    this.checkFilterApplied();
+    this.currentPageInbox = 1;
+    this.currentPageOutbox = 1;
     this.getInboxOutBox();
   }
 
@@ -105,10 +136,14 @@ export class InboxoutboxComponent implements OnInit {
       }
     };
     
-    // Add filters if present
-    if (this.searchTerm.trim()) {
+    // Add search filter if present
+    if (this.searchTerm && this.searchTerm.trim()) {
       inboxRequest.paperName = this.searchTerm.trim();
       outboxRequest.paperName = this.searchTerm.trim();
+    } else {
+      // Explicitly remove paperName if search is empty
+      delete inboxRequest.paperName;
+      delete outboxRequest.paperName;
     }
     
     if (this.filterStatus) {
@@ -347,10 +382,8 @@ export class InboxoutboxComponent implements OnInit {
   }
 
   onSearchChange(): void {
-    this.checkFilterApplied();
-    this.currentPageInbox = 1;
-    this.currentPageOutbox = 1;
-    this.getInboxOutBox();
+    // Emit search term to subject for debouncing
+    this.searchSubject.next(this.searchTerm);
   }
 
   onFilterChange(): void {
