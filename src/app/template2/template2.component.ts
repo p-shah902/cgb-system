@@ -314,8 +314,16 @@ export class Template2Component implements AfterViewInit {
   loadForm() {
     let camId = null
 
-    if(!this.paperId && this.loggedInUser?.roleName === 'CAM') {
+    // Check if logged-in user is CAM (case-insensitive comparison)
+    const isCAM = this.loggedInUser?.roleName?.toLowerCase().trim() === 'cam';
+    console.log('CAM Check - loggedInUser:', this.loggedInUser);
+    console.log('CAM Check - roleName:', this.loggedInUser?.roleName);
+    console.log('CAM Check - isCAM:', isCAM);
+    console.log('CAM Check - paperId:', this.paperId);
+    
+    if(!this.paperId && isCAM) {
       camId = this.loggedInUser?.id ? this.loggedInUser.id.toString() : null
+      console.log('CAM Check - Setting camId to:', camId);
     }
 
     this.generalInfoForm = this.fb.group({
@@ -987,6 +995,10 @@ export class Template2Component implements AfterViewInit {
             if (currentCamUserId) {
               // Ensure the value is a string to match camOptions format
               this.generalInfoForm.get('generalInfo.camUserId')?.setValue(currentCamUserId.toString(), { emitEvent: false });
+            } else if (!this.paperId && this.loggedInUser?.roleName?.toLowerCase().trim() === 'cam' && this.loggedInUser?.id) {
+              // If creating new paper and logged-in user is CAM, set CAM to logged-in user
+              console.log('Setting CAM from options load - userId:', this.loggedInUser.id);
+              this.generalInfoForm.get('generalInfo.camUserId')?.setValue(this.loggedInUser.id.toString(), { emitEvent: false });
             }
           }
           this.incrementAndCheck();

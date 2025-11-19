@@ -44,7 +44,8 @@ export class PaperStatusComponent implements OnInit {
   openType: string = '';
   approvalRemark = "";
   deadlineDate: string = "";
-  isLoading: boolean = false
+  isLoading: boolean = false;
+  isInitiatingCgbCycle: boolean = false; // Loading state for CGB cycle initiation
 
   // Search, Sort, and Filter
   searchText: string = '';
@@ -417,6 +418,9 @@ export class PaperStatusComponent implements OnInit {
         });
       } else if (this.openType === 'cgb') {
         const selectedPapers = this.getSelectedPapers(this.openType);
+        
+        // Set loading state
+        this.isInitiatingCgbCycle = true;
 
         // First, change paper status from "Approved by Pre-CGB" (7) to "On CGB" (10)
         this.paperService.updateMultiplePaperStatus(selectedPapers.map(f => ({
@@ -426,12 +430,13 @@ export class PaperStatusComponent implements OnInit {
         }))).subscribe({
           next: (statusResponse) => {
             if (statusResponse.status) {
-              // After status change is successful, initiate the CGB cycle
-              this.votingService.initiateCgbCycle({
-                paperIds: selectedPapers.map(f => f.paperID),
-                remarks: this.approvalRemark,
-                deadlineDate: this.deadlineDate
-              }).subscribe({
+              // After status change is successful, wait 1 second before initiating the CGB cycle
+              setTimeout(() => {
+                this.votingService.initiateCgbCycle({
+                  paperIds: selectedPapers.map(f => f.paperID),
+                  remarks: this.approvalRemark,
+                  deadlineDate: this.deadlineDate
+                }).subscribe({
                 next: (response) => {
                   if (response.status && response.data) {
                     // Call getCgbCycle to get the vote cycle ID
@@ -462,6 +467,7 @@ export class PaperStatusComponent implements OnInit {
                                 this.showCGBButton = false;
                                 modal.close('Save click');
                                 this.resetModalFields();
+                                this.isInitiatingCgbCycle = false; // Reset loading state
                                 this.toastService.show('CGB cycle initiated successfully', 'success');
                               },
                               error: (orderError) => {
@@ -476,6 +482,7 @@ export class PaperStatusComponent implements OnInit {
                                 this.showCGBButton = false;
                                 modal.close('Save click');
                                 this.resetModalFields();
+                                this.isInitiatingCgbCycle = false; // Reset loading state
                               }
                             });
                           } else {
@@ -488,6 +495,7 @@ export class PaperStatusComponent implements OnInit {
                             this.showCGBButton = false;
                             modal.close('Save click');
                             this.resetModalFields();
+                            this.isInitiatingCgbCycle = false; // Reset loading state
                           }
                         }
                       },
@@ -503,24 +511,30 @@ export class PaperStatusComponent implements OnInit {
                         this.showCGBButton = false;
                         modal.close('Save click');
                         this.resetModalFields();
+                        this.isInitiatingCgbCycle = false; // Reset loading state
                       }
                     });
                   } else {
                     this.toastService.showError(response, 'Failed to initiate CGB cycle');
+                    this.isInitiatingCgbCycle = false; // Reset loading state
                   }
                 },
                 error: (initiateError) => {
                   console.log('Error initiating CGB cycle', initiateError);
                   this.toastService.showError(initiateError, 'Error initiating CGB cycle');
+                  this.isInitiatingCgbCycle = false; // Reset loading state
                 }
               });
+            }, 1000); // Close setTimeout with 1 second delay
             } else {
+              this.isInitiatingCgbCycle = false; // Reset loading state on status change failure
               this.toastService.showError(statusResponse, 'Failed to change paper status');
             }
           },
           error: (statusError) => {
             console.log('Error changing paper status', statusError);
-            this.toastService.showError(statusError, 'Error changing paper status to On CGB');
+            this.isInitiatingCgbCycle = false; // Reset loading state on error
+            this.toastService.showError(statusError, 'Error changing paper status');
           }
         });
       }

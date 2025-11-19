@@ -272,6 +272,11 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="addReview(modal)">Initiate Cycle</button>
+    <button type="button" class="btn btn-primary d-flex gap-2 align-items-center" 
+            (click)="addReview(modal)" 
+            [disabled]="isInitiatingCgbCycle">
+      <span *ngIf="isInitiatingCgbCycle" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span>{{ isInitiatingCgbCycle ? 'Initiating...' : 'Initiate Cycle' }}</span>
+    </button>
   </div>
 </ng-template>
