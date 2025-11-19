@@ -764,7 +764,9 @@ export class Template2Component implements AfterViewInit {
             }
 
             // Enable percentage control for all selected PSAs (including BP Group)
-            if (percentageControl) {
+            // But skip if user is JV Admin
+            const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+            if (percentageControl && !isJVAdmin) {
               percentageControl.enable({ emitEvent: false });
             }
           });
@@ -808,7 +810,17 @@ export class Template2Component implements AfterViewInit {
         this.addBidRow(true);
         this.addConsultationRow(true, false, consultationsData);
         this.addCommericalEvaluationRow(true)
-        this.setupPSAListeners()
+        this.setupPSAListeners();
+        
+        // Disable all fields for JV Admin (except Consultation section)
+        // Call multiple times with delays to catch controls that get enabled later
+        this.applyJVAdminReadOnlyMode();
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 600);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 1200);
 
         // Set consultation section visibility to true if there are consultation rows
         setTimeout(() => {
@@ -1380,7 +1392,9 @@ export class Template2Component implements AfterViewInit {
       // Function to handle committee checkbox logic
       const handleCommitteeLogic = (isChecked: boolean) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-        if (isChecked) {
+        // Don't enable if user is JV Admin
+        const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+        if (isChecked && !isJVAdmin) {
           percentageControl?.enable();
         }
         this.applyCommitteeLogicForPSA(psaName, isChecked);
@@ -3399,6 +3413,143 @@ export class Template2Component implements AfterViewInit {
       return null;
     }
     return procurementSPAUsers.map(id => id.toString()).join(',');
+  }
+
+  /**
+   * Apply read-only mode for JV Admin users
+   * Disables all form fields except Consultation section
+   */
+  applyJVAdminReadOnlyMode(): void {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return; // Only apply for JV Admin
+    }
+
+    // Disable section dropdown
+    if (this.sectionDropdown && this.sectionDropdown.nativeElement) {
+      this.sectionDropdown.nativeElement.disabled = true;
+    }
+
+    // Disable all form groups except consultation
+    const formGroupsToDisable = [
+      'generalInfo',
+      'procurementDetails',
+      'ccd',
+      'evaluationSummary',
+      'additionalDetails',
+      'valueDelivery',
+      'costSharing',
+      'costAllocation'
+    ];
+
+    formGroupsToDisable.forEach(groupName => {
+      const group = this.generalInfoForm.get(groupName) as FormGroup;
+      if (group) {
+        Object.keys(group.controls).forEach(key => {
+          const control = group.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+      }
+    });
+
+    // Disable form arrays within form groups
+    const riskMitigationArray = this.generalInfoForm.get('additionalDetails.riskMitigation') as FormArray;
+    if (riskMitigationArray) {
+      riskMitigationArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const legalEntitiesAwardedArray = this.generalInfoForm.get('procurementDetails.legalEntitiesAwarded') as FormArray;
+    if (legalEntitiesAwardedArray) {
+      legalEntitiesAwardedArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const commericalEvaluationArray = this.generalInfoForm.get('evaluationSummary.commericalEvaluation') as FormArray;
+    if (commericalEvaluationArray) {
+      commericalEvaluationArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const supplierTechnicalArray = this.generalInfoForm.get('evaluationSummary.supplierTechnical') as FormArray;
+    if (supplierTechnicalArray) {
+      supplierTechnicalArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    // Ensure all dynamically created Cost Allocation controls are disabled
+    // This includes PSA checkboxes, percentage inputs, value inputs, and committee checkboxes
+    // Use multiple timeouts to catch controls that might be enabled later
+    const disableCostAllocationControls = () => {
+      const costAllocationGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
+      if (costAllocationGroup) {
+        // Disable all existing controls in costAllocation
+        Object.keys(costAllocationGroup.controls).forEach(key => {
+          const control = costAllocationGroup.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+
+        // Also disable any dynamically created PSA controls
+        const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+        selectedPSAJV.forEach((psaName: string) => {
+          const checkboxControlName = this.getPSACheckboxControlName(psaName);
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          const valueControlName = this.getPSAValueControlName(psaName);
+
+          [checkboxControlName, percentageControlName, valueControlName].forEach(controlName => {
+            const control = costAllocationGroup.get(controlName);
+            if (control && !control.disabled) {
+              control.disable({ emitEvent: false });
+            }
+          });
+        });
+      }
+    };
+
+    // Call immediately and with delays to catch controls enabled later
+    disableCostAllocationControls();
+    setTimeout(disableCostAllocationControls, 100);
+    setTimeout(disableCostAllocationControls, 500);
+    setTimeout(disableCostAllocationControls, 1000);
+    setTimeout(disableCostAllocationControls, 1500);
+
+    // Note: Consultation section is NOT disabled - it has its own enable/disable logic
+    // based on canEditJVAligned() method
   }
 
   onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
