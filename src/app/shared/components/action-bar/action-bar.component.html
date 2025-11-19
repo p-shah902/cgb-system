@@ -121,7 +121,7 @@
 
     <!-- Partner Approval/Rejection -->
     <div class="d-flex align-items-center justify-content-between gap-3"
-      *ngIf="roleName === 'Partner' && (statusName === 'On Partner Approval 1st' || statusName === 'On Partner Approval 2nd')">
+      *ngIf="roleName === 'Partner' && (statusName === 'On Partner Approval 1st' || statusName === 'On Partner Approval 2nd') && canShowPartnerApproveReject">
       <button class="btn btn-outline-secondary" (click)="partnerApproveReject.emit('Rejected')" [disabled]="isLoading">
         <span *ngIf="!isLoading">Reject</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>

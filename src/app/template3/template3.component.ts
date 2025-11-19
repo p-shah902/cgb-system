@@ -24,7 +24,7 @@ import { LoginUser, UserDetails, GetUsersListRequest } from '../../models/user';
 import { UserService } from '../../service/user.service';
 import { PaperService } from '../../service/paper.service';
 import { CountryDetail } from '../../models/general';
-import { PaperMappingType, PaperStatusType, PSAEntry } from '../../models/paper';
+import { PaperMappingType, PaperStatusType, PSAEntry, PartnerApprovalStatus } from '../../models/paper';
 import { VendorService } from '../../service/vendor.service';
 import { VendorDetail } from '../../models/vendor';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
@@ -109,6 +109,8 @@ export class Template3Component implements AfterViewInit {
   selectedPaper: number = 0;
   approvalRemark: string = '';
   reviewBy: string = '';
+  partnerApprovalStatuses: PartnerApprovalStatus[] = [];
+  canShowPartnerApproveReject: boolean = false;
   currentPaperStatus: string | null = null;
   private readonly _mdlSvc = inject(NgbModal);
   thresholdData: ThresholdType[] = []
@@ -184,6 +186,7 @@ export class Template3Component implements AfterViewInit {
             }
             this.fetchPaperDetails(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
+            this.checkPartnerApprovalStatus(Number(this.paperId));
           } else {
             this.isExpanded = false;
             if (!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
@@ -3179,6 +3182,34 @@ export class Template3Component implements AfterViewInit {
           },
         });
     }
+  }
+
+  checkPartnerApprovalStatus(paperId: number) {
+    if (!this.loggedInUser) {
+      this.canShowPartnerApproveReject = true; // Default to showing buttons if user not loaded
+      return;
+    }
+
+    this.paperConfigService.getPartnerApprovalStatus(paperId).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.partnerApprovalStatuses = response.data;
+          // Check if logged-in user's ID is NOT in any approvedByUserId
+          const hasUserApproved = response.data.some(
+            (status) => status.approvedByUserId === this.loggedInUser?.id
+          );
+          this.canShowPartnerApproveReject = !hasUserApproved;
+        } else {
+          // Default to showing buttons if API fails or returns no data
+          this.canShowPartnerApproveReject = true;
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching partner approval status:', error);
+        // Default to showing buttons if API fails
+        this.canShowPartnerApproveReject = true;
+      }
+    });
   }
 
   handlePartnerApproveReject(status: string) {

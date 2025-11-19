@@ -37,7 +37,7 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { DictionaryService } from '../../service/dictionary.service';
 import { DictionaryDetail, Item } from '../../models/dictionary';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { Paper, PaperStatusType } from '../../models/paper';
+import { Paper, PaperStatusType, PartnerApprovalStatus } from '../../models/paper';
 import { environment } from '../core/app-config';
 import { EditorComponent } from '../../components/editor/editor.component';
 import { format } from 'date-fns';
@@ -143,6 +143,8 @@ export class Template1Component implements AfterViewInit  {
   };
   batchPaperList: any[] = [];
   selectedBatchPaper: any = null;
+  partnerApprovalStatuses: PartnerApprovalStatus[] = [];
+  canShowPartnerApproveReject: boolean = false;
 
   constructor(private toggleService: ToggleService,private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
@@ -191,6 +193,7 @@ export class Template1Component implements AfterViewInit  {
             this.fetchPaperDetails(Number(this.paperId))
             this.getUploadedDocs(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
+            this.checkPartnerApprovalStatus(Number(this.paperId));
           } else {
             if(!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
               setTimeout(() => {
@@ -2776,6 +2779,34 @@ export class Template1Component implements AfterViewInit  {
           },
         });
     }
+  }
+
+  checkPartnerApprovalStatus(paperId: number) {
+    if (!this.loggedInUser) {
+      this.canShowPartnerApproveReject = true; // Default to showing buttons if user not loaded
+      return;
+    }
+
+    this.paperConfigService.getPartnerApprovalStatus(paperId).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          this.partnerApprovalStatuses = response.data;
+          // Check if logged-in user's ID is NOT in any approvedByUserId
+          const hasUserApproved = response.data.some(
+            (status) => status.approvedByUserId === this.loggedInUser?.id
+          );
+          this.canShowPartnerApproveReject = !hasUserApproved;
+        } else {
+          // Default to showing buttons if API fails or returns no data
+          this.canShowPartnerApproveReject = true;
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching partner approval status:', error);
+        // Default to showing buttons if API fails
+        this.canShowPartnerApproveReject = true;
+      }
+    });
   }
 
   handlePartnerApproveReject(status: string) {

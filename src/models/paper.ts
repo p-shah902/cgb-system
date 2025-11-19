@@ -333,3 +333,15 @@ export interface PaperMappingType {
   entryDate: string; // ISO date string
   cgbItemRefNo:string
 }
+
+export interface PartnerApprovalStatus {
+  paperId: number;
+  approvalStatus: string;
+  approvedByUserId: number;
+  approvedByUserName: string;
+  psa: string;
+  remarks: string;
+  modifiedBy: number;
+  modifiedByName: string;
+  approvedDate: string;
+}

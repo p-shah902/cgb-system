@@ -17,6 +17,7 @@ export class ActionBarComponent {
   @Input() statusName: string | null | undefined = null;
   @Input() isLoading: boolean = false;
   @Input() canShowUpdateForJVApproval: boolean = false;
+  @Input() canShowPartnerApproveReject: boolean = true;
 
   @Output() setStatus = new EventEmitter<string>();
   @Output() openReturn = new EventEmitter<Event>();
