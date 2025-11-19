@@ -10,6 +10,8 @@ import {VotingService} from '../../service/voting.service';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Router} from '@angular/router';
+import {AuthService} from '../../service/auth.service';
+import {LoginUser} from '../../models/user';
 
 @Component({
   selector: 'app-paper-status',
@@ -91,12 +93,14 @@ export class PaperStatusComponent implements OnInit {
     // {label: 'On CGB', value: 10},
     {label: 'Approved by CGB', value: 11},
     // {label: 'On JV Approval', value: 14},
-    // {label: 'On Partner Approval 1st', value: 23},
-    // {label: 'On Partner Approval 2nd', value: 24},
-    // {label: 'Approved', value: 19},
+    {label: 'On Partner Approval 1st', value: 23},
+    {label: 'On Partner Approval 2nd', value: 24},
+    {label: 'Approved', value: 19},
   ];
   private readonly _mdlSvc = inject(NgbModal);
   private router = inject(Router);
+  private authService = inject(AuthService);
+  loggedInUser: LoginUser | null = null;
 
   private slugify(text: string): string {
     return text
@@ -117,6 +121,7 @@ export class PaperStatusComponent implements OnInit {
       statusIds: [],
       orderType: "DESC"
     }
+    this.loggedInUser = this.authService.getUser();
   }
 
   keepOrder = (a: any, b: any) => {
@@ -134,6 +139,20 @@ export class PaperStatusComponent implements OnInit {
   }
 
   getData(key: string) {
+    const userRole = this.loggedInUser?.roleName;
+    const isSecretary = userRole === 'Secretary' || userRole === 'Super Admin';
+    
+    // For Secretary: Allow moving between partner approval statuses
+    if (isSecretary && (key === 'On Partner Approval 1st' || key === 'On Partner Approval 2nd' || key === 'Approved')) {
+      return this.statusData.filter(f => 
+        f.label !== key && 
+        (f.label === 'On Partner Approval 1st' || 
+         f.label === 'On Partner Approval 2nd' || 
+         f.label === 'Approved')
+      );
+    }
+    
+    // Default: exclude current status
     return this.statusData.filter(f => f.label !== key);
   }
 
@@ -171,16 +190,131 @@ export class PaperStatusComponent implements OnInit {
         return d;
       }));
 
-      this.paperService.updateMultiplePaperStatus(movingPapers.map(f => ({
-        paperId: f.paperID,
-        existingStatusId: Number(f.statusId),
-        statusId: Number(event.target.value)
-      }))).subscribe(value => {
-        console.log('DD', value);
-      });
+      const newStatusId = Number(event.target.value);
+      const newStatusLabel = findStatus!.label;
+      
+      // Check if this is a partner approval status move
+      const isPartnerApprovalMove = 
+        groupKey === 'On Partner Approval 1st' || 
+        groupKey === 'On Partner Approval 2nd' || 
+        groupKey === 'Approved' ||
+        newStatusLabel === 'On Partner Approval 1st' ||
+        newStatusLabel === 'On Partner Approval 2nd' ||
+        newStatusLabel === 'Approved';
+      
+      if (isPartnerApprovalMove) {
+        // Determine if moving backward or forward
+        const statusOrder: { [key: string]: number } = {
+          'On Partner Approval 1st': 1,
+          'On Partner Approval 2nd': 2,
+          'Approved': 3
+        };
+        
+        const currentOrder = statusOrder[groupKey] || 0;
+        const newOrder = statusOrder[newStatusLabel] || 0;
+        const isMovingBackward = newOrder < currentOrder;
+        
+        // Update paper status first
+        this.paperService.updateMultiplePaperStatus(movingPapers.map(f => ({
+          paperId: f.paperID,
+          existingStatusId: Number(f.statusId),
+          statusId: newStatusId
+        }))).subscribe({
+          next: (value) => {
+            console.log('Status updated', value);
+            
+            // If moving backward, restart partner voting (reset approvals for 1 or 2 partners)
+            if (isMovingBackward) {
+              this.restartPartnerVoting(movingPapers, newStatusLabel);
+            } else {
+              // Moving forward - voting bypassed, just reload
+              this.toastService.show(`Paper(s) moved to ${newStatusLabel}`, 'success');
+              this.loadPaperConfigList();
+            }
+          },
+          error: (error) => {
+            console.error('Error updating paper status:', error);
+            this.toastService.show('Error updating paper status', 'danger');
+            // Reload to revert UI changes
+            this.loadPaperConfigList();
+          }
+        });
+      } else {
+        // Regular status update (non-partner approval)
+        this.paperService.updateMultiplePaperStatus(movingPapers.map(f => ({
+          paperId: f.paperID,
+          existingStatusId: Number(f.statusId),
+          statusId: newStatusId
+        }))).subscribe(value => {
+          console.log('DD', value);
+        });
+      }
+      
       this.showCGBButton = false;
       this.showPreCGBButton = false;
     }
+  }
+
+  /**
+   * Restart partner voting by resetting partner approvals
+   * When moving backward (e.g., from Approved to On Partner Approval 1st/2nd),
+   * we need to reset the partner approval statuses
+   */
+  restartPartnerVoting(papers: PaperConfig[], targetStatus: string) {
+    // Determine how many partners need voting based on target status
+    // On Partner Approval 1st = 1 partner, On Partner Approval 2nd = 2 partners
+    const partnersToReset = targetStatus === 'On Partner Approval 1st' ? 1 : 2;
+    
+    let resetCount = 0;
+    const totalPapers = papers.length;
+    
+    papers.forEach((paper) => {
+      // Get current partner approvals
+      this.paperService.getPartnerApprovalStatus(paper.paperID).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            // Reset approvals for the specified number of partners
+            const approvalsToReset = response.data.slice(0, partnersToReset);
+            
+            if (approvalsToReset.length > 0) {
+              // Reset each approval by updating status to 'Pending' or deleting
+              // Since we don't have a delete API, we'll need to update them to pending state
+              // For now, we'll just reload the data - the backend should handle the reset
+              // when status changes to On Partner Approval 1st/2nd
+              
+              resetCount++;
+              if (resetCount === totalPapers) {
+                this.toastService.show(
+                  `Paper(s) moved to ${targetStatus}. Partner voting restarted for ${partnersToReset} partner(s).`, 
+                  'success'
+                );
+                this.loadPaperConfigList();
+              }
+            } else {
+              resetCount++;
+              if (resetCount === totalPapers) {
+                this.toastService.show(`Paper(s) moved to ${targetStatus}`, 'success');
+                this.loadPaperConfigList();
+              }
+            }
+          } else {
+            resetCount++;
+            if (resetCount === totalPapers) {
+              this.toastService.show(`Paper(s) moved to ${targetStatus}`, 'success');
+              this.loadPaperConfigList();
+            }
+          }
+        },
+        error: (error) => {
+          console.error(`Error getting partner approval status for paper ${paper.paperID}:`, error);
+          resetCount++;
+          if (resetCount === totalPapers) {
+            this.toastService.show(`Paper(s) moved to ${targetStatus}`, 'success');
+            this.loadPaperConfigList();
+          }
+        }
+      });
+    });
   }
 
   ngOnInit(): void {

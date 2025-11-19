@@ -415,7 +415,7 @@ export class Template2Component implements AfterViewInit {
           null,
           [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]
         ],
-        exchangeRate: [0], // Number input
+        exchangeRate: [1.00], // Number input - default to 1.00 for USD
         contractValue: [0],
         remunerationType: ['', Validators.required],
         isPaymentRequired: [null, Validators.required],
@@ -764,7 +764,9 @@ export class Template2Component implements AfterViewInit {
             }
 
             // Enable percentage control for all selected PSAs (including BP Group)
-            if (percentageControl) {
+            // But skip if user is JV Admin
+            const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+            if (percentageControl && !isJVAdmin) {
               percentageControl.enable({ emitEvent: false });
             }
           });
@@ -808,7 +810,17 @@ export class Template2Component implements AfterViewInit {
         this.addBidRow(true);
         this.addConsultationRow(true, false, consultationsData);
         this.addCommericalEvaluationRow(true)
-        this.setupPSAListeners()
+        this.setupPSAListeners();
+        
+        // Disable all fields for JV Admin (except Consultation section)
+        // Call multiple times with delays to catch controls that get enabled later
+        this.applyJVAdminReadOnlyMode();
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 600);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 1200);
 
         // Set consultation section visibility to true if there are consultation rows
         setTimeout(() => {
@@ -978,6 +990,37 @@ export class Template2Component implements AfterViewInit {
           switch (itemName) {
             case 'Currencies':
               this.currenciesData = response.data || [];
+              // Set default currency to USD if creating new paper
+              if (!this.paperId && this.currenciesData.length > 0) {
+                const usdCurrency = this.currenciesData.find(item => 
+                  item.itemValue?.toUpperCase() === 'USD' || 
+                  item.itemValue?.toUpperCase().includes('USD') ||
+                  item.itemValue?.toUpperCase().includes('US DOLLAR')
+                );
+                if (usdCurrency) {
+                  const currentCurrency = this.generalInfoForm.get('generalInfo.currencyCode')?.value;
+                  const currentExchangeRate = this.generalInfoForm.get('generalInfo.exchangeRate')?.value;
+                  // Only set defaults if not already set
+                  if (!currentCurrency || currentCurrency === '') {
+                    this.generalInfoForm.get('generalInfo.currencyCode')?.setValue(usdCurrency.id.toString());
+                  }
+                  if (!currentExchangeRate || currentExchangeRate === 0) {
+                    this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(1.00);
+                  }
+                  
+                  // Also set defaults for any existing legal entities rows that have empty currency/exchange rate
+                  this.inviteToBid.controls.forEach((control, index) => {
+                    const rowCurrency = control.get('currencyCode')?.value;
+                    const rowExchangeRate = control.get('exchangeRate')?.value;
+                    if (!rowCurrency || rowCurrency === '') {
+                      control.get('currencyCode')?.setValue(usdCurrency.id.toString());
+                    }
+                    if (!rowExchangeRate || rowExchangeRate === 0) {
+                      control.get('exchangeRate')?.setValue(1.00);
+                    }
+                  });
+                }
+              }
               break;
 
             case 'Global CGB':
@@ -1349,7 +1392,9 @@ export class Template2Component implements AfterViewInit {
       // Function to handle committee checkbox logic
       const handleCommitteeLogic = (isChecked: boolean) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-        if (isChecked) {
+        // Don't enable if user is JV Admin
+        const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+        if (isChecked && !isJVAdmin) {
           percentageControl?.enable();
         }
         this.applyCommitteeLogicForPSA(psaName, isChecked);
@@ -2287,6 +2332,53 @@ export class Template2Component implements AfterViewInit {
       // For other statuses, don't call API (form submission will handle it)
       this.setPaperStatus(status, false);
     }
+  }
+
+  /**
+   * Handle "Send for PDM Approval" button click
+   * Directly updates paper status to "Waiting for PDM" (statusId = 4)
+   * Similar to inbox-outbox component implementation
+   */
+  handleSendForPDM(): void {
+    if (!this.paperId || this.isSubmitting) return;
+
+    const currentStatusId = this.paperDetails?.contractAwardDetails?.paperStatusId;
+    if (!currentStatusId) {
+      this.toastService.show('Current paper status not found', 'danger');
+      return;
+    }
+
+    this.isSubmitting = true;
+    
+    // Status ID 4 = "Waiting for PDM" (as per paper-status.component.ts)
+    this.paperConfigService.updateMultiplePaperStatus([{
+      paperId: Number(this.paperId),
+      existingStatusId: Number(currentStatusId),
+      statusId: 4 // "Waiting for PDM"
+    }]).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show('Paper has been sent for PDM Approval', 'success');
+          // Reload paper details to reflect status change
+          if (this.paperId) {
+            this.fetchPaperDetails(Number(this.paperId));
+          }
+          // Optionally navigate to all papers list
+          setTimeout(() => {
+            this.router.navigate(['/all-papers']);
+            this.isSubmitting = false;
+          }, 1500);
+        } else {
+          this.toastService.show(response?.message || 'Failed to send paper for PDM Approval', 'danger');
+          this.isSubmitting = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error sending paper for PDM Approval:', error);
+        this.toastService.show('Error sending paper for PDM Approval', 'danger');
+        this.isSubmitting = false;
+      }
+    });
   }
 
   setPaperStatus(status: string, callAPI: boolean = true): void {
@@ -3274,6 +3366,192 @@ export class Template2Component implements AfterViewInit {
     });
   }
 
+  /**
+   * Check if BP Group PSA split percentage is 100%
+   */
+  isBPGroup100Percent(): boolean {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (!costAllocation) return false;
+    
+    const bpGroupPercentageControl = costAllocation.get('percentage_isBPGroup');
+    if (!bpGroupPercentageControl) return false;
+    
+    const percentage = Number(bpGroupPercentageControl.value);
+    return !isNaN(percentage) && percentage === 100;
+  }
+
+  /**
+   * Check if JV Admin has assigned consultation with JV Aligned
+   */
+  hasJVAlignedConsultation(): boolean {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return false;
+    }
+    
+    // Check if logged-in JV Admin user has any consultation row with JV Aligned
+    return this.consultationRows.controls.some(row => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      const jvAligned = row.get('jvAligned')?.value;
+      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId && jvAligned === true;
+    });
+  }
+
+  /**
+   * Get paper CAM user ID
+   */
+  getPaperCamUserId(): number | null {
+    const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value;
+    return camUserId ? Number(camUserId) : null;
+  }
+
+  /**
+   * Get paper Procurement SPA Users as comma-separated string
+   */
+  getPaperProcurementSPAUsers(): string | null {
+    const procurementSPAUsers = this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.value;
+    if (!procurementSPAUsers || !Array.isArray(procurementSPAUsers)) {
+      return null;
+    }
+    return procurementSPAUsers.map(id => id.toString()).join(',');
+  }
+
+  /**
+   * Apply read-only mode for JV Admin users
+   * Disables all form fields except Consultation section
+   */
+  applyJVAdminReadOnlyMode(): void {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return; // Only apply for JV Admin
+    }
+
+    // Disable section dropdown
+    if (this.sectionDropdown && this.sectionDropdown.nativeElement) {
+      this.sectionDropdown.nativeElement.disabled = true;
+    }
+
+    // Disable all form groups except consultation
+    const formGroupsToDisable = [
+      'generalInfo',
+      'procurementDetails',
+      'ccd',
+      'evaluationSummary',
+      'additionalDetails',
+      'valueDelivery',
+      'costSharing',
+      'costAllocation'
+    ];
+
+    formGroupsToDisable.forEach(groupName => {
+      const group = this.generalInfoForm.get(groupName) as FormGroup;
+      if (group) {
+        Object.keys(group.controls).forEach(key => {
+          const control = group.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+      }
+    });
+
+    // Disable form arrays within form groups
+    const riskMitigationArray = this.generalInfoForm.get('additionalDetails.riskMitigation') as FormArray;
+    if (riskMitigationArray) {
+      riskMitigationArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const legalEntitiesAwardedArray = this.generalInfoForm.get('procurementDetails.legalEntitiesAwarded') as FormArray;
+    if (legalEntitiesAwardedArray) {
+      legalEntitiesAwardedArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const commericalEvaluationArray = this.generalInfoForm.get('evaluationSummary.commericalEvaluation') as FormArray;
+    if (commericalEvaluationArray) {
+      commericalEvaluationArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const supplierTechnicalArray = this.generalInfoForm.get('evaluationSummary.supplierTechnical') as FormArray;
+    if (supplierTechnicalArray) {
+      supplierTechnicalArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    // Ensure all dynamically created Cost Allocation controls are disabled
+    // This includes PSA checkboxes, percentage inputs, value inputs, and committee checkboxes
+    // Use multiple timeouts to catch controls that might be enabled later
+    const disableCostAllocationControls = () => {
+      const costAllocationGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
+      if (costAllocationGroup) {
+        // Disable all existing controls in costAllocation
+        Object.keys(costAllocationGroup.controls).forEach(key => {
+          const control = costAllocationGroup.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+
+        // Also disable any dynamically created PSA controls
+        const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+        selectedPSAJV.forEach((psaName: string) => {
+          const checkboxControlName = this.getPSACheckboxControlName(psaName);
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          const valueControlName = this.getPSAValueControlName(psaName);
+
+          [checkboxControlName, percentageControlName, valueControlName].forEach(controlName => {
+            const control = costAllocationGroup.get(controlName);
+            if (control && !control.disabled) {
+              control.disable({ emitEvent: false });
+            }
+          });
+        });
+      }
+    };
+
+    // Call immediately and with delays to catch controls enabled later
+    disableCostAllocationControls();
+    setTimeout(disableCostAllocationControls, 100);
+    setTimeout(disableCostAllocationControls, 500);
+    setTimeout(disableCostAllocationControls, 1000);
+    setTimeout(disableCostAllocationControls, 1500);
+
+    // Note: Consultation section is NOT disabled - it has its own enable/disable logic
+    // based on canEditJVAligned() method
+  }
+
   onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
     const row = this.consultationRows.at(rowIndex);
     const jvAlignedControl = row.get('jvAligned');
@@ -3601,6 +3879,19 @@ export class Template2Component implements AfterViewInit {
 
         const legalNameValue = item.legalName || vendor?.legalName || '';
         const vendorIdValue = vendor?.id || item.vendorId || null;
+        // Set defaults for currency and exchange rate if empty
+        const usdCurrency = this.currenciesData?.find(item => 
+          item.itemValue?.toUpperCase() === 'USD' || 
+          item.itemValue?.toUpperCase().includes('USD') ||
+          item.itemValue?.toUpperCase().includes('US DOLLAR')
+        );
+        const defaultCurrencyCode = (!item.currencyCode || item.currencyCode === '') && usdCurrency 
+          ? usdCurrency.id.toString() 
+          : item.currencyCode;
+        const defaultExchangeRate = (!item.exchangeRate || item.exchangeRate === 0) && usdCurrency
+          ? 1.00
+          : (item.exchangeRate || 0);
+
         const newRow = this.fb.group({
           vendorId: [vendorIdValue ? vendorIdValue.toString() : null],
           legalName: [legalNameValue, Validators.required],
@@ -3613,9 +3904,9 @@ export class Template2Component implements AfterViewInit {
             ? format(new Date(item.contractEndDate), 'yyyy-MM-dd')
             : '', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
           extensionOption: [item.extensionOption],
-          currencyCode: [item.currencyCode],
+          currencyCode: [defaultCurrencyCode],
           totalAwardValueUSD: [item.totalAwardValueUSD],
-          exchangeRate: [item.exchangeRate],
+          exchangeRate: [defaultExchangeRate],
           contractValue: [item.contractValue],
 
         });
@@ -3638,6 +3929,15 @@ export class Template2Component implements AfterViewInit {
       });
       this.checkTotalAwardValueMismatch();
     } else {
+      // Find USD currency for default
+      const usdCurrency = this.currenciesData?.find(item => 
+        item.itemValue?.toUpperCase() === 'USD' || 
+        item.itemValue?.toUpperCase().includes('USD') ||
+        item.itemValue?.toUpperCase().includes('US DOLLAR')
+      );
+      const defaultCurrencyCode = usdCurrency ? usdCurrency.id.toString() : '';
+      const defaultExchangeRate = usdCurrency ? 1.00 : 0;
+
       const newRow = this.fb.group({
         vendorId: [null],
         legalName: ['', Validators.required],
@@ -3645,9 +3945,9 @@ export class Template2Component implements AfterViewInit {
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
         extensionOption: [''],
-        currencyCode: [''],
+        currencyCode: [defaultCurrencyCode],
         totalAwardValueUSD: [0],
-        exchangeRate: [0],
+        exchangeRate: [defaultExchangeRate],
         contractValue: [0],
         id: [0]
       });

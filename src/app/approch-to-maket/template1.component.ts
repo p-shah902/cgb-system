@@ -249,7 +249,7 @@ export class Template1Component implements AfterViewInit  {
         pdManagerName: [null, Validators.required],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
-        exchangeRate: [0], // Number input
+        exchangeRate: [1.00], // Number input - default to 1.00 for USD
         contractValueOriginalCurrency: [0], // Number input
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', Validators.required],
@@ -915,6 +915,8 @@ export class Template1Component implements AfterViewInit  {
           }, { emitEvent: false });
 
           // Enable percentage controls for all selected PSAs and ensure checkboxes are true
+          // Skip enabling if user is JV Admin
+          const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
           allSelectedValues
             .filter((psaName): psaName is string => !!psaName)
             .forEach((psaName: string) => {
@@ -929,7 +931,8 @@ export class Template1Component implements AfterViewInit  {
               }
 
               // Enable percentage control for all selected PSAs (including BP Group)
-              if (percentageControl) {
+              // But skip if user is JV Admin
+              if (percentageControl && !isJVAdmin) {
                 percentageControl.enable({ emitEvent: false });
               }
             });
@@ -943,7 +946,17 @@ export class Template1Component implements AfterViewInit  {
         this.addRow(true);
         this.addBidRow(true);
         this.addConsultationRow(true, false, consultationsData);
-        this.setupPSAListeners()
+        this.setupPSAListeners();
+        
+        // Disable all fields for JV Admin (except Consultation section)
+        // Call multiple times with delays to catch controls that get enabled later
+        this.applyJVAdminReadOnlyMode();
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 600);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 1200);
       }
       },
       error: (error) => {
@@ -964,6 +977,25 @@ export class Template1Component implements AfterViewInit  {
           switch (itemName) {
             case 'Currencies':
               this.currenciesData = (response.data || []).filter(item => item.isActive);
+              // Set default currency to USD if creating new paper
+              if (!this.paperId && this.currenciesData.length > 0) {
+                const usdCurrency = this.currenciesData.find(item => 
+                  item.itemValue?.toUpperCase() === 'USD' || 
+                  item.itemValue?.toUpperCase().includes('USD') ||
+                  item.itemValue?.toUpperCase().includes('US DOLLAR')
+                );
+                if (usdCurrency) {
+                  const currentCurrency = this.generalInfoForm.get('generalInfo.originalCurrency')?.value;
+                  const currentExchangeRate = this.generalInfoForm.get('generalInfo.exchangeRate')?.value;
+                  // Only set defaults if not already set
+                  if (!currentCurrency || currentCurrency === '') {
+                    this.generalInfoForm.get('generalInfo.originalCurrency')?.setValue(usdCurrency.id.toString());
+                  }
+                  if (!currentExchangeRate || currentExchangeRate === 0) {
+                    this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(1.00);
+                  }
+                }
+              }
               break;
 
             case 'Global CGB':
@@ -1164,8 +1196,12 @@ export class Template1Component implements AfterViewInit  {
           const checkboxControlName = this.getPSACheckboxControlName(psaName);
           costAllocationControl.get(checkboxControlName)?.setValue(true);
           // Enable percentage control (for all PSAs including BP Group)
+          // But skip if user is JV Admin
+          const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
           const percentageControlName = this.getPSAPercentageControlName(psaName);
-          costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
+          if (!isJVAdmin) {
+            costAllocationControl.get(percentageControlName)?.enable({ emitEvent: false });
+          }
           // Add consultation row
           this.addConsultationRowOnChangePSAJV(psaName);
         } else {
@@ -1201,7 +1237,9 @@ export class Template1Component implements AfterViewInit  {
       // Function to handle committee checkbox logic
       const handleCommitteeLogic = (isChecked: boolean) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-        if (isChecked) {
+        // Don't enable if user is JV Admin
+        const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+        if (isChecked && !isJVAdmin) {
           percentageControl?.enable();
         }
         this.applyCommitteeLogicForPSA(psaName, isChecked);
@@ -2056,6 +2094,175 @@ export class Template1Component implements AfterViewInit  {
     });
   }
 
+  /**
+   * Check if BP Group PSA split percentage is 100%
+   */
+  isBPGroup100Percent(): boolean {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (!costAllocation) return false;
+    
+    const bpGroupPercentageControl = costAllocation.get('percentage_isBPGroup');
+    if (!bpGroupPercentageControl) return false;
+    
+    const percentage = Number(bpGroupPercentageControl.value);
+    return !isNaN(percentage) && percentage === 100;
+  }
+
+  /**
+   * Check if JV Admin has assigned consultation with JV Aligned
+   */
+  hasJVAlignedConsultation(): boolean {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return false;
+    }
+    
+    // Check if logged-in JV Admin user has any consultation row with JV Aligned
+    return this.consultationRows.controls.some(row => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      const jvAligned = row.get('jvAligned')?.value;
+      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId && jvAligned === true;
+    });
+  }
+
+  /**
+   * Get paper CAM user ID
+   */
+  getPaperCamUserId(): number | null {
+    const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value;
+    return camUserId ? Number(camUserId) : null;
+  }
+
+  /**
+   * Get paper Procurement SPA Users as comma-separated string
+   */
+  getPaperProcurementSPAUsers(): string | null {
+    const procurementSPAUsers = this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.value;
+    if (!procurementSPAUsers || !Array.isArray(procurementSPAUsers)) {
+      return null;
+    }
+    return procurementSPAUsers.map(id => id.toString()).join(',');
+  }
+
+  /**
+   * Apply read-only mode for JV Admin users
+   * Disables all form fields except Consultation section
+   */
+  applyJVAdminReadOnlyMode(): void {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return; // Only apply for JV Admin
+    }
+
+    // Disable section dropdown
+    if (this.sectionDropdown && this.sectionDropdown.nativeElement) {
+      this.sectionDropdown.nativeElement.disabled = true;
+    }
+
+    // Disable all form groups except consultation
+    const formGroupsToDisable = [
+      'generalInfo',
+      'procurementDetails',
+      'valueDelivery',
+      'costSharing',
+      'costAllocation'
+    ];
+
+    formGroupsToDisable.forEach(groupName => {
+      const group = this.generalInfoForm.get(groupName) as FormGroup;
+      if (group) {
+        Object.keys(group.controls).forEach(key => {
+          const control = group.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+      }
+    });
+
+    // Disable batchPaper field
+    const batchPaperControl = this.generalInfoForm.get('batchPaper');
+    if (batchPaperControl && !batchPaperControl.disabled) {
+      batchPaperControl.disable({ emitEvent: false });
+    }
+
+    // Disable isNoExistingBudget field
+    const isNoExistingBudgetControl = this.generalInfoForm.get('isNoExistingBudget');
+    if (isNoExistingBudgetControl && !isNoExistingBudgetControl.disabled) {
+      isNoExistingBudgetControl.disable({ emitEvent: false });
+    }
+
+    // Disable riskMitigation and inviteToBid form arrays
+    const riskMitigationArray = this.generalInfoForm.get('procurementDetails.riskMitigation') as FormArray;
+    if (riskMitigationArray) {
+      riskMitigationArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    const inviteToBidArray = this.generalInfoForm.get('procurementDetails.inviteToBid') as FormArray;
+    if (inviteToBidArray) {
+      inviteToBidArray.controls.forEach(control => {
+        if (control instanceof FormGroup) {
+          Object.keys(control.controls).forEach(key => {
+            const ctrl = control.get(key);
+            if (ctrl && !ctrl.disabled) {
+              ctrl.disable({ emitEvent: false });
+            }
+          });
+        }
+      });
+    }
+
+    // Ensure all dynamically created Cost Allocation controls are disabled
+    // This includes PSA checkboxes, percentage inputs, value inputs, and committee checkboxes
+    // Use multiple timeouts to catch controls that might be enabled later
+    const disableCostAllocationControls = () => {
+      const costAllocationGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
+      if (costAllocationGroup) {
+        // Disable all existing controls in costAllocation
+        Object.keys(costAllocationGroup.controls).forEach(key => {
+          const control = costAllocationGroup.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+
+        // Also disable any dynamically created PSA controls
+        const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+        selectedPSAJV.forEach((psaName: string) => {
+          const checkboxControlName = this.getPSACheckboxControlName(psaName);
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          const valueControlName = this.getPSAValueControlName(psaName);
+          const firstCommitteeControlName = this.getFirstCommitteeControlName(psaName);
+          const secondCommitteeControlName = this.getSecondCommitteeControlName(psaName);
+
+          [checkboxControlName, percentageControlName, valueControlName, firstCommitteeControlName, secondCommitteeControlName].forEach(controlName => {
+            const control = costAllocationGroup.get(controlName);
+            if (control && !control.disabled) {
+              control.disable({ emitEvent: false });
+            }
+          });
+        });
+      }
+    };
+
+    // Call immediately and with delays to catch controls enabled later
+    disableCostAllocationControls();
+    setTimeout(disableCostAllocationControls, 100);
+    setTimeout(disableCostAllocationControls, 500);
+    setTimeout(disableCostAllocationControls, 1000);
+    setTimeout(disableCostAllocationControls, 1500);
+
+    // Note: Consultation section is NOT disabled - it has its own enable/disable logic
+    // based on canEditJVAligned() method
+  }
+
   // Method to handle JV Review user change and enable/disable JV Aligned
   onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
     const row = this.consultationRows.at(rowIndex);
@@ -2233,6 +2440,53 @@ export class Template1Component implements AfterViewInit  {
       // For other statuses, don't call API (form submission will handle it)
       this.setPaperStatus(status, false);
     }
+  }
+
+  /**
+   * Handle "Send for PDM Approval" button click
+   * Directly updates paper status to "Waiting for PDM" (statusId = 4)
+   * Similar to inbox-outbox component implementation
+   */
+  handleSendForPDM(): void {
+    if (!this.paperId || this.isSubmitting) return;
+
+    const currentStatusId = this.paperDetails?.paperDetails?.paperStatusId;
+    if (!currentStatusId) {
+      this.toastService.show('Current paper status not found', 'danger');
+      return;
+    }
+
+    this.isSubmitting = true;
+    
+    // Status ID 4 = "Waiting for PDM" (as per paper-status.component.ts)
+    this.paperConfigService.updateMultiplePaperStatus([{
+      paperId: Number(this.paperId),
+      existingStatusId: Number(currentStatusId),
+      statusId: 4 // "Waiting for PDM"
+    }]).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show('Paper has been sent for PDM Approval', 'success');
+          // Reload paper details to reflect status change
+          if (this.paperId) {
+            this.fetchPaperDetails(Number(this.paperId));
+          }
+          // Optionally navigate to all papers list
+          setTimeout(() => {
+            this.router.navigate(['/all-papers']);
+            this.isSubmitting = false;
+          }, 1500);
+        } else {
+          this.toastService.show(response?.message || 'Failed to send paper for PDM Approval', 'danger');
+          this.isSubmitting = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error sending paper for PDM Approval:', error);
+        this.toastService.show('Error sending paper for PDM Approval', 'danger');
+        this.isSubmitting = false;
+      }
+    });
   }
 
   setPaperStatus(status: string, callAPI: boolean = true): void {

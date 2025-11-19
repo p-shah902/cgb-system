@@ -39,34 +39,46 @@
     </button>
 
     <!-- Send for PDM -->
-    <button class="btn btn-primary" type="submit" data-status="Waiting for PDM"
-      *ngIf="permission.canShowSendForPDM(roleName, statusName)" [disabled]="isLoading">
+    <button class="btn btn-primary" type="button" 
+      *ngIf="permission.canShowSendForPDM(roleName, statusName)" 
+      [disabled]="isLoading"
+      (click)="sendForPDM.emit()">
       <span *ngIf="!isLoading">Send for PDM Approval</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
     </button>
 
-    <!-- Update -->
+    <!-- Update - General Update button using edit paper condition logic -->
+    <button class="btn btn-dark" type="submit" 
+      [attr.data-status]="statusName"
+      *ngIf="canEditPaper() && !permission.canShowDraftRegisterInEdit(roleName, statusName)"
+      [disabled]="isLoading">
+      <span *ngIf="!isLoading">Update</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Loading...</span>
+    </button>
+
+    <!-- Update - Legacy Update button for Registered status (kept for backward compatibility) -->
     <button class="btn btn-dark" type="submit" data-status="Registered"
-      *ngIf="permission.canShowUpdate(roleName, statusName)"
+      *ngIf="permission.canShowUpdate(roleName, statusName) && !canEditPaper()"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
     </button>
 
-    <!-- Update -->
+    <!-- Update - Legacy Update button for On Pre-CGB (kept for backward compatibility) -->
     <button class="btn btn-dark" type="submit" data-status="On Pre-CGB"
-      *ngIf="((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB')"
+      *ngIf="((roleName === 'Secretary' || roleName === 'Super Admin') && statusName === 'On Pre-CGB') && !canEditPaper()"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
     </button>
 
-    <!-- Update -->
+    <!-- Update - Legacy Update button for On JV Approval (kept for backward compatibility) -->
     <button class="btn btn-dark" type="submit" data-status="On JV Approval"
-      *ngIf="(statusName === 'On JV Approval' && canShowUpdateForJVApproval)"
+      *ngIf="(statusName === 'On JV Approval' && canShowUpdateForJVApproval) && !canEditPaper()"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>

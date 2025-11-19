@@ -574,7 +574,9 @@ export class Template4Component  implements AfterViewInit{
               }
 
               // Enable percentage control for all selected PSAs (including BP Group)
-              if (percentageControl) {
+              // But skip if user is JV Admin
+              const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+              if (percentageControl && !isJVAdmin) {
                 percentageControl.enable({ emitEvent: false });
               }
             });
@@ -584,7 +586,18 @@ export class Template4Component  implements AfterViewInit{
 
 
         this.addConsultationRow(true, false, consultationsData);
-        this.setupPSAListeners()
+        this.setupPSAListeners();
+        
+        // Disable all fields for JV Admin (except Consultation section)
+        // Call multiple times with delays to catch controls that get enabled later
+        this.applyJVAdminReadOnlyMode();
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 600);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 1200);
+        
         this.getUploadedDocs(paperId);
       }
       },
@@ -1538,6 +1551,130 @@ export class Template4Component  implements AfterViewInit{
     });
   }
 
+  /**
+   * Check if BP Group PSA split percentage is 100%
+   */
+  isBPGroup100Percent(): boolean {
+    const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
+    if (!costAllocation) return false;
+    
+    const bpGroupPercentageControl = costAllocation.get('percentage_isBPGroup');
+    if (!bpGroupPercentageControl) return false;
+    
+    const percentage = Number(bpGroupPercentageControl.value);
+    return !isNaN(percentage) && percentage === 100;
+  }
+
+  /**
+   * Check if JV Admin has assigned consultation with JV Aligned
+   */
+  hasJVAlignedConsultation(): boolean {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return false;
+    }
+    
+    // Check if logged-in JV Admin user has any consultation row with JV Aligned
+    return this.consultationRows.controls.some(row => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      const jvAligned = row.get('jvAligned')?.value;
+      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId && jvAligned === true;
+    });
+  }
+
+  /**
+   * Get paper CAM user ID
+   */
+  getPaperCamUserId(): number | null {
+    const camUserId = this.generalInfoForm.get('generalInfo.camUserId')?.value;
+    return camUserId ? Number(camUserId) : null;
+  }
+
+  /**
+   * Get paper Procurement SPA Users as comma-separated string
+   */
+  getPaperProcurementSPAUsers(): string | null {
+    const procurementSPAUsers = this.generalInfoForm.get('generalInfo.procurementSPAUsers')?.value;
+    if (!procurementSPAUsers || !Array.isArray(procurementSPAUsers)) {
+      return null;
+    }
+    return procurementSPAUsers.map(id => id.toString()).join(',');
+  }
+
+  /**
+   * Apply read-only mode for JV Admin users
+   * Disables all form fields except Consultation section
+   */
+  applyJVAdminReadOnlyMode(): void {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return; // Only apply for JV Admin
+    }
+
+    // Disable section dropdown
+    if (this.sectionDropdown && this.sectionDropdown.nativeElement) {
+      this.sectionDropdown.nativeElement.disabled = true;
+    }
+
+    // Disable all form groups except consultation
+    const formGroupsToDisable = [
+      'generalInfo',
+      'costAllocation'
+    ];
+
+    formGroupsToDisable.forEach(groupName => {
+      const group = this.generalInfoForm.get(groupName) as FormGroup;
+      if (group) {
+        Object.keys(group.controls).forEach(key => {
+          const control = group.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+      }
+    });
+
+    // Ensure all dynamically created Cost Allocation controls are disabled
+    // This includes PSA checkboxes, percentage inputs, value inputs, and committee checkboxes
+    // Use multiple timeouts to catch controls that might be enabled later
+    const disableCostAllocationControls = () => {
+      const costAllocationGroup = this.generalInfoForm.get('costAllocation') as FormGroup;
+      if (costAllocationGroup) {
+        // Disable all existing controls in costAllocation
+        Object.keys(costAllocationGroup.controls).forEach(key => {
+          const control = costAllocationGroup.get(key);
+          if (control && !control.disabled) {
+            control.disable({ emitEvent: false });
+          }
+        });
+
+        // Also disable any dynamically created PSA controls
+        const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+        selectedPSAJV.forEach((psaName: string) => {
+          const checkboxControlName = this.getPSACheckboxControlName(psaName);
+          const percentageControlName = this.getPSAPercentageControlName(psaName);
+          const valueControlName = this.getPSAValueControlName(psaName);
+          const firstCommitteeControlName = this.getFirstCommitteeControlName(psaName);
+
+          [checkboxControlName, percentageControlName, valueControlName, firstCommitteeControlName].forEach(controlName => {
+            const control = costAllocationGroup.get(controlName);
+            if (control && !control.disabled) {
+              control.disable({ emitEvent: false });
+            }
+          });
+        });
+      }
+    };
+
+    // Call immediately and with delays to catch controls enabled later
+    disableCostAllocationControls();
+    setTimeout(disableCostAllocationControls, 100);
+    setTimeout(disableCostAllocationControls, 500);
+    setTimeout(disableCostAllocationControls, 1000);
+    setTimeout(disableCostAllocationControls, 1500);
+
+    // Note: Consultation section is NOT disabled - it has its own enable/disable logic
+    // based on canEditJVAligned() method
+  }
+
   onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
     const row = this.consultationRows.at(rowIndex);
     const jvAlignedControl = row.get('jvAligned');
@@ -1935,6 +2072,53 @@ export class Template4Component  implements AfterViewInit{
         this.getPaperCommentLogs(Number(this.paperId));
       })
     }
+  }
+
+  /**
+   * Handle "Send for PDM Approval" button click
+   * Directly updates paper status to "Waiting for PDM" (statusId = 4)
+   * Similar to inbox-outbox component implementation
+   */
+  handleSendForPDM(): void {
+    if (!this.paperId || this.isSubmitting) return;
+
+    const currentStatusId = this.paperDetails?.paperDetails?.paperStatusId;
+    if (!currentStatusId) {
+      this.toastService.show('Current paper status not found', 'danger');
+      return;
+    }
+
+    this.isSubmitting = true;
+    
+    // Status ID 4 = "Waiting for PDM" (as per paper-status.component.ts)
+    this.paperConfigService.updateMultiplePaperStatus([{
+      paperId: Number(this.paperId),
+      existingStatusId: Number(currentStatusId),
+      statusId: 4 // "Waiting for PDM"
+    }]).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show('Paper has been sent for PDM Approval', 'success');
+          // Reload paper details to reflect status change
+          if (this.paperId) {
+            this.fetchPaperDetails(Number(this.paperId));
+          }
+          // Optionally navigate to all papers list
+          setTimeout(() => {
+            this.router.navigate(['/all-papers']);
+            this.isSubmitting = false;
+          }, 1500);
+        } else {
+          this.toastService.show(response?.message || 'Failed to send paper for PDM Approval', 'danger');
+          this.isSubmitting = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error sending paper for PDM Approval:', error);
+        this.toastService.show('Error sending paper for PDM Approval', 'danger');
+        this.isSubmitting = false;
+      }
+    });
   }
 
   setPaperStatus(status: string, callAPI: boolean = true): void {

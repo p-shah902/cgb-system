@@ -1,0 +1,192 @@
+<!-- Toasts Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <ngb-toast
+    *ngFor="let toast of toastService.toasts"
+    [class]="'bg-' + toast.type +' text-white'"
+    [autohide]="true"
+    [delay]="5000"
+    (hidden)="toastService.remove(toast)"
+  >
+    {{ toast.message }}
+  </ngb-toast>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      
+
+      <div class="partners-approvals-table-div position-relative">
+        <!-- Loading Overlay -->
+        <div *ngIf="isLoading" class="loading-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+             style="background-color: rgba(255, 255, 255, 0.95); z-index: 1000; min-height: 500px; border-radius: 12px;">
+          <div class="table-loader">
+            <div class="spinner"></div>
+            <p>Loading partners approval data...</p>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div [style.display]="isLoading ? 'none' : 'block'">
+          <div class="table-responsive">
+            <table class="table table-bordered partners-approvals-table">
+              <thead>
+                <tr>
+                  <th rowspan="2" class="paper-col">Paper</th>
+                </tr>
+                <tr>
+                  <th colspan="13" class="partners-section">Partners</th>
+                </tr>
+                <tr class="partners-header-row">
+                  <th></th>
+                  <th colspan="2" class="partner-group">ACG</th>
+                  <th colspan="2" class="partner-group">SD</th>
+                  <th colspan="2" class="partner-group">SCP</th>
+                  <th colspan="2" class="partner-group">BTC</th>
+                  <th colspan="2" class="partner-group">Karabagh</th>
+                  <th class="partner-group">Sh-Asiman</th>
+                </tr>
+                <tr class="partners-subheader-row">
+                  <th></th>
+                  <th>CMC</th>
+                  <th>SC</th>
+                  <th>SDCC</th>
+                  <th>SDMC</th>
+                  <th>SCP CC</th>
+                  <th>SCP Board</th>
+                  <th>BTC CC</th>
+                  <th>BTC Board</th>
+                  <th>KCC</th>
+                  <th>KMC</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let paperData of paperApprovalData; trackBy: trackByPaperId" [attr.data-paper-id]="paperData.paper.paperID">
+                  <td class="paper-cell">
+                    <div class="paper-info">
+                      <p class="cursor-pointer paper-title" 
+                         (click)="gotoPaper(paperData.paper.paperID, paperData.paper.paperType)">
+                        <b>#{{ paperData.paper.paperID }}</b> - 
+                        {{ paperData.paper.description || paperData.paper.description || paperData.paper.paperType }}
+                      </p>
+                    </div>
+                  </td>
+           
+                  
+                  <!-- Partner Approvals -->
+                  <!-- ACG - CMC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'ACG', 'CMC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'ACG', 'CMC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'ACG', 'CMC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- ACG - SC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'ACG', 'SC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'ACG', 'SC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'ACG', 'SC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- SD - SDCC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'SD', 'SDCC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'SD', 'SDCC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'SD', 'SDCC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- SD - SDMC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'SD', 'SDMC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'SD', 'SDMC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'SD', 'SDMC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- SCP - SCP CC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'SCP', 'SCP_CC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'SCP', 'SCP_CC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'SCP', 'SCP_CC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- SCP - SCP Board -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'SCP', 'SCP_Board'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'SCP', 'SCP_Board') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'SCP', 'SCP_Board') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- BTC - BTC CC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'BTC', 'BTC_CC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'BTC', 'BTC_CC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'BTC', 'BTC_CC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- BTC - BTC Board -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'BTC', 'BTC_Board'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'BTC', 'BTC_Board') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'BTC', 'BTC_Board') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- Karabagh - KCC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'Karabagh', 'KCC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'Karabagh', 'KCC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'Karabagh', 'KCC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- Karabagh - KMC -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'Karabagh', 'KMC'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'Karabagh', 'KMC') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'Karabagh', 'KMC') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                  
+                  <!-- Sh-Asiman -->
+                  <td class="status-cell">
+                    <div class="status-indicator" 
+                         [ngClass]="getStatusClass(getPartnerApprovalStatus(paperData, 'Sh-Asiman'))">
+                      <span>{{ getPartnerApprovalStatus(paperData, 'Sh-Asiman') === 'approved' ? '✓' : 
+                              getPartnerApprovalStatus(paperData, 'Sh-Asiman') === 'rejected' ? '✗' : '-' }}</span>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Empty state -->
+                <tr *ngIf="paperApprovalData.length === 0 && !isLoading">
+                  <td [attr.colspan]="15" class="text-center py-5">
+                    <p class="text-muted">No papers found for partner approval status report.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

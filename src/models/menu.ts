@@ -202,6 +202,17 @@ export const menuItems: Menu[] = [
             <path d="M2.66667 13.3333C2.66667 11.1242 4.45762 9.33333 6.66667 9.33333H9.33333C11.5424 9.33333 13.3333 11.1242 13.3333 13.3333" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M8 10.6667L10 12.6667L12 10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>`
+      },
+      {
+        path: '/partners-approvals',
+        title: 'Partners',
+        roleMap: 'CGB Voting',
+        checkPermission: true,
+        icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.66667 2.66667H13.3333C13.7015 2.66667 14 3.03486 14 3.33333V13.3333C14 13.7015 13.7015 14 13.3333 14H2.66667C2.29848 14 2 13.7015 2 13.3333V3.33333C2 3.03486 2.29848 2.66667 2.66667 2.66667Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 6.66667H14M2 10H14" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.33333 6.66667H10.6667M5.33333 9.33333H8M5.33333 12H10.6667" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>`
       }
     ]
   },
