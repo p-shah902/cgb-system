@@ -1301,7 +1301,7 @@ export class Template4Component  implements AfterViewInit{
         if (response.status && response.data) {
           const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
           this.userDetails = dataList;
-          this.procurementTagUsers = dataList.filter(user => user.roleName !== 'Procurement Tag').map(t => ({
+          this.procurementTagUsers = dataList.filter(user => user.roleName === 'Procurement Tag').map(t => ({
             label: t.displayName,
             value: t.id
           }));
