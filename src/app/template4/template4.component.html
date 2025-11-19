@@ -635,11 +635,17 @@
                 [isLoading]="isSubmitting"
                 [canShowUpdateForJVApproval]="canShowUpdateForJVApproval()"
                 [canShowPartnerApproveReject]="canShowPartnerApproveReject"
+                [currentUserId]="loggedInUser?.id ?? null"
+                [paperCamUserId]="getPaperCamUserId()"
+                [paperProcurementSPAUsers]="getPaperProcurementSPAUsers()"
+                [isBPGroup100Percent]="isBPGroup100Percent()"
+                [hasJVAlignedConsultation]="hasJVAlignedConsultation()"
                 (openReturn)="open($event, content3, paperId)"
                 (openApprove)="open($event, content2, paperId)"
                 (openAddReview)="open($event, content4, paperId)"
                 (returnToRequested)="setPaperStatus('On CGB', true)"
                 (partnerApproveReject)="handlePartnerApproveReject($event)"
+                (sendForPDM)="handleSendForPDM()"
               ></app-action-bar>
             </div>
           </form>
