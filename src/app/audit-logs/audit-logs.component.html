@@ -90,6 +90,56 @@
             </div>
           </div>
         </div>
+        
+        <!-- Pagination -->
+        <div class="pagination-wrapper mt-4" *ngIf="getTotalPages() > 0">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <!-- Page Size Selector -->
+            <div class="d-flex align-items-center gap-2">
+              <label class="text-muted mb-0">Items per page:</label>
+              <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="itemsPerPage" (change)="onPageSizeChange()">
+                <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+              </select>
+            </div>
+            
+            <!-- Pagination Info -->
+            <div class="pagination-info">
+              <span class="text-muted">
+                Showing {{ getStartItem() }} - {{ getEndItem() }} of {{ getTotalItems() }} items
+              </span>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div class="pagination-controls d-flex align-items-center gap-2">
+              <button class="btn btn-outline-secondary btn-sm" 
+                      (click)="prevPage()" 
+                      [disabled]="currentPage === 1">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="d-flex gap-1">
+                <button *ngFor="let page of getPageNumbers()" 
+                        class="btn btn-sm"
+                        [class.btn-primary]="page === currentPage"
+                        [class.btn-outline-secondary]="page !== currentPage && page !== -1"
+                        [class.btn-link]="page === -1"
+                        [disabled]="page === -1"
+                        (click)="goToPage(page)">
+                  <span *ngIf="page !== -1">{{ page }}</span>
+                  <span *ngIf="page === -1">...</span>
+                </button>
+              </div>
+              <button class="btn btn-outline-secondary btn-sm" 
+                      (click)="nextPage()" 
+                      [disabled]="currentPage === getTotalPages()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

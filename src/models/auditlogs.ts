@@ -19,3 +19,20 @@ export interface AuditLogs {
   modifiedByName: string;
   modifiedDate: string;
 }
+
+export interface GetAuditLogsListFilter {
+  searchTerm?: string;
+  paperId?: number;
+  activityType?: string;
+}
+
+export interface GetAuditLogsListPaging {
+  start: number;
+  length: number;
+}
+
+export interface GetAuditLogsListRequest {
+  filter?: GetAuditLogsListFilter;
+  paging?: GetAuditLogsListPaging;
+  orderType?: string;
+}

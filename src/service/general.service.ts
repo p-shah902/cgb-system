@@ -5,7 +5,7 @@ import { DepartmentDetails } from '../models/department';
 import { ApiResponse } from '../models/role';
 import { getCountryListUri, getDepartmentListUri, getAuditLogs } from '../utils/api/api';
 import { CountryDetail } from '../models/general';
-import { AuditLogs } from '../models/auditlogs';
+import { AuditLogs, GetAuditLogsListRequest } from '../models/auditlogs';
 
 @Injectable({
   providedIn: 'root',
@@ -44,7 +44,21 @@ export class Generalervice {
       );
   }
 
-  getAuditLogs(): Observable<ApiResponse<AuditLogs[]>> {
-    return this.http.get<ApiResponse<AuditLogs[]>>(getAuditLogs);
+  getAuditLogs(request?: GetAuditLogsListRequest): Observable<ApiResponse<AuditLogs[]>> {
+    // Build payload with default values if not provided
+    const payload: any = {
+      orderType: request?.orderType || 'DESC',
+      paging: request?.paging || {
+        start: 0,
+        length: 1000
+      }
+    };
+
+    // Add optional filter fields if present
+    if (request?.filter?.searchTerm) payload.searchTerm = request.filter.searchTerm;
+    if (request?.filter?.paperId) payload.paperId = request.filter.paperId;
+    if (request?.filter?.activityType) payload.activityType = request.filter.activityType;
+
+    return this.http.post<ApiResponse<AuditLogs[]>>(getAuditLogs, payload);
   }
 }
