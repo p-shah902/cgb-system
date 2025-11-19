@@ -171,7 +171,7 @@ export const menuItems: Menu[] = [
   },
   {
     path: '/cgb-voting',
-    title: 'CGB Voting',
+    title: 'Approvals',
     roleMap: 'CGB Voting',
     checkPermission: true,
     icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -182,7 +182,7 @@ export const menuItems: Menu[] = [
     children: [
       {
         path: '/pre-cgb-review',
-        title: 'Pre CGB Review',
+        title: 'Pre-CGB',
         roleMap: 'Pre-CGB Review',
         checkPermission: true,
         icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -194,7 +194,7 @@ export const menuItems: Menu[] = [
       },
       {
         path: '/cgb-voting',
-        title: 'CGB Voting',
+        title: 'CGB',
         roleMap: 'CGB Voting',
         checkPermission: true,
         icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

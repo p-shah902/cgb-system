@@ -695,6 +695,7 @@ export class Template3Component implements AfterViewInit {
         let contractJvApprovalsData: any = null;
         let contractCostAllocationJVApprovalData: any[] = [];
         let variationContractValues: any = null;
+        let contractConsultationsData: any[] = [];
 
         if (paperType === 'Variation Paper') {
           // For Variation Papers, data is in paperDetails.paperDetails
@@ -702,6 +703,7 @@ export class Template3Component implements AfterViewInit {
           contractValueData = contractPaperDetails?.paperDetails?.valueDeliveriesCostsharing?.[0] || null;
           contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || null;
           contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || [];
+          contractConsultationsData = contractPaperDetails?.paperDetails?.consultationsDetails || contractPaperDetails?.consultationsDetails || [];
           // Contract values are in the same paperDetails object
           variationContractValues = contractPaperDetails?.paperDetails?.paperDetails || null;
 
@@ -712,6 +714,7 @@ export class Template3Component implements AfterViewInit {
           contractValueData = contractPaperDetails?.paperDetails?.valueDeliveries?.[0] || null;
           contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || null;
           contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || [];
+          contractConsultationsData = contractPaperDetails?.paperDetails?.consultationsDetails || contractPaperDetails?.consultationsDetails || [];
         }
 
         if (!contractGeneralInfo) {
@@ -827,7 +830,7 @@ export class Template3Component implements AfterViewInit {
             : null,
           purposeRequired: contractGeneralInfo?.purposeRequired || '',
           otherRelatedCgbPapers: contractGeneralInfo?.otherRelatedCgbPapers || '',
-          fullLegalName: contractGeneralInfo?.vendorId ? contractGeneralInfo.vendorId.toString() : null,
+          fullLegalName: contractGeneralInfo?.vendorId ? contractGeneralInfo.vendorId.toString() : (contractGeneralInfo?.fullLegalName ? contractGeneralInfo.fullLegalName.toString() : null),
           contractNo: contractGeneralInfo?.contractNo || '',
           globalCGB: contractGeneralInfo?.globalCGB ? contractGeneralInfo.globalCGB.toString() : '',
           camUserId: contractGeneralInfo?.camUserId ? contractGeneralInfo.camUserId.toString() : null,
@@ -856,8 +859,6 @@ export class Template3Component implements AfterViewInit {
           remunerationType: contractGeneralInfo?.remunerationType ? contractGeneralInfo.remunerationType.toString() : '',
           isPaymentRequired: contractGeneralInfo?.isPaymentRequired || false,
           prePayAmount: contractGeneralInfo?.prePayAmount || 0,
-          isConflictOfInterest: contractGeneralInfo?.isConflictOfInterest || false,
-          conflictOfInterestComment: contractGeneralInfo?.conflictOfInterestComment || '',
           isRetrospectiveApproval: contractGeneralInfo?.isRetrospectiveApproval || false,
           retrospectiveApprovalReason: contractGeneralInfo?.retrospectiveApprovalReason || '',
         },
@@ -900,9 +901,13 @@ export class Template3Component implements AfterViewInit {
               spendOnContract: variationContractValues?.spendOnContract || 0,
               isCurrencyLinktoBaseCost: variationContractValues?.isCurrencyLinktoBaseCost || false,
               noCurrencyLinkNotes: variationContractValues?.noCurrencyLinkNotes || '',
+              isConflictOfInterest: variationContractValues?.isConflictOfInterest || contractGeneralInfo?.isConflictOfInterest || false,
+              conflictOfInterestComment: variationContractValues?.conflictOfInterestComment || contractGeneralInfo?.conflictOfInterestComment || '',
             };
           } else {
             // For Contract Award: Use existing logic
+            // Note: Contract Award has conflict of interest in procurementDetails, but we need to check the actual structure
+            const procurementDetails = contractPaperDetails?.paperDetails?.procurementDetails || null;
             return {
               // Map Contract value to Previous Variation Total in Variation template
               previousVariationTotal: contractGeneralInfo?.totalAwardValueUSD || 0,
@@ -912,6 +917,8 @@ export class Template3Component implements AfterViewInit {
               contractValue: 0,
               isCurrencyLinktoBaseCost: contractGeneralInfo?.contractCurrencyLinktoBaseCost || false,
               noCurrencyLinkNotes: contractGeneralInfo?.explanationsforBaseCost || '',
+              isConflictOfInterest: procurementDetails?.isConflictOfInterest || contractGeneralInfo?.isConflictOfInterest || false,
+              conflictOfInterestComment: procurementDetails?.conflictOfInterestComment || contractGeneralInfo?.conflictOfInterestComment || '',
             };
           }
         })(),
@@ -965,6 +972,12 @@ export class Template3Component implements AfterViewInit {
       // Setup PSA listeners after patching values
       this.setupPSAListeners();
       this.setupValueDeliveryRemarksValidation();
+      
+      // Populate consultation rows from contract paper
+      if (contractConsultationsData && contractConsultationsData.length > 0) {
+        // Use isFirst=true to properly populate all consultation rows from contract paper
+        this.addConsultationRow(true, false, contractConsultationsData);
+      }
       },
       error: (error) => {
         console.error('Error fetching contract paper details:', error);
