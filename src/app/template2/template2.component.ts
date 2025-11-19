@@ -415,7 +415,7 @@ export class Template2Component implements AfterViewInit {
           null,
           [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]
         ],
-        exchangeRate: [0], // Number input
+        exchangeRate: [1.00], // Number input - default to 1.00 for USD
         contractValue: [0],
         remunerationType: ['', Validators.required],
         isPaymentRequired: [null, Validators.required],
@@ -978,6 +978,37 @@ export class Template2Component implements AfterViewInit {
           switch (itemName) {
             case 'Currencies':
               this.currenciesData = response.data || [];
+              // Set default currency to USD if creating new paper
+              if (!this.paperId && this.currenciesData.length > 0) {
+                const usdCurrency = this.currenciesData.find(item => 
+                  item.itemValue?.toUpperCase() === 'USD' || 
+                  item.itemValue?.toUpperCase().includes('USD') ||
+                  item.itemValue?.toUpperCase().includes('US DOLLAR')
+                );
+                if (usdCurrency) {
+                  const currentCurrency = this.generalInfoForm.get('generalInfo.currencyCode')?.value;
+                  const currentExchangeRate = this.generalInfoForm.get('generalInfo.exchangeRate')?.value;
+                  // Only set defaults if not already set
+                  if (!currentCurrency || currentCurrency === '') {
+                    this.generalInfoForm.get('generalInfo.currencyCode')?.setValue(usdCurrency.id.toString());
+                  }
+                  if (!currentExchangeRate || currentExchangeRate === 0) {
+                    this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(1.00);
+                  }
+                  
+                  // Also set defaults for any existing legal entities rows that have empty currency/exchange rate
+                  this.inviteToBid.controls.forEach((control, index) => {
+                    const rowCurrency = control.get('currencyCode')?.value;
+                    const rowExchangeRate = control.get('exchangeRate')?.value;
+                    if (!rowCurrency || rowCurrency === '') {
+                      control.get('currencyCode')?.setValue(usdCurrency.id.toString());
+                    }
+                    if (!rowExchangeRate || rowExchangeRate === 0) {
+                      control.get('exchangeRate')?.setValue(1.00);
+                    }
+                  });
+                }
+              }
               break;
 
             case 'Global CGB':
@@ -3601,6 +3632,19 @@ export class Template2Component implements AfterViewInit {
 
         const legalNameValue = item.legalName || vendor?.legalName || '';
         const vendorIdValue = vendor?.id || item.vendorId || null;
+        // Set defaults for currency and exchange rate if empty
+        const usdCurrency = this.currenciesData?.find(item => 
+          item.itemValue?.toUpperCase() === 'USD' || 
+          item.itemValue?.toUpperCase().includes('USD') ||
+          item.itemValue?.toUpperCase().includes('US DOLLAR')
+        );
+        const defaultCurrencyCode = (!item.currencyCode || item.currencyCode === '') && usdCurrency 
+          ? usdCurrency.id.toString() 
+          : item.currencyCode;
+        const defaultExchangeRate = (!item.exchangeRate || item.exchangeRate === 0) && usdCurrency
+          ? 1.00
+          : (item.exchangeRate || 0);
+
         const newRow = this.fb.group({
           vendorId: [vendorIdValue ? vendorIdValue.toString() : null],
           legalName: [legalNameValue, Validators.required],
@@ -3613,9 +3657,9 @@ export class Template2Component implements AfterViewInit {
             ? format(new Date(item.contractEndDate), 'yyyy-MM-dd')
             : '', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
           extensionOption: [item.extensionOption],
-          currencyCode: [item.currencyCode],
+          currencyCode: [defaultCurrencyCode],
           totalAwardValueUSD: [item.totalAwardValueUSD],
-          exchangeRate: [item.exchangeRate],
+          exchangeRate: [defaultExchangeRate],
           contractValue: [item.contractValue],
 
         });
@@ -3638,6 +3682,15 @@ export class Template2Component implements AfterViewInit {
       });
       this.checkTotalAwardValueMismatch();
     } else {
+      // Find USD currency for default
+      const usdCurrency = this.currenciesData?.find(item => 
+        item.itemValue?.toUpperCase() === 'USD' || 
+        item.itemValue?.toUpperCase().includes('USD') ||
+        item.itemValue?.toUpperCase().includes('US DOLLAR')
+      );
+      const defaultCurrencyCode = usdCurrency ? usdCurrency.id.toString() : '';
+      const defaultExchangeRate = usdCurrency ? 1.00 : 0;
+
       const newRow = this.fb.group({
         vendorId: [null],
         legalName: ['', Validators.required],
@@ -3645,9 +3698,9 @@ export class Template2Component implements AfterViewInit {
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
         extensionOption: [''],
-        currencyCode: [''],
+        currencyCode: [defaultCurrencyCode],
         totalAwardValueUSD: [0],
-        exchangeRate: [0],
+        exchangeRate: [defaultExchangeRate],
         contractValue: [0],
         id: [0]
       });

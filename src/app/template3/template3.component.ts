@@ -525,7 +525,7 @@ export class Template3Component implements AfterViewInit {
         originalContractValue: [0],
         previousVariationTotal: [0],
         thisVariationNote: [0, Validators.required],
-        exchangeRate: [0],
+        exchangeRate: [1.00], // Default to 1.00 for USD
         currencyCode: [''],
         contractValue: [0],
         revisedContractValue: [0],
@@ -1156,6 +1156,25 @@ export class Template3Component implements AfterViewInit {
           switch (itemName) {
             case 'Currencies':
               this.currenciesData = (response.data || []).filter(item => item.isActive);
+              // Set default currency to USD if creating new paper
+              if (!this.paperId && this.currenciesData.length > 0) {
+                const usdCurrency = this.currenciesData.find(item => 
+                  item.itemValue?.toUpperCase() === 'USD' || 
+                  item.itemValue?.toUpperCase().includes('USD') ||
+                  item.itemValue?.toUpperCase().includes('US DOLLAR')
+                );
+                if (usdCurrency) {
+                  const currentCurrency = this.generalInfoForm.get('contractValues.currencyCode')?.value;
+                  const currentExchangeRate = this.generalInfoForm.get('contractValues.exchangeRate')?.value;
+                  // Only set defaults if not already set
+                  if (!currentCurrency || currentCurrency === '') {
+                    this.generalInfoForm.get('contractValues.currencyCode')?.setValue(usdCurrency.id.toString());
+                  }
+                  if (!currentExchangeRate || currentExchangeRate === 0) {
+                    this.generalInfoForm.get('contractValues.exchangeRate')?.setValue(1.00);
+                  }
+                }
+              }
               break;
 
             case 'Global CGB':

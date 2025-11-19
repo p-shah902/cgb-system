@@ -249,7 +249,7 @@ export class Template1Component implements AfterViewInit  {
         pdManagerName: [null, Validators.required],
         contractValueUsd: [null, [Validators.required, Validators.min(0)]],
         originalCurrency: [''],
-        exchangeRate: [0], // Number input
+        exchangeRate: [1.00], // Number input - default to 1.00 for USD
         contractValueOriginalCurrency: [0], // Number input
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', Validators.required],
@@ -964,6 +964,25 @@ export class Template1Component implements AfterViewInit  {
           switch (itemName) {
             case 'Currencies':
               this.currenciesData = (response.data || []).filter(item => item.isActive);
+              // Set default currency to USD if creating new paper
+              if (!this.paperId && this.currenciesData.length > 0) {
+                const usdCurrency = this.currenciesData.find(item => 
+                  item.itemValue?.toUpperCase() === 'USD' || 
+                  item.itemValue?.toUpperCase().includes('USD') ||
+                  item.itemValue?.toUpperCase().includes('US DOLLAR')
+                );
+                if (usdCurrency) {
+                  const currentCurrency = this.generalInfoForm.get('generalInfo.originalCurrency')?.value;
+                  const currentExchangeRate = this.generalInfoForm.get('generalInfo.exchangeRate')?.value;
+                  // Only set defaults if not already set
+                  if (!currentCurrency || currentCurrency === '') {
+                    this.generalInfoForm.get('generalInfo.originalCurrency')?.setValue(usdCurrency.id.toString());
+                  }
+                  if (!currentExchangeRate || currentExchangeRate === 0) {
+                    this.generalInfoForm.get('generalInfo.exchangeRate')?.setValue(1.00);
+                  }
+                }
+              }
               break;
 
             case 'Global CGB':
