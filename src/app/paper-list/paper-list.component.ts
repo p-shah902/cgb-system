@@ -70,8 +70,11 @@ export class PaperListComponent implements OnInit {
     sortHighToLow: false,
   };
   paperList: PaperConfig[] = [];
+  allPaperList: PaperConfig[] = []; // Store all papers for frontend filtering
+  filteredPaperList: PaperConfig[] = []; // Filtered papers
+  paginatedPaperList: PaperConfig[] = []; // Paginated papers
   searchText: string = ''; // Search input value
-  totalItems: number = 0; // Total count from backend
+  totalItems: number = 0; // Total count after filtering
   isDesc = false;
   aToZ: string = 'Z A';
   user: LoginUser | null = null;
@@ -122,7 +125,9 @@ export class PaperListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPaperConfigList();
-    this.loadPaperStatusListData()
+    this.loadPaperStatusListData();
+    // Initialize filter applied status
+    this.updateFilterAppliedStatus();
   }
 
   openDropdown() {
@@ -166,55 +171,36 @@ export class PaperListComponent implements OnInit {
   loadPaperConfigList() {
     this.isLoading = true;
     
-    // Calculate start index based on current page
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const cleanedFilter = this.getCleanFilter(this.filter);
-    
-    // Build request payload with backend pagination
+    // Load all data without filters for frontend filtering
     const request: GetPaperConfigurationsListRequest = {
-      filter: cleanedFilter,
+      filter: {
+        orderType: 'DESC'
+      },
       paging: {
-        start: start,
-        length: this.itemsPerPage
+        start: 0,
+        length: 10000 // Large number to get all records
       }
     };
 
-    // Make parallel requests: one for paginated data, one for total count
-    forkJoin({
-      data: this.paperConfigService.getPaperConfigList(request),
-      count: this.paperConfigService.getPaperConfigList({
-        filter: cleanedFilter,
-        paging: {
-          start: 0,
-          length: 10000 // Large number to get all records for counting
-        }
-      })
-    }).subscribe({
-      next: ({ data, count }) => {
+    this.paperConfigService.getPaperConfigList(request).subscribe({
+      next: (data) => {
         if (data.status && data.data) {
           // Filter out drafts and batch papers
-          this.paperList = data.data.filter((paper: any) =>
+          this.allPaperList = data.data.filter((paper: any) =>
             !paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
           );
         } else {
-          this.paperList = [];
+          this.allPaperList = [];
         }
         
-        // Get total count from count response
-        if (count.status && count.data) {
-          // Filter count response the same way
-          const filteredCount = count.data.filter((paper: any) =>
-            !paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
-          );
-          this.totalItems = count.totalCount || count.recordsTotal || count.recordsFiltered || filteredCount.length;
-        } else {
-          // Fallback to data response if count fails
-          this.totalItems = data.totalCount || data.recordsTotal || data.recordsFiltered || this.paperList.length;
-        }
+        // Apply frontend filters
+        this.applyFrontendFilters();
       },
       error: (error) => {
         console.log('error', error);
-        this.paperList = [];
+        this.allPaperList = [];
+        this.filteredPaperList = [];
+        this.paginatedPaperList = [];
         this.totalItems = 0;
         this.isLoading = false;
       },
@@ -228,11 +214,136 @@ export class PaperListComponent implements OnInit {
     // Sync tempFilter to filter so it persists when reopening modal
     this.filter = JSON.parse(JSON.stringify(this.tempFilter));
     
-    // Reset to first page when filters change
-    this.currentPage = 1;
+    // Start with all papers
+    let filtered = [...this.allPaperList];
     
-    // Reload data from backend with new filters
-    this.loadPaperConfigList();
+    // Apply search filter
+    if (this.searchText && this.searchText.trim()) {
+      const searchLower = this.searchText.toLowerCase().trim();
+      filtered = filtered.filter(paper =>
+        paper.description?.toLowerCase().includes(searchLower) ||
+        paper.paperType?.toLowerCase().includes(searchLower) ||
+        paper.statusName?.toLowerCase().includes(searchLower) ||
+        paper.purposeTitle?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Apply status filter
+    if (this.filter.statusIds && this.filter.statusIds.length > 0) {
+      filtered = filtered.filter(paper =>
+        this.filter.statusIds!.includes(paper.statusId)
+      );
+    }
+    
+    // Apply date filter
+    if (this.filter.fromDate && this.filter.fromDate !== '') {
+      const fromDate = new Date(this.filter.fromDate);
+      filtered = filtered.filter(paper => {
+        const paperDate = new Date(paper.lastModifyDate);
+        return paperDate >= fromDate;
+      });
+    }
+    
+    if (this.filter.toDate && this.filter.toDate !== '') {
+      const toDate = new Date(this.filter.toDate);
+      toDate.setHours(23, 59, 59, 999); // Include entire day
+      filtered = filtered.filter(paper => {
+        const paperDate = new Date(paper.lastModifyDate);
+        return paperDate <= toDate;
+      });
+    }
+    
+    // Apply price filter
+    if (this.filter.priceMin && this.filter.priceMin > 0) {
+      filtered = filtered.filter(paper =>
+        (paper.totalContractValue || 0) >= this.filter.priceMin!
+      );
+    }
+    
+    if (this.filter.priceMax && this.filter.priceMax > 0) {
+      filtered = filtered.filter(paper =>
+        (paper.totalContractValue || 0) <= this.filter.priceMax!
+      );
+    }
+    
+    // Apply sorting
+    if (this.filter.sortLowToHigh) {
+      filtered.sort((a, b) => (a.totalContractValue || 0) - (b.totalContractValue || 0));
+    } else if (this.filter.sortHighToLow) {
+      filtered.sort((a, b) => (b.totalContractValue || 0) - (a.totalContractValue || 0));
+    } else if (this.sortColumn) {
+      // Column-based sorting
+      filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+        
+        switch (this.sortColumn) {
+          case 'title':
+            aValue = a.description?.toLowerCase() || '';
+            bValue = b.description?.toLowerCase() || '';
+            break;
+          case 'paperType':
+            aValue = a.paperType?.toLowerCase() || '';
+            bValue = b.paperType?.toLowerCase() || '';
+            break;
+          case 'contractValue':
+            aValue = a.totalContractValue || 0;
+            bValue = b.totalContractValue || 0;
+            break;
+          case 'status':
+            aValue = a.statusName?.toLowerCase() || '';
+            bValue = b.statusName?.toLowerCase() || '';
+            break;
+          case 'lastModify':
+            aValue = new Date(a.lastModifyDate).getTime();
+            bValue = new Date(b.lastModifyDate).getTime();
+            break;
+          default:
+            return 0;
+        }
+        
+        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    } else {
+      // Default sorting by last modify date (DESC)
+      filtered.sort((a, b) => {
+        const dateA = new Date(a.lastModifyDate).getTime();
+        const dateB = new Date(b.lastModifyDate).getTime();
+        return dateB - dateA;
+      });
+    }
+    
+    // Store filtered results
+    this.filteredPaperList = filtered;
+    this.totalItems = filtered.length;
+    
+    // Check if any filters are applied
+    this.updateFilterAppliedStatus();
+    
+    // Apply pagination
+    this.updatePagination();
+  }
+  
+  updatePagination(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedPaperList = this.filteredPaperList.slice(start, end);
+    this.paperList = this.paginatedPaperList;
+  }
+  
+  updateFilterAppliedStatus(): void {
+    // Check if any filters are active
+    const hasStatusFilter = !!(this.filter.statusIds && this.filter.statusIds.length > 0);
+    const hasDateFilter = !!(this.filter.fromDate && this.filter.fromDate !== '') || 
+                         !!(this.filter.toDate && this.filter.toDate !== '');
+    const hasPriceFilter = !!(this.filter.priceMin && this.filter.priceMin > 0) || 
+                          !!(this.filter.priceMax && this.filter.priceMax > 0);
+    const hasSortFilter = !!(this.filter.sortLowToHigh || this.filter.sortHighToLow);
+    const hasSearchFilter = !!(this.filter.title && this.filter.title.trim() !== '');
+    
+    this.isFilterApplied = hasStatusFilter || hasDateFilter || hasPriceFilter || hasSortFilter || hasSearchFilter;
   }
   
   getTotalPages(): number {
@@ -283,27 +394,27 @@ export class PaperListComponent implements OnInit {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.getTotalPages()) {
       this.currentPage = page;
-      this.loadPaperConfigList();
+      this.updatePagination();
     }
   }
   
   prevPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.loadPaperConfigList();
+      this.updatePagination();
     }
   }
   
   nextPage(): void {
     if (this.currentPage < this.getTotalPages()) {
       this.currentPage++;
-      this.loadPaperConfigList();
+      this.updatePagination();
     }
   }
   
   onPageSizeChange(): void {
     this.currentPage = 1; // Reset to first page when changing page size
-    this.loadPaperConfigList();
+    this.updatePagination();
   }
   
   getTotalItems(): number {
@@ -321,10 +432,9 @@ export class PaperListComponent implements OnInit {
   }
 
   onSearchChange(): void {
-    // Note: Search should be handled by backend API
-    // For now, we'll reset to first page and reload
+    // Reset to first page and apply filters
     this.currentPage = 1;
-    this.loadPaperConfigList();
+    this.applyFrontendFilters();
   }
 
   loadPaperStatusListData() {
@@ -585,12 +695,19 @@ export class PaperListComponent implements OnInit {
     this.clearStatusFilters();
     this.clearPriceFilters();
     this.syncSwitchesWithTemp();
-    this.isFilterApplied = false;
-    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
-    this.dropdownRef.close();
+    
+    // Clear search
+    this.searchText = '';
+    delete this.filter.title;
+    
     // Clear column sorting when clearing all filters
     this.sortColumn = '';
     this.sortDirection = 'asc';
+    this.filter.orderType = 'DESC';
+    
+    this.isFilterApplied = false;
+    this.filter = JSON.parse(JSON.stringify(this.tempFilter));
+    this.dropdownRef.close();
     this.currentPage = 1;
     this.applyFrontendFilters();
   }
@@ -604,11 +721,16 @@ export class PaperListComponent implements OnInit {
       this.tempFilter.sortLowToHigh = false;
       this.tempFilter.sortHighToLow = true;
     }
+    // Clear column sorting when using price sorting
+    this.sortColumn = '';
     this.currentPage = 1;
     this.applyFrontendFilters();
   }
 
   onDateChange(): void {
+    // Update tempFilter with date changes
+    this.tempFilter.fromDate = this.tempFilter.fromDate || '';
+    this.tempFilter.toDate = this.tempFilter.toDate || '';
     this.currentPage = 1;
     this.applyFrontendFilters();
   }
@@ -634,14 +756,17 @@ export class PaperListComponent implements OnInit {
 
     const statusId = status.id;
     if (isChecked) {
-      if (!this.tempFilter.statusIds?.includes(statusId)) {
-        this.tempFilter.statusIds?.push(statusId);
+      if (!this.tempFilter.statusIds) {
+        this.tempFilter.statusIds = [];
+      }
+      if (!this.tempFilter.statusIds.includes(statusId)) {
+        this.tempFilter.statusIds.push(statusId);
       }
     } else {
       this.tempFilter.statusIds = (this.tempFilter.statusIds || []).filter(id => id !== statusId);
     }
 
-    // Apply filters immediately
+    // Apply filters immediately (frontend only)
     this.currentPage = 1;
     this.applyFrontendFilters();
   }
@@ -669,7 +794,9 @@ export class PaperListComponent implements OnInit {
 
   sortByColumn(column: string): void {
     // Clear filter-based sorting when using column sorting
-    if (this.tempFilter.sortLowToHigh || this.tempFilter.sortHighToLow) {
+    if (this.filter.sortLowToHigh || this.filter.sortHighToLow) {
+      this.filter.sortLowToHigh = false;
+      this.filter.sortHighToLow = false;
       this.tempFilter.sortLowToHigh = false;
       this.tempFilter.sortHighToLow = false;
     }
@@ -681,11 +808,10 @@ export class PaperListComponent implements OnInit {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-
-    // Note: Column sorting should be handled by backend API
-    // For now, we'll reload data
+    
+    // Apply filters with new sort
     this.currentPage = 1;
-    this.loadPaperConfigList();
+    this.applyFrontendFilters();
   }
 
   applySorting(): void {
