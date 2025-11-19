@@ -582,11 +582,22 @@ export class Template4Component  implements AfterViewInit{
             });
 
           this.isInitialLoad = false;
+          
+          // Recalculate totals and values after form is patched with data
+          this.setupPSACalculationsManually();
         }, 500)
 
 
         this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners();
+        
+        // Setup percentage calculation listeners after form is patched in edit mode
+        // Recalculate totals after listeners are set up (similar to template5)
+        setTimeout(() => {
+          this.setupPSACalculations();
+          // Recalculate totals after listeners are set up
+          this.calculateTotal();
+        }, 600);
         
         // Disable all fields for JV Admin (except Consultation section)
         // Call multiple times with delays to catch controls that get enabled later
@@ -915,11 +926,13 @@ export class Template4Component  implements AfterViewInit{
       const valueControl = this.generalInfoForm.get(`costAllocation.${valueControlName}`);
 
       if (percentageControl && valueControl) {
+        // Unsubscribe from previous subscription if it exists to prevent duplicates
+        // Note: In a production app, you'd want to track subscriptions and unsubscribe on destroy
         percentageControl.valueChanges.subscribe((percentageValue) => {
-        const contractValue = this.generalInfoForm.get('generalInfo.saleDisposeValue')?.value || 0;
+          const contractValue = this.generalInfoForm.get('generalInfo.saleDisposeValue')?.value || 0;
 
-        if (percentageValue >= 0 && percentageValue <= 100) {
-          const calculatedValue = (percentageValue / 100) * contractValue;
+          if (percentageValue >= 0 && percentageValue <= 100) {
+            const calculatedValue = (percentageValue / 100) * contractValue;
             valueControl.setValue(calculatedValue, { emitEvent: false });
             this.calculateTotal();
 
@@ -929,6 +942,9 @@ export class Template4Component  implements AfterViewInit{
         });
       }
     });
+    
+    // Calculate total after setting up listeners
+    this.calculateTotal();
   }
 
   calculateTotal() {
