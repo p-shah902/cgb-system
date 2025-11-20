@@ -495,19 +495,45 @@
 
 
 
+// Ensure dropdown menu is hidden by default
+.filter-btn-div {
+  ::ng-deep .dropdown-menu {
+    display: none !important;
+    
+    &.show {
+      display: flex !important;
+    }
+  }
+}
+
 .filter-dropdown-div {
   width: 363px;
+  max-height: 80vh;
   box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
-  padding: 15px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
   .flt-head {
+    padding: 15px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #E8E8E8;
     h5 {
       font-size: 16px;
       line-height: 19px;
       color: #000000;
+      margin: 0;
     }
   }
   .flt-body {
+    max-height: calc(80vh - 80px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 15px;
+    padding-right: 10px;
+    
     label {
       font-size: 14px;
       line-height: 17px;
@@ -532,6 +558,22 @@
     .form-check-input:checked {
       background-color: #00950A;
       border-color: #00950A;
+    }
+    
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+      &:hover {
+        background: #555;
+      }
     }
   }
 }
@@ -560,17 +602,32 @@
 
   .filter-dropdown-div {
     width: 320px;
+    max-height: 80vh;
     box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
-    padding: 15px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     right: -40px !important;
     left: auto !important;
+    
     .flt-head {
+      padding: 15px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #E8E8E8;
       h5 {
         font-size: 14px;
+        margin: 0;
       }
     }
     .flt-body {
+      max-height: calc(80vh - 80px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 15px;
+      padding-right: 10px;
+      
       label {
         font-size: 12px;
       }
@@ -580,7 +637,22 @@
       p {
         font-size: 12px;
       }
-
+      
+      // Custom scrollbar styling
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+        &:hover {
+          background: #555;
+        }
+      }
     }
   }
 

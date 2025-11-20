@@ -3,6 +3,7 @@ import {
   inject,
   ViewChild,
   OnInit,
+  AfterViewInit,
   TemplateRef,
 } from '@angular/core';
 import { CommonModule, DatePipe, NgForOf } from '@angular/common';
@@ -54,7 +55,7 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
   templateUrl: './paper-list.component.html',
   styleUrl: './paper-list.component.scss',
 })
-export class PaperListComponent implements OnInit {
+export class PaperListComponent implements OnInit, AfterViewInit {
   @ViewChild('dropdownRef') dropdownRef!: NgbDropdown;
   private paperConfigService = inject(PaperConfigService);
   private paperService = inject(PaperService);
@@ -93,12 +94,6 @@ export class PaperListComponent implements OnInit {
     step: 10,
     translate: (value: number): string => `$${value}`
   };
-  readonly allowedStatusNames = [
-    'Approved by PDM',
-    'On Pre-CGB',
-    'Approved by Pre-CGB',
-    'On CGB'
-  ];
   tempPrice: number[] = [0, 0];  // Temporary values for slider
   
   // Sorting state
@@ -130,14 +125,53 @@ export class PaperListComponent implements OnInit {
     this.updateFilterAppliedStatus();
   }
 
-  openDropdown() {
-    this.tempFilter = JSON.parse(JSON.stringify(this.filter));
-    // Sync tempPrice with filter prices
-    this.tempPrice = [
-      this.filter.priceMin || 0,
-      this.filter.priceMax || 0
-    ];
-    setTimeout(() => this.syncSwitchesWithTemp(), 0);
+  ngAfterViewInit(): void {
+    // Ensure dropdown starts closed after view is initialized
+    // Use multiple checks to ensure it closes
+    setTimeout(() => {
+      if (this.dropdownRef) {
+        // Force close the dropdown
+        if (this.dropdownRef.isOpen()) {
+          this.dropdownRef.close();
+        }
+        // Also force the internal state
+        try {
+          (this.dropdownRef as any)._open = false;
+          (this.dropdownRef as any)._isOpen = false;
+        } catch (e) {
+          // Ignore if property doesn't exist
+        }
+      }
+    }, 0);
+    
+    // Additional check after a longer delay to catch any delayed opening
+    setTimeout(() => {
+      if (this.dropdownRef) {
+        if (this.dropdownRef.isOpen()) {
+          this.dropdownRef.close();
+        }
+      }
+    }, 300);
+    
+    // Final check after view is fully rendered
+    setTimeout(() => {
+      if (this.dropdownRef && this.dropdownRef.isOpen()) {
+        this.dropdownRef.close();
+      }
+    }, 500);
+  }
+
+  onDropdownOpenChange(isOpen: boolean) {
+    if (isOpen) {
+      // Only sync when opening, not when closing
+      this.tempFilter = JSON.parse(JSON.stringify(this.filter));
+      // Sync tempPrice with filter prices
+      this.tempPrice = [
+        this.filter.priceMin || 0,
+        this.filter.priceMax || 0
+      ];
+      setTimeout(() => this.syncSwitchesWithTemp(), 0);
+    }
   }
 
   private getCleanFilter(filter: PaperFilter): Partial<PaperFilter> {
@@ -441,8 +475,22 @@ export class PaperListComponent implements OnInit {
     this.paperService.getPaperStatusList().subscribe({
       next: (response) => {
         if (response.status && response.data) {
+          // Statuses to exclude from the filter list
+          const excludedStatuses = [
+            'Draft',
+            'Archived',
+            'Withdrawn by Pre-CGB',
+            'Action Required by JV',
+            'On Hold',
+            'Partner Approval Done',
+            'Approved by Partner'
+          ];
+          
+          // Show all statuses except excluded ones
           this.paperStatusList = response.data.filter((status: any) =>
-            this.allowedStatusNames.includes(status.paperStatus)
+            !excludedStatuses.some(excluded => 
+              status.paperStatus?.toLowerCase() === excluded.toLowerCase()
+            )
           );
         }
       },
@@ -746,7 +794,24 @@ export class PaperListComponent implements OnInit {
   }
 
   cancelFilters(): void {
-    this.dropdownRef.close(); // Do NOT modify `filter`
+    // Reset tempFilter to current filter state when canceling
+    this.tempFilter = JSON.parse(JSON.stringify(this.filter));
+    this.tempPrice = [
+      this.filter.priceMin || 0,
+      this.filter.priceMax || 0
+    ];
+    // Sync switches after resetting
+    setTimeout(() => this.syncSwitchesWithTemp(), 0);
+    if (this.dropdownRef) {
+      this.dropdownRef.close();
+    }
+  }
+
+  closeFilter(): void {
+    // Simply close the dropdown without resetting filters
+    if (this.dropdownRef && this.dropdownRef.isOpen()) {
+      this.dropdownRef.close();
+    }
   }
 
   onSwitchChange(event: Event, statusType: string): void {
@@ -772,24 +837,14 @@ export class PaperListComponent implements OnInit {
   }
 
   syncSwitchesWithTemp(): void {
-    const switches = document.querySelectorAll('.form-check-input') as NodeListOf<HTMLInputElement>;
-    switches.forEach(switchEl => {
-      const statusType = switchEl.id.replace('flt-sw', '');
-      const label = this.getStatusLabelById(statusType);
-      const status = this.paperStatusList.find(s => s.paperStatus === label);
-      if (status) {
+    // Sync status switches only (those with id starting with 'flt-sw')
+    this.paperStatusList.forEach((status, index) => {
+      const switchId = 'flt-sw' + (index + 1);
+      const switchEl = document.getElementById(switchId) as HTMLInputElement;
+      if (switchEl) {
         switchEl.checked = this.tempFilter.statusIds?.includes(status.id) || false;
       }
     });
-  }
-  getStatusLabelById(suffix: string): string {
-    const map: { [key: string]: string } = {
-      '1': 'Approved by PDM',
-      '2': 'On Pre-CGB',
-      '3': 'Approved by Pre-CGB',
-      '4': 'On CGB'
-    };
-    return map[suffix] || '';
   }
 
   sortByColumn(column: string): void {
