@@ -1705,7 +1705,7 @@ export class Template1Component implements AfterViewInit  {
       if (selectedVendor) {
         // Set parent company name
         if (parentCompanyNameControl) {
-          parentCompanyNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
+          parentCompanyNameControl.setValue(selectedVendor.parentCompanyName || '');
       }
 
         // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only

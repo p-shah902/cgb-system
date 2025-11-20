@@ -1348,6 +1348,7 @@ export class Template2Component implements AfterViewInit {
 
     const legalNameControl = row.get('legalName');
     const isLocalOrJVControl = row.get('isLocalOrJV');
+    const parentCompanyNameControl = row.get('parentCompanyName');
 
     // Get the value from the form control instead of the event
     const selectedValue = row.get('vendorId')?.value;
@@ -1361,6 +1362,11 @@ export class Template2Component implements AfterViewInit {
           legalNameControl.setValue(selectedVendor.legalName || selectedVendor.vendorName);
         }
 
+        // Set parent company name (only for inviteToBid - Award list)
+        if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && parentCompanyNameControl) {
+          parentCompanyNameControl.setValue(selectedVendor.parentCompanyName || '');
+        }
+
         // Auto-populate Local/JV checkbox based on isCGBRegistered and make it read-only (only for inviteToBid)
         if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && isLocalOrJVControl) {
           isLocalOrJVControl.setValue(selectedVendor.isCGBRegistered || false);
@@ -1371,6 +1377,9 @@ export class Template2Component implements AfterViewInit {
       // Clear fields when no vendor is selected and enable them
       if (legalNameControl) {
       legalNameControl.setValue('');
+      }
+      if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && parentCompanyNameControl) {
+        parentCompanyNameControl.setValue('');
       }
       if (formArray !== 'supplierTechnical' && formArray !== 'commericalEvaluation' && isLocalOrJVControl) {
         isLocalOrJVControl.setValue(false);
@@ -4050,6 +4059,7 @@ export class Template2Component implements AfterViewInit {
           vendorId: [vendorIdValue ? vendorIdValue.toString() : null],
           legalName: [legalNameValue, Validators.required],
           isLocalOrJV: [item.isLocalOrJV], // Checkbox
+          parentCompanyName: [item.parentCompanyName || ''],
           id: [item.id],
           contractStartDate: [item.contractStartDate
             ? format(new Date(item.contractStartDate), 'yyyy-MM-dd')
@@ -4096,6 +4106,7 @@ export class Template2Component implements AfterViewInit {
         vendorId: [null],
         legalName: ['', Validators.required],
         isLocalOrJV: [false],
+        parentCompanyName: [''],
         contractStartDate: ['', Validators.required],
         contractEndDate: ['', [Validators.required, this.endDateAfterStartDate('contractStartDate')]],
         extensionOption: [''],

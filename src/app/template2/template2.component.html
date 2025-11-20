@@ -644,6 +644,7 @@
                           <tr>
                             <th>Full Name of Legal Entity</th>
                             <th>Local/JV</th>
+                            <th>Parent Company name</th>
                             <th>Total Award Value (USD)</th>
                             <th>Original Currency</th>
                             <th>Exchange Rate</th>
@@ -670,6 +671,10 @@
                             </td>
                             <td class="text-center align-middle">
                               <input type="checkbox" formControlName="isLocalOrJV" [disabled]="true" readonly/>
+                            </td>
+                            <td>
+                              <input type="text" class="form-control" formControlName="parentCompanyName"
+                                     placeholder="Enter parent company" readonly/>
                             </td>
                             <td>
 <!--                              <input min="0" type="number" formControlName="totalAwardValueUSD" class="form-control"-->
