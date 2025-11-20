@@ -245,8 +245,19 @@ export class PaperStatusComponent implements OnInit {
           paperId: f.paperID,
           existingStatusId: Number(f.statusId),
           statusId: newStatusId
-        }))).subscribe(value => {
-          console.log('DD', value);
+        }))).subscribe({
+          next: (value) => {
+            console.log('Status updated', value);
+            this.toastService.show(`Paper(s) moved to ${newStatusLabel}`, 'success');
+            // Reload data to get updated records from API
+            this.loadPaperConfigList();
+          },
+          error: (error) => {
+            console.error('Error updating paper status:', error);
+            this.toastService.show('Error updating paper status', 'danger');
+            // Reload to revert UI changes
+            this.loadPaperConfigList();
+          }
         });
       }
       
