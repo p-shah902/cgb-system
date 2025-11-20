@@ -31,6 +31,10 @@
                   <small>This field is required.</small>
                 </div>
               </div>
+              <div class="form-group mb-3">
+                <label>Parent Company Name</label>
+                <input type="text" class="form-control" placeholder="Enter Parent Company Name" formControlName="parentCompanyName"/>
+              </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group mb-3">
@@ -72,14 +76,8 @@
 
                 <!-- Contact Phone Field -->
                 <div class="form-group mb-3">
-                  <label>Contact Phone <span class="danger">*</span></label>
-                  <input type="text" class="form-control" placeholder="Phone number" formControlName="contactPhone" />
-                  <div class="text-danger" *ngIf="vendorForm.get('contactPhone')?.touched && vendorForm.get('contactPhone')?.errors">
-                    <small *ngIf="vendorForm.get('contactPhone')?.hasError('required')">This field is required.</small>
-                    <small *ngIf="vendorForm.get('contactPhone')?.hasError('minlength') || vendorForm.get('contactPhone')?.hasError('maxlength')">
-                      Phone number must be exactly 10 digits.
-                    </small>
-                  </div>
+                  <label>Contact Phone</label>
+                  <input type="text" class="form-control" placeholder="Enter phone number with country code" formControlName="contactPhone" />
                 </div>
 
 
@@ -99,16 +97,10 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>Status</label>
-                    <div class="form-radio d-flex gap-3">
-                      <div class="radio-box position-relative">
-                        <input type="radio" name="isActive" formControlName="isActive" [value]="true" checked>
-                        <label>Yes</label>
-                      </div>
-                      <div class="radio-box position-relative">
-                        <input type="radio" name="isActive" formControlName="isActive" [value]="false">
-                        <label>No</label>
-                      </div>
-                    </div>
+                    <select class="form-control" formControlName="isActive">
+                      <option [ngValue]="true">Active</option>
+                      <option [ngValue]="false">Not Active</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -120,7 +112,7 @@
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group mb-3">
-                    <label>SOCAR</label>
+                    <label>SOCAR Share</label>
                     <div class="form-radio d-flex gap-3">
                       <div class="radio-box position-relative">
                         <input type="radio" name="isCGBRegistered" formControlName="isCGBRegistered" [value]="true"
@@ -136,20 +128,18 @@
                 </div>
                 <div class="col-md-8">
                   <div class="form-group mb-3">
-                    <label>Vendor Approval Status <span class="danger">*</span></label>
-                    <select class="form-control" formControlName="approvalStatus">
-                      <option value="Approved">Approved</option>
-                      <option value="Pending">Pending</option>
-                    </select>
-                    <div class="text-danger" *ngIf="vendorForm.get('approvalStatus')?.hasError('required')">
-                      <small>This field is required.</small>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" formControlName="isLocalJV" id="isLocalJV">
+                      <label class="form-check-label" for="isLocalJV">
+                        Local/JV
+                      </label>
                     </div>
                   </div>
                 </div>
                 <div class="col-md-12">
                   <div class="form-group mb-3">
                     <div class="mb-2">
-                      <label>Supporting Documents <span class="danger">*</span> (Allowed File Types: PDF, DOCX, XLSX.)</label>
+                      <label>Supporting Documents (Allowed File Types: PDF, DOCX, XLSX.)</label>
                     </div>
                     <div class="document-attachment">
                       <div class="attach-thumb bg-white" *ngIf="selectedFile">

@@ -39,16 +39,17 @@ export class VendorDetailComponent implements OnInit {
     this.vendorForm = this.fb.group({
       id: [0],
       vendorName: ['', Validators.required],
+      parentCompanyName: [''],
       taxId: ['', Validators.required],
       sapId: ['', Validators.required],
       countryId: [0, Validators.min(1)],
       isActive: [true],
       contactPerson: ['', Validators.required],
       contactEmail: ['', [Validators.required, Validators.email]],
-      contactPhone: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
+      contactPhone: [''],
       avatarPath: [''],
       isCGBRegistered: [true],
-      approvalStatus: ['Pending', Validators.required]
+      isLocalJV: [false]
     });
   }
 
@@ -86,6 +87,7 @@ export class VendorDetailComponent implements OnInit {
     this.originalVendorDetail = {
       id: 0,
       vendorName: '',
+      parentCompanyName: '',
       taxId: '',
       sapId: '',
       countryId: 0,
@@ -95,7 +97,7 @@ export class VendorDetailComponent implements OnInit {
       contactPhone: '',
       avatarPath: '',
       isCGBRegistered: true,
-      approvalStatus: 'Pending',
+      isLocalJV: false,
       createdBy: null,
       createdDate: '',
       modifiedBy: null,
@@ -126,7 +128,7 @@ export class VendorDetailComponent implements OnInit {
 
     if (!file) {
       this.selectedFile = null;
-      this.fileError = 'File is required.';
+      this.fileError = null;
       return;
     }
 
@@ -175,7 +177,7 @@ export class VendorDetailComponent implements OnInit {
   }
 
   submitVendor(): void {
-    if (this.vendorForm.invalid || this.fileError) {
+    if (this.vendorForm.invalid) {
       this.toastService.show('Please Fill All Required Fields', 'danger');
       return;
     }

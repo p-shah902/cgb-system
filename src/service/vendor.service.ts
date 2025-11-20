@@ -83,15 +83,16 @@ export class VendorService {
       const formData = new FormData();
       formData.append('Id', vendor.id.toString());
       formData.append('LegalName', vendor.vendorName);
+      formData.append('ParentCompanyName', vendor.parentCompanyName || '');
       formData.append('TaxId', vendor.taxId);
       formData.append('SAPId', vendor.sapId);
       formData.append('CountryId', vendor.countryId.toString());
       formData.append('IsActive', vendor.isActive.toString());
       formData.append('ContactPerson', vendor.contactPerson);
       formData.append('ContactEmail', vendor.contactEmail);
-      formData.append('ContactPhone', vendor.contactPhone);
+      formData.append('ContactPhone', vendor.contactPhone || '');
       formData.append('IsCGBRegistered', vendor.isCGBRegistered.toString());
-      formData.append('ApprovalStatus', vendor.approvalStatus);
+      formData.append('IsLocalJV', (vendor.isLocalJV || false).toString());
       formData.append('AvatarPath', vendor.avatarPath);
 
       if (file) {
