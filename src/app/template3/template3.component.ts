@@ -485,7 +485,7 @@ export class Template3Component implements AfterViewInit {
         batchPaper: [null],
         cgbItemRefNo: [{ value: '', disabled: true }],
         cgbCirculationDate: [{ value: '', disabled: true }],
-        cgbAwardRefNo: [null, Validators.required],
+        cgbAwardRefNo: [null],
         cgbApprovalDate: [null],
         otherRelatedCgbPapers: [''],
         fullLegalName: ['', Validators.required],

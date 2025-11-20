@@ -32,7 +32,7 @@
 
     <!-- Archive -->
     <button class="btn btn-outline-dark" type="submit" data-status="Archived"
-      *ngIf="permission.canShowArchive(roleName, statusName)" [disabled]="isLoading">
+      *ngIf="permission.canShowArchive(roleName, statusName) || (roleName === 'Secretary' || roleName === 'Super Admin')" [disabled]="isLoading">
       <span *ngIf="!isLoading">Archive</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
