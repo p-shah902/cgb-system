@@ -231,8 +231,8 @@ export class Template1Component implements AfterViewInit  {
     }
 
     this.generalInfoForm = this.fb.group({
-      batchPaper: [null], // Add batch paper field
       generalInfo: this.fb.group({
+        batchPaper: [null], // Add batch paper field
         paperProvision: ['', Validators.required],
         cgbItemRefNo: [{ value: '', disabled: true }],
         cgbCirculationDate: [{ value: '', disabled: true }],
@@ -639,7 +639,7 @@ export class Template1Component implements AfterViewInit  {
   }
 
   get batchPaper() {
-    return this.generalInfoForm.get('batchPaper');
+    return this.generalInfoForm.get('generalInfo.batchPaper');
   }
 
   get generalInfo() {
@@ -820,8 +820,8 @@ export class Template1Component implements AfterViewInit  {
       if (value.data) {
         console.log('v', paperDetailData?.procurementSPAUsers, selectedValuesProcurementTagUsers, this.procurementTagUsers);
         this.generalInfoForm.patchValue({
-          batchPaper: paperDetailData?.batchPaperId || null,
           generalInfo: {
+            batchPaper: paperDetailData?.batchPaperId || null,
             paperProvision: paperDetailData?.paperProvision || '',
             cgbItemRefNo: paperDetailData?.cgbItemRefNo || '',
             cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
@@ -2188,7 +2188,7 @@ export class Template1Component implements AfterViewInit  {
     });
 
     // Disable batchPaper field
-    const batchPaperControl = this.generalInfoForm.get('batchPaper');
+    const batchPaperControl = this.generalInfoForm.get('generalInfo.batchPaper');
     if (batchPaperControl && !batchPaperControl.disabled) {
       batchPaperControl.disable({ emitEvent: false });
     }
@@ -2336,7 +2336,7 @@ export class Template1Component implements AfterViewInit  {
     });
 
     // Disable batchPaper field
-    const batchPaperControl = this.generalInfoForm.get('batchPaper');
+    const batchPaperControl = this.generalInfoForm.get('generalInfo.batchPaper');
     if (batchPaperControl && !batchPaperControl.disabled) {
       batchPaperControl.disable({ emitEvent: false });
     }
@@ -2976,7 +2976,7 @@ export class Template1Component implements AfterViewInit  {
           this.deleteMultipleDocuments(docId)
 
           // Handle batch paper if selected
-          const selectedBatch = this.generalInfoForm.get('batchPaper')?.value;
+          const selectedBatch = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
           if (selectedBatch && docId) {
             this.addPaperToBatch(selectedBatch.id, docId);
           }

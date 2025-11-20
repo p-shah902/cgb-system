@@ -104,23 +104,8 @@
 
 
           <form [formGroup]="generalInfoForm" (submit)="onSubmit($event)" (keydown)="onFormKeyDown($event)">
-            <!-- Batch Paper Selection -->
-            <div class="fb-form">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group mb-3">
-                    <label>Batch Paper</label>
-                    <select class="form-control" formControlName="batchPaper"
-                            (change)="onBatchPaperSelectionChange($event)">
-                      <option [value]="null">Select Batch Paper</option>
-                      <option *ngFor="let batch of batchPaperList" [value]="batch.id">
-                        {{ batch.paperProvision }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="sectionVisibility['section1']" formGroupName="generalInfo">
+            <div *ngIf="sectionVisibility['section1']" formGroupName="generalInfo">
+              <div class="fb-form">
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group mb-3">
@@ -151,7 +136,20 @@
                       </div>
                     </div>
                   </div>
-
+                  <div class="col-md-6">
+                    <div class="form-group mb-3">
+                      <label>Select if part of Batch submission</label>
+                      <select class="form-control" formControlName="batchPaper"
+                              (change)="onBatchPaperSelectionChange($event)">
+                        <option [value]="null">Select if part of Batch submission</option>
+                        <option *ngFor="let batch of batchPaperList" [value]="batch.id">
+                          {{ batch.paperProvision }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
                   <div class="col-md-12">
                     <div class="form-group mb-3">
                       <label>Why is this work required?<span class="danger">*</span> </label>
@@ -538,6 +536,7 @@
                   </div>
                 </div>
               </div>
+            </div>
 
 
               <div id="section2" data-section="section2" (click)="toggleSection('section2')"
@@ -1627,7 +1626,6 @@
                 (sendForPDM)="handleSendForPDM()"
               ></app-action-bar>
               </div>
-            </div>
           </form>
         </div>
         <!-- Close form content wrapper -->

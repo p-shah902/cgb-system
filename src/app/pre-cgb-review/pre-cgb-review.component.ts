@@ -232,4 +232,25 @@ export class PreCgbReviewComponent implements OnInit {
     });
   }
 
+  isPreCGBMember(): boolean {
+    const roleName = this.user?.roleName;
+    // Hide Approve, Withdraw, Action Required for Secretary and Super Admin
+    // Show only for Pre-CGB members (CGB Chair, CPO, JV Admin, Legal VP-1, Performance Manager, etc.)
+    if (!roleName) {
+      return false;
+    }
+    // Exclude Secretary and Super Admin
+    if (roleName === 'Secretary' || roleName === 'Super Admin') {
+      return false;
+    }
+    // Include Pre-CGB member roles
+    const preCGBRoles = [
+      'CGB Chair',
+      'JV Admin',
+      'Legal VP-1',
+      'Performance Manager',
+    ];
+    return preCGBRoles.includes(roleName);
+  }
+
 }
