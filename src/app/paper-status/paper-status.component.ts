@@ -353,6 +353,12 @@ export class PaperStatusComponent implements OnInit {
             this.originalGroupedPaper[key] = this.paperList.filter(f => {
               const paperStatus = (f.statusName || '').toLowerCase().trim();
               const keyStatus = key.toLowerCase().trim();
+              
+              // For "Approved" group, also include "Approved by Partner" papers
+              if (keyStatus === 'approved') {
+                return paperStatus === keyStatus || paperStatus === 'approved by partner';
+              }
+              
               return paperStatus === keyStatus;
             });
           });

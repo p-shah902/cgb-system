@@ -136,6 +136,7 @@ export class Template3Component implements AfterViewInit {
     section10: false,
   };
   paperMappingData: PaperMappingType[] = [];
+  previousCGBRefOptions: any[] = [];
 
   psaItems: Array<{ psaName: string, control: string, percentage: string, value: string }> = [];
 
@@ -485,7 +486,7 @@ export class Template3Component implements AfterViewInit {
         batchPaper: [null],
         cgbItemRefNo: [{ value: '', disabled: true }],
         cgbCirculationDate: [{ value: '', disabled: true }],
-        cgbAwardRefNo: [null],
+        cgbAwardRefNo: [''],
         cgbApprovalDate: [null],
         otherRelatedCgbPapers: [''],
         fullLegalName: ['', Validators.required],
@@ -681,7 +682,7 @@ export class Template3Component implements AfterViewInit {
     // Detect paper type from paperMappingData
     const selectedPaper = this.paperMappingData.find(item => item.paperID === paperId);
     const paperType = selectedPaper?.paperType || 'Contract Award';
-    const apiType = paperType === 'Variation Paper' ? 'variation' : 'contract';
+    const apiType = paperType === 'Variation Paper' ? 'variation' : paperType === 'Approach to Market' ? 'approch' : 'contract';
 
     console.log(`Populating from ${paperType} (paperId: ${paperId}, apiType: ${apiType})`);
 
@@ -714,6 +715,17 @@ export class Template3Component implements AfterViewInit {
           variationContractValues = contractPaperDetails?.paperDetails?.paperDetails || null;
 
           console.log('Variation Paper contract values:', variationContractValues);
+        } else if (paperType === 'Approach to Market') {
+          // For Approach to Market Papers, data structure is similar to Variation Papers
+          contractGeneralInfo = contractPaperDetails?.paperDetails?.paperDetails || contractPaperDetails?.paperDetails || null;
+          contractValueData = contractPaperDetails?.paperDetails?.valueDeliveriesCostsharing?.[0] || contractPaperDetails?.valueDeliveriesCostsharing?.[0] || null;
+          contractJvApprovalsData = contractPaperDetails?.paperDetails?.jvApprovals?.[0] || contractPaperDetails?.jvApprovals?.[0] || null;
+          contractCostAllocationJVApprovalData = contractPaperDetails?.paperDetails?.costAllocationJVApproval || contractPaperDetails?.costAllocationJVApproval || [];
+          contractConsultationsData = contractPaperDetails?.paperDetails?.consultationsDetails || contractPaperDetails?.consultationsDetails || [];
+          // For ATM, contract values are in the same paperDetails object
+          variationContractValues = contractPaperDetails?.paperDetails?.paperDetails || contractPaperDetails?.paperDetails || null;
+
+          console.log('Approach to Market Paper contract values:', variationContractValues);
         } else {
           // For Contract Award Papers, use existing structure
           contractGeneralInfo = contractPaperDetails?.paperDetails?.contractAwardDetails || null;
@@ -910,6 +922,22 @@ export class Template3Component implements AfterViewInit {
               noCurrencyLinkNotes: variationContractValues?.noCurrencyLinkNotes || '',
               isConflictOfInterest: variationContractValues?.isConflictOfInterest || contractGeneralInfo?.isConflictOfInterest || false,
               conflictOfInterestComment: variationContractValues?.conflictOfInterestComment || contractGeneralInfo?.conflictOfInterestComment || '',
+            };
+          } else if (paperType === 'Approach to Market') {
+            // For Approach to Market: Similar to Contract Award logic
+            // ATM papers have contractValue in generalInfo
+            const procurementDetails = contractPaperDetails?.paperDetails?.procurementDetails || null;
+            return {
+              // Map Contract value to Previous Variation Total in Variation template
+              previousVariationTotal: contractGeneralInfo?.contractValue || contractGeneralInfo?.totalAwardValueUSD || 0,
+              originalContractValue: contractGeneralInfo?.contractValue || 0,
+              currencyCode: contractGeneralInfo?.currencyCode ? contractGeneralInfo.currencyCode.toString() : '',
+              exchangeRate: contractGeneralInfo?.exchangeRate || 0,
+              contractValue: 0,
+              isCurrencyLinktoBaseCost: contractGeneralInfo?.contractCurrencyLinktoBaseCost || false,
+              noCurrencyLinkNotes: contractGeneralInfo?.explanationsforBaseCost || '',
+              isConflictOfInterest: procurementDetails?.isConflictOfInterest || contractGeneralInfo?.isConflictOfInterest || false,
+              conflictOfInterestComment: procurementDetails?.conflictOfInterestComment || contractGeneralInfo?.conflictOfInterestComment || '',
             };
           } else {
             // For Contract Award: Use existing logic
@@ -1122,17 +1150,75 @@ export class Template3Component implements AfterViewInit {
 
   fetchApprovedPapersForMapping() {
     this.paperService.getApprovedPapersForMapping().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.status && response.data) {
           if (response.data && response.data.length > 0) {
-            this.paperMappingData = response.data.filter((item) => item.paperType == "Contract Award" || item.paperType == "Variation Paper")
+            // Filter for Final Approved AtM/Award/Variations
+            const filteredPapers = response.data.filter((item: any) => {
+              // Exclude current paper if editing
+              if (this.paperId && item.paperID?.toString() === this.paperId) {
+                return false;
+              }
+
+              // Exclude Draft and Withdrawn status
+              if (item.paperStatusName === "Draft" || item.paperStatusName === "Withdrawn") {
+                return false;
+              }
+
+              // Only show Final Approved papers (status = "Approved")
+              const statusLower = item.paperStatusName?.toLowerCase() || '';
+              if (statusLower !== 'approved' && statusLower !== 'approved by partner') {
+                return false;
+              }
+
+              // Include all paper types: Approach to Market, Contract Award, and Variation Paper
+              const paperType = item.paperType || '';
+              return paperType === "Approach to Market" || 
+                     paperType === "Contract Award" || 
+                     paperType === "Variation Paper";
+            });
+
+            this.paperMappingData = filteredPapers;
+
+            // Create formatted options for Select2 - format: "Ref#, Paper Type, Title (first 50 chars), Date"
+            this.previousCGBRefOptions = this.paperMappingData.map((item: any) => {
+              const refNo = item.paperID?.toString() || '';
+              const paperType = item.paperType || '';
+              const title = item.paperSubject ? (item.paperSubject.length > 50 ? item.paperSubject.substring(0, 50) + '...' : item.paperSubject) : '';
+              const date = item.entryDate ? new Date(item.entryDate).toLocaleDateString() : '';
+
+              // Format label to include Ref#, Paper Type, Title, Date for dropdown display
+              const label = `${refNo}, ${paperType}, ${title}, ${date}`;
+
+              return {
+                value: refNo,
+                label: label
+              };
+            });
+          } else {
+            this.previousCGBRefOptions = [];
           }
           this.incrementAndCheck();
         }
-      }, error: (error) => {
+      }, error: (error: any) => {
         console.log('error', error);
+        this.previousCGBRefOptions = [];
       }
     })
+  }
+
+  onPreviousCGBRefSelected(event: any) {
+    const selectedPaperId = event;
+    if (selectedPaperId) {
+      // Update CGB Approval Date when selection changes
+      const paperIdNumber = Number(selectedPaperId);
+      if (paperIdNumber) {
+        this.updateCgbApprovalDate(paperIdNumber);
+      }
+    } else {
+      // Clear CGB Approval Date if selection is cleared
+      this.generalInfoForm.get('generalInfo.cgbApprovalDate')?.setValue(null);
+    }
   }
 
   loadThresholdData() {

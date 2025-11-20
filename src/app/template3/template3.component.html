@@ -199,15 +199,16 @@
                   <div class="form-group mb-3">
                     <label>Previous CGB Ref No</label>
                     <div class="d-flex gap-2">
-                      <select class="form-control allow-comments" id="cgbAwardRefNo" formControlName="cgbAwardRefNo"
-                              [style.flex]="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value ? '1' : 'auto'">
-                        <option [value]="null">Select</option>
-                        <ng-container *ngFor="let item of paperMappingData?.length ? paperMappingData : []">
-                          <option [value]="item.paperID">
-                            {{ item.paperSubject }}
-                          </option>
-                        </ng-container>
-                      </select>
+                      <ng-select2
+                        placeholder="Search by Ref# or Title..."
+                        displaySearchStatus="always"
+                        id="cgbAwardRefNo"
+                        class="allow-comments"
+                        formControlName="cgbAwardRefNo"
+                        [data]="previousCGBRefOptions"
+                        [style.flex]="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value ? '1' : 'auto'"
+                        (update)="onPreviousCGBRefSelected($event)">
+                      </ng-select2>
                       <button type="button" class="btn btn-primary" (click)="onPopulateFromContract()" [disabled]="!generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
                               *ngIf="generalInfoForm.get('generalInfo.cgbAwardRefNo')?.value"
                               style="white-space: nowrap;">
