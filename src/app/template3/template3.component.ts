@@ -49,6 +49,7 @@ import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { NumberInputComponent } from '../../components/number-input/number-input.component';
 import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
 import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
+import {BatchService} from '../../service/batch.service';
 
 @Component({
   selector: 'app-template3',
@@ -147,10 +148,13 @@ export class Template3Component implements AfterViewInit {
 
 
   public psaJvOptions: { value: string; label: string }[] = [];
+  batchPaperList: any[] = [];
+  selectedBatchPaper: any = null;
 
   constructor(private router: Router, private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
     private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
-    public permission: PermissionService
+    public permission: PermissionService,
+    private batchPaperService: BatchService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -214,6 +218,7 @@ export class Template3Component implements AfterViewInit {
     this.loadDictionaryItems();
     this.loadPaperStatusListData();
     this.loadThresholdData()
+    this.loadBatchPapersList();
     this.loadVendoreDetails()
     this.loadForm()
     this.fetchApprovedPapersForMapping()
@@ -477,6 +482,7 @@ export class Template3Component implements AfterViewInit {
         isTEToCompleteBidding: [false],
         teToCompleteBiddingJustification: [''],
         isChangeInRates: [false],
+        batchPaper: [null],
         cgbItemRefNo: [{ value: '', disabled: true }],
         cgbCirculationDate: [{ value: '', disabled: true }],
         cgbAwardRefNo: [null, Validators.required],
@@ -821,6 +827,7 @@ export class Template3Component implements AfterViewInit {
       this.generalInfoForm.patchValue({
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
+          batchPaper: contractGeneralInfo?.batchPaperId || null,
           cgbItemRefNo: contractGeneralInfo?.cgbItemRefNo || '',
           cgbCirculationDate: contractGeneralInfo?.cgbCirculationDate
             ? format(new Date(contractGeneralInfo.cgbCirculationDate), 'yyyy-MM-dd')
@@ -1142,6 +1149,82 @@ export class Template3Component implements AfterViewInit {
   }
 
 
+  loadBatchPapersList() {
+    this.batchPaperService.getBatchPapersList().subscribe({
+      next: (response: any) => {
+        if (response.status && response.data) {
+          this.batchPaperList = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  onBatchPaperSelectionChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedBatchId = target.value;
+
+    if (selectedBatchId && selectedBatchId !== 'null') {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+      this.onBatchPaperChange(selectedBatch);
+    } else {
+      this.onBatchPaperChange(null);
+    }
+  }
+
+  onBatchPaperChange(selectedBatch: any) {
+    if (selectedBatch && this.paperId) {
+      // Add paper to batch
+      this.addPaperToBatch(selectedBatch.id, Number(this.paperId));
+    } else if (this.selectedBatchPaper && this.paperId) {
+      // Remove paper from batch
+      this.removePaperFromBatch(this.selectedBatchPaper.id, Number(this.paperId));
+    }
+    this.selectedBatchPaper = selectedBatch;
+  }
+
+  addPaperToBatch(batchId: number, paperId: number) {
+    const payload = {
+      batchId: batchId,
+      paperId: [paperId],
+      action: "Add"
+    };
+
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response: any) => {
+        if (response.status) {
+          this.toastService.show('Paper added to batch successfully', 'success');
+        }
+      },
+      error: (error: any) => {
+        console.log('Error adding paper to batch:', error);
+        this.toastService.show('Failed to add paper to batch', 'danger');
+      }
+    });
+  }
+
+  removePaperFromBatch(batchId: number, paperId: number) {
+    const payload = {
+      batchId: batchId,
+      paperId: [paperId],
+      action: "Remove"
+    };
+
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response: any) => {
+        if (response.status) {
+          this.toastService.show('Paper removed from batch successfully', 'success');
+        }
+      },
+      error: (error: any) => {
+        console.log('Error removing paper from batch:', error);
+        this.toastService.show('Failed to remove paper from batch', 'danger');
+      }
+    });
+  }
+
   loadDictionaryItems() {
 
     this.dictionaryService.getDictionaryItemList().subscribe({
@@ -1452,6 +1535,7 @@ export class Template3Component implements AfterViewInit {
             isExtensionOfDuration: generatlInfoData.isExtensionOfDuration || false,
             isTEToCompleteBidding: generatlInfoData.isTEToCompleteBidding || false,
             isChangeInRates: generatlInfoData.isChangeInRates || false,
+            batchPaper: generatlInfoData.batchPaperId || null,
             cgbItemRefNo: generatlInfoData.cgbItemRefNo || '',
             cgbCirculationDate: generatlInfoData.cgbCirculationDate
               ? format(new Date(generatlInfoData.cgbCirculationDate), 'yyyy-MM-dd')

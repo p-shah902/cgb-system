@@ -48,6 +48,7 @@ import {NumberInputComponent} from '../../components/number-input/number-input.c
 import { COMMITTEE_CONDITIONS } from '../../utils/threshold-conditions';
 import { PermissionService } from '../shared/services/permission.service';
 import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
+import {BatchService} from '../../service/batch.service';
 
 @Component({
   selector: 'app-template2',
@@ -136,10 +137,13 @@ export class Template2Component implements AfterViewInit {
     section10: false,
   };
   public psaJvOptions: { value: string; label: string }[] = [];
+  batchPaperList: any[] = [];
+  selectedBatchPaper: any = null;
 
   constructor(private toggleService: ToggleService, private router: Router, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, private uploadService: UploadService, public toastService: ToastService,
-              public permission: PermissionService
+              public permission: PermissionService,
+              private batchPaperService: BatchService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -205,6 +209,7 @@ export class Template2Component implements AfterViewInit {
     this.loadCountry();
     this.loadPaperStatusListData();
     this.loadVendoreDetails()
+    this.loadBatchPapersList();
     this.onLTCCChange()
     this.onPrepaymentChange()
     this.currencyLinkedChange()
@@ -391,6 +396,7 @@ export class Template2Component implements AfterViewInit {
 
     this.generalInfoForm = this.fb.group({
       generalInfo: this.fb.group({
+        batchPaper: [null],
         paperProvision: ['', Validators.required],
         cgbAtmRefNo: [null],
         cgbApprovalDate: [null],
@@ -645,6 +651,7 @@ export class Template2Component implements AfterViewInit {
               ? format(new Date(contractAwardDetails.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
             isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket ?? null,
+            batchPaper: contractAwardDetails?.batchPaperId || null,
             cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
             cgbCirculationDate: contractAwardDetails?.cgbCirculationDate
               ? format(new Date(contractAwardDetails.cgbCirculationDate), 'yyyy-MM-dd')
@@ -1232,6 +1239,82 @@ export class Template2Component implements AfterViewInit {
       error: (error) => {
         console.log('error', error);
       },
+    });
+  }
+
+  loadBatchPapersList() {
+    this.batchPaperService.getBatchPapersList().subscribe({
+      next: (response: any) => {
+        if (response.status && response.data) {
+          this.batchPaperList = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.log('error', error);
+      },
+    });
+  }
+
+  onBatchPaperSelectionChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedBatchId = target.value;
+
+    if (selectedBatchId && selectedBatchId !== 'null') {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+      this.onBatchPaperChange(selectedBatch);
+    } else {
+      this.onBatchPaperChange(null);
+    }
+  }
+
+  onBatchPaperChange(selectedBatch: any) {
+    if (selectedBatch && this.paperId) {
+      // Add paper to batch
+      this.addPaperToBatch(selectedBatch.id, Number(this.paperId));
+    } else if (this.selectedBatchPaper && this.paperId) {
+      // Remove paper from batch
+      this.removePaperFromBatch(this.selectedBatchPaper.id, Number(this.paperId));
+    }
+    this.selectedBatchPaper = selectedBatch;
+  }
+
+  addPaperToBatch(batchId: number, paperId: number) {
+    const payload = {
+      batchId: batchId,
+      paperId: [paperId],
+      action: "Add"
+    };
+
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response: any) => {
+        if (response.status) {
+          this.toastService.show('Paper added to batch successfully', 'success');
+        }
+      },
+      error: (error: any) => {
+        console.log('Error adding paper to batch:', error);
+        this.toastService.show('Failed to add paper to batch', 'danger');
+      }
+    });
+  }
+
+  removePaperFromBatch(batchId: number, paperId: number) {
+    const payload = {
+      batchId: batchId,
+      paperId: [paperId],
+      action: "Remove"
+    };
+
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response: any) => {
+        if (response.status) {
+          this.toastService.show('Paper removed from batch successfully', 'success');
+        }
+      },
+      error: (error: any) => {
+        console.log('Error removing paper from batch:', error);
+        this.toastService.show('Failed to remove paper from batch', 'danger');
+      }
     });
   }
 
