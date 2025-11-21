@@ -193,9 +193,10 @@
                   </div>
                 </div>
                 <input class="form-control" 
-                       placeholder="Search by threshold name..."
+                       placeholder="Search by threshold name, paper type, or sourcing type..."
                        [(ngModel)]="searchText"
                        (input)="onSearchChange()"
+                       (keyup.enter)="onSearchButtonClick()"
                        [disabled]="isSearching"/>
               </div>
               <div class="role-btn-div text-end d-flex justify-content-end">

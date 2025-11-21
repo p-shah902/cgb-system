@@ -33,6 +33,7 @@ export class VendorsComponent implements OnInit, OnDestroy {
   isLoading:boolean=false
   selectAll: boolean = false;
   vendorDetails:VendorDetail[]=[];
+  allVendorDetails:VendorDetail[]=[]; // Store all vendors for filtering
   
   // Search
   searchText: string = '';
@@ -88,11 +89,21 @@ export class VendorsComponent implements OnInit, OnDestroy {
         }
         
         if (response.status && response.data && response.data.length > 0) {
-          this.vendorDetails = response.data.filter(f => f.isActive);
-          this.sortByDate();
+          // Store all vendors for frontend filtering
+          this.allVendorDetails = response.data;
+          
+          // Apply current search filter if any
+          if (this.searchText && this.searchText.trim()) {
+            this.performSearch(this.searchText);
+          } else {
+            // No search, show all active vendors
+            this.vendorDetails = this.allVendorDetails.filter(f => f.isActive);
+            this.sortByDate();
+          }
           console.log('vendor:', this.vendorDetails);
         } else {
           // No data returned
+          this.allVendorDetails = [];
           this.vendorDetails = [];
         }
         this.isLoading = false;
@@ -108,55 +119,53 @@ export class VendorsComponent implements OnInit, OnDestroy {
   }
 
   buildFilter(): GetVendorsListRequest['filter'] {
-    const filter: GetVendorsListRequest['filter'] = {};
-    
-    // If search text exists, send it to vendorName field (assuming backend handles general search)
-    if (this.searchText && this.searchText.trim()) {
-      filter.vendorName = this.searchText.trim();
-    }
-    
-    return filter;
+    // Always fetch all vendors - filtering will be done on frontend
+    return {};
   }
 
   performSearch(searchTerm: string): void {
-    this.isLoading = true;
+    // Filter vendors on frontend based on search term
+    const searchValue = searchTerm ? searchTerm.trim().toLowerCase() : '';
     
-    // Build request payload with search filter
-    const request: GetVendorsListRequest = {
-      filter: searchTerm ? { vendorName: searchTerm.trim() } : {},
-      paging: {
-        start: 0,
-        length: 1000
-      }
-    };
+    if (!searchValue) {
+      // If no search term, show all active vendors
+      this.vendorDetails = this.allVendorDetails.filter(f => f.isActive);
+      this.sortByDate();
+      return;
+    }
     
-    this.vendorService.getVendorDetailsList(request).subscribe({
-      next: (response) => {
-        // Check if response has errors (e.g., "Vendor List Not Found")
-        if (response.errors && response.errors.Vendor && response.errors.Vendor.length > 0) {
-          // Handle "Vendor List Not Found" error gracefully
-          this.vendorDetails = [];
-          this.isLoading = false;
-          return;
-        }
-        
-        if (response.status && response.data && response.data.length > 0) {
-          this.vendorDetails = response.data.filter(f => f.isActive);
-          this.sortByDate();
-        } else {
-          // No data returned
-          this.vendorDetails = [];
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.log('error', error);
-        // On error, set empty array
-        this.vendorDetails = [];
-        this.isLoading = false;
-        this.toastService.showError(error);
-      }
-    });
+    // Filter vendors based on multiple fields
+    this.vendorDetails = this.allVendorDetails.filter((vendor: VendorDetail) => {
+      // Search in vendorName
+      const matchesVendorName = vendor.vendorName?.toLowerCase().includes(searchValue);
+      
+      // Search in legalName
+      const matchesLegalName = vendor.legalName?.toLowerCase().includes(searchValue);
+      
+      // Search in countryName
+      const matchesCountryName = vendor.countryName?.toLowerCase().includes(searchValue);
+      
+      // Search in contactEmail
+      const matchesContactEmail = vendor.contactEmail?.toLowerCase().includes(searchValue);
+      
+      // Search in taxId
+      const matchesTaxId = vendor.taxId?.toLowerCase().includes(searchValue);
+      
+      // Search in sapId
+      const matchesSapId = vendor.sapId?.toLowerCase().includes(searchValue);
+      
+      // Search in parentCompanyName
+      const matchesParentCompany = vendor.parentCompanyName?.toLowerCase().includes(searchValue);
+      
+      // Search in contactPerson
+      const matchesContactPerson = vendor.contactPerson?.toLowerCase().includes(searchValue);
+      
+      return matchesVendorName || matchesLegalName || matchesCountryName || 
+             matchesContactEmail || matchesTaxId || matchesSapId || 
+             matchesParentCompany || matchesContactPerson;
+    }).filter(f => f.isActive); // Only show active vendors
+    
+    this.sortByDate();
   }
 
   onSearchChange(): void {

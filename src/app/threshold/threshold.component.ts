@@ -22,6 +22,8 @@ export class ThresholdComponent implements OnInit, OnDestroy {
   active = 1;
   internalThresholds: any[] = [];
   partnerThresholds: any[] = [];
+  allInternalThresholds: any[] = []; // Store all thresholds for filtering
+  allPartnerThresholds: any[] = []; // Store all thresholds for filtering
   isLoading: boolean = false;
   isSearching: boolean = false; // Loading state for search only
   
@@ -54,14 +56,22 @@ export class ThresholdComponent implements OnInit, OnDestroy {
 
   // Load internal and partner thresholds from the API
   loadThresholds(): void {
-    // Build request payload with search filter
+    // Build request payload with search filter - ensure length is never 0
     const request: GetThresholdListRequest = {
       filter: this.buildFilter(),
       paging: {
         start: 0,
-        length: 1000
+        length: 1000  // Always ensure length is never 0
       }
     };
+    
+    // Ensure paging is always present with valid values
+    if (!request.paging || request.paging.length === 0) {
+      request.paging = {
+        start: 0,
+        length: 1000
+      };
+    }
     
     this.thresholdService.getThresholdList(request).subscribe(
       (response: any) => {
@@ -74,10 +84,22 @@ export class ThresholdComponent implements OnInit, OnDestroy {
         }
         
         if (response && response.data && response.data.length > 0) {
-          this.internalThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Internal');
-          this.partnerThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Partner');
+          // Store all thresholds for frontend filtering
+          this.allInternalThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Internal');
+          this.allPartnerThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Partner');
+          
+          // Apply current search filter if any
+          if (this.searchText && this.searchText.trim()) {
+            this.performSearch(this.searchText);
+          } else {
+            // No search, show all
+            this.internalThresholds = [...this.allInternalThresholds];
+            this.partnerThresholds = [...this.allPartnerThresholds];
+          }
         } else {
           // No data returned
+          this.allInternalThresholds = [];
+          this.allPartnerThresholds = [];
           this.internalThresholds = [];
           this.partnerThresholds = [];
         }
@@ -93,58 +115,71 @@ export class ThresholdComponent implements OnInit, OnDestroy {
   }
 
   buildFilter(): GetThresholdListRequest['filter'] {
-    const filter: GetThresholdListRequest['filter'] = {};
-    
-    // If search text exists, send it to thresholdName field (assuming backend handles general search)
-    if (this.searchText && this.searchText.trim()) {
-      filter.thresholdName = this.searchText.trim();
-    }
-    
-    return filter;
+    // Always fetch all thresholds - filtering will be done on frontend
+    return {};
   }
 
   performSearch(searchTerm: string): void {
     this.isSearching = true;
     
-    // Build request payload with search filter
-    const request: GetThresholdListRequest = {
-      filter: searchTerm ? { thresholdName: searchTerm.trim() } : {},
-      paging: {
-        start: 0,
-        length: 1000
-      }
-    };
+    // Filter thresholds on frontend based on search term
+    const searchValue = searchTerm ? searchTerm.trim().toLowerCase() : '';
     
-    this.thresholdService.getThresholdList(request).subscribe(
-      (response: any) => {
-        // Check if response has errors (e.g., "Threshold List Not Found")
-        if (response.errors && response.errors.Threshold && response.errors.Threshold.length > 0) {
-          // Handle "Threshold List Not Found" error gracefully
-          this.internalThresholds = [];
-          this.partnerThresholds = [];
-          this.isSearching = false;
-          return;
-        }
-        
-        if (response && response.data && response.data.length > 0) {
-          this.internalThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Internal');
-          this.partnerThresholds = response.data.filter((threshold: any) => threshold.thresholdType === 'Partner');
+    if (!searchValue) {
+      // If no search term, show all thresholds
+      this.internalThresholds = [...this.allInternalThresholds];
+      this.partnerThresholds = [...this.allPartnerThresholds];
+      this.isSearching = false;
+      return;
+    }
+    
+    // Filter internal thresholds
+    this.internalThresholds = this.allInternalThresholds.filter((threshold: any) => {
+      // Search in thresholdName
+      const matchesName = threshold.thresholdName?.toLowerCase().includes(searchValue);
+      
+      // Search in paperType (handle both string and array)
+      let matchesPaperType = false;
+      if (threshold.paperType) {
+        if (Array.isArray(threshold.paperType)) {
+          matchesPaperType = threshold.paperType.some((pt: string) => 
+            pt?.toLowerCase().includes(searchValue)
+          );
         } else {
-          // No data returned
-          this.internalThresholds = [];
-          this.partnerThresholds = [];
+          matchesPaperType = threshold.paperType.toLowerCase().includes(searchValue);
         }
-        this.isSearching = false;
-      },
-      (error) => {
-        console.error('Error loading thresholds:', error);
-        // On error, set empty arrays
-        this.internalThresholds = [];
-        this.partnerThresholds = [];
-        this.isSearching = false;
-        this.toastService.showError(error);
       }
-    );
+      
+      // Search in sourcingTypeName
+      const matchesSourcingType = threshold.sourcingTypeName?.toLowerCase().includes(searchValue);
+      
+      return matchesName || matchesPaperType || matchesSourcingType;
+    });
+    
+    // Filter partner thresholds
+    this.partnerThresholds = this.allPartnerThresholds.filter((threshold: any) => {
+      // Search in thresholdName
+      const matchesName = threshold.thresholdName?.toLowerCase().includes(searchValue);
+      
+      // Search in paperType (handle both string and array)
+      let matchesPaperType = false;
+      if (threshold.paperType) {
+        if (Array.isArray(threshold.paperType)) {
+          matchesPaperType = threshold.paperType.some((pt: string) => 
+            pt?.toLowerCase().includes(searchValue)
+          );
+        } else {
+          matchesPaperType = threshold.paperType.toLowerCase().includes(searchValue);
+        }
+      }
+      
+      // Search in sourcingTypeName
+      const matchesSourcingType = threshold.sourcingTypeName?.toLowerCase().includes(searchValue);
+      
+      return matchesName || matchesPaperType || matchesSourcingType;
+    });
+    
+    this.isSearching = false;
   }
 
   onSearchChange(): void {

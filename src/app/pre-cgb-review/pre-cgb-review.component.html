@@ -37,6 +37,14 @@
                     </tr>
                   </thead>
                   <tbody>
+                    <tr *ngIf="paperList.length === 0">
+                      <td [attr.colspan]="6" class="text-center py-5">
+                        <div class="d-flex flex-column align-items-center justify-content-center">
+                          <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No papers found</p>
+                          <p class="text-muted mt-2" style="font-size: 14px;">There are no papers available for Pre-CGB review at this time.</p>
+                        </div>
+                      </td>
+                    </tr>
                     <tr *ngFor="let paper of paperList; let i = index">
                       <td>
                         <div class="form-check-list d-flex gap-3 flex-wrap">

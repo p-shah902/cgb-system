@@ -32,9 +32,10 @@
                           fill="#84818A"/>
                   </svg>
                   <input class="form-control" 
-                         placeholder="Search by vendor name, country, email..."
+                         placeholder="Search by vendor name, legal name, country, email, tax ID, SAP ID..."
                          [(ngModel)]="searchText"
-                         (input)="onSearchChange()"/>
+                         (input)="onSearchChange()"
+                         (keyup.enter)="onSearchButtonClick()"/>
                 </div>
                 <div class="role-btn-div text-end">
                   <button class="btn btn-light ms-auto" (click)="nevigate()">
@@ -106,7 +107,7 @@
                   </td>
                   <td>{{vendor.taxId}}</td>
                   <td>{{vendor.sapId}}</td>
-                  <td>{{vendor.country}}</td>
+                  <td>{{vendor.countryName}}</td>
                   <td>
                     <div class="vendore-status">
                       <label> {{ vendor.isActive ? 'Active' : 'Inactive' }}</label>

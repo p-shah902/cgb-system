@@ -123,17 +123,34 @@ export class PreCgbReviewComponent implements OnInit {
     
     this.paperConfigService.getPaperConfigList(request).subscribe({
       next: (response) => {
-        if (response.status && response.data) {
+        // Check if response has errors (e.g., "No paper configurations found")
+        if (response.errors && Object.keys(response.errors).length > 0) {
+          // Handle error response gracefully
+          this.paperList = [];
+          this.isLoading = false;
+          return;
+        }
+        
+        if (response.status && response.data && response.data.length > 0) {
           this.paperList = response.data.filter((paper: any) =>
             paper.statusName?.toLowerCase().includes('pre-cgb')
           );
           this.sortByDate();
+        } else {
+          // No data returned
+          this.paperList = [];
         }
+        this.isLoading = false;
       },
       error: (error) => {
         console.log('error', error);
+        // On error, set empty array and stop loading
+        this.paperList = [];
+        this.isLoading = false;
+        this.toastService.showError(error);
       },
       complete: () => {
+        // Ensure loading is always stopped
         this.isLoading = false;
       },
     });
