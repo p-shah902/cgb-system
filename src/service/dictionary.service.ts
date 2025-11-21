@@ -62,12 +62,15 @@ export class DictionaryService {
         payload.filter.itemNames = itemName;
       }
       
-      // Ensure paging is set
+      // Ensure paging is set and length is never 0
       if (!payload.paging) {
         payload.paging = {
           start: 0,
           length: 1000
         };
+      } else if (!payload.paging.length || payload.paging.length === 0) {
+        // Ensure length is always a valid number (never 0)
+        payload.paging.length = 1000;
       }
       
       return this.http

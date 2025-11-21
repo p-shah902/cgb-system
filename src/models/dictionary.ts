@@ -30,6 +30,7 @@ export interface GetDictionaryItemsListRequest {
 
 export interface GetDictionaryListByItemNameFilter {
   itemNames?: string;
+  itemValue?: string;
 }
 
 export interface GetDictionaryListByItemNamePaging {

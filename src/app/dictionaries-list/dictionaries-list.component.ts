@@ -30,7 +30,7 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
 
   dictionaryItem: Item[] = [];
   dictionaryDetail: DictionaryDetail[] = [];
-  isLoading: boolean = false;
+  isLoading: boolean = true; // Start with loading true to prevent "no data" flash
   
   // Search
   searchText: string = '';
@@ -67,14 +67,22 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
   loadDictionaryIteams() {
     this.isLoading = true;
     
-    // Build request payload with search filter
+    // Build request payload with search filter - ensure length is always a valid number
     const request: GetDictionaryItemsListRequest = {
       filter: this.buildFilter(),
       paging: {
         start: 0,
-        length: 1000
+        length: 1000  // Always set a valid length value
       }
     };
+    
+    // Ensure paging is always present with valid values
+    if (!request.paging) {
+      request.paging = {
+        start: 0,
+        length: 1000
+      };
+    }
     
     this.dictionaryService.getDictionaryItemList(request).subscribe({
       next: (response) => {
@@ -82,6 +90,8 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
         if (response.errors && response.errors.Dictionary && response.errors.Dictionary.length > 0) {
           // Handle "Dictionary List Not Found" error gracefully
           this.dictionaryItem = [];
+          this.dictionaryDetail = [];
+          this.active = 'top';
           this.isLoading = false;
           return;
         }
@@ -92,18 +102,26 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
           console.log('Dictionary Item', this.dictionaryItem);
           if (this.dictionaryItem.length > 0) {
             const iteamName = this.dictionaryItem[0].itemName;
+            this.active = iteamName;
             this.loadDictionaryDetails(iteamName);
+          } else {
+            this.dictionaryDetail = [];
+            this.active = 'top';
           }
         } else {
           // No data returned
           this.dictionaryItem = [];
+          this.dictionaryDetail = [];
+          this.active = 'top';
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.log('error', error);
-        // On error, set empty array
+        // On error, set empty arrays
         this.dictionaryItem = [];
+        this.dictionaryDetail = [];
+        this.active = 'top';
         this.isLoading = false;
         this.toastService.showError(error);
       },
@@ -124,51 +142,145 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
   performSearch(searchTerm: string): void {
     this.isLoading = true;
     
-    // Build request payload with search filter
-    const request: GetDictionaryItemsListRequest = {
-      filter: searchTerm ? { itemNames: searchTerm.trim() } : {},
-      paging: {
-        start: 0,
-        length: 1000
-      }
-    };
+    // Reset pagination when searching
+    this.currentPage = 1;
     
-    this.dictionaryService.getDictionaryItemList(request).subscribe({
-      next: (response) => {
-        // Check if response has errors (e.g., "Dictionary List Not Found")
-        if (response.errors && response.errors.Dictionary && response.errors.Dictionary.length > 0) {
-          // Handle "Dictionary List Not Found" error gracefully
-          this.dictionaryItem = [];
-          this.dictionaryDetail = [];
-          this.isLoading = false;
-          return;
+    // If there's a selected dictionary category, search within that category using GetDictionaryListByItemName
+    if (this.currentItemName) {
+      this.dictionaryDetail = [];
+      
+      // Build request for GetDictionaryListByItemName API with itemValue filter
+      const searchRequest: GetDictionaryListByItemNameRequest = {
+        filter: {
+          itemNames: this.currentItemName,
+          itemValue: searchTerm && searchTerm.trim() ? searchTerm.trim() : undefined
+        },
+        paging: {
+          start: 0,
+          length: this.itemsPerPage > 0 ? this.itemsPerPage : 10  // Always ensure length is never 0
         }
-        
-        if (response.status && response.data && response.data.length > 0) {
-          // Filter out "Subsector" from the dictionary items list
-          this.dictionaryItem = response.data.filter(item => item.itemName !== 'Subsector');
-          if (this.dictionaryItem.length > 0) {
-            const iteamName = this.dictionaryItem[0].itemName;
-            this.loadDictionaryDetails(iteamName);
+      };
+      
+      // Ensure paging is always present with valid values
+      if (!searchRequest.paging || searchRequest.paging.length === 0) {
+        searchRequest.paging = {
+          start: 0,
+          length: this.itemsPerPage > 0 ? this.itemsPerPage : 10
+        };
+      }
+      
+      // Also build count request for total items
+      const countRequest: GetDictionaryListByItemNameRequest = {
+        filter: {
+          itemNames: this.currentItemName,
+          itemValue: searchTerm && searchTerm.trim() ? searchTerm.trim() : undefined
+        },
+        paging: {
+          start: 0,
+          length: 10000  // Large number to get all records for counting
+        }
+      };
+      
+      // Make parallel requests: one for paginated data, one for total count
+      forkJoin({
+        data: this.dictionaryService.getDictionaryListByItem(this.currentItemName, searchRequest),
+        count: this.dictionaryService.getDictionaryListByItem(this.currentItemName, countRequest)
+      }).subscribe({
+        next: ({ data, count }) => {
+          // Check if response has errors
+          if (data.errors && data.errors.Dictionary && data.errors.Dictionary.length > 0) {
+            // Handle error gracefully
+            this.dictionaryDetail = [];
+            this.totalItems = 0;
+            this.isLoading = false;
+            return;
+          }
+          
+          if (data.status && data.data) {
+            this.dictionaryDetail = data.data;
+            this.sortByDate();
           } else {
             this.dictionaryDetail = [];
           }
-        } else {
-          // No data returned
+          
+          // Get total count
+          if (count.status && count.data) {
+            this.totalItems = count.totalCount || count.recordsTotal || count.recordsFiltered || count.data.length;
+          } else {
+            this.totalItems = this.dictionaryDetail.length;
+          }
+          
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.log('error', error);
+          this.dictionaryDetail = [];
+          this.totalItems = 0;
+          this.isLoading = false;
+          this.toastService.showError(error);
+        },
+      });
+    } else {
+      // If no category selected, load all dictionary categories first
+      // Then user can select one to search within
+      const request: GetDictionaryItemsListRequest = {
+        filter: {},
+        paging: {
+          start: 0,
+          length: 1000  // Always set a valid length value
+        }
+      };
+      
+      // Ensure paging is always present with valid values
+      if (!request.paging) {
+        request.paging = {
+          start: 0,
+          length: 1000
+        };
+      }
+      
+      this.dictionaryService.getDictionaryItemList(request).subscribe({
+        next: (response) => {
+          // Check if response has errors
+          if (response.errors && response.errors.Dictionary && response.errors.Dictionary.length > 0) {
+            this.dictionaryItem = [];
+            this.dictionaryDetail = [];
+            this.active = 'top';
+            this.isLoading = false;
+            return;
+          }
+          
+          if (response.status && response.data && response.data.length > 0) {
+            // Filter out "Subsector" from the dictionary items list
+            this.dictionaryItem = response.data.filter(item => item.itemName !== 'Subsector');
+            if (this.dictionaryItem.length > 0) {
+              const iteamName = this.dictionaryItem[0].itemName;
+              this.active = iteamName;
+              this.currentItemName = iteamName;
+              // Now search within the first category
+              this.performSearch(searchTerm);
+            } else {
+              this.dictionaryDetail = [];
+              this.active = 'top';
+              this.isLoading = false;
+            }
+          } else {
+            this.dictionaryItem = [];
+            this.dictionaryDetail = [];
+            this.active = 'top';
+            this.isLoading = false;
+          }
+        },
+        error: (error) => {
+          console.log('error', error);
           this.dictionaryItem = [];
           this.dictionaryDetail = [];
-        }
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.log('error', error);
-        // On error, set empty arrays
-        this.dictionaryItem = [];
-        this.dictionaryDetail = [];
-        this.isLoading = false;
-        this.toastService.showError(error);
-      },
-    });
+          this.active = 'top';
+          this.isLoading = false;
+          this.toastService.showError(error);
+        },
+      });
+    }
   }
 
   onSearchChange(): void {
@@ -191,38 +303,70 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
     this.active = itemName;
     this.currentItemName = itemName;
     this.currentPage = 1; // Reset to first page when loading new item
+    // Clear search filter when switching tabs
+    this.searchText = '';
+    // Clear previous details and set loading state immediately to prevent "no data" flash
+    this.dictionaryDetail = [];
+    this.isLoading = true;
     this.getDictionaryDetails();
   }
   
   getDictionaryDetails() {
-    if (!this.currentItemName) return;
+    if (!this.currentItemName) {
+      this.isLoading = false;
+      return;
+    }
     
-    this.isLoading = true;
+    // Ensure loading state is set (in case it wasn't set in loadDictionaryDetails)
+    if (!this.isLoading) {
+      this.isLoading = true;
+    }
     
     // Calculate start index based on current page
     const start = (this.currentPage - 1) * this.itemsPerPage;
     
-    // Build request for paginated data
+    // Ensure itemsPerPage is valid (never 0)
+    const pageLength = this.itemsPerPage > 0 ? this.itemsPerPage : 10;
+    
+    // Build request for paginated data - ensure length is never 0
     const dataRequest: GetDictionaryListByItemNameRequest = {
       filter: {
         itemNames: this.currentItemName
+        // itemValue can be added here if needed for filtering by value
       },
       paging: {
         start: start,
-        length: this.itemsPerPage
+        length: pageLength  // Always ensure length is a valid number (never 0)
       }
     };
     
-    // Build request for total count
+    // Ensure paging is always present with valid values
+    if (!dataRequest.paging || dataRequest.paging.length === 0) {
+      dataRequest.paging = {
+        start: start,
+        length: pageLength
+      };
+    }
+    
+    // Build request for total count - ensure length is never 0
     const countRequest: GetDictionaryListByItemNameRequest = {
       filter: {
         itemNames: this.currentItemName
+        // itemValue can be added here if needed for filtering by value
       },
       paging: {
         start: 0,
-        length: 10000 // Large number to get all records for counting
+        length: 10000 // Large number to get all records for counting (never 0)
       }
     };
+    
+    // Ensure paging is always present with valid values
+    if (!countRequest.paging || countRequest.paging.length === 0) {
+      countRequest.paging = {
+        start: 0,
+        length: 10000
+      };
+    }
     
     // Make parallel requests: one for paginated data, one for total count
     forkJoin({
@@ -272,6 +416,14 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dictionaries-edit', this.active]);
   }
 
+  getAddButtonLabel(): string {
+    const selectedCategory = this.currentItemName || this.active;
+    if (selectedCategory && selectedCategory !== 'top') {
+      return `Add New ${selectedCategory}`;
+    }
+    return 'Add New Value';
+  }
+
   sortByDate() {
     this.dictionaryDetail.sort((a, b) => {
       const dateA = new Date(a.modifiedDate || a.createdDate).getTime();
@@ -316,6 +468,8 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.getTotalPages()) {
       this.currentPage = page;
+      // Set loading state before fetching to prevent "no data" flash
+      this.isLoading = true;
       this.getDictionaryDetails();
     }
   }
@@ -323,6 +477,8 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
   prevPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
+      // Set loading state before fetching to prevent "no data" flash
+      this.isLoading = true;
       this.getDictionaryDetails();
     }
   }
@@ -330,12 +486,16 @@ export class DictionariesListComponent implements OnInit, OnDestroy {
   nextPage(): void {
     if (this.currentPage < this.getTotalPages()) {
       this.currentPage++;
+      // Set loading state before fetching to prevent "no data" flash
+      this.isLoading = true;
       this.getDictionaryDetails();
     }
   }
   
   onPageSizeChange(): void {
     this.currentPage = 1; // Reset to first page when changing page size
+    // Set loading state before fetching to prevent "no data" flash
+    this.isLoading = true;
     this.getDictionaryDetails();
   }
   

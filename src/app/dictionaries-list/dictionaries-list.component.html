@@ -34,14 +34,15 @@
                   <input class="form-control" 
                          placeholder="Search dictionary items..."
                          [(ngModel)]="searchText"
-                         (input)="onSearchChange()"/>
+                         (input)="onSearchChange()"
+                         (keyup.enter)="onSearchButtonClick()"/>
                 </div>
                 <div class="role-btn-div text-end">
                   <button class="btn btn-light ms-auto" (click)="nevigate()">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M10.0001 4.16797V15.8346M4.16675 10.0013H15.8334" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    Add New Dictionary
+                    {{ getAddButtonLabel() }}
                   </button>
                 </div>
               </div>
@@ -52,7 +53,13 @@
           <div class="dictionaries-detail">
             <div class="d-flex">       
               <div ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-pills flex-column" orientation="vertical">
-              <div *ngIf="dictionaryItem.length === 0" class="text-center py-5 px-3">
+              <div *ngIf="isLoading && dictionaryItem.length === 0" class="text-center py-5 px-3">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted mt-2" style="font-size: 14px;">Loading dictionaries...</p>
+              </div>
+              <div *ngIf="!isLoading && dictionaryItem.length === 0" class="text-center py-5 px-3">
                 <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No dictionary items found</p>
                 <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
               </div>
@@ -75,7 +82,7 @@
                          </tr>
                        </thead>
                        <tbody>
-                        <tr *ngIf="dictionaryDetail.length === 0 && !isLoading">
+                        <tr *ngIf="dictionaryDetail.length === 0 && !isLoading && currentItemName">
                           <td [attr.colspan]="4" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center justify-content-center">
                               <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No dictionary items found</p>
