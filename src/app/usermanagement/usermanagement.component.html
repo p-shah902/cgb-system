@@ -139,7 +139,9 @@
                                 <td>{{ user.roleName }}</td>
                                 <td>{{ user.departmentName }}</td>
                                 <td>
-                                  {{ user.isActive ? "Active" : "Inactive" }}
+                                  <span class="status-badge" [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
+                                    {{ user.isActive ? "Active" : "Inactive" }}
+                                  </span>
                                 </td>
 <!--                                <td>-->
 <!--                                  {{-->
@@ -374,7 +376,9 @@
                                 <td>{{ user.roleName }}</td>
                                 <td>{{ user.departmentName }}</td>
                                 <td>
-                                  {{ user.isActive ? "Active" : "Inactive" }}
+                                  <span class="status-badge" [ngClass]="user.isActive ? 'status-active' : 'status-inactive'">
+                                    {{ user.isActive ? "Active" : "Inactive" }}
+                                  </span>
                                 </td>
                                 <td>
                                   {{

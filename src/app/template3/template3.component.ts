@@ -1458,18 +1458,36 @@ export class Template3Component implements AfterViewInit {
   }
 
   onConflictofInterestChange() {
+    // Handle contractValues.isConflictOfInterest (for contract values section)
     this.generalInfoForm.get('contractValues.isConflictOfInterest')?.valueChanges.subscribe((value) => {
-      const ltccNotesControl = this.generalInfoForm.get('contractValues.conflictOfInterestComment');
+      const conflictCommentControl = this.generalInfoForm.get('contractValues.conflictOfInterestComment');
 
       if (value === true) {
-        ltccNotesControl?.setValidators([Validators.required]);
-        ltccNotesControl?.enable();
+        conflictCommentControl?.setValidators([Validators.required]);
+        conflictCommentControl?.enable();
       } else {
-        ltccNotesControl?.clearValidators();
-        ltccNotesControl?.disable(); // <- disables the field
+        conflictCommentControl?.clearValidators();
+        conflictCommentControl?.disable();
+        conflictCommentControl?.setValue(''); // Clear value when disabled
       }
 
-      ltccNotesControl?.updateValueAndValidity();
+      conflictCommentControl?.updateValueAndValidity();
+    });
+
+    // Handle contractInfo.isConflictOfInterest (for Section 3 - Contract Information)
+    this.generalInfoForm.get('contractInfo.isConflictOfInterest')?.valueChanges.subscribe((value) => {
+      const conflictCommentControl = this.generalInfoForm.get('contractInfo.conflictOfInterestComment');
+
+      if (value === true) {
+        conflictCommentControl?.setValidators([Validators.required]);
+        conflictCommentControl?.enable();
+      } else {
+        conflictCommentControl?.clearValidators();
+        conflictCommentControl?.disable();
+        conflictCommentControl?.setValue(''); // Clear value when disabled
+      }
+
+      conflictCommentControl?.updateValueAndValidity();
     });
   }
 
@@ -1674,6 +1692,8 @@ export class Template3Component implements AfterViewInit {
             prePayAmount: generatlInfoData?.prePayAmount || 0,
             isRetrospectiveApproval: generatlInfoData?.isRetrospectiveApproval || false,
             retrospectiveApprovalReason: generatlInfoData?.retrospectiveApprovalReason || '',
+            isConflictOfInterest: generatlInfoData?.isConflictOfInterest || false,
+            conflictOfInterestComment: generatlInfoData?.conflictOfInterestComment || '',
           },
           contractValues: {
             originalContractValue: generatlInfoData?.originalContractValue || 0,
@@ -1847,6 +1867,24 @@ export class Template3Component implements AfterViewInit {
           this.generalInfoForm.patchValue({
             costAllocation: costAllocationPatch
           }, { emitEvent: false });
+
+          // Enable conflictOfInterestComment field if isConflictOfInterest is true (for Section 3 - Contract Information)
+          const contractInfoConflictValue = this.generalInfoForm.get('contractInfo.isConflictOfInterest')?.value;
+          if (contractInfoConflictValue === true) {
+            const conflictCommentControl = this.generalInfoForm.get('contractInfo.conflictOfInterestComment');
+            conflictCommentControl?.setValidators([Validators.required]);
+            conflictCommentControl?.enable();
+            conflictCommentControl?.updateValueAndValidity();
+          }
+
+          // Enable conflictOfInterestComment field if isConflictOfInterest is true (for contractValues section)
+          const contractValuesConflictValue = this.generalInfoForm.get('contractValues.isConflictOfInterest')?.value;
+          if (contractValuesConflictValue === true) {
+            const conflictCommentControl = this.generalInfoForm.get('contractValues.conflictOfInterestComment');
+            conflictCommentControl?.setValidators([Validators.required]);
+            conflictCommentControl?.enable();
+            conflictCommentControl?.updateValueAndValidity();
+          }
 
           this.isInitialLoad = false;
 
