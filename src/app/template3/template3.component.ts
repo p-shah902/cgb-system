@@ -3254,12 +3254,32 @@ export class Template3Component implements AfterViewInit {
     if (!this.loggedInUser || !jvReviewUserId) {
       return false;
     }
-    // Check if paper status is "On JV Approval" and logged-in user matches jvReview user
+    
     const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
-    if (paperStatus === 'On JV Approval') {
-      return this.loggedInUser.id === jvReviewUserId;
+    const statusLower = (paperStatus || '').toLowerCase().trim();
+    
+    // Check if user matches jvReviewUserId
+    if (this.loggedInUser.id !== jvReviewUserId) {
+      return false;
     }
-    return this.loggedInUser.id === jvReviewUserId;
+    
+    // JV Admin can edit JV Aligned at any stage between Registered and Approved by Pre-CGB
+    if (this.loggedInUser.roleName === 'JV Admin') {
+      const allowedStatuses = [
+        'registered',
+        'waiting for pdm',
+        'on pre-cgb',
+        'approved by pre-cgb'
+      ];
+      return allowedStatuses.includes(statusLower);
+    }
+    
+    // For other users, JV Aligned is only editable when status is "On JV Approval"
+    if (paperStatus === 'On JV Approval') {
+      return true;
+    }
+    
+    return false;
   }
 
   // Method to check if update button should be shown for JV Approval
