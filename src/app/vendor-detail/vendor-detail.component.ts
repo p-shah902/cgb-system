@@ -202,7 +202,73 @@ export class VendorDetailComponent implements OnInit {
       error: (error) => {
         this.isSubmitting = false;
         console.log('Error', error);
-        this.toastService.show('Failed to save vendor details', 'danger');
+        
+        // Parse error response to show user-friendly messages
+        let errorMessage = 'Failed to save vendor details';
+        
+        if (error?.error?.errors) {
+          const errors = error.error.errors;
+          
+          // Check for Email errors
+          if (errors.Email && Array.isArray(errors.Email) && errors.Email.length > 0) {
+            const emailError = errors.Email[0].toLowerCase();
+            if (emailError.includes('email') || emailError.includes('contact email')) {
+              errorMessage = 'Email already exists';
+            } else if (emailError.includes('vendor name')) {
+              errorMessage = 'Vendor name already exists';
+            } else if (emailError.includes('vendor name') && emailError.includes('email')) {
+              errorMessage = 'Vendor name or Email already exists';
+            } else {
+              errorMessage = errors.Email[0];
+            }
+          }
+          // Check for VendorName errors
+          else if (errors.VendorName && Array.isArray(errors.VendorName) && errors.VendorName.length > 0) {
+            errorMessage = 'Vendor name already exists';
+          }
+          // Check for vendorName (camelCase)
+          else if (errors.vendorName && Array.isArray(errors.vendorName) && errors.vendorName.length > 0) {
+            errorMessage = 'Vendor name already exists';
+          }
+          // Check for contactEmail errors
+          else if (errors.contactEmail && Array.isArray(errors.contactEmail) && errors.contactEmail.length > 0) {
+            errorMessage = 'Email already exists';
+          }
+          // Check for generic error messages
+          else {
+            // Try to find any error message
+            const errorKeys = Object.keys(errors);
+            if (errorKeys.length > 0) {
+              const firstError = errors[errorKeys[0]];
+              if (Array.isArray(firstError) && firstError.length > 0) {
+                const errorText = firstError[0].toLowerCase();
+                if (errorText.includes('vendor name') && errorText.includes('email')) {
+                  errorMessage = 'Vendor name or Email already exists';
+                } else if (errorText.includes('vendor name')) {
+                  errorMessage = 'Vendor name already exists';
+                } else if (errorText.includes('email') || errorText.includes('contact email')) {
+                  errorMessage = 'Email already exists';
+                } else {
+                  errorMessage = firstError[0];
+                }
+              }
+            }
+          }
+        } else if (error?.error?.message) {
+          // Check if error message contains vendor name or email
+          const errorMsg = error.error.message.toLowerCase();
+          if (errorMsg.includes('vendor name') && errorMsg.includes('email')) {
+            errorMessage = 'Vendor name or Email already exists';
+          } else if (errorMsg.includes('vendor name')) {
+            errorMessage = 'Vendor name already exists';
+          } else if (errorMsg.includes('email') || errorMsg.includes('contact email')) {
+            errorMessage = 'Email already exists';
+          } else {
+            errorMessage = error.error.message;
+          }
+        }
+        
+        this.toastService.show(errorMessage, 'danger');
       }, complete: () => {
         this.isSubmitting = false;
       }

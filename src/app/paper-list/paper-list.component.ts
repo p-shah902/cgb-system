@@ -90,7 +90,7 @@ export class PaperListComponent implements OnInit, AfterViewInit {
   tempFilter: PaperFilter = { ...this.filter };
   priceSliderOptions: Options = {
     floor: 0,
-    ceil: 500,
+    ceil: 1000, // Will be updated dynamically
     step: 10,
     translate: (value: number): string => `$${value}`
   };
@@ -165,11 +165,20 @@ export class PaperListComponent implements OnInit, AfterViewInit {
     if (isOpen) {
       // Only sync when opening, not when closing
       this.tempFilter = JSON.parse(JSON.stringify(this.filter));
-      // Sync tempPrice with filter prices
-      this.tempPrice = [
-        this.filter.priceMin || 0,
-        this.filter.priceMax || 0
-      ];
+      // Sync tempPrice with filter prices, or use dynamic range if no filter applied
+      if (this.filter.priceMin && this.filter.priceMax && 
+          (this.filter.priceMin > 0 || this.filter.priceMax > 0)) {
+        this.tempPrice = [
+          this.filter.priceMin || this.priceSliderOptions.floor || 0,
+          this.filter.priceMax || this.priceSliderOptions.ceil || 1000
+        ];
+      } else {
+        // Use dynamic range if no price filter is applied
+        this.tempPrice = [
+          this.priceSliderOptions.floor || 0,
+          this.priceSliderOptions.ceil || 1000
+        ];
+      }
       setTimeout(() => this.syncSwitchesWithTemp(), 0);
     }
   }
@@ -261,8 +270,19 @@ export class PaperListComponent implements OnInit, AfterViewInit {
             if (!a.lastModifyDate && b.lastModifyDate) return 1;
             return b.paperID - a.paperID; // DESC (newest first)
           });
+          
+          // Update price slider options based on actual contract values
+          this.updatePriceSliderOptions();
         } else {
           this.allPaperList = [];
+          // Reset to default values if no data
+          this.priceSliderOptions = {
+            floor: 0,
+            ceil: 1000,
+            step: 10,
+            translate: (value: number): string => `$${value}`
+          };
+          this.tempPrice = [0, 0];
         }
         
         // Apply frontend filters
@@ -765,11 +785,15 @@ export class PaperListComponent implements OnInit, AfterViewInit {
   clearPriceFilters(): void {
     this.tempFilter.sortLowToHigh = false;
     this.tempFilter.sortHighToLow = false;
-    this.tempPrice = [0, 0];
+    // Reset to dynamic min/max values
+    this.tempPrice = [
+      this.priceSliderOptions.floor || 0,
+      this.priceSliderOptions.ceil || 1000
+    ];
     this.tempFilter = {
       ...this.tempFilter,
-      priceMin: 0,
-      priceMax: 0
+      priceMin: this.priceSliderOptions.floor || 0,
+      priceMax: this.priceSliderOptions.ceil || 1000
     };
     this.currentPage = 1;
     this.applyFrontendFilters();
@@ -834,10 +858,20 @@ export class PaperListComponent implements OnInit, AfterViewInit {
   cancelFilters(): void {
     // Reset tempFilter to current filter state when canceling
     this.tempFilter = JSON.parse(JSON.stringify(this.filter));
-    this.tempPrice = [
-      this.filter.priceMin || 0,
-      this.filter.priceMax || 0
-    ];
+    // Sync tempPrice with filter prices, or use dynamic range if no filter applied
+    if (this.filter.priceMin && this.filter.priceMax && 
+        (this.filter.priceMin > 0 || this.filter.priceMax > 0)) {
+      this.tempPrice = [
+        this.filter.priceMin || this.priceSliderOptions.floor || 0,
+        this.filter.priceMax || this.priceSliderOptions.ceil || 1000
+      ];
+    } else {
+      // Use dynamic range if no price filter is applied
+      this.tempPrice = [
+        this.priceSliderOptions.floor || 0,
+        this.priceSliderOptions.ceil || 1000
+      ];
+    }
     // Sync switches after resetting
     setTimeout(() => this.syncSwitchesWithTemp(), 0);
     if (this.dropdownRef) {
@@ -919,6 +953,77 @@ export class PaperListComponent implements OnInit, AfterViewInit {
       return 'both'; // Show both arrows when not sorted
     }
     return this.sortDirection === 'asc' ? 'asc' : 'desc';
+  }
+
+  updatePriceSliderOptions(): void {
+    if (!this.allPaperList || this.allPaperList.length === 0) {
+      // Default values if no data
+      this.priceSliderOptions = {
+        floor: 0,
+        ceil: 1000,
+        step: 10,
+        translate: (value: number): string => `$${value}`
+      };
+      this.tempPrice = [0, 0];
+      return;
+    }
+
+    // Find min and max contract values from actual data
+    const contractValues = this.allPaperList
+      .map(paper => paper.totalContractValue || 0)
+      .filter(value => value > 0); // Only consider papers with contract values > 0
+
+    if (contractValues.length === 0) {
+      // If no papers have contract values, use default
+      this.priceSliderOptions = {
+        floor: 0,
+        ceil: 1000,
+        step: 10,
+        translate: (value: number): string => `$${value}`
+      };
+      this.tempPrice = [0, 0];
+      return;
+    }
+
+    const minValue = Math.min(...contractValues);
+    const maxValue = Math.max(...contractValues);
+    
+    // Round up max value to nearest 100 for better UX
+    const roundedMax = Math.ceil(maxValue / 100) * 100;
+    // Round down min value to nearest 10, but ensure it's at least 0
+    const roundedMin = Math.max(0, Math.floor(minValue / 10) * 10);
+    
+    // Calculate step size based on range (smaller step for smaller ranges)
+    let step = 10;
+    const range = roundedMax - roundedMin;
+    if (range <= 100) {
+      step = 5;
+    } else if (range <= 500) {
+      step = 10;
+    } else if (range <= 1000) {
+      step = 50;
+    } else {
+      step = 100;
+    }
+
+    // Update slider options
+    this.priceSliderOptions = {
+      floor: roundedMin,
+      ceil: roundedMax,
+      step: step,
+      translate: (value: number): string => `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+    };
+
+    // Update tempPrice to match the new range (reset to min and max)
+    this.tempPrice = [roundedMin, roundedMax];
+    
+    // Also update filter if it was using old values
+    if (!this.filter.priceMin || this.filter.priceMin === 0) {
+      this.filter.priceMin = roundedMin;
+    }
+    if (!this.filter.priceMax || this.filter.priceMax === 0 || this.filter.priceMax > roundedMax) {
+      this.filter.priceMax = roundedMax;
+    }
   }
 
 }
