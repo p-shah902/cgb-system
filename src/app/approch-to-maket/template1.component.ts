@@ -2760,12 +2760,12 @@ export class Template1Component implements AfterViewInit  {
       }
     }
 
-    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
-    const procurementValue = this.generalInfoForm?.value?.procurementDetails
-    // Use getRawValue to include disabled controls (like jvAligned which might be disabled)
+    // Use getRawValue to include disabled controls (important for JV Admin and other roles with disabled fields)
+    const generalInfoValue = this.generalInfoForm?.getRawValue()?.generalInfo
+    const procurementValue = this.generalInfoForm?.getRawValue()?.procurementDetails
     const consultationsValue = this.generalInfoForm?.getRawValue()?.consultation || this.generalInfoForm?.value?.consultation
-    const costSharingValues = this.generalInfoForm?.value?.costSharing
-    const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
+    const costSharingValues = this.generalInfoForm?.getRawValue()?.costSharing
+    const valueDeliveryValues = this.generalInfoForm?.getRawValue()?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
 
     // Reset flag immediately after reading form values to allow normal auto-reset behavior
@@ -2773,7 +2773,8 @@ export class Template1Component implements AfterViewInit  {
     this.isProgrammaticFormUpdate = false;
 
     // Mapping PSAs from the costAllocation object dynamically
-    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    // Use getRawValue to include disabled controls (psajv is already included in generalInfoValue from getRawValue)
+    const selectedPSAJV = generalInfoValue?.psajv || [];
     const psaMappings = selectedPSAJV.map((psaName: string) => ({
       key: this.getPSACheckboxControlName(psaName),
       name: psaName
@@ -2798,14 +2799,14 @@ export class Template1Component implements AfterViewInit  {
       .filter((item: any) => item !== null);
 
 
+    // Use getRawValue to include disabled fields and filter out only empty/invalid entries
     const filteredRisks = this.riskMitigation.controls
-      .filter(group => group.valid)
-      .map(group => group.value);
-
+      .map(group => group.getRawValue()) // Use getRawValue to include disabled fields
+      .filter((risk: any) => risk && (risk.risks || risk.mitigations || risk.srNo)); // Filter out empty entries
 
     const filteredBids = this.inviteToBid.controls
-      .filter(group => group.valid)
-      .map(group => group.getRawValue()); // Use getRawValue to include disabled fields
+      .map(group => group.getRawValue()) // Use getRawValue to include disabled fields
+      .filter((bid: any) => bid && bid.legalName); // Filter out entries without vendor selection
 
     const params = {
       papers: {

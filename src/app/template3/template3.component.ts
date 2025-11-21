@@ -2782,12 +2782,13 @@ export class Template3Component implements AfterViewInit {
       }
     }
 
-    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
-    const justificationSectionValue = this.generalInfoForm?.value?.justificationSection
-    const contractInfoValue = this.generalInfoForm?.value?.contractInfo
-    const contractValues = this.generalInfoForm?.value?.contractValues
-    const ccdValues = this.generalInfoForm?.value?.ccd
-    const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
+    // Use getRawValue to include disabled controls (important for JV Admin and other roles with disabled fields)
+    const generalInfoValue = this.generalInfoForm?.getRawValue()?.generalInfo
+    const justificationSectionValue = this.generalInfoForm?.getRawValue()?.justificationSection
+    const contractInfoValue = this.generalInfoForm?.getRawValue()?.contractInfo
+    const contractValues = this.generalInfoForm?.getRawValue()?.contractValues
+    const ccdValues = this.generalInfoForm?.getRawValue()?.ccd
+    const valueDeliveryValues = this.generalInfoForm?.getRawValue()?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
     // Use getRawValue to include disabled controls (like jvAligned which might be disabled)
     const consultationsValue = this.generalInfoForm?.getRawValue()?.consultation || this.generalInfoForm?.value?.consultation
@@ -2798,7 +2799,8 @@ export class Template3Component implements AfterViewInit {
 
     // Build costAllocationJVApproval from costAllocation FormGroup (like template1)
     // Mapping PSAs from the costAllocation object dynamically
-    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    // Use getRawValue to include disabled controls (psajv is already included in generalInfoValue from getRawValue)
+    const selectedPSAJV = generalInfoValue?.psajv || [];
     console.log('======', selectedPSAJV);
     const psaMappings = selectedPSAJV.map((psaName: string) => ({
       key: this.getPSACheckboxControlName(psaName),

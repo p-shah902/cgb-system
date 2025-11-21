@@ -2063,7 +2063,8 @@ export class Template4Component  implements AfterViewInit{
       }
     }
 
-    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
+    // Use getRawValue to include disabled controls (important for JV Admin and other roles with disabled fields)
+    const generalInfoValue = this.generalInfoForm?.getRawValue()?.generalInfo
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
     // Use getRawValue to include disabled controls (like jvAligned which might be disabled)
     const consultationsValue = this.generalInfoForm?.getRawValue()?.consultation || this.generalInfoForm?.value?.consultation
@@ -2074,7 +2075,8 @@ export class Template4Component  implements AfterViewInit{
 
     // Build costAllocationJVApproval from costAllocation FormGroup (like template3)
     // Mapping PSAs from the costAllocation object dynamically
-    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    // Use getRawValue to include disabled controls (psajv is already included in generalInfoValue from getRawValue)
+    const selectedPSAJV = generalInfoValue?.psajv || [];
     const psaMappings = selectedPSAJV.map((psaName: string) => ({
       key: this.getPSACheckboxControlName(psaName),
       name: psaName

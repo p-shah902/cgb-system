@@ -2099,7 +2099,8 @@ export class Template5Component  implements AfterViewInit{
       }
     }
 
-    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
+    // Use getRawValue to include disabled controls (important for JV Admin and other roles with disabled fields)
+    const generalInfoValue = this.generalInfoForm?.getRawValue()?.generalInfo
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
     // Use getRawValue to include disabled controls (like jvAligned which might be disabled)
     const consultationsValue = this.generalInfoForm?.getRawValue()?.consultation || this.generalInfoForm?.value?.consultation
@@ -2108,11 +2109,12 @@ export class Template5Component  implements AfterViewInit{
     // The flag was only needed to prevent reset during programmatic form setup
     this.isProgrammaticFormUpdate = false;
     
-    const ccdValues = this.generalInfoForm?.value?.ccd
+    const ccdValues = this.generalInfoForm?.getRawValue()?.ccd
     const toIsoOrNull = (v: any) => v ? new Date(v).toISOString() : null;
 
     // Mapping PSAs from the costAllocation object dynamically
-    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    // Use getRawValue to include disabled controls (psajv is already included in generalInfoValue from getRawValue)
+    const selectedPSAJV = generalInfoValue?.psajv || [];
     const psaMappings = selectedPSAJV.map((psaName: string) => ({
       key: this.getPSACheckboxControlName(psaName),
       name: psaName

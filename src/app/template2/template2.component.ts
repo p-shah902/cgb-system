@@ -2711,14 +2711,15 @@ export class Template2Component implements AfterViewInit {
       }
     }
 
-    const generalInfoValue = this.generalInfoForm?.value?.generalInfo
-    const procurementValue = this.generalInfoForm?.value?.procurementDetails
-    const ccdValue = this.generalInfoForm?.value?.ccd
-    const additionalDetailsValue = this.generalInfoForm?.value?.additionalDetails
-    const evaluationSummaryValue = this.generalInfoForm?.value?.evaluationSummary
+    // Use getRawValue to include disabled controls (important for JV Admin and other roles with disabled fields)
+    const generalInfoValue = this.generalInfoForm?.getRawValue()?.generalInfo
+    const procurementValue = this.generalInfoForm?.getRawValue()?.procurementDetails
+    const ccdValue = this.generalInfoForm?.getRawValue()?.ccd
+    const additionalDetailsValue = this.generalInfoForm?.getRawValue()?.additionalDetails
+    const evaluationSummaryValue = this.generalInfoForm?.getRawValue()?.evaluationSummary
 
-    const costSharingValues = this.generalInfoForm?.value?.costSharing
-    const valueDeliveryValues = this.generalInfoForm?.value?.valueDelivery
+    const costSharingValues = this.generalInfoForm?.getRawValue()?.costSharing
+    const valueDeliveryValues = this.generalInfoForm?.getRawValue()?.valueDelivery
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
 
     // Reset flag immediately after reading form values to allow normal auto-reset behavior
@@ -2741,7 +2742,8 @@ export class Template2Component implements AfterViewInit {
 
     // Build costAllocationJVApproval from costAllocation FormGroup (like template3)
     // Mapping PSAs from the costAllocation object dynamically
-    const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
+    // Use getRawValue to include disabled controls (psajv is already included in generalInfoValue from getRawValue)
+    const selectedPSAJV = generalInfoValue?.psajv || [];
     const psaMappings = selectedPSAJV.map((psaName: string) => ({
       key: this.getPSACheckboxControlName(psaName),
       name: psaName
@@ -2775,37 +2777,39 @@ export class Template2Component implements AfterViewInit {
       })
       .filter((item: any) => item !== null);
 
+    // Use getRawValue to include disabled fields and filter out only empty/invalid entries
     const filteredRisks = this.riskMitigation.controls
-      .filter(group => group.valid)
       .map((group, index) => ({
-        ...group.value,
+        ...group.getRawValue(), // Use getRawValue to include disabled fields
         srNo: (index + 1).toString().padStart(3, '0')
-      }));
-
+      }))
+      .filter((risk: any) => risk && (risk.risks || risk.mitigations)); // Filter out empty entries
 
     const filteredBids = this.inviteToBid.controls
-      .filter(group => group.valid)
-      .map(group => group.getRawValue()); // Use getRawValue to include disabled fields
+      .map(group => group.getRawValue()) // Use getRawValue to include disabled fields
+      .filter((bid: any) => bid && bid.legalName); // Filter out entries without vendor selection
 
     const filterSupplierTechnical = this.supplierTechnical.controls
-      .filter(group => group.valid)
-      .map(group => ({
-        id: group.value.id || 0,
-        vendorId: group.value.vendorId || 0,
-        thresholdPercent: group.value.thresholdPercent || 0,
-        isTechnical: group.value.isTechnical || false,
-        technicalScorePercent: group.value.technicalScorePercent || 0,
-        resultOfHSSE: group.value.resultOfHSSE || "",
-        commentary: group.value.commentary || ""
-      }));
+      .map(group => group.getRawValue()) // Use getRawValue to include disabled fields
+      .map((rawValue: any) => ({
+        id: rawValue.id || 0,
+        vendorId: rawValue.vendorId || 0,
+        thresholdPercent: rawValue.thresholdPercent || 0,
+        isTechnical: rawValue.isTechnical || false,
+        technicalScorePercent: rawValue.technicalScorePercent || 0,
+        resultOfHSSE: rawValue.resultOfHSSE || "",
+        commentary: rawValue.commentary || ""
+      }))
+      .filter((item: any) => item && item.vendorId); // Filter out entries without vendor selection
 
     const filterCommericalEvaluation = this.commericalEvaluation.controls
-      .filter(group => group.valid)
-      .map(group => ({
-        id: group.value.id || 0,
-        vendorId: group.value.vendorId || 0,
-        totalValue: group.value.totalValue || 0
-      }));
+      .map(group => group.getRawValue()) // Use getRawValue to include disabled fields
+      .map((rawValue: any) => ({
+        id: rawValue.id || 0,
+        vendorId: rawValue.vendorId || 0,
+        totalValue: rawValue.totalValue || 0
+      }))
+      .filter((item: any) => item && item.vendorId); // Filter out entries without vendor selection
 
 
     const params = {
