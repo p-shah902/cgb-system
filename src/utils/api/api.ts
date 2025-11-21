@@ -91,6 +91,7 @@ export const getUserListUri = baseUri + '/UserMaster/GetUsersList';
 export const getUserDetailsByIdUri = baseUri + '/UserMaster/GetUserDetailsById';
 export const getUserListByRoleId = baseUri + '/UserMaster/GetUserListByRoleId';
 export const upsertUserUri = baseUri + '/UserMaster/UpsertUser';
+export const deleteUserByIdUri = baseUri + '/UserMaster/DeleteUserById';
 export const getCkEditorToken = baseUri + '/UserMaster/GetCKEditorToken';
 export const getAllUserPassChange = baseUri + '/UserMaster/AllUserPassChange';
 

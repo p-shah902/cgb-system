@@ -11,6 +11,37 @@
   </ngb-toast>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Delete User</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="cancelDelete()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="delete-confirmation-content">
+      <div class="delete-icon-wrapper">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" fill="#FEE2E2"/>
+          <path d="M24 20H40M30 20V18C30 16.8954 30.8954 16 32 16H32C33.1046 16 34 16.8954 34 18V20M28 20V44C28 45.1046 28.8954 46 30 46H34C35.1046 46 36 45.1046 36 44V20M28 24H36M28 28H36M28 32H36" stroke="#DC3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h4 class="delete-title">Are you sure?</h4>
+      <p class="delete-message">
+        You are about to delete user <strong>{{ selectedUserForDelete?.name }}</strong> ({{ selectedUserForDelete?.email }}).
+        This action cannot be undone.
+      </p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-secondary" (click)="cancelDelete()">Cancel</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Delete User</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Deleting...</span>
+    </button>
+  </div>
+</ng-template>
+
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-12">
@@ -180,7 +211,7 @@
 
                                         View
                                       </a>
-                                      <a class="links" ngbDropdownItem>
+                                      <a class="links pointer" ngbDropdownItem (click)="deleteUser(user.id, user.displayName, user.email, deleteModal); $event.preventDefault(); $event.stopPropagation();">
                                         <svg
                                           width="13"
                                           height="14"
@@ -415,7 +446,7 @@
                                         </svg>
                                         View
                                       </a>
-                                      <a class="links cursor-pointer" ngbDropdownItem>
+                                      <a class="links cursor-pointer" ngbDropdownItem (click)="deleteUser(user.id, user.displayName, user.email, deleteModal); $event.preventDefault(); $event.stopPropagation();">
                                         <svg
                                           width="16"
                                           height="16"

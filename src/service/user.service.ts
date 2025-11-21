@@ -3,7 +3,7 @@ import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
 import { GetUsersListRequest, UserDetails } from '../models/user';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '../models/role';
-import { getUserDetailsByIdUri, getUserListUri, upsertUserUri } from '../utils/api/api';
+import { getUserDetailsByIdUri, getUserListUri, upsertUserUri, deleteUserByIdUri } from '../utils/api/api';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +62,21 @@ export class UserService {
             })
           );
     }
+
+  deleteUserById(id: number): Observable<ApiResponse<any>> {
+    const url = `${deleteUserByIdUri}/${id}`;
+    return this.http.delete<ApiResponse<any>>(url).pipe(
+      tap(response => {
+        console.log('Delete user response:', response);
+        if (response && response.status) {
+          // Update user list by removing deleted user
+          const currentUsers = this.userListSubject.value;
+          const updatedUsers = currentUsers.filter(user => user.id !== id);
+          this.userListSubject.next(updatedUsers);
+        }
+      })
+    );
+  }
 
 }
 

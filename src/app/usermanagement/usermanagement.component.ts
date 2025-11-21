@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { NgbDropdownModule, NgbNavModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { Component, inject, OnDestroy, OnInit, TemplateRef } from '@angular/core';
+import { NgbDropdownModule, NgbNavModule, NgbToastModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from '../../service/user.service';
 import { GetUsersListRequest, UserDetails } from '../../models/user';
 import { Router, RouterModule } from '@angular/router';
@@ -18,6 +18,9 @@ export class UsermanagementComponent implements OnInit, OnDestroy{
   private readonly userService=inject(UserService);
   private readonly router=inject(Router);
   public toastService=inject(ToastService);
+  private readonly modalService = inject(NgbModal);
+  
+  selectedUserForDelete: { id: number; name: string; email: string } | null = null;
 
   userDetails:UserDetails[]=[];
   allUserDetails:UserDetails[]=[]; // Store all users for filtering
@@ -297,6 +300,51 @@ export class UsermanagementComponent implements OnInit, OnDestroy{
   
   getTotalInactiveUsers(): number {
     return this.userDetails.filter(user => user.isActive === false).length;
+  }
+
+  deleteUser(userId: number, userName: string, email: string, content: TemplateRef<any>): void {
+    this.selectedUserForDelete = { id: userId, name: userName, email: email };
+    this.modalService.open(content, {
+      ariaLabelledBy: 'modal-basic-title',
+      centered: true,
+      size: 'md',
+      backdrop: 'static',
+      keyboard: false
+    });
+  }
+
+  confirmDelete(): void {
+    if (!this.selectedUserForDelete) return;
+    
+    this.isLoading = true;
+    this.modalService.dismissAll();
+    
+    this.userService.deleteUserById(this.selectedUserForDelete.id).subscribe({
+      next: (response) => {
+        if (response.status) {
+          this.toastService.show(`User "${this.selectedUserForDelete?.name}" deleted successfully`, 'success');
+          // Reload user list after deletion
+          this.loadUserDetails();
+        } else {
+          this.toastService.show(response?.message || 'Failed to delete user', 'danger');
+          this.isLoading = false;
+        }
+      },
+      error: (error) => {
+        console.log('error', error);
+        this.toastService.showError(error);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.selectedUserForDelete = null;
+        // isLoading will be set to false in loadUserDetails
+      }
+    });
+  }
+
+  cancelDelete(): void {
+    this.modalService.dismissAll();
+    this.selectedUserForDelete = null;
   }
 
 }
