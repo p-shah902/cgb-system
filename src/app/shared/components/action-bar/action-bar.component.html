@@ -125,7 +125,7 @@
       *ngIf="roleName === 'Procurement Tag' && statusName === 'Action Required by CGB'">
       <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-3"
         (click)="returnToRequested.emit()" [disabled]="isLoading">
-        <span *ngIf="!isLoading">Return to requested</span>
+        <span *ngIf="!isLoading">Return to Requestor</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
         <span *ngIf="isLoading">Loading...</span>
       </button>

@@ -121,7 +121,7 @@
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
                                         (click)="updateProject(inbox.paperID, inbox.paperStatusId); $event.stopPropagation()"
                                         [disabled]="isUpdating(inbox.paperID)">
-                                  <span *ngIf="!isUpdating(inbox.paperID)">Return to requested</span>
+                                  <span *ngIf="!isUpdating(inbox.paperID)">Return to Requestor</span>
                                   <span *ngIf="isUpdating(inbox.paperID)">Updating...</span>
                                 </button>
                               </div>
