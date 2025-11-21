@@ -62,6 +62,9 @@ export class SidebarComponent {
     
     // Roles allowed to see "Administration" menu item
     const allowedRolesForAdministration = ['Super Admin', 'Secretary'];
+    
+    // Roles allowed to see "Partners" menu item
+    const allowedRolesForPartners = ['Secretary', 'Super Admin'];
 
     for (const item of items) {
       // Check if this is "Create" or "My Drafts" menu item
@@ -78,6 +81,14 @@ export class SidebarComponent {
       if (item.title === 'Administration') {
         // Only show if user has one of the allowed roles
         if (!this.loggedInUserRole || !allowedRolesForAdministration.includes(this.loggedInUserRole)) {
+          continue; // Skip this menu item
+        }
+      }
+      
+      // Check if this is "Partners" menu item
+      if (item.title === 'Partners') {
+        // Only show if user has one of the allowed roles
+        if (!this.loggedInUserRole || !allowedRolesForPartners.includes(this.loggedInUserRole)) {
           continue; // Skip this menu item
         }
       }

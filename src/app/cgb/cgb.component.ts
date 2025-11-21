@@ -51,6 +51,7 @@ export class CgbComponent implements OnInit {
   approvalRemark = "";
   status = "";
   isLoading: boolean = false;
+  isSubmitting: boolean = false;
 
   private readonly _mdlSvc = inject(NgbModal);
 
@@ -61,6 +62,10 @@ export class CgbComponent implements OnInit {
   open(event: Event, content: TemplateRef<any>, paperId: number) {
     event.preventDefault();
     this.selectedPaper = paperId;
+    // Reset form fields and state when opening modal
+    this.status = '';
+    this.approvalRemark = '';
+    this.isSubmitting = false;
     this._mdlSvc.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       centered: true,  // Ensure modal is centered
@@ -69,10 +74,14 @@ export class CgbComponent implements OnInit {
       (result) => {
         // Handle modal close
         this.approvalRemark = '';
+        this.status = '';
+        this.isSubmitting = false;
       },
       (reason) => {
         // Handle modal dismiss
         this.approvalRemark = '';
+        this.status = '';
+        this.isSubmitting = false;
       }
     );
   }
@@ -196,6 +205,18 @@ export class CgbComponent implements OnInit {
   }
 
   updateVote(modal: any) {
+    // Prevent multiple submissions
+    if (this.isSubmitting) {
+      return;
+    }
+
+    // Validate required fields
+    if (!this.status || !this.status.trim()) {
+      this.toastService.show('Please select a vote', 'warning');
+      return;
+    }
+
+    this.isSubmitting = true;
     this.votingService.updateVote({
       paperId: this.selectedPaper,
       votingCycleId: this.currentCgbCycle?.voteCycleId,
@@ -203,10 +224,27 @@ export class CgbComponent implements OnInit {
       remarks: this.approvalRemark
     }).subscribe({
       next: (response) => {
-        modal.close('Save click');
-        this.getCgbCycle();
+        if (response.status) {
+          this.toastService.show('Vote submitted successfully', 'success');
+          modal.close('Save click');
+          // Reset form fields
+          this.status = '';
+          this.approvalRemark = '';
+          this.getCgbCycle();
+        } else {
+          this.toastService.show(response?.message || 'Failed to submit vote', 'danger');
+          this.isSubmitting = false;
+        }
       }, error: (error) => {
         console.log('error', error);
+        this.toastService.showError(error);
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        // Reset submitting flag after a delay to ensure UI updates
+        setTimeout(() => {
+          this.isSubmitting = false;
+        }, 500);
       }
     })
   }

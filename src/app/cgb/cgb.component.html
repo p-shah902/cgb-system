@@ -36,8 +36,12 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')">Close</button>
-      <button type="button" class="btn btn-primary" (click)="updateVote(modal)">Save changes</button>
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cross click')" [disabled]="isSubmitting">Close</button>
+      <button type="button" class="btn btn-primary" (click)="updateVote(modal)" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting">Save changes</span>
+        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+        <span *ngIf="isSubmitting">Saving...</span>
+      </button>
     </div>
   </ng-template>
 
