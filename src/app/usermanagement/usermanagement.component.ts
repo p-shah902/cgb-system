@@ -85,9 +85,17 @@ export class UsermanagementComponent implements OnInit, OnDestroy{
         
         if(response.status && response.data && response.data.length > 0)
         {
+          // Store all users for frontend filtering
           this.allUserDetails = response.data;
-          this.userDetails = response.data;
-          this.totalItems = response.data.length;
+          
+          // Apply current search filter if any
+          if (this.searchText && this.searchText.trim()) {
+            this.performSearch(this.searchText);
+          } else {
+            // No search, show all users
+            this.userDetails = [...this.allUserDetails];
+            this.totalItems = this.allUserDetails.length;
+          }
           console.log('user details',this.userDetails);
         } else {
           // No data returned
@@ -110,65 +118,41 @@ export class UsermanagementComponent implements OnInit, OnDestroy{
   }
 
   buildFilter(): GetUsersListRequest['filter'] {
-    const filter: GetUsersListRequest['filter'] = {};
-    
-    // If search text exists, send it to username field (assuming backend handles general search)
-    // You can adjust this based on your API's search implementation
-    if (this.searchText && this.searchText.trim()) {
-      filter.username = this.searchText.trim();
-    }
-    
-    return filter;
+    // Always fetch all users - filtering will be done on frontend
+    return {};
   }
 
   performSearch(searchTerm: string): void {
     this.currentPage = 1; // Reset to first page on search
-    this.isLoading = true;
     
-    // Build request payload with search filter
-    // Fetch all matching results (large page size) for frontend pagination
-    const request: GetUsersListRequest = {
-      filter: searchTerm ? { username: searchTerm.trim() } : {},
-      paging: {
-        start: 0,
-        length: 1000 // Large number to get all matching results for frontend pagination
-      }
-    };
+    // Filter users on frontend based on search term
+    const searchValue = searchTerm ? searchTerm.trim().toLowerCase() : '';
     
-    this.userService.getUserDetailsList(request).subscribe({
-      next: (response)=>{
-        // Check if response has errors (e.g., "User List Not Found")
-        if (response.errors && response.errors.User && response.errors.User.length > 0) {
-          // Handle "User List Not Found" error gracefully
-          this.allUserDetails = [];
-          this.userDetails = [];
-          this.totalItems = 0;
-          this.isLoading = false;
-          return;
-        }
-        
-        if(response.status && response.data && response.data.length > 0)
-        {
-          this.allUserDetails = response.data;
-          this.userDetails = response.data;
-          this.totalItems = response.data.length;
-        } else {
-          // No data returned
-          this.allUserDetails = [];
-          this.userDetails = [];
-          this.totalItems = 0;
-        }
-        this.isLoading = false;
-      },error:(error)=>{
-        console.log('error',error);
-        // On error, set empty arrays
-        this.allUserDetails = [];
-        this.userDetails = [];
-        this.totalItems = 0;
-        this.isLoading = false;
-        this.toastService.showError(error);
-      }
+    if (!searchValue) {
+      // If no search term, show all users
+      this.userDetails = [...this.allUserDetails];
+      this.totalItems = this.allUserDetails.length;
+      return;
+    }
+    
+    // Filter users based on multiple fields: Name, Email, Role, Department
+    this.userDetails = this.allUserDetails.filter((user: UserDetails) => {
+      // Search in displayName (Name)
+      const matchesName = user.displayName?.toLowerCase().includes(searchValue);
+      
+      // Search in email
+      const matchesEmail = user.email?.toLowerCase().includes(searchValue);
+      
+      // Search in roleName (Role)
+      const matchesRole = user.roleName?.toLowerCase().includes(searchValue);
+      
+      // Search in departmentName (Department)
+      const matchesDepartment = user.departmentName?.toLowerCase().includes(searchValue);
+      
+      return matchesName || matchesEmail || matchesRole || matchesDepartment;
     });
+    
+    this.totalItems = this.userDetails.length;
   }
   
   applyPagination(): void {

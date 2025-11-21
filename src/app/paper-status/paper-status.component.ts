@@ -571,6 +571,21 @@ export class PaperStatusComponent implements OnInit {
       } else if (this.openType === 'cgb') {
         const selectedPapers = this.getSelectedPapers(this.openType);
         
+        // Validate deadline date is not today or in the past (must be future date)
+        if (this.deadlineDate) {
+          const selectedDate = new Date(this.deadlineDate);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Set to start of today for comparison
+          
+          const selectedDateOnly = new Date(selectedDate);
+          selectedDateOnly.setHours(0, 0, 0, 0);
+          
+          if (selectedDateOnly <= today) {
+            this.toastService.show('Deadline Date must be a future date. Please select tomorrow or a later date.', 'warning');
+            return;
+          }
+        }
+        
         // Set loading state
         this.isInitiatingCgbCycle = true;
 
@@ -696,6 +711,21 @@ export class PaperStatusComponent implements OnInit {
   resetModalFields() {
     this.approvalRemark = "";
     this.deadlineDate = "";
+  }
+
+  getMinDateTime(): string {
+    // Get tomorrow's date/time in YYYY-MM-DDTHH:mm format for datetime-local input
+    // This ensures only future dates (not today) can be selected
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0); // Set to start of tomorrow
+    
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const hours = String(tomorrow.getHours()).padStart(2, '0');
+    const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   addToCurrentCycle() {

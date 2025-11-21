@@ -249,7 +249,12 @@
     <div class="form-group mb-3">
       <div class="mb-3">
         <label for="deadlineDate" class="form-label">Deadline Date</label>
-        <input type="datetime-local" class="form-control" id="deadlineDate" [(ngModel)]="deadlineDate" required>
+        <input type="datetime-local" 
+               class="form-control" 
+               id="deadlineDate" 
+               [(ngModel)]="deadlineDate" 
+               [min]="getMinDateTime()"
+               required>
       </div>
       
       <div class="mb-3">

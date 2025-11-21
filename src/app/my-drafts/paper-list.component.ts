@@ -209,6 +209,8 @@ export class PaperListComponent implements OnInit {
           this.paperList = data.data.filter((paper: any) =>
             paper.paperType !== 'Batch Paper'
           );
+          // Sort Draft papers by createdDate (newest first)
+          this.sortByDate();
         } else {
           this.paperList = [];
         }
@@ -549,9 +551,22 @@ export class PaperListComponent implements OnInit {
 
   sortByDate() {
     this.paperList.sort((a, b) => {
-      const dateA = new Date(a.lastModifyDate).getTime();
-      const dateB = new Date(b.lastModifyDate).getTime();
-      return dateB - dateA;
+      // For Draft papers, try to use createdDate or lastModifyDate
+      // If both are null, use paperID as fallback (higher ID = newer)
+      const dateA = (a as any).createdDate || a.lastModifyDate;
+      const dateB = (b as any).createdDate || b.lastModifyDate;
+      
+      // If both have dates, sort by date
+      if (dateA && dateB) {
+        return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+      }
+      
+      // If one has date and other doesn't, prioritize the one with date
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
+      
+      // If neither has date, sort by paperID (higher ID = newer)
+      return b.paperID - a.paperID; // DESC (newest first)
     });
   }
 

@@ -518,7 +518,8 @@
                         fill="#84818A"/>
                 </svg>
                 <input class="form-control" 
-                       placeholder="Search by username, email, role, department..."
+                       placeholder="Search by name, email, role, or department..."
+                       (keyup.enter)="onSearchButtonClick()"
                        [(ngModel)]="searchText"
                        (input)="onSearchChange()"/>
               </div>
