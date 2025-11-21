@@ -177,19 +177,21 @@
 </div>
 <div class="paper-status-div d-flex gap-3 overflow-auto pb-3" *ngIf="!isLoading">
   <div class="paper-card" *ngFor="let group of groupedPaper | keyvalue: keepOrder; index as i;trackBy: trackByGroupKey">
-    <div class="paper-head d-flex align-items-center justify-content-between">
-      <h3 class="w-100">
-        {{ i + 1 }}. {{ group.key }} <span>{{ group.value.length }}</span>
-      </h3>
-      <div *ngIf="isChecked(group.value)">
-        <select class="form-control py-1" (change)="updateValue($event, group.key)">
-          <option selected disabled>Move to</option>
-          <option *ngFor="let key of getData(group.key)" [value]="key.value">{{ key.label }}</option>
-        </select>
+    <div class="paper-head">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h3 class="w-100 mb-0">
+          {{ i + 1 }}. {{ group.key }} <span>{{ group.value.length }}</span>
+        </h3>
+        <div *ngIf="isChecked(group.value)" class="ms-2">
+          <select class="form-control py-1" (change)="updateValue($event, group.key)">
+            <option selected disabled>Move to</option>
+            <option *ngFor="let key of getData(group.key)" [value]="key.value">{{ key.label }}</option>
+          </select>
+        </div>
       </div>
-      <hr class="b-hr"/>
+      <hr class="b-hr mb-0"/>
     </div>
-    <div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-column gap-3" style="padding: 0 15px 15px 15px;">
       <div class="paper-box" *ngFor="let paper of group.value">
         <div class="paper-check">
           <input type="checkbox" [(ngModel)]="paper.checked" (change)="onCheckboxChange()">
