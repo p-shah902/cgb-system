@@ -2096,7 +2096,8 @@ export class Template1Component implements AfterViewInit  {
         'registered',
         'waiting for pdm',
         'on pre-cgb',
-        'approved by pre-cgb'
+        'approved by pre-cgb',
+        'on jv approval'
       ];
       return allowedStatuses.includes(statusLower);
     }

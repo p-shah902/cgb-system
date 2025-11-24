@@ -102,7 +102,7 @@
 
     <!-- Add review (Pre-CGB) -->
     <div class="d-flex align-items-center justify-content-between gap-3"
-      *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB' && !hasJVAlignedConsultation">
+      *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB'">
       <button class="btn update-btn" (click)="openAddReview.emit($event)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Add Review</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>

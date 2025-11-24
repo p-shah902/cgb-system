@@ -46,6 +46,9 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
   isDesc: boolean = false;
   isFilterApplied: boolean = false;
   
+  // Cache for paper consultation data to avoid repeated API calls
+  private paperConsultationCache: Map<number, { jvReviewUserId: number | null; isJVReviewDone: boolean }> = new Map();
+  
   // Debouncing for search
   private searchSubject = new Subject<string>();
   private searchSubscription: any;
@@ -186,6 +189,11 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
           
           this.paginatedInboxData = inboxList;
           this.paginatedOutboxData = outboxList;
+          
+          // Pre-fetch consultation data for JV Admin users for "On JV Approval" papers
+          if (this.loggedInUser?.roleName === 'JV Admin') {
+            this.preFetchJVApprovalConsultationData(inboxList);
+          }
           
           // Get total counts
           if (inboxCount.status && inboxCount.data) {
@@ -709,5 +717,163 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
     } else {
       return 'p-archive';
     }
+  }
+
+  // Method to check if logged-in JV Admin can approve a specific paper
+  // This checks if the user is assigned as JV Review user and review is not done
+  canApproveJVPaper(inbox: InboxOutbox): boolean {
+    if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
+      return false;
+    }
+
+    if (inbox.paperStatus !== 'On JV Approval') {
+      return false;
+    }
+
+    const loggedInUserId = Number(this.loggedInUser.id);
+    const inboxAny = inbox as any;
+    
+    // Check if review is already done (from inbox data or cache)
+    const isJVReviewDone = inboxAny.isJVReviewDone === true;
+    if (isJVReviewDone) {
+      return false;
+    }
+
+    // Check if we have cached consultation data for this paper
+    const cachedData = this.paperConsultationCache.get(inbox.paperID);
+    if (cachedData) {
+      if (cachedData.isJVReviewDone) {
+        return false;
+      }
+      if (cachedData.jvReviewUserId) {
+        return loggedInUserId === Number(cachedData.jvReviewUserId);
+      }
+      return false;
+    }
+
+    // Check if inbox data has jvReviewUserId directly
+    const jvReviewUserId = inboxAny.jvReviewUserId || inboxAny.jvReviewId;
+    if (jvReviewUserId) {
+      const reviewUserId = Number(jvReviewUserId);
+      // Cache the result
+      this.paperConsultationCache.set(inbox.paperID, { jvReviewUserId: reviewUserId, isJVReviewDone: false });
+      return loggedInUserId === reviewUserId;
+    }
+
+    // If not in inbox data and not cached, fetch paper details to check consultation rows
+    // Fetch in background and return false initially (will be updated when data is fetched)
+    this.fetchPaperConsultationData(inbox.paperID, inbox.paperType);
+    return false; // Return false initially, will be updated when data is fetched
+  }
+
+  // Pre-fetch consultation data for all "On JV Approval" papers
+  private preFetchJVApprovalConsultationData(inboxList: InboxOutbox[]): void {
+    const loggedInUserId = Number(this.loggedInUser?.id);
+    const jvApprovalPapers = inboxList.filter(item => item.paperStatus === 'On JV Approval');
+    
+    jvApprovalPapers.forEach(inbox => {
+      // Skip if already cached
+      if (this.paperConsultationCache.has(inbox.paperID)) {
+        return;
+      }
+      
+      // Determine the paper type for API call
+      let typeParam = 'contract'; // default
+      const paperTypeLower = inbox.paperType?.toLowerCase() || '';
+      if (paperTypeLower.includes('approach') || paperTypeLower.includes('market')) {
+        typeParam = 'approach';
+      } else if (paperTypeLower.includes('variation')) {
+        typeParam = 'variation';
+      } else if (paperTypeLower.includes('sale') || paperTypeLower.includes('disposal')) {
+        typeParam = 'sale';
+      } else if (paperTypeLower.includes('info')) {
+        typeParam = 'info';
+      }
+
+      this.paperService.getPaperDetails(inbox.paperID, typeParam).subscribe({
+        next: (response) => {
+          if (response?.data) {
+            const data = response.data as any;
+            // Handle different paper type structures
+            const approvalData = data?.approvalOfSale || data?.approvalOfInfoNote || data?.contractAward || data?.variationPaper || data?.approachToMarket || data;
+            const consultationsDetails = approvalData?.consultationsDetails || approvalData?.paperDetails?.consultationsDetails || [];
+            
+            // Find consultation row where logged-in user is JV Review user
+            let jvReviewUserId: number | null = null;
+            let isJVReviewDone = false;
+            
+            for (const consultation of consultationsDetails) {
+              const reviewUserId = consultation.jvReview || consultation.jvReviewId;
+              if (reviewUserId && Number(reviewUserId) === loggedInUserId) {
+                jvReviewUserId = Number(reviewUserId);
+                isJVReviewDone = consultation.isJVReviewDone === true;
+                break;
+              }
+            }
+            
+            // Cache the result
+            this.paperConsultationCache.set(inbox.paperID, { jvReviewUserId, isJVReviewDone });
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching paper consultation data:', error);
+          // Cache negative result to avoid repeated failed calls
+          this.paperConsultationCache.set(inbox.paperID, { jvReviewUserId: null, isJVReviewDone: false });
+        }
+      });
+    });
+  }
+
+  // Method to fetch consultation data for a paper and cache it (fallback for individual checks)
+  private fetchPaperConsultationData(paperId: number, paperType: string): void {
+    // Avoid fetching if already in progress or cached
+    if (this.paperConsultationCache.has(paperId)) {
+      return;
+    }
+
+    // Determine the paper type for API call
+    let typeParam = 'contract'; // default
+    if (paperType?.toLowerCase().includes('approach') || paperType?.toLowerCase().includes('market')) {
+      typeParam = 'approach';
+    } else if (paperType?.toLowerCase().includes('variation')) {
+      typeParam = 'variation';
+    } else if (paperType?.toLowerCase().includes('sale') || paperType?.toLowerCase().includes('disposal')) {
+      typeParam = 'sale';
+    } else if (paperType?.toLowerCase().includes('info')) {
+      typeParam = 'info';
+    }
+
+    this.paperService.getPaperDetails(paperId, typeParam).subscribe({
+      next: (response) => {
+        if (response?.data) {
+          const data = response.data as any;
+          // Handle different paper type structures
+          const approvalData = data?.approvalOfSale || data?.approvalOfInfoNote || data?.contractAward || data?.variationPaper || data?.approachToMarket || data;
+          const consultationsDetails = approvalData?.consultationsDetails || approvalData?.paperDetails?.consultationsDetails || [];
+          
+          // Find consultation row where logged-in user is JV Review user
+          const loggedInUserId = Number(this.loggedInUser?.id);
+          let jvReviewUserId: number | null = null;
+          let isJVReviewDone = false;
+          
+          for (const consultation of consultationsDetails) {
+            const reviewUserId = consultation.jvReview || consultation.jvReviewId;
+            if (reviewUserId && Number(reviewUserId) === loggedInUserId) {
+              jvReviewUserId = Number(reviewUserId);
+              isJVReviewDone = consultation.isJVReviewDone === true;
+              break;
+            }
+          }
+          
+          // Cache the result
+          this.paperConsultationCache.set(paperId, { jvReviewUserId, isJVReviewDone });
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching paper consultation data:', error);
+        // Cache negative result to avoid repeated failed calls
+        this.paperConsultationCache.set(paperId, { jvReviewUserId: null, isJVReviewDone: false });
+      }
+    });
   }
 }
