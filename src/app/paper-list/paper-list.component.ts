@@ -228,39 +228,15 @@ export class PaperListComponent implements OnInit, AfterViewInit {
     this.paperConfigService.getPaperConfigList(request).subscribe({
       next: (data) => {
         if (data.status && data.data) {
-          // Filter out batch papers only (include Draft papers)
-          this.allPaperList = data.data.filter((paper: any) =>
-            paper.paperType !== 'Batch Paper'
-          );
+          // Filter out batch papers and draft papers
+          this.allPaperList = data.data.filter((paper: any) => {
+            const isBatchPaper = paper.paperType === 'Batch Paper';
+            const isDraft = paper.statusName?.toLowerCase().includes('draft');
+            return !isBatchPaper && !isDraft;
+          });
           
-          // Sort Draft papers by createdDate/paperID (newest first), others by lastModifyDate
+          // Sort by lastModifyDate (newest first)
           this.allPaperList.sort((a: any, b: any) => {
-            const isDraftA = a.statusName?.toLowerCase().includes('draft');
-            const isDraftB = b.statusName?.toLowerCase().includes('draft');
-            
-            // If both are Draft, sort by createdDate, lastModifyDate, or paperID
-            if (isDraftA && isDraftB) {
-              const dateA = a.createdDate || a.lastModifyDate;
-              const dateB = b.createdDate || b.lastModifyDate;
-              
-              // If both have dates, sort by date
-              if (dateA && dateB) {
-                return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
-              }
-              
-              // If one has date and other doesn't, prioritize the one with date
-              if (dateA && !dateB) return -1;
-              if (!dateA && dateB) return 1;
-              
-              // If neither has date, sort by paperID (higher ID = newer)
-              return b.paperID - a.paperID; // DESC (newest first)
-            }
-            
-            // If only one is Draft, put it first
-            if (isDraftA && !isDraftB) return -1;
-            if (!isDraftA && isDraftB) return 1;
-            
-            // If neither is Draft, sort by lastModifyDate
             if (a.lastModifyDate && b.lastModifyDate) {
               return new Date(b.lastModifyDate).getTime() - new Date(a.lastModifyDate).getTime(); // DESC (newest first)
             }
