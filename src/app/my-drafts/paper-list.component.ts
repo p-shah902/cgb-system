@@ -514,6 +514,30 @@ export class PaperListComponent implements OnInit {
     }
   }
 
+  deletePaper(modal: any) {
+    if (this.selectedPaper > 0) {
+      this.isLoading = true;
+      this.paperConfigService.deletePaperById(this.selectedPaper)
+        .subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            if (response.status) {
+              this.toastService.show(response.message || 'Paper deleted successfully', 'success');
+              modal.close('Delete click');
+              this.loadPaperConfigList();
+            } else {
+              this.toastService.show(response.message || 'Failed to delete paper', 'danger');
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('Delete error', error);
+            this.toastService.show(error.error?.message || 'Failed to delete paper', 'danger');
+          },
+        });
+    }
+  }
+
   togalArchived() {
     this.isArchived = !this.isArchived;
     this.isArchived ? this.getArchivePaperList() : this.loadPaperConfigList();

@@ -69,6 +69,7 @@ export const getPaperPreviewContractAwardByPaperId = baseUri + '/PaperConfigurat
 export const getPaperPreviewVariationByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByVariation';
 export const getPaperPreviewApprovalOfSalesByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByApprovalOfSales';
 export const getPaperPreviewInfoNoteByPaperId = baseUri + '/PaperConfiguration/GetPaperPreviewByInfoNote';
+export const deletePaperById = baseUri + '/PaperConfiguration/DeletePaperById';
 
 // Role Management
 export const getUserRolesUri = baseUri + '/RoleManagement/GetUserRolesList';

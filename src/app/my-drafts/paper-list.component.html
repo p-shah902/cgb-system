@@ -170,6 +170,16 @@
                           stroke="#626262" stroke-width="1.2" />
                       </svg>
                     </button>
+                    <button class="btn action-btn text-danger" 
+                      *ngIf="user?.roleName === 'Super Admin' || user?.roleName === 'Procurement Tag' || user?.roleName === 'Secretary'"
+                      (click)="open($event, content5, paper.paperID)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31305 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31305 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31305 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6.66667 7.33333V11.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.33333 7.33333V11.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -393,6 +403,17 @@
                               ngbDropdownItem>
                               Add Review
                             </a>
+                            <a class="links cursor-pointer text-danger" (click)="open($event, content5, paper.paperID)"
+                              *ngIf="user?.roleName === 'Super Admin' || user?.roleName === 'Procurement Tag' || user?.roleName === 'Secretary'"
+                              ngbDropdownItem>
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31305 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31305 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31305 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6.66667 7.33333V11.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9.33333 7.33333V11.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                              Delete
+                            </a>
                           </div>
                         </div>
                       </td>
@@ -526,6 +547,26 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="addReview(modal)">
       Add comment
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #content5 let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Delete Paper</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete this paper? This action cannot be undone.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Cancel click')" [disabled]="isLoading">
+      Cancel
+    </button>
+    <button type="button" class="btn btn-danger" (click)="deletePaper(modal)" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Delete</span>
+      <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isLoading">Deleting...</span>
     </button>
   </div>
 </ng-template>
