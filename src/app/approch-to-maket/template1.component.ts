@@ -2145,10 +2145,39 @@ export class Template1Component implements AfterViewInit  {
     }
     
     // Check if logged-in JV Admin user has any consultation row with JV Aligned
+    const loggedInUserId = Number(this.loggedInUser.id);
     return this.consultationRows.controls.some(row => {
       const jvReviewUserId = row.get('jvReview')?.value;
       const jvAligned = row.get('jvAligned')?.value;
-      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId && jvAligned === true;
+      const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
+      return reviewUserId && loggedInUserId === reviewUserId && jvAligned === true;
+    });
+  }
+
+  // Method to check if user can edit any JV Aligned checkbox (for Update button enable/disable)
+  canEditAnyJVAlignedCheckbox(): boolean {
+    if (!this.loggedInUser) {
+      return false;
+    }
+    
+    const consultationsData = this.paperDetails?.consultationsDetails || [];
+    const loggedInUserId = Number(this.loggedInUser?.id);
+    
+    // Check if user has any consultation row where they can edit the checkbox
+    return this.consultationRows.controls.some((row, index) => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
+      
+      if (!reviewUserId || loggedInUserId !== reviewUserId) {
+        return false;
+      }
+      
+      // Check if this row has isJVReviewDone from original API data
+      const originalItem = consultationsData[index] as any;
+      const isJVReviewDone = originalItem?.isJVReviewDone === true;
+      
+      // User can edit if checkbox is not already reviewed and they have permission
+      return !isJVReviewDone && this.canEditJVAligned(reviewUserId);
     });
   }
 
@@ -2426,12 +2455,15 @@ export class Template1Component implements AfterViewInit  {
       // Store the current value before making any changes
       const currentValue = jvAlignedControl.value;
 
-      if (this.canEditJVAligned(jvReviewUserId)) {
+      // Convert to number if it's a string to ensure proper comparison
+      const userId = jvReviewUserId ? Number(jvReviewUserId) : null;
+
+      if (this.canEditJVAligned(userId)) {
+        // Preserve the current value before enabling
+        const valueToPreserve = currentValue;
         jvAlignedControl.enable();
-        // Preserve the value when enabling
-        if (currentValue !== jvAlignedControl.value) {
-          jvAlignedControl.setValue(currentValue, { emitEvent: false });
-        }
+        // Restore the value after enabling to ensure it's preserved
+        jvAlignedControl.setValue(valueToPreserve, { emitEvent: false });
       } else {
         jvAlignedControl.disable();
         // Preserve existing value if it's already true (from isJVReviewDone), only set to false if currently false
@@ -2461,8 +2493,9 @@ export class Template1Component implements AfterViewInit  {
 
         riskMitigationsData.forEach((item: any, index) => {
         console.log('Creating consultation row:', index, item);
-        // Get the initial jvAligned value from API
-        const initialJVAlignedValue = item.isJVReviewDone || item.jvAligned || false;
+        // Get the initial jvAligned value from API - prioritize isJVReviewDone
+        const initialJVAlignedValue = item.isJVReviewDone === true || item.jvAligned === true;
+        const isJVReviewDone = item.isJVReviewDone === true; // Store if review is already done
         const jvReviewValue = item.jvReview || item.jvReviewId || null;
 
         const formGroup = this.fb.group({
@@ -2478,8 +2511,22 @@ export class Template1Component implements AfterViewInit  {
 
         // Set JV Aligned checkbox state based on JV Review user
         // Use setTimeout to ensure form is fully initialized
+        // Convert to number to ensure proper comparison
+        const userIdForCheck = jvReviewValue ? Number(jvReviewValue) : null;
         setTimeout(() => {
-          this.onJVReviewChange(index, jvReviewValue);
+          const row = this.consultationRows.at(index);
+          const jvAlignedControl = row?.get('jvAligned');
+          
+          if (jvAlignedControl) {
+            // If isJVReviewDone is true, checkbox should be checked and disabled (read-only)
+            if (isJVReviewDone) {
+              jvAlignedControl.setValue(true, { emitEvent: false });
+              jvAlignedControl.disable(); // Always disabled when review is done
+            } else {
+              // If review is not done, enable/disable based on user permissions
+              this.onJVReviewChange(index, userIdForCheck);
+            }
+          }
         }, 0);
       });
     } else {

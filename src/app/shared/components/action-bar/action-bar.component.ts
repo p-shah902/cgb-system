@@ -25,6 +25,7 @@ export class ActionBarComponent {
   @Input() paperProcurementSPAUsers: string | null = null; // Comma-separated list of Procurement Tag user IDs
   @Input() isBPGroup100Percent: boolean = false; // Whether BP Group PSA split = 100%
   @Input() hasJVAlignedConsultation: boolean = false; // Whether JV Admin has assigned consultation with JV Aligned
+  @Input() canEditAnyJVAlignedCheckbox: boolean = false; // Whether JV Admin can edit any JV Aligned checkbox
 
   @Output() setStatus = new EventEmitter<string>();
   @Output() openReturn = new EventEmitter<Event>();

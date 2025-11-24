@@ -3514,10 +3514,39 @@ export class Template2Component implements AfterViewInit {
     }
     
     // Check if logged-in JV Admin user has any consultation row with JV Aligned
+    const loggedInUserId = Number(this.loggedInUser.id);
     return this.consultationRows.controls.some(row => {
       const jvReviewUserId = row.get('jvReview')?.value;
       const jvAligned = row.get('jvAligned')?.value;
-      return jvReviewUserId && this.loggedInUser?.id === jvReviewUserId && jvAligned === true;
+      const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
+      return reviewUserId && loggedInUserId === reviewUserId && jvAligned === true;
+    });
+  }
+
+  // Method to check if user can edit any JV Aligned checkbox (for Update button enable/disable)
+  canEditAnyJVAlignedCheckbox(): boolean {
+    if (!this.loggedInUser) {
+      return false;
+    }
+    
+    const consultationsData = this.paperDetails?.consultationsDetails || [];
+    const loggedInUserId = Number(this.loggedInUser?.id);
+    
+    // Check if user has any consultation row where they can edit the checkbox
+    return this.consultationRows.controls.some((row, index) => {
+      const jvReviewUserId = row.get('jvReview')?.value;
+      const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
+      
+      if (!reviewUserId || loggedInUserId !== reviewUserId) {
+        return false;
+      }
+      
+      // Check if this row has isJVReviewDone from original API data
+      const originalItem = consultationsData[index] as any;
+      const isJVReviewDone = originalItem?.isJVReviewDone === true;
+      
+      // User can edit if checkbox is not already reviewed and they have permission
+      return !isJVReviewDone && this.canEditJVAligned(reviewUserId);
     });
   }
 

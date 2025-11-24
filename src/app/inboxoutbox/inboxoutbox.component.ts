@@ -423,7 +423,7 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
   }
 
   checkFilterApplied(): void {
-    this.isFilterApplied = !!(this.filterStatus || this.filterPaperType || this.searchTerm);
+    this.isFilterApplied = !!(this.filterStatus || this.filterPaperType);
   }
 
   toggleSort(): void {

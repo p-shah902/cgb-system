@@ -51,7 +51,7 @@
     <!-- Update - General Update button using edit paper condition logic -->
     <button class="btn btn-dark" type="submit" 
       [attr.data-status]="statusName"
-      *ngIf="canEditPaper() && !permission.canShowDraftRegisterInEdit(roleName, statusName)"
+      *ngIf="canEditPaper() && !permission.canShowDraftRegisterInEdit(roleName, statusName) && !(roleName === 'JV Admin' && !canEditAnyJVAlignedCheckbox)"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -78,7 +78,7 @@
 
     <!-- Update - Legacy Update button for On JV Approval (kept for backward compatibility) -->
     <button class="btn btn-dark" type="submit" data-status="On JV Approval"
-      *ngIf="(statusName === 'On JV Approval' && canShowUpdateForJVApproval) && !canEditPaper()"
+      *ngIf="(statusName === 'On JV Approval' && canShowUpdateForJVApproval) && !canEditPaper() && !(roleName === 'JV Admin' && !canEditAnyJVAlignedCheckbox)"
       [disabled]="isLoading">
       <span *ngIf="!isLoading">Update</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
@@ -102,7 +102,7 @@
 
     <!-- Add review (Pre-CGB) -->
     <div class="d-flex align-items-center justify-content-between gap-3"
-      *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB'">
+      *ngIf="(roleName === 'CGB Chair' || roleName === 'CPO' || roleName === 'JV Admin' || roleName === 'Legal VP-1' || roleName === 'Performance Manager') && statusName === 'On Pre-CGB' && !hasJVAlignedConsultation">
       <button class="btn update-btn" (click)="openAddReview.emit($event)" [disabled]="isLoading">
         <span *ngIf="!isLoading">Add Review</span>
         <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
