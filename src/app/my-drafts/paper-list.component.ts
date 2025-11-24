@@ -68,8 +68,11 @@ export class PaperListComponent implements OnInit {
     sortHighToLow: false,
   };
   paperList: PaperConfig[] = [];
+  allPaperList: PaperConfig[] = []; // Store all papers for frontend filtering
+  filteredPaperList: PaperConfig[] = []; // Filtered papers
+  paginatedPaperList: PaperConfig[] = []; // Paginated papers
   searchText: string = ''; // Search input value
-  totalItems: number = 0; // Total count from backend
+  totalItems: number = 0; // Total count after filtering
   isDesc = false;
   aToZ: string = 'Z A';
   user: LoginUser | null = null;
@@ -158,13 +161,10 @@ export class PaperListComponent implements OnInit {
   loadPaperConfigList() {
     this.isLoading = true;
     
-    // Calculate start index based on current page
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    
     // Use draft statusId if available, otherwise fallback to empty array
     const statusIds = this.draftStatusId !== null ? [this.draftStatusId] : [];
     
-    // Build filter with draft statusId and search text if provided
+    // Build filter with draft statusId (no search/filtering here - will be done on frontend)
     const filter: PaperFilter = {
       statusIds: statusIds,
       orderType: this.filter.orderType || 'DESC',
@@ -176,59 +176,51 @@ export class PaperListComponent implements OnInit {
       sortHighToLow: false
     };
     
-    // Add search text if provided (assuming backend supports title search)
-    if (this.searchText && this.searchText.trim()) {
-      filter.title = this.searchText.trim();
-    }
-    
     const cleanedFilter = this.getCleanFilter(filter);
     
-    // Build request payload with backend pagination
+    // Load all data without pagination for frontend filtering
     const request: GetPaperConfigurationsListRequest = {
       filter: cleanedFilter,
       paging: {
-        start: start,
-        length: this.itemsPerPage
+        start: 0,
+        length: 10000 // Large number to get all records
       }
     };
 
-    // Make parallel requests: one for paginated data, one for total count
-    forkJoin({
-      data: this.paperConfigService.getPaperConfigList(request),
-      count: this.paperConfigService.getPaperConfigList({
-        filter: cleanedFilter,
-        paging: {
-          start: 0,
-          length: 10000 // Large number to get all records for counting
-        }
-      })
-    }).subscribe({
-      next: ({ data, count }) => {
+    this.paperConfigService.getPaperConfigList(request).subscribe({
+      next: (data) => {
         if (data.status && data.data) {
-          // Filter out batch papers only (drafts are already filtered by statusId)
-          this.paperList = data.data.filter((paper: any) =>
+          // Filter out batch papers (drafts are already filtered by statusId)
+          this.allPaperList = data.data.filter((paper: any) =>
             paper.paperType !== 'Batch Paper'
           );
-          // Sort Draft papers by createdDate (newest first)
-          this.sortByDate();
+          
+          // Sort Draft papers by createdDate/lastModifyDate (newest first)
+          this.allPaperList.sort((a: any, b: any) => {
+            const dateA = a.createdDate || a.lastModifyDate;
+            const dateB = b.createdDate || b.lastModifyDate;
+            
+            if (dateA && dateB) {
+              return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+            }
+            
+            // Fallback to paperID if dates are null
+            if (dateA && !dateB) return -1;
+            if (!dateA && dateB) return 1;
+            return b.paperID - a.paperID; // DESC (newest first)
+          });
         } else {
-          this.paperList = [];
+          this.allPaperList = [];
         }
         
-        // Get total count from count response
-        if (count.status && count.data) {
-          // Filter count response the same way (only exclude batch papers)
-          const filteredCount = count.data.filter((paper: any) =>
-            paper.paperType !== 'Batch Paper'
-          );
-          this.totalItems = count.totalCount || count.recordsTotal || count.recordsFiltered || filteredCount.length;
-        } else {
-          // Fallback to data response if count fails
-          this.totalItems = data.totalCount || data.recordsTotal || data.recordsFiltered || this.paperList.length;
-        }
+        // Apply frontend filters and pagination
+        this.applyFrontendFilters();
       },
       error: (error) => {
         console.log('error', error);
+        this.allPaperList = [];
+        this.filteredPaperList = [];
+        this.paginatedPaperList = [];
         this.paperList = [];
         this.totalItems = 0;
         this.isLoading = false;
@@ -240,11 +232,83 @@ export class PaperListComponent implements OnInit {
   }
 
   applyFrontendFilters(): void {
-    // Reset to first page when filters change
-    this.currentPage = 1;
+    // Start with all papers
+    let filtered = [...this.allPaperList];
     
-    // Reload data from backend
-    this.loadPaperConfigList();
+    // Apply search filter
+    if (this.searchText && this.searchText.trim()) {
+      const searchLower = this.searchText.toLowerCase().trim();
+      filtered = filtered.filter(paper =>
+        paper.description?.toLowerCase().includes(searchLower) ||
+        paper.paperType?.toLowerCase().includes(searchLower) ||
+        paper.statusName?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Apply column-based sorting
+    if (this.sortColumn) {
+      filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+        
+        switch (this.sortColumn) {
+          case 'paperName':
+            aValue = a.description?.toLowerCase() || '';
+            bValue = b.description?.toLowerCase() || '';
+            break;
+          case 'paperType':
+            aValue = a.paperType?.toLowerCase() || '';
+            bValue = b.paperType?.toLowerCase() || '';
+            break;
+          case 'contractValue':
+            aValue = a.totalContractValue || 0;
+            bValue = b.totalContractValue || 0;
+            break;
+          case 'status':
+            aValue = a.statusName?.toLowerCase() || '';
+            bValue = b.statusName?.toLowerCase() || '';
+            break;
+          case 'lastModify':
+            aValue = new Date(a.lastModifyDate).getTime();
+            bValue = new Date(b.lastModifyDate).getTime();
+            break;
+          default:
+            return 0;
+        }
+        
+        if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    } else {
+      // Default sorting by createdDate/lastModifyDate (newest first)
+      filtered.sort((a: any, b: any) => {
+        const dateA = a.createdDate || a.lastModifyDate;
+        const dateB = b.createdDate || b.lastModifyDate;
+        
+        if (dateA && dateB) {
+          return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+        }
+        
+        if (dateA && !dateB) return -1;
+        if (!dateA && dateB) return 1;
+        return b.paperID - a.paperID; // DESC (newest first)
+      });
+    }
+    
+    // Store filtered results
+    this.filteredPaperList = filtered;
+    this.totalItems = filtered.length;
+    
+    // Apply pagination
+    this.updatePagination();
+  }
+  
+  updatePagination(): void {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    this.paginatedPaperList = this.filteredPaperList.slice(start, end);
+    this.paperList = this.paginatedPaperList;
   }
   
   getTotalPages(): number {
@@ -333,10 +397,9 @@ export class PaperListComponent implements OnInit {
   }
 
   onSearchChange(): void {
-    // Note: Search should be handled by backend API
-    // For now, we'll reset to first page and reload
+    // Reset to first page and apply frontend filters
     this.currentPage = 1;
-    this.loadPaperConfigList();
+    this.applyFrontendFilters();
   }
 
   getStatusClass(status: string): string {
@@ -762,17 +825,15 @@ export class PaperListComponent implements OnInit {
       this.sortDirection = 'asc';
     }
 
-    // Note: Column sorting should be handled by backend API
-    // For now, we'll reload data
+    // Apply frontend sorting
     this.currentPage = 1;
-    this.loadPaperConfigList();
+    this.applyFrontendFilters();
   }
 
   applySorting(): void {
-    // Note: Sorting should be handled by backend API
-    // For now, we'll reload data when sorting changes
-    // You may need to add sort parameters to the filter
-    this.loadPaperConfigList();
+    // Apply frontend filters which will handle sorting
+    this.currentPage = 1;
+    this.applyFrontendFilters();
   }
 
   getSortIcon(column: string): string {
