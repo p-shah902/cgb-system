@@ -1503,8 +1503,8 @@
                               class="form-check-input"
                               type="checkbox"
                               formControlName="jvAligned"
-                              [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
-                              (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
+                              [disabled]="getIsJVReviewDoneForRow(i) || !canEditJVAligned(risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))"
+                              (change)="onJVReviewChange(i, risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))">
                             <label class="form-check-label" for="aligned_{{i}}">
                               JV Aligned
                             </label>

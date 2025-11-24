@@ -1948,8 +1948,8 @@
                       <td>
                         <div class="form-check">
                           <input class="form-check-input" id="aligned_{{i}}" type="checkbox" formControlName="jvAligned"
-                                 [disabled]="!canEditJVAligned(risk.get('jvReview')?.value)"
-                                 (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
+                                 [disabled]="getIsJVReviewDoneForRow(i) || !canEditJVAligned(risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))"
+                                 (change)="onJVReviewChange(i, risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))">
                           <label class="form-check-label" for="aligned_{{i}}">JV Aligned</label>
                         </div>
                       </td>

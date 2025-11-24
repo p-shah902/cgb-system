@@ -1654,7 +1654,12 @@ export class Template4Component  implements AfterViewInit{
     }
   }
 
-  canEditJVAligned(jvReviewUserId: number | null): boolean {
+  canEditJVAligned(jvReviewUserId: number | null, isJVReviewDone: boolean = false): boolean {
+    // If review is already done, no one can edit (checkbox is read-only)
+    if (isJVReviewDone) {
+      return false;
+    }
+    
     if (!this.loggedInUser || !jvReviewUserId) {
       return false;
     }
@@ -1677,7 +1682,6 @@ export class Template4Component  implements AfterViewInit{
         'on pre-cgb',
         'approved by pre-cgb',
         'on jv approval'
-
       ];
       return allowedStatuses.includes(statusLower);
     }
@@ -1713,8 +1717,15 @@ export class Template4Component  implements AfterViewInit{
       const isJVReviewDone = originalItem?.isJVReviewDone === true;
       
       // User can only update if the checkbox is enabled (not already reviewed)
-      return !isJVReviewDone && this.canEditJVAligned(reviewUserId);
+      return !isJVReviewDone && this.canEditJVAligned(reviewUserId, isJVReviewDone);
     });
+  }
+
+  // Method to get isJVReviewDone for a specific row index
+  getIsJVReviewDoneForRow(rowIndex: number): boolean {
+    const consultationsData = this.paperDetails?.consultationsDetails || [];
+    const originalItem = consultationsData[rowIndex] as any;
+    return originalItem?.isJVReviewDone === true;
   }
 
   /**
@@ -1952,17 +1963,24 @@ export class Template4Component  implements AfterViewInit{
     }
   }
 
-  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null) {
+  onJVReviewChange(rowIndex: number, jvReviewUserId: number | null, isJVReviewDone: boolean = false) {
     const row = this.consultationRows.at(rowIndex);
     const jvAlignedControl = row.get('jvAligned');
     if (jvAlignedControl) {
       // Store the current value before making any changes
       const currentValue = jvAlignedControl.value;
+
+      // If review is already done, checkbox should be checked and disabled for all users
+      if (isJVReviewDone) {
+        jvAlignedControl.setValue(true, { emitEvent: false });
+        jvAlignedControl.disable();
+        return;
+      }
       
       // Convert to number if it's a string to ensure proper comparison
       const userId = jvReviewUserId ? Number(jvReviewUserId) : null;
 
-      if (this.canEditJVAligned(userId)) {
+      if (this.canEditJVAligned(userId, isJVReviewDone)) {
         // Preserve the current value before enabling
         const valueToPreserve = currentValue;
         jvAlignedControl.enable();
