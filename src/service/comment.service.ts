@@ -36,8 +36,16 @@ export class CommentService {
   }
 
   loadPaper(paperId: number) {
+    // Destroy existing context if any to prevent conflicts
+    if (this.context) {
+      this.destroy();
+    }
+    
     this.channelId = paperId.toString();
-    loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
+    console.log('Loading comment service for paper:', paperId, 'Channel ID:', this.channelId);
+    loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this)).catch(error => {
+      console.error('Error loading CKEditor Cloud for comments:', error);
+    });
   }
 
   private async _setupEditor(cloud: CKEditorCloudResult<typeof cloudConfig>) {
@@ -61,6 +69,27 @@ export class CommentService {
       });
       return; // Don't initialize comments for Partners
     }
+
+    // Ensure sidebar container exists, if not wait a bit and try again
+    if (!sidebarContainer) {
+      const serviceInstance = this;
+      setTimeout(() => {
+        const retryContainer = document.querySelector('#context-annotations') as HTMLElement;
+        if (retryContainer) {
+          // Re-initialize the entire setup since we need the cloud instance
+          loadCKEditorCloud(cloudConfig).then((retryCloud) => {
+            serviceInstance._setupEditor(retryCloud);
+          }).catch(error => {
+            console.error('Error loading CKEditor Cloud on retry:', error);
+          });
+        } else {
+          console.error('Comment sidebar container still not found after retry. Comments may not work.');
+        }
+      }, 500);
+      return;
+    }
+    
+    console.log('Comment service initialized successfully for channel:', this.channelId);
 
     const contextConfig: ContextConfig = {
       plugins: [CloudServices, CommentsRepository, NarrowSidebar, WideSidebar, CloudServicesCommentsAdapter],
@@ -91,6 +120,12 @@ export class CommentService {
     const annotations = this.context.plugins.get('Annotations');
     const channelId = this.channelId;
 
+    // Verify that commentsRepository is properly initialized
+    if (!commentsRepository) {
+      console.error('CommentsRepository not found. Comments may not work.');
+      return;
+    }
+
     const commentThreadsForFields = new Map();
 
     // Helper function to check if user can resolve comment
@@ -105,15 +140,19 @@ export class CommentService {
     };
 
     // Override comment resolution to check permissions
-    const originalResolveThread = commentsRepository.resolveCommentThread.bind(commentsRepository);
-    commentsRepository.resolveCommentThread = function(threadId: string) {
-      const thread = commentsRepository.getCommentThread(threadId);
-      if (thread && !canResolveComment(thread)) {
-        console.warn('Only Comment Owner or Secretary can resolve comments');
-        return;
-      }
-      return originalResolveThread(threadId);
-    };
+    if (commentsRepository.resolveCommentThread && typeof commentsRepository.resolveCommentThread === 'function') {
+      const originalResolveThread = commentsRepository.resolveCommentThread.bind(commentsRepository);
+      commentsRepository.resolveCommentThread = function(threadId: string) {
+        const thread = commentsRepository.getCommentThread(threadId);
+        if (thread && !canResolveComment(thread)) {
+          console.warn('Only Comment Owner or Secretary can resolve comments');
+          return;
+        }
+        return originalResolveThread(threadId);
+      };
+    } else {
+      console.warn('resolveCommentThread method not available on CommentsRepository');
+    }
 
     // Filter out resolved comments - only show unresolved ones
     const existingThreads = commentsRepository.getCommentThreads({channelId});
@@ -155,7 +194,10 @@ export class CommentService {
         return;
       }
       
+      console.log('Right-click detected on commentable field:', field.id || 'no-id');
+      
       e.preventDefault();
+      e.stopPropagation();
       
       // Ensure field has an ID
       if (!field.id) {
@@ -164,27 +206,38 @@ export class CommentService {
       
       const threadId = field.id + ":" + channelId + Date.now();
 
-      commentsRepository.openNewCommentThread({
-        channelId: channelId as any,
-        threadId,
-        target: () => getAnnotationTarget(field, threadId),
-        context: {
-          type: 'text',
-          value: getCustomContextMessage(field)
-        },
-        isResolvable: true
-      });
+      try {
+        commentsRepository.openNewCommentThread({
+          channelId: channelId as any,
+          threadId,
+          target: () => getAnnotationTarget(field, threadId),
+          context: {
+            type: 'text',
+            value: getCustomContextMessage(field)
+          },
+          isResolvable: true
+        });
+      } catch (error) {
+        console.error('Error opening comment thread:', error);
+      }
     };
+    
+    // Remove existing listener if any to prevent duplicates
+    if (this.handleContextMenu) {
+      document.removeEventListener('contextmenu', this.handleContextMenu);
+    }
     
     // Attach event listener to document for event delegation
     document.addEventListener('contextmenu', this.handleContextMenu);
     
-    // Also ensure existing fields have IDs
-    document.querySelectorAll('.allow-comments').forEach(field => {
-      if (!field.id) {
-        field.id = 'field-' + Math.random().toString(36).substr(2, 9);
-      }
-    });
+    // Also ensure existing fields have IDs - wait a bit for DOM to be ready
+    setTimeout(() => {
+      document.querySelectorAll('.allow-comments').forEach(field => {
+        if (!field.id) {
+          field.id = 'field-' + Math.random().toString(36).substr(2, 9);
+        }
+      });
+    }, 100);
 
     commentsRepository.on('change:activeCommentThread', (evt: any, propName: any, activeThread: any) => {
       document.querySelectorAll('.allow-comments.active')
@@ -289,12 +342,18 @@ export class CommentService {
 
   destroy() {
     if (this.context) {
-      this.context.destroy();
+      try {
+        this.context.destroy();
+      } catch (error) {
+        console.error('Error destroying comment context:', error);
+      }
+      this.context = null;
     }
     // Remove event listeners
     if (this.handleContextMenu) {
       document.removeEventListener('contextmenu', this.handleContextMenu);
       this.handleContextMenu = null;
     }
+    this.channelId = null;
   }
 }
