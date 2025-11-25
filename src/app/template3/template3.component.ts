@@ -839,7 +839,7 @@ export class Template3Component implements AfterViewInit {
       this.generalInfoForm.patchValue({
         generalInfo: {
           // Keep the paperProvision from the current form (user entered)
-          batchPaper: contractGeneralInfo?.batchPaperId || null,
+          batchPaper: contractPaperDetails?.batchPaperId || null,
           cgbItemRefNo: contractGeneralInfo?.cgbItemRefNo || '',
           cgbCirculationDate: contractGeneralInfo?.cgbCirculationDate
             ? format(new Date(contractGeneralInfo.cgbCirculationDate), 'yyyy-MM-dd')
@@ -1249,11 +1249,10 @@ export class Template3Component implements AfterViewInit {
   }
 
   onBatchPaperSelectionChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const selectedBatchId = target.value;
+    const selectedBatchId = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
 
-    if (selectedBatchId && selectedBatchId !== 'null') {
-      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+    if (selectedBatchId !== null && selectedBatchId !== undefined) {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id === selectedBatchId);
       this.onBatchPaperChange(selectedBatch);
     } else {
       this.onBatchPaperChange(null);
@@ -1639,7 +1638,7 @@ export class Template3Component implements AfterViewInit {
             isExtensionOfDuration: generatlInfoData.isExtensionOfDuration || false,
             isTEToCompleteBidding: generatlInfoData.isTEToCompleteBidding || false,
             isChangeInRates: generatlInfoData.isChangeInRates || false,
-            batchPaper: generatlInfoData.batchPaperId || null,
+            batchPaper: value.data?.batchPaperId || null,
             cgbItemRefNo: generatlInfoData.cgbItemRefNo || '',
             cgbCirculationDate: generatlInfoData.cgbCirculationDate
               ? format(new Date(generatlInfoData.cgbCirculationDate), 'yyyy-MM-dd')

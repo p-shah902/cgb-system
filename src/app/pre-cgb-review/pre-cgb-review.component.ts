@@ -265,15 +265,17 @@ export class PreCgbReviewComponent implements OnInit {
       return false;
     }
     // Exclude Secretary and Super Admin
-    if (roleName === 'Secretary' || roleName === 'Super Admin') {
-      return false;
-    }
+    // if (roleName === 'Secretary' || roleName === 'Super Admin') {
+    //   return false;
+    // }
     // Include Pre-CGB member roles
     const preCGBRoles = [
       'CGB Chair',
       'JV Admin',
       'Legal VP-1',
       'Performance Manager',
+      "Secretary",
+      "Super Admin",
     ];
     return preCGBRoles.includes(roleName);
   }

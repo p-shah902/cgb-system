@@ -67,7 +67,7 @@
                     <div class="paper-info">
                       <p class="cursor-pointer paper-title" 
                          (click)="gotoPaper(paperData.paper.paperID, paperData.paper.paperType)">
-                        <b>#{{ paperData.paper.paperID }}</b> - 
+                        <b>#{{ paperData.paper.cgbItemRefNo || paperData.paper.paperID }}</b> - 
                         {{ paperData.paper.description || paperData.paper.description || paperData.paper.paperType }}
                       </p>
                     </div>

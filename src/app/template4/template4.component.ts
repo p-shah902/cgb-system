@@ -523,7 +523,7 @@ export class Template4Component  implements AfterViewInit{
         this.generalInfoForm.patchValue({
           generalInfo: {
             paperProvision: paperDetailData?.paperProvision || '',
-            batchPaper: paperDetailData?.batchPaperId || null,
+            batchPaper: value.data?.batchPaperId || null,
             cgbItemRef: paperDetailData?.cgbItemRefNo || paperDetailData?.cgbItemRef || '',
             cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
             transactionType: paperDetailData?.transactionType || '',
@@ -1463,11 +1463,10 @@ export class Template4Component  implements AfterViewInit{
   }
 
   onBatchPaperSelectionChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const selectedBatchId = target.value;
+    const selectedBatchId = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
 
-    if (selectedBatchId && selectedBatchId !== 'null') {
-      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+    if (selectedBatchId !== null && selectedBatchId !== undefined) {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id === selectedBatchId);
       this.onBatchPaperChange(selectedBatch);
     } else {
       this.onBatchPaperChange(null);

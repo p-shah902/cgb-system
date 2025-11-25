@@ -651,7 +651,7 @@ export class Template2Component implements AfterViewInit {
               ? format(new Date(contractAwardDetails.cgbApprovalDate), 'yyyy-MM-dd')
               : null,
             isChangeinApproachMarket: contractAwardDetails?.isChangeinApproachMarket ?? null,
-            batchPaper: contractAwardDetails?.batchPaperId || null,
+            batchPaper: value.data?.batchPaperId || null,
             cgbItemRefNo: contractAwardDetails?.cgbItemRefNo || "",
             cgbCirculationDate: contractAwardDetails?.cgbCirculationDate
               ? format(new Date(contractAwardDetails.cgbCirculationDate), 'yyyy-MM-dd')
@@ -1262,11 +1262,10 @@ export class Template2Component implements AfterViewInit {
   }
 
   onBatchPaperSelectionChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const selectedBatchId = target.value;
+    const selectedBatchId = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
 
-    if (selectedBatchId && selectedBatchId !== 'null') {
-      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+    if (selectedBatchId !== null && selectedBatchId !== undefined) {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id === selectedBatchId);
       this.onBatchPaperChange(selectedBatch);
     } else {
       this.onBatchPaperChange(null);

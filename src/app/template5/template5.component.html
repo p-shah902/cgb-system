@@ -218,8 +218,8 @@
                   <label>Select if part of Batch submission</label>
                   <select class="form-control" formControlName="batchPaper"
                           (change)="onBatchPaperSelectionChange($event)">
-                    <option [value]="null">Select if part of Batch submission</option>
-                    <option *ngFor="let batch of batchPaperList" [value]="batch.id">
+                    <option [ngValue]="null">Select if part of Batch submission</option>
+                    <option *ngFor="let batch of batchPaperList" [ngValue]="batch.id">
                       {{ batch.paperProvision }}
                     </option>
                   </select>

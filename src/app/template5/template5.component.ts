@@ -517,7 +517,7 @@ export class Template5Component  implements AfterViewInit{
             isRetrospectiveApproval: generatlInfoData?.isRetrospectiveApproval || false,
             retrospectiveApprovalReason: generatlInfoData?.retrospectiveApprovalReason || '',
             reasontoChangeRequired: generatlInfoData?.reasontoChangeRequired || '',
-            batchPaper: generatlInfoData?.batchPaperId || null,
+            batchPaper: value.data?.batchPaperId || null,
             cgbItemRefNo: generatlInfoData?.cgbItemRefNo || '',
             cgbCirculationDate: generatlInfoData?.cgbCirculationDate || '',
             legalName: generatlInfoData?.vendorId ? generatlInfoData.vendorId.toString() : null,
@@ -1282,11 +1282,10 @@ export class Template5Component  implements AfterViewInit{
   }
 
   onBatchPaperSelectionChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const selectedBatchId = target.value;
+    const selectedBatchId = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
 
-    if (selectedBatchId && selectedBatchId !== 'null') {
-      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+    if (selectedBatchId !== null && selectedBatchId !== undefined) {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id === selectedBatchId);
       this.onBatchPaperChange(selectedBatch);
     } else {
       this.onBatchPaperChange(null);

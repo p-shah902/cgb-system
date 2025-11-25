@@ -16,7 +16,8 @@ export interface PaperConfig {
   logCounts: number,
   fileCounts: number,
   totalContractValue: number,
-  paperType: string
+  paperType: string,
+  cgbItemRefNo?: string | null
 
 }
 
@@ -164,6 +165,7 @@ export interface CostAllocationJVApproval {
 }
 
 export interface Paper {
+  batchPaperId?: number,
   paperDetails: PaperDetails,
   consultationsDetails: ConsultationsDetails[],
   bidInvites: BidInvites[]

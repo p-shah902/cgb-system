@@ -509,11 +509,10 @@ export class Template1Component implements AfterViewInit  {
   }
 
   onBatchPaperSelectionChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const selectedBatchId = target.value;
+    const selectedBatchId = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
 
-    if (selectedBatchId && selectedBatchId !== 'null') {
-      const selectedBatch = this.batchPaperList.find(batch => batch.id == selectedBatchId);
+    if (selectedBatchId !== null && selectedBatchId !== undefined) {
+      const selectedBatch = this.batchPaperList.find(batch => batch.id === selectedBatchId);
       this.onBatchPaperChange(selectedBatch);
     } else {
       this.onBatchPaperChange(null);
@@ -821,7 +820,7 @@ export class Template1Component implements AfterViewInit  {
         console.log('v', paperDetailData?.procurementSPAUsers, selectedValuesProcurementTagUsers, this.procurementTagUsers);
         this.generalInfoForm.patchValue({
           generalInfo: {
-            batchPaper: paperDetailData?.batchPaperId || null,
+            batchPaper: value.data?.batchPaperId || null,
             paperProvision: paperDetailData?.paperProvision || '',
             cgbItemRefNo: paperDetailData?.cgbItemRefNo || '',
             cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
