@@ -838,7 +838,9 @@ export class Template1Component implements AfterViewInit  {
             batchPaper: value.data?.batchPaperId || null,
             paperProvision: paperDetailData?.paperProvision || '',
             cgbItemRefNo: paperDetailData?.cgbItemRefNo || '',
-            cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
+            cgbCirculationDate: paperDetailData?.cgbCirculationDate
+              ? format(new Date(paperDetailData.cgbCirculationDate), 'yyyy-MM-dd')
+              : '',
             purposeRequired: paperDetailData?.purposeRequired || '',
             scopeOfWork: paperDetailData?.scopeOfWork || '',
             globalCGB: paperDetailData?.globalCGB || '',

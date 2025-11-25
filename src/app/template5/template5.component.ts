@@ -519,7 +519,9 @@ export class Template5Component  implements AfterViewInit{
             reasontoChangeRequired: generatlInfoData?.reasontoChangeRequired || '',
             batchPaper: value.data?.batchPaperId || null,
             cgbItemRefNo: generatlInfoData?.cgbItemRefNo || '',
-            cgbCirculationDate: generatlInfoData?.cgbCirculationDate || '',
+            cgbCirculationDate: generatlInfoData?.cgbCirculationDate
+              ? format(new Date(generatlInfoData.cgbCirculationDate), 'yyyy-MM-dd')
+              : '',
             legalName: generatlInfoData?.vendorId ? generatlInfoData.vendorId.toString() : null,
             contractNumber: generatlInfoData?.contractNumber || '',
             operatingFunction: generatlInfoData?.operatingFunction || '',

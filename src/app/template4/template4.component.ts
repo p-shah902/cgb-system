@@ -48,6 +48,7 @@ import {NumberInputComponent} from '../../components/number-input/number-input.c
 import { PermissionService } from '../shared/services/permission.service';
 import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 import {BatchService} from '../../service/batch.service';
+import {format} from 'date-fns';
 
 @Component({
   selector: 'app-template4',
@@ -525,7 +526,9 @@ export class Template4Component  implements AfterViewInit{
             paperProvision: paperDetailData?.paperProvision || '',
             batchPaper: value.data?.batchPaperId || null,
             cgbItemRef: paperDetailData?.cgbItemRefNo || paperDetailData?.cgbItemRef || '',
-            cgbCirculationDate: paperDetailData?.cgbCirculationDate || '',
+            cgbCirculationDate: paperDetailData?.cgbCirculationDate
+              ? format(new Date(paperDetailData.cgbCirculationDate), 'yyyy-MM-dd')
+              : '',
             transactionType: paperDetailData?.transactionType || '',
             referenceNo: paperDetailData?.referenceNo || '',
             purposeRequired: paperDetailData?.purposeRequired || '',
