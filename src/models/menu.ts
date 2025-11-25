@@ -138,14 +138,14 @@ export const menuItems: Menu[] = [
           },
           {
             path: '/batch-papers',
-            title: 'Batch Paper',
+            title: 'Batch',
             icon: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.66667 3.33333H9.33333L12 6V12.6667C12 13.0349 11.7015 13.3333 11.3333 13.3333H2.66667C2.29848 13.3333 2 13.0349 2 12.6667V4C2 3.63181 2.29848 3.33333 2.66667 3.33333Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M9.33333 3.33333V6H12" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M4.66667 7.33333H10.6667M4.66667 10H8" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M4 9.33333H10C10.3682 9.33333 10.6667 9.63181 10.6667 10V13.3333C10.6667 13.7015 10.3682 14 10 14H4C3.63181 14 3.33333 13.7015 3.33333 13.3333V10C3.33333 9.63181 3.63181 9.33333 4 9.33333Z" stroke="#1B202B" stroke-width="1.06667" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>`
-          }
+          } 
         ],
       },
       {

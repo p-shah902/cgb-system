@@ -22,6 +22,7 @@ export class CommentService {
 
   private context: any;
   private channelId: any;
+  private handleContextMenu: ((e: MouseEvent) => void) | null = null;
 
   constructor(private editorService: EditorService) {
   }
@@ -94,23 +95,45 @@ export class CommentService {
       handleRemovedCommentThread(data.threadId);
     }, {priority: 'low'});
 
-    document.querySelectorAll('.allow-comments').forEach(field => {
-      field.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        const threadId = field.id + ":" + this.channelId + Date.now();
+    // Use event delegation to handle dynamically added fields
+    this.handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const field = target.closest('.allow-comments') as HTMLElement;
+      
+      if (!field) {
+        return;
+      }
+      
+      e.preventDefault();
+      
+      // Ensure field has an ID
+      if (!field.id) {
+        field.id = 'field-' + Math.random().toString(36).substr(2, 9);
+      }
+      
+      const threadId = field.id + ":" + channelId + Date.now();
 
-        commentsRepository.openNewCommentThread({
-          channelId: channelId as any,
-          threadId,
-          target: () => getAnnotationTarget(field as any, threadId),
-          context: {
-            type: 'text',
-            value: getCustomContextMessage(field as any)
-          },
-          isResolvable: true
-        })
+      commentsRepository.openNewCommentThread({
+        channelId: channelId as any,
+        threadId,
+        target: () => getAnnotationTarget(field, threadId),
+        context: {
+          type: 'text',
+          value: getCustomContextMessage(field)
+        },
+        isResolvable: true
       });
-    })
+    };
+    
+    // Attach event listener to document for event delegation
+    document.addEventListener('contextmenu', this.handleContextMenu);
+    
+    // Also ensure existing fields have IDs
+    document.querySelectorAll('.allow-comments').forEach(field => {
+      if (!field.id) {
+        field.id = 'field-' + Math.random().toString(36).substr(2, 9);
+      }
+    });
 
     commentsRepository.on('change:activeCommentThread', (evt: any, propName: any, activeThread: any) => {
       document.querySelectorAll('.allow-comments.active')
@@ -210,6 +233,11 @@ export class CommentService {
   destroy() {
     if (this.context) {
       this.context.destroy();
+    }
+    // Remove event listeners
+    if (this.handleContextMenu) {
+      document.removeEventListener('contextmenu', this.handleContextMenu);
+      this.handleContextMenu = null;
     }
   }
 }

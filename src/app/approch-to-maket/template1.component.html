@@ -123,7 +123,7 @@
                   <div class="col-sm-6 col-md-6">
                     <div class="form-group mb-3">
                       <label>CGB Item Ref </label>
-                      <input id="cgbItemRefNo" type="text" class="form-control" placeholder="CGB Item Ref"
+                      <input id="cgbItemRefNo" type="text" class="form-control allow-comments" placeholder="CGB Item Ref"
                              formControlName="cgbItemRefNo"/>
                     </div>
                   </div>
@@ -131,7 +131,7 @@
                     <div class="form-group mb-3">
                       <label>CGB Circulation Date</label>
                       <div class="date-input position-relative">
-                        <input id="cgbCirculationDate" type="date" class="form-control"
+                        <input id="cgbCirculationDate" type="date" class="form-control allow-comments"
                                formControlName="cgbCirculationDate" placeholder=""/>
                       </div>
                     </div>
@@ -139,7 +139,7 @@
                   <div class="col-md-6">
                     <div class="form-group mb-3">
                       <label>Select if part of Batch submission</label>
-                      <select class="form-control" formControlName="batchPaper"
+                      <select class="form-control allow-comments" formControlName="batchPaper"
                               (change)="onBatchPaperSelectionChange($event)">
                         <option [value]="null">Select if part of Batch submission</option>
                         <option *ngFor="let batch of batchPaperList" [value]="batch.id">
@@ -551,10 +551,10 @@
             </span>
               </div>
 
-              <div *ngIf="sectionVisibility['section2']" class="fb-form" formGroupName="procurementDetails">
+              <div *ngIf="sectionVisibility['section2']" class="fb-form allow-comments" formGroupName="procurementDetails" id="procurement_details">
                 <div class="row">
                   <div class="col-sm-6 col-md-4">
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3 allow-comments">
                       <label>Remuneration Type<span class="danger">*</span></label>
                       <select id="remunerationType" class="form-control allow-comments"
                               formControlName="remunerationType">
@@ -572,7 +572,7 @@
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3 allow-comments">
                       <label>Proposed Contract Management Level<span class="danger">*</span></label>
                       <select id="contractMgmtLevel" class="form-control allow-comments"
                               formControlName="contractMgmtLevel">
@@ -590,7 +590,7 @@
                     </div>
                   </div>
                   <div class="col-sm-6 col-md-4">
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3 allow-comments">
                       <label>Sourcing Rigor<span class="danger">*</span></label>
                       <select id="sourcingRigor" class="form-control allow-comments" formControlName="sourcingRigor">
                         <option [value]="''">Select</option>
@@ -629,13 +629,13 @@
                             </tr>
                             </thead>
                             <tbody formArrayName="riskMitigation">
-                            <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i">
+                            <tr *ngFor="let risk of riskMitigation.controls; let i = index" [formGroupName]="i" class="allow-comments">
                               <td class="align-middle text-start">{{ generateId(i) }}</td>
                               <td>
-                              <textarea rows="3" type="text" class="form-control"
+                              <textarea rows="3" type="text" class="form-control allow-comments"
                                         placeholder="Enter here" formControlName="risks"></textarea>
                               <td>
-                              <textarea rows="3" type="text" class="form-control"
+                              <textarea rows="3" type="text" class="form-control allow-comments"
                                         placeholder="Enter here" formControlName="mitigations"></textarea>
                               </td>
                               <td class="align-middle text-start">
@@ -702,10 +702,10 @@
                             </tr>
                             </thead>
                             <tbody formArrayName="inviteToBid">
-                            <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i">
+                            <tr *ngFor="let bid of inviteToBid.controls; let i = index" [formGroupName]="i" class="allow-comments">
                               <td class="vendor-select-cell">
                                 <div class="vendor-select-wrapper">
-                                  <select class="form-control" formControlName="legalName" (change)="onVendorSelectionChange(i)">
+                                  <select class="form-control allow-comments" formControlName="legalName" (change)="onVendorSelectionChange(i)">
                                     <option [value]="''">Select vendor</option>
                                     <option *ngFor="let vendor of vendorOptions" [value]="vendor.value">
                                       {{ vendor.label }}
@@ -714,10 +714,10 @@
                                 </div>
                               </td>
                               <td class="text-center align-middle">
-                                <input type="checkbox" formControlName="isLocalOrJV" [disabled]="true" readonly/>
+                                <input type="checkbox" class="allow-comments" formControlName="isLocalOrJV" [disabled]="true" readonly/>
                               </td>
                               <td>
-                                <select class="form-control" formControlName="countryId" [disabled]="true">
+                                <select class="form-control allow-comments" formControlName="countryId" [disabled]="true">
                                   <option [ngValue]="''">Select country</option>
                                   <option *ngFor="let con of countryDetails" [ngValue]="con.id">
                                     {{ con.countryName }}
@@ -725,11 +725,11 @@
                                 </select>
                               </td>
                               <td>
-                                <input type="text" class="form-control" formControlName="parentCompanyName"
+                                <input type="text" class="form-control allow-comments" formControlName="parentCompanyName"
                                        placeholder="Enter parent company" readonly/>
                               </td>
                               <td>
-                                <input type="text" class="form-control" formControlName="remarks"
+                                <input type="text" class="form-control allow-comments" formControlName="remarks"
                                        placeholder="Enter remark"/>
                               </td>
                               <td>
@@ -826,7 +826,7 @@
               </svg>
             </span>
               </div>
-              <div *ngIf="sectionVisibility['section3']" class="fb-form" formGroupName="valueDelivery">
+              <div *ngIf="sectionVisibility['section3']" class="fb-form allow-comments" formGroupName="valueDelivery" id="value_delivery">
                 <div class="mb-1">
                   <label class="medium mb-2">Cost Reduction</label>
                   <div class="row">
@@ -984,7 +984,7 @@
                         <td *ngFor="let psa of getSelectedPSAJVColumns()">
                           <div class="input-group">
                             <span class="input-group-text">%</span>
-                            <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 " min="0"
+                            <input oninput="if (this.value > 100) this.value = 100" class="form-control p-1 allow-comments" min="0"
                                    max="100" type="number" placeholder="%"
                                    [formControlName]="getPSAPercentageControlName(psa)">
                           </div>
@@ -997,7 +997,7 @@
                             <span class="input-group-text">%</span>
                             <input
                               oninput="if (this.value > 100) this.value = 100"
-                              class="form-control p-1"
+                              class="form-control p-1 allow-comments"
                               [class.is-invalid]="generalInfoForm.get('costAllocation.totalPercentage')?.hasError('notExactly100')"
                               readonly
                               placeholder="%"
@@ -1013,11 +1013,11 @@
                         <td><b>By value $</b></td>
                         <td *ngFor="let psa of getSelectedPSAJVColumns()">
                           <app-number-input [readonly]="true" [id]="'value_' + getPSAControlSuffix(psa)"
-                                            inputClass="p-1" [formControlName]="getPSAValueControlName(psa)"
+                                            inputClass="p-1 allow-comments" [formControlName]="getPSAValueControlName(psa)"
                                             placeholder="0.00"></app-number-input>
                         </td>
                         <td>
-                          <app-number-input [readonly]="true" id="totalValue" inputClass="p-1"
+                          <app-number-input [readonly]="true" id="totalValue" inputClass="p-1 allow-comments"
                                             formControlName="totalValue" placeholder="0.00"></app-number-input>
                         </td>
                       </tr>
@@ -1088,7 +1088,7 @@
                       <th width="15%">
                         <div class="form-check-list d-flex gap-3 flex-wrap">
                           <div class="form-check-box position-relative">
-                            <input type="checkbox" formControlName="isCapex">
+                            <input type="checkbox" class="allow-comments" formControlName="isCapex">
                             <label><b class="text-dark">Capex</b></label>
                           </div>
                         </div>
@@ -1098,7 +1098,7 @@
                           <div class="row">
                             <div class="col">
                               <div class="radio-box position-relative">
-                                <input type="radio" name="capexMethodology" value="1a"
+                                <input type="radio" name="capexMethodology" class="allow-comments" value="1a"
                                        formControlName="capexMethodology">
                                 <label>1a
                                   <button class="btn p-0 pointer">
@@ -1201,7 +1201,7 @@
                       <th width="15%">
                         <div class="form-check-list d-flex gap-3 flex-wrap">
                           <div class="form-check-box position-relative">
-                            <input type="checkbox" formControlName="isFixOpex">
+                            <input type="checkbox" class="allow-comments" formControlName="isFixOpex">
                             <label><b class="text-dark">Fixed Opex</b></label>
                           </div>
                         </div>
@@ -1211,7 +1211,7 @@
                           <div class="row">
                             <div class="col">
                               <div class="radio-box position-relative">
-                                <input type="radio" name="fixOpexMethodology" value="2a"
+                                <input type="radio" name="fixOpexMethodology" class="allow-comments" value="2a"
                                        formControlName="fixOpexMethodology">
                                 <label>2a
                                   <button class="btn p-0 pointer">
@@ -1316,7 +1316,7 @@
                             </div>
                             <div class="col">
                               <div class="radio-box position-relative">
-                                <input type="radio" name="variableOpexMethodology" value="2e"
+                                <input type="radio" name="variableOpexMethodology" class="allow-comments" class="allow-comments" value="2e"
                                        formControlName="variableOpexMethodology">
                                 <label>2e
                                   <button class="btn p-0 pointer">
@@ -1343,7 +1343,7 @@
                       <th width="15%">
                         <div class="form-check-list d-flex gap-3 flex-wrap">
                           <div class="form-check-box position-relative">
-                            <input type="checkbox" formControlName="isInventoryItems">
+                            <input type="checkbox" class="allow-comments" formControlName="isInventoryItems">
                             <label><b class="text-dark">Inventory Items</b></label>
                           </div>
                         </div>
@@ -1354,7 +1354,7 @@
 
                             <div class="col">
                               <div class="radio-box position-relative">
-                                <input type="radio" name="inventoryItemsMethodology" value="BP Warehouse"
+                                <input type="radio" name="inventoryItemsMethodology" class="allow-comments" value="BP Warehouse"
                                        formControlName="inventoryItemsMethodology">
                                 <label>Yes
                                   <button class="btn p-0 pointer">
@@ -1373,7 +1373,7 @@
                             </div>
                             <div class="col">
                               <div class="radio-box position-relative">
-                                <input type="radio" name="inventoryItemsMethodology" value="VMI"
+                                <input type="radio" name="inventoryItemsMethodology" class="allow-comments" value="VMI"
                                        formControlName="inventoryItemsMethodology">
                                 <label>Yes
                                   <button class="btn p-0 pointer">
@@ -1392,7 +1392,7 @@
                             </div>
                             <div class="col">
                               <div class="radio-box position-relative">
-                                <input type="radio" name="inventoryItemsMethodology" value="No"
+                                <input type="radio" name="inventoryItemsMethodology" class="allow-comments" value="No"
                                        formControlName="inventoryItemsMethodology">
                                 <label>No
                                   <button class="btn p-0 pointer">
@@ -1457,15 +1457,15 @@
                       </tr>
                       </thead>
                       <tbody formArrayName="consultation">
-                      <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
-                        <td><select class="form-control" formControlName="psa" [disabled]="true">
+                      <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i" class="allow-comments">
+                        <td><select class="form-control allow-comments" formControlName="psa" [disabled]="true">
                           <option [value]="''">Select</option>
                           <option *ngFor="let psaOption of psaJvOptions" [value]="psaOption.value">
                             {{ psaOption.label }}
                           </option>
                         </select></td>
                         <td>
-                          <select class="form-control" [disabled]="true"
+                          <select class="form-control allow-comments" [disabled]="true"
                                   formControlName="technicalCorrect">
                             <option [value]="null">Select</option>
                             <ng-container *ngFor="let user of userDetails">
@@ -1476,7 +1476,7 @@
                           </select>
                         </td>
                         <td>
-                          <select class="form-control" formControlName="budgetStatement">
+                          <select class="form-control allow-comments" formControlName="budgetStatement">
                             <option [ngValue]="null">Select</option>
                             <ng-container *ngFor="let user of userDetails">
                               <option *ngIf="user.roleName === 'Financial Tag'" [ngValue]="user.id">
@@ -1486,7 +1486,7 @@
                           </select>
                         </td>
                         <td>
-                          <select class="form-control" formControlName="jvReview"
+                          <select class="form-control allow-comments" formControlName="jvReview"
                                   (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
                             <option [value]="null">Select</option>
                             <ng-container *ngFor="let user of userDetails">
@@ -1500,7 +1500,7 @@
                           <div class="form-check">
                             <input
                               id="aligned_{{i}}"
-                              class="form-check-input"
+                              class="form-check-input allow-comments"
                               type="checkbox"
                               formControlName="jvAligned"
                               [disabled]="getIsJVReviewDoneForRow(i) || !canEditJVAligned(risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))"

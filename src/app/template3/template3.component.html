@@ -621,7 +621,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6 col-md-4">
-                  <div class="form-group mb-3">
+                  <div class="form-group mb-3 allow-comments">
                     <label>Remuneration Type<span class="danger">*</span></label>
                     <select id="remunerationType" class="form-control allow-comments"
                             formControlName="remunerationType">
@@ -972,7 +972,7 @@
             </span>
             </div>
 
-            <div *ngIf="sectionVisibility['section6']" class="fb-form" formGroupName="valueDelivery">
+            <div *ngIf="sectionVisibility['section6']" class="fb-form allow-comments" formGroupName="valueDelivery" id="value_delivery">
               <div class="mb-1">
                 <label class="medium mb-2">Cost Reduction</label>
                 <div class="row">
@@ -1212,15 +1212,15 @@
                     </tr>
                     </thead>
                     <tbody formArrayName="consultation">
-                    <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i">
-                      <td><select class="form-control" formControlName="psa" [disabled]="true">
+                    <tr *ngFor="let risk of consultationRows.controls; let i = index" [formGroupName]="i" class="allow-comments">
+                      <td><select class="form-control allow-comments" formControlName="psa" [disabled]="true">
                         <option [value]="''">Select</option>
                         <option *ngFor="let psaOption of psaJvOptions" [value]="psaOption.value">
                           {{ psaOption.label }}
                         </option>
                       </select></td>
                       <td>
-                        <select class="form-control" [disabled]="true"
+                        <select class="form-control allow-comments" [disabled]="true"
                                 formControlName="technicalCorrect">
                           <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
@@ -1231,7 +1231,7 @@
                         </select>
                       </td>
                       <td>
-                        <select class="form-control" formControlName="budgetStatement">
+                        <select class="form-control allow-comments" formControlName="budgetStatement">
                           <option [ngValue]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'Financial Tag'" [ngValue]="user.id">
@@ -1241,7 +1241,7 @@
                         </select>
                       </td>
                       <td>
-                        <select class="form-control" formControlName="jvReview" (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
+                        <select class="form-control allow-comments" formControlName="jvReview" (change)="onJVReviewChange(i, risk.get('jvReview')?.value)">
                           <option [value]="null">Select</option>
                           <ng-container *ngFor="let user of userDetails">
                             <option *ngIf="user.roleName === 'JV Admin'" [ngValue]="user.id">
@@ -1252,7 +1252,7 @@
                       </td>
                       <td>
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" formControlName="jvAligned" id="aligned_{{i}}"
+                          <input class="form-check-input allow-comments" type="checkbox" formControlName="jvAligned" id="aligned_{{i}}"
                                  [disabled]="getIsJVReviewDoneForRow(i) || !canEditJVAligned(risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))"
                                  (change)="onJVReviewChange(i, risk.get('jvReview')?.value, getIsJVReviewDoneForRow(i))">
                           <label class="form-check-label" for="aligned_{{i}}">JV Aligned</label>
