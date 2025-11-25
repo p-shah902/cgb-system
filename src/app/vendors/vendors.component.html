@@ -109,9 +109,9 @@
                   <td>{{vendor.sapId}}</td>
                   <td>{{vendor.countryName}}</td>
                   <td>
-                    <div class="vendore-status">
-                      <label> {{ vendor.isActive ? 'Active' : 'Inactive' }}</label>
-                    </div>
+                    <span class="status-badge" [ngClass]="vendor.isActive ? 'status-active' : 'status-inactive'">
+                      {{ vendor.isActive ? 'Active' : 'Inactive' }}
+                    </span>
                   </td>
                   <td>{{ (vendor.modifiedDate || vendor.createdDate) | date: 'dd MMMM yyyy' }}</td>
                   <td>
