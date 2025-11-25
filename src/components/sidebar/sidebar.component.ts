@@ -92,6 +92,14 @@ export class SidebarComponent {
           continue; // Skip this menu item
         }
       }
+      
+      // Check if this is "CGB" menu item
+      if (item.title === 'CGB') {
+        // Hide CGB menu for JV Admin users
+        if (this.loggedInUserRole === 'JV Admin') {
+          continue; // Skip this menu item
+        }
+      }
 
       const hasPermission = (key: string) =>
         accessList.some(f =>
