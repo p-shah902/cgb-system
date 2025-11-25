@@ -227,6 +227,25 @@ export class PaperListComponent implements OnInit, AfterViewInit {
 
     this.paperConfigService.getPaperConfigList(request).subscribe({
       next: (data) => {
+        // Check if response has errors (e.g., "No paper configurations found")
+        if (data.errors && Object.keys(data.errors).length > 0) {
+          // Handle error response gracefully
+          this.allPaperList = [];
+          this.filteredPaperList = [];
+          this.paginatedPaperList = [];
+          this.totalItems = 0;
+          // Reset to default values if no data
+          this.priceSliderOptions = {
+            floor: 0,
+            ceil: 1000,
+            step: 10,
+            translate: (value: number): string => `$${value}`
+          };
+          this.tempPrice = [0, 0];
+          this.isLoading = false;
+          return;
+        }
+        
         if (data.status && data.data) {
           // Filter out batch papers and draft papers
           this.allPaperList = data.data.filter((paper: any) => {
