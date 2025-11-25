@@ -9,7 +9,8 @@ import {ToastService} from '../../service/toast.service';
 import {VotingService} from '../../service/voting.service';
 import {SafeHtmlDirective} from '../../directives/safe-html.directive';
 import {CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray} from '@angular/cdk/drag-drop';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
+import {first} from 'rxjs/operators';
 import {AuthService} from '../../service/auth.service';
 import {LoginUser} from '../../models/user';
 
@@ -98,23 +99,45 @@ export class PaperStatusComponent implements OnInit {
     // {label: 'On CGB', value: 10},
     {label: 'Action Required by CGB', value: 12},
     {label: 'Approved by CGB', value: 11},
-    // {label: 'On JV Approval', value: 14},
+    {label: 'On JV Approval', value: 14},
     {label: 'On Partner Approval 1st', value: 23},
     {label: 'On Partner Approval 2nd', value: 24},
     {label: 'Approved', value: 19},
   ];
   private readonly _mdlSvc = inject(NgbModal);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   loggedInUser: LoginUser | null = null;
 
-  private slugify(text: string): string {
+  slugify(text: string): string {
     return text
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '') // Remove special characters
       .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with dashes
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+  }
+
+  scrollToSection(sectionKey: string): void {
+    // Use setTimeout to ensure DOM is updated after data load
+    setTimeout(() => {
+      const sectionId = this.slugify(sectionKey);
+      const element = document.getElementById(`section-${sectionId}`);
+      const container = document.querySelector('.paper-status-div');
+      
+      if (element && container) {
+        // Scroll the container to the section
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const scrollLeft = container.scrollLeft + (elementRect.left - containerRect.left) - 20; // 20px offset
+        
+        container.scrollTo({
+          left: scrollLeft,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   }
 
   goToApproachToMarket(paper: any): void {
@@ -335,10 +358,38 @@ export class PaperStatusComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadPaperConfigList();
+    // Check for scrollTo query parameter
+    this.route.queryParams.pipe(first()).subscribe(params => {
+      if (params['scrollTo']) {
+        const sectionKey = params['scrollTo'];
+        // Map query param to section name
+        const sectionMap: { [key: string]: string } = {
+          'on-jv-approval': 'On JV Approval'
+        };
+        const targetSection = sectionMap[sectionKey];
+        if (targetSection) {
+          // Load data first, then scroll after data is loaded
+          this.loadPaperConfigList(() => {
+            // Wait a bit more for DOM to update
+            setTimeout(() => {
+              this.scrollToSection(targetSection);
+              // Clear the query parameter after scrolling
+              this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: {},
+                replaceUrl: true
+              });
+            }, 300);
+          });
+          return;
+        }
+      }
+      // Normal load if no scrollTo param
+      this.loadPaperConfigList();
+    });
   }
 
-  loadPaperConfigList() {
+  loadPaperConfigList(callback?: () => void) {
     this.isLoading = true;
 
     // Build request payload with pagination
@@ -377,6 +428,10 @@ export class PaperStatusComponent implements OnInit {
         console.log('error', error);
       },complete:()=>{
         this.isLoading=false;
+        // Execute callback after loading is complete
+        if (callback) {
+          callback();
+        }
       }
     });
 

@@ -113,6 +113,14 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
     this.router.navigate([`/${routePath}`, paperId]);
   }
 
+  goToPaperForJVApproval(inbox: InboxOutbox) {
+    // Navigate to paper detail page and open consultation section
+    const routePath = this.slugify(inbox.paperType);
+    this.router.navigate([`/${routePath}`, inbox.paperID], { 
+      queryParams: { openConsultation: 'true' } 
+    });
+  }
+
   getInboxOutBox() {
     this.isLoading = true;
     

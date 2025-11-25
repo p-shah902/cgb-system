@@ -94,7 +94,7 @@
                               <div class="ic-btn-div d-flex justify-content-end"
                                    *ngIf="canApproveJVPaper(inbox)">
                                 <button class="btn btn-outline-secondary d-flex align-items-center gap-3"
-                                        (click)="open($event, content2, inbox.paperID); $event.stopPropagation()">
+                                        (click)="goToPaperForJVApproval(inbox); $event.stopPropagation()">
                                   Approve
                                 </button>
                               </div>

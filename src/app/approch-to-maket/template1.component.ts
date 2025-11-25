@@ -215,6 +215,17 @@ export class Template1Component implements AfterViewInit  {
     this.route.queryParamMap.subscribe(queryParams => {
       this.isCopy = queryParams.get('isCopy') === 'true';
       console.log('Is Copy:', this.isCopy);
+      // Open consultation section if openConsultation query param is present
+      const shouldOpenConsultation = queryParams.get('openConsultation') === 'true';
+      if (shouldOpenConsultation) {
+        this.sectionVisibility['section6'] = true;
+        // Store flag to reopen after paper details are loaded
+        (this as any).shouldOpenConsultation = true;
+        // Scroll to consultation section after a delay to ensure DOM is ready
+        setTimeout(() => {
+          this.scrollToConsultation();
+        }, 500);
+      }
     });
     this.loadUserDetails();
     this.loadCountry();
@@ -3407,6 +3418,15 @@ export class Template1Component implements AfterViewInit  {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  scrollToConsultation(): void {
+    setTimeout(() => {
+      const consultationElement = document.getElementById('consultation');
+      if (consultationElement) {
+        consultationElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
   }
 
   toggleSection(section: string): void {

@@ -214,6 +214,17 @@ export class Template3Component implements AfterViewInit {
 
     this.route.queryParamMap.subscribe(queryParams => {
       this.isCopy = queryParams.get('isCopy') === 'true';
+      // Open consultation section if openConsultation query param is present
+      const shouldOpenConsultation = queryParams.get('openConsultation') === 'true';
+      if (shouldOpenConsultation) {
+        this.sectionVisibility['section9'] = true;
+        // Store flag to reopen after paper details are loaded
+        (this as any).shouldOpenConsultation = true;
+        // Scroll to consultation section after a delay to ensure DOM is ready
+        setTimeout(() => {
+          this.scrollToConsultation();
+        }, 500);
+      }
     });
     this.loadUserDetails();
     this.loadDictionaryItems();
@@ -1901,6 +1912,17 @@ export class Template3Component implements AfterViewInit {
         // Disable all fields for JV Admin (except Consultation section)
         // Call multiple times with delays to catch controls that get enabled later
         this.applyJVAdminReadOnlyMode();
+        
+        // Open consultation section if requested via query param
+        if ((this as any).shouldOpenConsultation) {
+          setTimeout(() => {
+            this.sectionVisibility['section9'] = true;
+            // Scroll to consultation section
+            setTimeout(() => {
+              this.scrollToConsultation();
+            }, 200);
+          }, 200);
+        }
         setTimeout(() => {
           this.applyJVAdminReadOnlyMode();
         }, 600);
@@ -3157,6 +3179,15 @@ export class Template3Component implements AfterViewInit {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  scrollToConsultation(): void {
+    setTimeout(() => {
+      const consultationElement = document.getElementById('consultation');
+      if (consultationElement) {
+        consultationElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
   }
 
   get generalInfo() {

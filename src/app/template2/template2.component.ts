@@ -199,6 +199,17 @@ export class Template2Component implements AfterViewInit {
     this.route.queryParamMap.subscribe(queryParams => {
       this.isCopy = queryParams.get('isCopy') === 'true';
       console.log('Is Copy:', this.isCopy);
+      // Open consultation section if openConsultation query param is present
+      const shouldOpenConsultation = queryParams.get('openConsultation') === 'true';
+      if (shouldOpenConsultation) {
+        this.sectionVisibility['section8'] = true;
+        // Store flag to reopen after paper details are loaded
+        (this as any).shouldOpenConsultation = true;
+        // Scroll to consultation section after a delay to ensure DOM is ready
+        setTimeout(() => {
+          this.scrollToConsultation();
+        }, 500);
+      }
     });
 
     this.loadForm()
@@ -844,10 +855,16 @@ export class Template2Component implements AfterViewInit {
           this.updateAllJVAlignedStates();
         }, 1500);
 
-        // Set consultation section visibility to true if there are consultation rows
+        // Set consultation section visibility to true if there are consultation rows or if requested via query param
         setTimeout(() => {
-          if (this.consultationRows.length > 0) {
+          if (this.consultationRows.length > 0 || (this as any).shouldOpenConsultation) {
             this.sectionVisibility['section8'] = true;
+            // Scroll to consultation section if it was requested via query param
+            if ((this as any).shouldOpenConsultation) {
+              setTimeout(() => {
+                this.scrollToConsultation();
+              }, 200);
+            }
           }
         }, 100);
 
@@ -4535,6 +4552,15 @@ export class Template2Component implements AfterViewInit {
 
   scrollToTop(): void {
     window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  scrollToConsultation(): void {
+    setTimeout(() => {
+      const consultationElement = document.getElementById('consultation');
+      if (consultationElement) {
+        consultationElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
   }
 
   getPaperCommentLogs(paperId: number) {

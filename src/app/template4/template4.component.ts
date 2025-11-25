@@ -187,6 +187,17 @@ export class Template4Component  implements AfterViewInit{
     this.route.queryParamMap.subscribe(queryParams => {
       this.isCopy = queryParams.get('isCopy') === 'true';
       console.log('Is Copy:', this.isCopy);
+      // Open consultation section if openConsultation query param is present
+      const shouldOpenConsultation = queryParams.get('openConsultation') === 'true';
+      if (shouldOpenConsultation) {
+        this.sectionVisibility['section3'] = true;
+        // Store flag to reopen after paper details are loaded
+        (this as any).shouldOpenConsultation = true;
+        // Scroll to consultation section after a delay to ensure DOM is ready
+        setTimeout(() => {
+          this.scrollToConsultation();
+        }, 500);
+      }
     });
     this.loadUserDetails();
     this.loadDictionaryItems();
@@ -600,6 +611,17 @@ export class Template4Component  implements AfterViewInit{
         this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners();
         
+        // Open consultation section if requested via query param
+        if ((this as any).shouldOpenConsultation) {
+          setTimeout(() => {
+            this.sectionVisibility['section3'] = true;
+            // Scroll to consultation section
+            setTimeout(() => {
+              this.scrollToConsultation();
+            }, 200);
+          }, 200);
+        }
+        
         // Setup percentage calculation listeners after form is patched in edit mode
         // Recalculate totals after listeners are set up (similar to template5)
         setTimeout(() => {
@@ -653,6 +675,15 @@ export class Template4Component  implements AfterViewInit{
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  scrollToConsultation(): void {
+    setTimeout(() => {
+      const consultationElement = document.getElementById('consultation');
+      if (consultationElement) {
+        consultationElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
   }
 
   requireAllIfAny(group: AbstractControl): ValidationErrors | null {

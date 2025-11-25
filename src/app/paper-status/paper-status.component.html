@@ -176,7 +176,7 @@
   <p>Loading data, please wait...</p>
 </div>
 <div class="paper-status-div d-flex gap-3 overflow-auto pb-3" *ngIf="!isLoading">
-  <div class="paper-card" *ngFor="let group of groupedPaper | keyvalue: keepOrder; index as i;trackBy: trackByGroupKey">
+  <div class="paper-card" [id]="'section-' + slugify(group.key)" *ngFor="let group of groupedPaper | keyvalue: keepOrder; index as i;trackBy: trackByGroupKey">
     <div class="paper-head">
       <div class="d-flex align-items-center justify-content-between mb-2">
         <h3 class="w-100 mb-0">
