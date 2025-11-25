@@ -4771,4 +4771,18 @@ export class Template2Component implements AfterViewInit {
     }
   }
 
+  /**
+   * Check if CKEditor fields should be disabled
+   * On Pre-CGB: Only Secretary (and Super Admin) can edit CKEditor fields
+   */
+  isCKEditorDisabled(): boolean {
+    const status = this.currentPaperStatus || this.paperDetails?.contractAwardDetails?.paperStatusName || '';
+    const isOnPreCGB = status === 'On Pre-CGB' || status === 'on pre-cgb' || status === 'On CGB' || status === 'on cgb';
+    const userRole = this.loggedInUser?.roleName || '';
+    const isSecretary = userRole === 'Secretary' || userRole === 'Super Admin';
+    
+    // If status is On Pre-CGB and user is not Secretary, disable CKEditor
+    return isOnPreCGB && !isSecretary;
+  }
+
 }

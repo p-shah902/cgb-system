@@ -155,7 +155,7 @@
                       <label>Why is this work required?<span class="danger">*</span> </label>
                       <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                       <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
-                                  formControlName="purposeRequired"/>
+                                  [disabled]="isCKEditorDisabled()" formControlName="purposeRequired"/>
                       <div class="text-danger"
                            *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
                         <small class="text-danger">This field is required.</small>
@@ -167,7 +167,7 @@
                         <label>Scope of Work </label>
                         <app-editor-normal *ngIf="!isRegisterPaper" formControlName="scopeOfWork"/>
                         <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'scopeOfWork') : ''"
-                                    formControlName="scopeOfWork"/>
+                                    [disabled]="isCKEditorDisabled()" formControlName="scopeOfWork"/>
                       </div>
                     </div>
 
@@ -531,7 +531,7 @@
                       <label>National Content</label>
                       <app-editor-normal *ngIf="!isRegisterPaper" formControlName="strategyDescription"/>
                       <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'strategyDescription') : ''"
-                                  formControlName="strategyDescription"/>
+                                  [disabled]="isCKEditorDisabled()" formControlName="strategyDescription"/>
                     </div>
                   </div>
                 </div>
@@ -611,7 +611,7 @@
                       <label>Sourcing Strategy</label>
                       <app-editor-normal *ngIf="!isRegisterPaper" formControlName="sourcingStrategy"/>
                       <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'sourcingStrategy') : ''"
-                                  formControlName="sourcingStrategy"/>
+                                  [disabled]="isCKEditorDisabled()" formControlName="sourcingStrategy"/>
                     </div>
                   </div>
                   <div class="col-sm-12 col-md-12">
@@ -681,7 +681,7 @@
                       <app-editor-normal *ngIf="!isRegisterPaper" formControlName="singleSourceJustification"/>
                       <app-editor *ngIf="isRegisterPaper"
                                   [paperId]="paperId ? (paperId + 'singleSourceJustification') : ''"
-                                  formControlName="singleSourceJustification"/>
+                                  [disabled]="isCKEditorDisabled()" formControlName="singleSourceJustification"/>
                     </div>
                   </div>
 

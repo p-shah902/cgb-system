@@ -153,7 +153,7 @@
                     <label>Justification for "Time extension to complete bidding"</label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="teToCompleteBiddingJustification"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'teToCompleteBiddingJustification') : ''"
-                                formControlName="teToCompleteBiddingJustification"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="teToCompleteBiddingJustification"/>
                   </div>
                 </div>
 
@@ -240,7 +240,7 @@
                     <label>What is the change? <span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
-                                formControlName="purposeRequired"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="purposeRequired"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -572,7 +572,7 @@
                     <label>Why is the change required? <span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="whyChangeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'whyChangeRequired') : ''"
-                                formControlName="whyChangeRequired"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="whyChangeRequired"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfoForm.get('justificationSection.whyChangeRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -582,7 +582,7 @@
                     <label>Long-Term Strategy<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="longTermStrategy"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'longTermStrategy') : ''"
-                                formControlName="longTermStrategy"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="longTermStrategy"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfoForm.get('justificationSection.longTermStrategy')?.hasError('required')"
                     >

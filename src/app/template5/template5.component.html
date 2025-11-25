@@ -148,7 +148,7 @@
                     <label>What is the change? <span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
-                                formControlName="purposeRequired"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="purposeRequired"/>
                     <div class="text-danger"
                          *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>

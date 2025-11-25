@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation,Input, type OnInit, ElementRef, forwardRef, ViewChild, inject} from '@angular/core';
+import {Component, ViewEncapsulation,Input, type OnInit, OnChanges, ElementRef, forwardRef, ViewChild, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {
   loadCKEditorCloud,
@@ -43,7 +43,7 @@ const cloudConfig = {
     }
   ]
 })
-export class EditorComponent implements OnInit,ControlValueAccessor {
+export class EditorComponent implements OnInit, OnChanges, ControlValueAccessor {
   @ViewChild('editorToolbarElement') private editorToolbar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
   @ViewChild('editorAnnotationsElement') private editorAnnotations!: ElementRef<HTMLDivElement>;
@@ -54,6 +54,8 @@ export class EditorComponent implements OnInit,ControlValueAccessor {
   @ViewChild('editorRevisionHistoryEditorElement') private editorRevisionHistoryEditor!: ElementRef<HTMLDivElement>;
   @ViewChild('editorRevisionHistorySidebarElement') private editorRevisionHistorySidebar!: ElementRef<HTMLDivElement>;
   @Input() paperId: string  = "";
+  @Input() disabled: boolean = false;
+  private editorInstance: DecoupledEditor | null = null;
 
   public Editor: typeof DecoupledEditor | null = null;
   public config: EditorConfig | null = null;
@@ -467,6 +469,7 @@ export class EditorComponent implements OnInit,ControlValueAccessor {
   }
 
   public onReady(editor: DecoupledEditor): void {
+    this.editorInstance = editor;
     Array.from(this.editorToolbar.nativeElement.children).forEach(child => child.remove());
     Array.from(this.editorMenuBar.nativeElement.children).forEach(child => child.remove());
 
@@ -474,6 +477,22 @@ export class EditorComponent implements OnInit,ControlValueAccessor {
 
     this.editorToolbar.nativeElement.appendChild(editor.ui.view.toolbar.element!);
     this.editorMenuBar.nativeElement.appendChild(editor.ui.view.menuBarView.element!);
+    
+    // Set initial read-only state
+    if (this.disabled) {
+      editor.enableReadOnlyMode('restricted-editing');
+    }
+  }
+
+  ngOnChanges(): void {
+    // Update editor read-only state when disabled input changes
+    if (this.editorInstance) {
+      if (this.disabled) {
+        this.editorInstance.enableReadOnlyMode('restricted-editing');
+      } else {
+        this.editorInstance.disableReadOnlyMode('restricted-editing');
+      }
+    }
   }
 }
 

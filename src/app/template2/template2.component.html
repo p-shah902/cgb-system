@@ -211,7 +211,7 @@
                     <label>Changes since AtM / Why is this work required?<span class="danger">*</span> </label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="purposeRequired"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'purposeRequired') : ''"
-                                formControlName="purposeRequired"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="purposeRequired"/>
 
                     <div class="text-danger" *ngIf="submitted && generalInfo?.get('purposeRequired')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
@@ -641,7 +641,7 @@
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="supplierAwardRecommendations"/>
                     <app-editor *ngIf="isRegisterPaper"
                                 [paperId]="paperId ? (paperId + 'supplierAwardRecommendations') : ''"
-                                formControlName="supplierAwardRecommendations"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="supplierAwardRecommendations"/>
                     <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('supplierAwardRecommendations')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -851,7 +851,7 @@
                     <label>National Content<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="nationalContent"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'nationalContent') : ''"
-                                formControlName="nationalContent"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="nationalContent"/>
                     <div class="text-danger" *ngIf="submitted && procurementDetailsInfo?.get('nationalContent')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -908,7 +908,7 @@
                     <label>Explanation for High Risk<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="highRiskExplanation"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'highRiskExplanation') : ''"
-                                formControlName="highRiskExplanation"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="highRiskExplanation"/>
                     <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.highRiskExplanation')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -920,7 +920,7 @@
                     <label>Flags raised during initial CDD / CDD refresh<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="flagRaisedCDD"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'flagRaisedCDD') : ''"
-                                formControlName="flagRaisedCDD"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="flagRaisedCDD"/>
                     <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.flagRaisedCDD')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
@@ -932,7 +932,7 @@
                     <label>Additional CDD Controls for High Risk Contracts<span class="danger">*</span></label>
                     <app-editor-normal *ngIf="!isRegisterPaper" formControlName="additionalCDD"/>
                     <app-editor *ngIf="isRegisterPaper" [paperId]="paperId ? (paperId + 'additionalCDD') : ''"
-                                formControlName="additionalCDD"/>
+                                [disabled]="isCKEditorDisabled()" formControlName="additionalCDD"/>
                     <div class="text-danger" *ngIf="submitted && generalInfoForm.get('ccd.additionalCDD')?.hasError('required')">
                       <small class="text-danger">This field is required.</small>
                     </div>
