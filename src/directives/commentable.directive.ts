@@ -3,6 +3,7 @@ import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '
 import {ContextConfig} from 'ckeditor5';
 import {environment} from '../app/core/app-config';
 import {EditorService} from '../service/editor.service';
+import {AuthService} from '../service/auth.service';
 
 const cloudConfig = {
   version: '44.3.0',
@@ -24,9 +25,16 @@ export class CommentableDirective implements OnChanges {
 
   // We'll hold a reference to the CKEditor context so we can destroy it later.
   private context: any;
+  private currentUser: any = null;
+  private userRole: string | null = null;
 
-  constructor(private el: ElementRef, private editorService: EditorService) {
+  constructor(private el: ElementRef, private editorService: EditorService, private authService: AuthService) {
     console.log('CHANNEL ID', this.channelId);
+    // Get current user and role
+    this.authService.userDetails$.subscribe(user => {
+      this.currentUser = user;
+      this.userRole = user?.roleName || null;
+    });
   }
 
   ngOnDestroy(): void {
@@ -36,6 +44,11 @@ export class CommentableDirective implements OnChanges {
   }
 
   public ngOnChanges(): void {
+    // Don't initialize comments for Partners users
+    if (this.userRole === 'Partner' || this.userRole === 'Partners') {
+      return;
+    }
+    
     if (this.channelId && !this.context) {
       // loadCKEditorCloud(cloudConfig).then(this._setupEditor.bind(this));
     }
@@ -81,9 +94,33 @@ export class CommentableDirective implements OnChanges {
 
     const commentThreadsForFields = new Map();
 
+    // Helper function to check if user can resolve comment
+    const directiveInstance = this;
+    const canResolveComment = (thread: any): boolean => {
+      if (!directiveInstance.currentUser) return false;
+      
+      const isSecretary = directiveInstance.userRole === 'Secretary' || directiveInstance.userRole === 'Super Admin';
+      const isCommentOwner = thread.authorId === directiveInstance.currentUser.id?.toString() || 
+                            thread.authorId === directiveInstance.currentUser.id;
+      
+      return isSecretary || isCommentOwner;
+    };
+
+    // Override comment resolution to check permissions
+    const originalResolveThread = commentsRepository.resolveCommentThread.bind(commentsRepository);
+    commentsRepository.resolveCommentThread = function(threadId: string) {
+      const thread = commentsRepository.getCommentThread(threadId);
+      if (thread && !canResolveComment(thread)) {
+        console.warn('Only Comment Owner or Secretary can resolve comments');
+        return;
+      }
+      return originalResolveThread(threadId);
+    };
+
     const existingThreads = commentsRepository.getCommentThreads({channelId});
     console.log('LOg LIST LOADED', existingThreads);
     for (const thread of existingThreads) {
+      // Hide resolved comments - don't process them
       if (!thread.isResolved) {
         handleNewCommentThread(thread.id);
       }
@@ -111,6 +148,12 @@ export class CommentableDirective implements OnChanges {
     }
 
     field.addEventListener('contextmenu', (e) => {
+      // Don't allow Partners to create comments
+      if (this.userRole === 'Partner' || this.userRole === 'Partners') {
+        e.preventDefault();
+        return;
+      }
+
       e.preventDefault();
       const threadId = field.id + ":" + this.channelId + Date.now();
 
@@ -152,6 +195,12 @@ export class CommentableDirective implements OnChanges {
       if (!thread) {
         return;
       }
+      
+      // Hide resolved comments - don't process them
+      if (thread.isResolved) {
+        return;
+      }
+      
       const fieldElement = document.getElementById(threadId.split(':')[0]);
       console.log('d', threadId.split(':')[0]);
       if (!fieldElement) {

@@ -3,6 +3,7 @@ import {CKEditorCloudConfig, type CKEditorCloudResult, loadCKEditorCloud} from '
 import {environment} from '../app/core/app-config';
 import {ContextConfig} from 'ckeditor5';
 import {EditorService} from './editor.service';
+import {AuthService} from './auth.service';
 
 const cloudConfig = {
   version: '44.3.0',
@@ -23,8 +24,15 @@ export class CommentService {
   private context: any;
   private channelId: any;
   private handleContextMenu: ((e: MouseEvent) => void) | null = null;
+  private currentUser: any = null;
+  private userRole: string | null = null;
 
-  constructor(private editorService: EditorService) {
+  constructor(private editorService: EditorService, private authService: AuthService) {
+    // Get current user and role
+    this.authService.userDetails$.subscribe(user => {
+      this.currentUser = user;
+      this.userRole = user?.roleName || null;
+    });
   }
 
   loadPaper(paperId: number) {
@@ -41,11 +49,24 @@ export class CommentService {
       CloudServicesCommentsAdapter
     } = cloud.CKEditorPremiumFeatures;
 
+    // Hide comments for Partners users
+    const sidebarContainer = document.querySelector('#context-annotations') as HTMLElement;
+    const isPartnerUser = this.userRole === 'Partner' || this.userRole === 'Partners';
+    
+    if (isPartnerUser && sidebarContainer) {
+      sidebarContainer.style.display = 'none';
+      // Also hide comment indicators
+      document.querySelectorAll('.allow-comments').forEach(field => {
+        field.classList.remove('has-comment', 'active');
+      });
+      return; // Don't initialize comments for Partners
+    }
+
     const contextConfig: ContextConfig = {
       plugins: [CloudServices, CommentsRepository, NarrowSidebar, WideSidebar, CloudServicesCommentsAdapter],
       licenseKey: environment.ckEditorLicenceKey,
       sidebar: {
-        container: document.querySelector('#context-annotations') as HTMLElement
+        container: sidebarContainer
       },
       comments: {
         editorConfig: {}
@@ -72,8 +93,32 @@ export class CommentService {
 
     const commentThreadsForFields = new Map();
 
+    // Helper function to check if user can resolve comment
+    const canResolveComment = (thread: any): boolean => {
+      if (!this.currentUser) return false;
+      
+      const isSecretary = this.userRole === 'Secretary' || this.userRole === 'Super Admin';
+      const isCommentOwner = thread.authorId === this.currentUser.id?.toString() || 
+                            thread.authorId === this.currentUser.id;
+      
+      return isSecretary || isCommentOwner;
+    };
+
+    // Override comment resolution to check permissions
+    const originalResolveThread = commentsRepository.resolveCommentThread.bind(commentsRepository);
+    commentsRepository.resolveCommentThread = function(threadId: string) {
+      const thread = commentsRepository.getCommentThread(threadId);
+      if (thread && !canResolveComment(thread)) {
+        console.warn('Only Comment Owner or Secretary can resolve comments');
+        return;
+      }
+      return originalResolveThread(threadId);
+    };
+
+    // Filter out resolved comments - only show unresolved ones
     const existingThreads = commentsRepository.getCommentThreads({channelId});
     for (const thread of existingThreads) {
+      // Hide resolved comments - don't process them
       if (!thread.isResolved) {
         handleNewCommentThread(thread.id);
       }
@@ -96,7 +141,13 @@ export class CommentService {
     }, {priority: 'low'});
 
     // Use event delegation to handle dynamically added fields
+    const serviceInstance = this;
     this.handleContextMenu = (e: MouseEvent) => {
+      // Don't allow Partners to create comments
+      if (serviceInstance.userRole === 'Partner' || serviceInstance.userRole === 'Partners') {
+        return;
+      }
+
       const target = e.target as HTMLElement;
       const field = target.closest('.allow-comments') as HTMLElement;
       
@@ -162,6 +213,12 @@ export class CommentService {
       if (!thread) {
         return;
       }
+      
+      // Hide resolved comments - don't process them
+      if (thread.isResolved) {
+        return;
+      }
+      
       const fieldElement = document.getElementById(threadId.split(':')[0]);
 
       if (!fieldElement) {
