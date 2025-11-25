@@ -188,7 +188,7 @@
           } @else {
           <div class="page-card-body">
             <div class="table-responsive">
-              <div class="approach-table custom-table tbl-div pb-5">
+              <div class="approach-table custom-table tbl-div">
                 <table class="table table-wrapper">
                   <thead>
                     <tr class="sticky">
@@ -337,7 +337,7 @@
                         {{ paper.lastModifyDate | date : "dd-MMMM-yyyy" }}
                       </td>
                       <td>
-                        <div ngbDropdown placement="bottom-end" class="d-inline-block user-action-dropdown">
+                        <div ngbDropdown placement="bottom-end" container="body" class="d-inline-block user-action-dropdown">
                           <button type="button" class="btn" id="dropdownBasic1" ngbDropdownToggle>
                             <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
                               xmlns="http://www.w3.org/2000/svg">
