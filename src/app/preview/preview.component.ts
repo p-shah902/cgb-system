@@ -583,6 +583,7 @@ this.loadUserDetails()
 
   addReview(modal: any) {
     if (this.selectedPaper > 0) {
+      this.isSubmitting = true;
       this.paperService.addPaperCommentLogs({
         paperId: this.selectedPaper,
         logType: 'Other',
@@ -598,17 +599,24 @@ this.loadUserDetails()
             if (this.paperId) {
               this.getPaperCommentLogs(Number(this.paperId));
             }
+            this.isSubmitting = false;
           }
         },
         error: (error) => {
+          this.isSubmitting = false;
           console.log('error', error);
+          this.toastService.showError(error);
         },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
-    }
+  }
   }
 
   approvePaper(modal: any, type: string) {
     if (this.selectedPaper > 0) {
+      this.isSubmitting = true;
       this.paperConfigService.approveRejectPaper({
         paperId: this.selectedPaper,
         remarks: this.reviewBy || '',
@@ -621,11 +629,17 @@ this.loadUserDetails()
             modal.close('Save click');
             this.router.navigate(['/all-papers'])
             this.toastService.show('Paper Status updated successfully');
+            this.isSubmitting = false;
           }
         },
         error: (error) => {
           console.log('error', error);
+          this.toastService.showError(error);
+          this.isSubmitting = false;
         },
+        complete: () => {
+          this.isSubmitting = false;
+        }
       });
     }
   }

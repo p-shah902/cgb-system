@@ -163,6 +163,10 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-primary" (click)="addReview(modal)">{{openType === 'approve' ? 'Approve Paper':openType === 'widthdraw' ? 'Withdraw' : 'Add Comment'}}</button>
+    <button type="button" class="btn btn-outline-primary" (click)="addReview(modal)" [disabled]="isSubmitting">
+      <span *ngIf="!isSubmitting">{{openType === 'approve' ? 'Approve Paper':openType === 'widthdraw' ? 'Withdraw' : 'Add Comment'}}</span>
+      <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isSubmitting">Loading...</span>
+    </button>
   </div>
 </ng-template>

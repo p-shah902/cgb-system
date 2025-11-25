@@ -899,8 +899,11 @@
       type="button"
       class="btn btn-primary"
       (click)="approvePaper(modal, 'Return to Originator')"
+      [disabled]="isSubmitting"
     >
-      Save
+      <span *ngIf="!isSubmitting">Save</span>
+      <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isSubmitting">Loading...</span>
     </button>
   </div>
 </ng-template>
@@ -926,8 +929,10 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="addReview(modal)">
-      Add comment
+    <button type="button" class="btn btn-primary" (click)="addReview(modal)" [disabled]="isSubmitting">
+      <span *ngIf="!isSubmitting">Add comment</span>
+      <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+      <span *ngIf="isSubmitting">Loading...</span>
     </button>
   </div>
 </ng-template>

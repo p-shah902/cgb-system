@@ -2594,6 +2594,7 @@ export class Template5Component  implements AfterViewInit{
 
   addReview(modal: any) {
     if (this.selectedPaper > 0) {
+      this.isSubmitting = true;
       this.paperService.addPaperCommentLogs({
         paperId: this.selectedPaper,
         logType: 'Other',
@@ -2606,11 +2607,17 @@ export class Template5Component  implements AfterViewInit{
           next: (response) => {
             if (response.status && response.data) {
               modal.close('Save click');
+              this.isSubmitting = false;
             }
           },
           error: (error) => {
             console.log('error', error);
+            this.toastService.showError(error);
+            this.isSubmitting = false;
           },
+          complete: () => {
+            this.isSubmitting = false;
+          }
         });
     }
   }

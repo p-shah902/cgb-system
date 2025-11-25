@@ -56,6 +56,7 @@ export class PreCgbReviewComponent implements OnInit {
   reviewBy: string = '';
   selectedPaper: any = '';
   isLoading: boolean = false;
+  isSubmitting: boolean = false;
   openType: string = '';
 
   constructor(
@@ -224,6 +225,7 @@ export class PreCgbReviewComponent implements OnInit {
 
   addReview(modal: any) {
     if (this.selectedPaper) {
+      this.isSubmitting = true;
       this.paperConfigService.updateMultiplePaperStatus([{
         paperId: this.selectedPaper.paperID,
         existingStatusId: this.selectedPaper.statusId,
@@ -234,8 +236,14 @@ export class PreCgbReviewComponent implements OnInit {
           modal.close('Save click');
           this.toastService.show('Paper status updated successfully');
           this.loadPaperConfigList();
+          this.isSubmitting = false;
         }, error: (error) => {
           console.log('error', error);
+          this.toastService.showError(error);
+          this.isSubmitting = false;
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     }

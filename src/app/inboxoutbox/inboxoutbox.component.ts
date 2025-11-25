@@ -540,6 +540,7 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
 
   addReview(modal: any) {
     if (this.selectedPaper > 0) {
+      this.isLoading = true;
       this.paperService.addPaperCommentLogs({
         paperId: this.selectedPaper,
         logType: 'Other',
@@ -552,11 +553,17 @@ export class InboxoutboxComponent implements OnInit, OnDestroy {
           next: (response) => {
             if (response.status && response.data) {
               modal.close('Save click');
+              this.isLoading = false;
             }
           },
           error: (error) => {
             console.log('error', error);
+            this.toastService.showError(error);
+            this.isLoading = false;
           },
+          complete: () => {
+            this.isLoading = false;
+          }
         });
     }
   }
