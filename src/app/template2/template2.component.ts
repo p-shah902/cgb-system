@@ -1548,7 +1548,7 @@ export class Template2Component implements AfterViewInit {
         const firstCommitteeControlName = this.getFirstCommitteeControlName(psaName);
         const firstCommitteeControl = this.generalInfoForm.get(`costAllocation.${firstCommitteeControlName}`);
 
-        if (firstCommitteeControlName && firstCommitteeControl) {
+        if (firstCommitteeControlName && firstCommitteeControl && this.loggedInUser?.roleName !== 'JV Admin') {
           firstCommitteeControl.enable();
 
           // Use new threshold evaluation system
@@ -1566,7 +1566,7 @@ export class Template2Component implements AfterViewInit {
         const secondCommitteeControlName = this.getSecondCommitteeControlName(psaName);
         const secondCommitteeControl = this.generalInfoForm.get(`costAllocation.${secondCommitteeControlName}`);
 
-        if (secondCommitteeControlName && secondCommitteeControl) {
+        if (secondCommitteeControlName && secondCommitteeControl && this.loggedInUser?.roleName !== 'JV Admin') {
           secondCommitteeControl.enable();
 
           // Use new threshold evaluation system
@@ -4589,6 +4589,19 @@ export class Template2Component implements AfterViewInit {
 
   toggleSection(section: string): void {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
+
+    // If opening section6 (Cost Allocation), ensure controls are disabled for JV Admin
+    if (section === 'section6' && this.sectionVisibility[section]) {
+      // If JV Admin, ensure all controls are disabled after section is opened
+      if (this.loggedInUser?.roleName === 'JV Admin') {
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 100);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 500);
+      }
+    }
   }
 
   setupProcurementDateValidation() {

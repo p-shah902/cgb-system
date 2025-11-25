@@ -3435,6 +3435,15 @@ export class Template1Component implements AfterViewInit  {
     // If opening section4 (Cost Allocation), ensure form controls are created
     if (section === 'section4' && this.sectionVisibility[section]) {
       this.ensureCostAllocationFormControls();
+      // If JV Admin, ensure all controls are disabled after creating them
+      if (this.loggedInUser?.roleName === 'JV Admin') {
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 100);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 500);
+      }
     }
   }
 
@@ -3457,8 +3466,8 @@ export class Template1Component implements AfterViewInit  {
         if (costAllocationControl.get(checkboxControlName)) {
           costAllocationControl.get(checkboxControlName)?.setValue(true);
         }
-        // Ensure percentage field is enabled
-        if (costAllocationControl.get(percentageControlName)) {
+        // Ensure percentage field is enabled (but not for JV Admin)
+        if (costAllocationControl.get(percentageControlName) && this.loggedInUser?.roleName !== 'JV Admin') {
           costAllocationControl.get(percentageControlName)?.enable();
         }
       }

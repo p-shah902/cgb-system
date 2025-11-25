@@ -823,7 +823,9 @@ export class Template4Component  implements AfterViewInit{
       // Function to handle committee checkbox logic
       const handleCommitteeLogic = (isChecked: boolean) => {
         const percentageControl = this.generalInfoForm.get(`costAllocation.${percentageControlName}`);
-        if (isChecked) {
+        // Don't enable if user is JV Admin
+        const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+        if (isChecked && !isJVAdmin) {
           percentageControl?.enable();
         }
         this.applyCommitteeLogicForPSA(psaName, isChecked);
@@ -854,7 +856,7 @@ export class Template4Component  implements AfterViewInit{
         const firstCommitteeControlName = this.getFirstCommitteeControlName(psaName);
         const firstCommitteeControl = this.generalInfoForm.get(`costAllocation.${firstCommitteeControlName}`);
 
-        if (firstCommitteeControlName && firstCommitteeControl) {
+        if (firstCommitteeControlName && firstCommitteeControl && this.loggedInUser?.roleName !== 'JV Admin') {
           firstCommitteeControl.enable();
 
           // Use new threshold evaluation system
@@ -872,7 +874,7 @@ export class Template4Component  implements AfterViewInit{
         const secondCommitteeControlName = this.getSecondCommitteeControlName(psaName);
         const secondCommitteeControl = this.generalInfoForm.get(`costAllocation.${secondCommitteeControlName}`);
 
-        if (secondCommitteeControlName && secondCommitteeControl) {
+        if (secondCommitteeControlName && secondCommitteeControl && this.loggedInUser?.roleName !== 'JV Admin') {
           secondCommitteeControl.enable();
 
           // Use new threshold evaluation system
@@ -2648,6 +2650,19 @@ export class Template4Component  implements AfterViewInit{
 
   toggleSection(section: string): void {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
+
+    // If opening section2 (Cost Allocation), ensure controls are disabled for JV Admin
+    if (section === 'section2' && this.sectionVisibility[section]) {
+      // If JV Admin, ensure all controls are disabled after section is opened
+      if (this.loggedInUser?.roleName === 'JV Admin') {
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 100);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 500);
+      }
+    }
   }
 
   // Attachment methods

@@ -3956,6 +3956,20 @@ export class Template3Component implements AfterViewInit {
 
   toggleSection(section: string): void {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
+
+    // If opening section7 (Cost Allocation), ensure form controls are created
+    if (section === 'section7' && this.sectionVisibility[section]) {
+      this.ensureCostAllocationFormControls();
+      // If JV Admin, ensure all controls are disabled after creating them
+      if (this.loggedInUser?.roleName === 'JV Admin') {
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 100);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 500);
+      }
+    }
   }
 
   initializeAllPSAControls(): void {
@@ -3998,9 +4012,9 @@ export class Template3Component implements AfterViewInit {
           checkboxControl.setValue(true, { emitEvent: false });
           checkboxControl.disable({ emitEvent: false });
         }
-        // Ensure percentage field is enabled
+        // Ensure percentage field is enabled (but not for JV Admin)
         const percentageControl = costAllocationControl.get(percentageControlName);
-        if (percentageControl) {
+        if (percentageControl && this.loggedInUser?.roleName !== 'JV Admin') {
           percentageControl.enable({ emitEvent: false });
         }
       }

@@ -920,29 +920,33 @@ export class Template5Component  implements AfterViewInit{
         const secondCommitteeControl = secondCommitteeControlName ? this.generalInfoForm.get(`costAllocation.${secondCommitteeControlName}`) : null;
 
         if (isChecked) {
-          percentageControl?.enable();
+          // Don't enable if user is JV Admin
+          const isJVAdmin = this.loggedInUser?.roleName === 'JV Admin';
+          if (!isJVAdmin) {
+            percentageControl?.enable();
+          }
           percentageControl?.setValue(patchValues.costAllocation[percentage] || 0, {emitEvent: false});
           valueControl?.setValue(patchValues.costAllocation[value] || 0, {emitEvent: false});
 
           // Handle committee checkboxes based on PSA name
-          if (this.hasFirstCommitteeCheckbox(psaName) && firstCommitteeControl) {
+          if (this.hasFirstCommitteeCheckbox(psaName) && firstCommitteeControl && !isJVAdmin) {
             firstCommitteeControl.enable();
             const initialValue = jvApprovalsData?.[firstCommitteeControlName as keyof typeof jvApprovalsData] || false;
             firstCommitteeControl.setValue(initialValue, {emitEvent: false});
           }
 
-          if (this.hasSecondCommitteeCheckbox(psaName) && secondCommitteeControl) {
+          if (this.hasSecondCommitteeCheckbox(psaName) && secondCommitteeControl && !isJVAdmin) {
             secondCommitteeControl.enable();
             const initialValue = jvApprovalsData?.[secondCommitteeControlName as keyof typeof jvApprovalsData] || false;
             secondCommitteeControl.setValue(initialValue, {emitEvent: false});
           }
 
           // Handle special cases for SCP and BTC which have additional checkboxes
-          if (psaName.toLowerCase() === 'scp') {
+          if (psaName.toLowerCase() === 'scp' && !isJVAdmin) {
             const scpInfoNote = this.generalInfoForm.get(`costAllocation.contractCommittee_SCP_Co_CCInfoNote`);
             scpInfoNote?.enable();
             scpInfoNote?.setValue(jvApprovalsData?.contractCommittee_SCP_Co_CCInfoNote || false, {emitEvent: false});
-          } else if (psaName.toLowerCase() === 'btc') {
+          } else if (psaName.toLowerCase() === 'btc' && !isJVAdmin) {
             const btcInfoNote = this.generalInfoForm.get(`costAllocation.contractCommittee_BTC_CCInfoNote`);
             const scpBoard = this.generalInfoForm.get(`costAllocation.coVenturers_SCP_Board`);
             btcInfoNote?.enable();
@@ -2679,6 +2683,19 @@ export class Template5Component  implements AfterViewInit{
 
   toggleSection(section: string): void {
     this.sectionVisibility[section] = !this.sectionVisibility[section];
+
+    // If opening section4 (Cost Allocation), ensure controls are disabled for JV Admin
+    if (section === 'section4' && this.sectionVisibility[section]) {
+      // If JV Admin, ensure all controls are disabled after section is opened
+      if (this.loggedInUser?.roleName === 'JV Admin') {
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 100);
+        setTimeout(() => {
+          this.applyJVAdminReadOnlyMode();
+        }, 500);
+      }
+    }
   }
 
   setupDateValidation() {
