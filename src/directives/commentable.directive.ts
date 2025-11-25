@@ -95,38 +95,184 @@ export class CommentableDirective implements OnChanges {
     const commentThreadsForFields = new Map();
 
     // Helper function to check if user can resolve comment
+    // Only Comment Owner and/or Secretary can resolve comments
     const directiveInstance = this;
     const canResolveComment = (thread: any): boolean => {
-      if (!directiveInstance.currentUser) return false;
+      // Early return if thread is undefined or null
+      if (!thread) {
+        console.warn('canResolveComment: Thread is undefined or null');
+        return false;
+      }
+      
+      if (!directiveInstance.currentUser) {
+        console.log('canResolveComment: No current user');
+        return false;
+      }
       
       const isSecretary = directiveInstance.userRole === 'Secretary' || directiveInstance.userRole === 'Super Admin';
-      const isCommentOwner = thread.authorId === directiveInstance.currentUser.id?.toString() || 
-                            thread.authorId === directiveInstance.currentUser.id;
       
-      return isSecretary || isCommentOwner;
+      // Try multiple ways to get authorId from thread
+      // CKEditor might store it as thread.authorId, thread.author.id, or in thread.comments[0].authorId
+      let authorId = null;
+      
+      // Try direct property first
+      if (thread && thread.authorId) {
+        authorId = thread.authorId;
+      }
+      // Try nested author object
+      else if (thread && thread.author && thread.author.id) {
+        authorId = thread.author.id;
+      }
+      // Try from first comment if available
+      else if (thread && thread.comments && Array.isArray(thread.comments) && thread.comments.length > 0) {
+        const firstComment = thread.comments[0];
+        if (firstComment && firstComment.authorId) {
+          authorId = firstComment.authorId;
+        } else if (firstComment && firstComment.author && firstComment.author.id) {
+          authorId = firstComment.author.id;
+        }
+      }
+      // Try using getter method if available
+      else if (thread && typeof thread.get === 'function') {
+        try {
+          authorId = thread.get('authorId') || (thread.get('author') && thread.get('author').id);
+        } catch (e) {
+          console.warn('Could not get authorId from thread using get method:', e);
+        }
+      }
+      
+      // If still no authorId, try to get it from the comments repository or thread data
+      if (!authorId && thread && typeof thread.toJSON === 'function') {
+        try {
+          const threadData = thread.toJSON();
+          authorId = threadData.authorId || threadData.author?.id || 
+                     (threadData.comments && threadData.comments[0]?.authorId) ||
+                     (threadData.comments && threadData.comments[0]?.author?.id);
+        } catch (e) {
+          console.warn('Could not get authorId from thread.toJSON():', e);
+        }
+      }
+      
+      const currentUserId = directiveInstance.currentUser.id;
+      
+      // Log full thread structure for debugging
+      console.log('Thread structure:', {
+        thread: thread,
+        threadKeys: Object.keys(thread || {}),
+        authorId: authorId,
+        threadAuthor: thread.author,
+        threadComments: thread.comments,
+        threadToJSON: thread && typeof thread.toJSON === 'function' ? thread.toJSON() : null,
+        currentUserId: currentUserId
+      });
+      
+      // If authorId is still not found, check if thread has a get method to access properties
+      if (!authorId && thread.get) {
+        try {
+          authorId = thread.get('authorId') || thread.get('author')?.id;
+        } catch (e) {
+          console.warn('Could not get authorId from thread:', e);
+        }
+      }
+      
+      const isCommentOwner = authorId && (
+        authorId === currentUserId?.toString() || 
+        authorId === currentUserId ||
+        String(authorId) === String(currentUserId) ||
+        Number(authorId) === Number(currentUserId)
+      );
+      
+      const canResolve = isSecretary || isCommentOwner;
+      
+      console.log('canResolveComment check:', {
+        threadId: thread.id,
+        authorId: authorId,
+        currentUserId: currentUserId,
+        userRole: directiveInstance.userRole,
+        isSecretary,
+        isCommentOwner,
+        canResolve
+      });
+      
+      return canResolve;
     };
 
     // Override comment resolution to check permissions
-    const originalResolveThread = commentsRepository.resolveCommentThread.bind(commentsRepository);
-    commentsRepository.resolveCommentThread = function(threadId: string) {
-      const thread = commentsRepository.getCommentThread(threadId);
-      if (thread && !canResolveComment(thread)) {
-        console.warn('Only Comment Owner or Secretary can resolve comments');
-        return;
-      }
-      return originalResolveThread(threadId);
-    };
+    // Only Comment Owner and/or Secretary can resolve comments
+    if (commentsRepository.resolveCommentThread && typeof commentsRepository.resolveCommentThread === 'function') {
+      const originalResolveThread = commentsRepository.resolveCommentThread.bind(commentsRepository);
+      commentsRepository.resolveCommentThread = function(threadId: string) {
+        const thread = commentsRepository.getCommentThread(threadId);
+        if (thread && !canResolveComment(thread)) {
+          console.warn('Only Comment Owner or Secretary can resolve comments');
+          return;
+        }
+        return originalResolveThread(threadId);
+      };
+    } else {
+      console.warn('resolveCommentThread method not available on CommentsRepository');
+    }
 
     const existingThreads = commentsRepository.getCommentThreads({channelId});
     console.log('LOg LIST LOADED', existingThreads);
     for (const thread of existingThreads) {
       // Hide resolved comments - don't process them
       if (!thread.isResolved) {
+        // Update isResolvable based on permissions to hide resolve button for unauthorized users
+        // Use setTimeout to ensure thread is fully initialized
+        setTimeout(() => {
+          // Re-check thread exists and has set method
+          if (!thread) {
+            console.warn('Thread is undefined in setTimeout callback');
+            return;
+          }
+          if (thread.set && typeof thread.set === 'function') {
+            const canResolve = canResolveComment(thread);
+            console.log('Setting isResolvable for existing thread:', {
+              threadId: thread.id,
+              authorId: thread.authorId,
+              currentUserId: directiveInstance.currentUser?.id,
+              canResolve
+            });
+            try {
+              thread.set('isResolvable', canResolve);
+            } catch (e) {
+              console.warn('Could not set isResolvable on thread:', e);
+            }
+          }
+        }, 100);
         handleNewCommentThread(thread.id);
       }
     }
 
     commentsRepository.on('addCommentThread:' + channelId, (evt: any, data: any) => {
+      const thread = commentsRepository.getCommentThread(data.threadId);
+      if (thread && !thread.isResolved) {
+        // Update isResolvable based on permissions for newly added threads
+        // Use setTimeout to ensure thread is fully initialized with authorId
+        setTimeout(() => {
+          // Re-fetch thread to ensure it still exists
+          const currentThread = commentsRepository.getCommentThread(data.threadId);
+          if (!currentThread) {
+            console.warn('Thread is undefined in setTimeout callback for new thread');
+            return;
+          }
+          if (currentThread.set && typeof currentThread.set === 'function') {
+            const canResolve = canResolveComment(currentThread);
+            console.log('Setting isResolvable for new thread:', {
+              threadId: currentThread.id,
+              authorId: currentThread.authorId,
+              currentUserId: directiveInstance.currentUser?.id,
+              canResolve
+            });
+            try {
+              currentThread.set('isResolvable', canResolve);
+            } catch (e) {
+              console.warn('Could not set isResolvable on new thread:', e);
+            }
+          }
+        }, 100);
+      }
       handleNewCommentThread(data.threadId);
     }, {priority: 'low'});
 

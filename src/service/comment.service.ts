@@ -129,14 +129,106 @@ export class CommentService {
     const commentThreadsForFields = new Map();
 
     // Helper function to check if user can resolve comment
+    // Only Comment Owner and/or Secretary can resolve comments
+    const commentServiceInstance = this;
     const canResolveComment = (thread: any): boolean => {
-      if (!this.currentUser) return false;
+      // Early return if thread is undefined or null
+      if (!thread) {
+        console.warn('canResolveComment: Thread is undefined or null');
+        return false;
+      }
       
-      const isSecretary = this.userRole === 'Secretary' || this.userRole === 'Super Admin';
-      const isCommentOwner = thread.authorId === this.currentUser.id?.toString() || 
-                            thread.authorId === this.currentUser.id;
+      if (!commentServiceInstance.currentUser) {
+        console.log('canResolveComment: No current user');
+        return false;
+      }
       
-      return isSecretary || isCommentOwner;
+      const isSecretary = commentServiceInstance.userRole === 'Secretary' || commentServiceInstance.userRole === 'Super Admin';
+      
+      // Try multiple ways to get authorId from thread
+      // CKEditor might store it as thread.authorId, thread.author.id, or in thread.comments[0].authorId
+      let authorId = null;
+      console.log('THREAD', thread);
+      // Try direct property first
+      if (thread && thread.authorId) {
+        authorId = thread.authorId;
+      }
+      // Try nested author object
+      else if (thread && thread.author && thread.author.id) {
+        authorId = thread.author.id;
+      }
+      // Try from first comment if available
+      else if (thread && thread.comments && Array.isArray(thread.comments) && thread.comments.length > 0) {
+        const firstComment = thread.comments[0];
+        if (firstComment && firstComment.authorId) {
+          authorId = firstComment.authorId;
+        } else if (firstComment && firstComment.author && firstComment.author.id) {
+          authorId = firstComment.author.id;
+        }
+      }
+      // Try using getter method if available
+      else if (thread && typeof thread.get === 'function') {
+        try {
+          authorId = thread.get('authorId') || (thread.get('author') && thread.get('author').id);
+        } catch (e) {
+          console.warn('Could not get authorId from thread using get method:', e);
+        }
+      }
+      
+      // If still no authorId, try to get it from the comments repository or thread data
+      if (!authorId && thread && typeof thread.toJSON === 'function') {
+        try {
+          const threadData = thread.toJSON();
+          authorId = threadData.authorId || threadData.author?.id || 
+                     (threadData.comments && threadData.comments[0]?.authorId) ||
+                     (threadData.comments && threadData.comments[0]?.author?.id);
+        } catch (e) {
+          console.warn('Could not get authorId from thread.toJSON():', e);
+        }
+      }
+      
+      const currentUserId = commentServiceInstance.currentUser.id;
+      
+      // Log full thread structure for debugging
+      console.log('Thread structure:', {
+        thread: thread,
+        threadKeys: Object.keys(thread || {}),
+        authorId: authorId,
+        threadAuthor: thread.author,
+        threadComments: thread.comments,
+        threadToJSON: thread && typeof thread.toJSON === 'function' ? thread.toJSON() : null,
+        currentUserId: currentUserId
+      });
+      
+      // If authorId is still not found, check if thread has a get method to access properties
+      if (!authorId && thread.get) {
+        try {
+          authorId = thread.get('authorId') || thread.get('author')?.id;
+        } catch (e) {
+          console.warn('Could not get authorId from thread:', e);
+        }
+      }
+      
+      const isCommentOwner = authorId && (
+        authorId === currentUserId?.toString() || 
+        authorId === currentUserId ||
+        String(authorId) === String(currentUserId) ||
+        Number(authorId) === Number(currentUserId)
+      );
+      
+      const canResolve = isSecretary || isCommentOwner;
+      
+      console.log('canResolveComment check:', {
+        threadId: thread.id,
+        authorId: authorId,
+        currentUserId: currentUserId,
+        userRole: commentServiceInstance.userRole,
+        isSecretary,
+        isCommentOwner,
+        canResolve
+      });
+      
+      return canResolve;
     };
 
     // Override comment resolution to check permissions
@@ -155,15 +247,90 @@ export class CommentService {
     }
 
     // Filter out resolved comments - only show unresolved ones
+    // Also set isResolvable based on permissions to hide resolve button for unauthorized users
     const existingThreads = commentsRepository.getCommentThreads({channelId});
     for (const thread of existingThreads) {
       // Hide resolved comments - don't process them
       if (!thread.isResolved) {
+        // Update isResolvable based on permissions
+        // Use setTimeout to ensure thread is fully initialized
+        setTimeout(() => {
+          // Re-check thread exists and has set method
+          if (!thread) {
+            console.warn('Thread is undefined in setTimeout callback');
+            return;
+          }
+          if (thread.set && typeof thread.set === 'function') {
+            const canResolve = canResolveComment(thread);
+            console.log('Setting isResolvable for existing thread:', {
+              threadId: thread.id,
+              authorId: thread.authorId,
+              currentUserId: commentServiceInstance.currentUser?.id,
+              canResolve
+            });
+            try {
+              thread.set('isResolvable', canResolve);
+            } catch (e) {
+              console.warn('Could not set isResolvable on thread:', e);
+            }
+          }
+        }, 100);
         handleNewCommentThread(thread.id);
       }
     }
 
     commentsRepository.on('addCommentThread:' + channelId, (evt: any, data: any) => {
+      const thread = commentsRepository.getCommentThread(data.threadId);
+      if (thread && !thread.isResolved) {
+        // Set authorId immediately if we have current user and thread doesn't have authorId
+        if (commentServiceInstance.currentUser && commentServiceInstance.currentUser.id) {
+          const currentUserId = commentServiceInstance.currentUser.id;
+          
+          // Try to set authorId on the thread if it's missing
+          if (thread.set && typeof thread.set === 'function') {
+            try {
+              // Check if authorId is missing
+              const existingAuthorId = thread.get ? thread.get('authorId') : thread.authorId;
+              if (!existingAuthorId) {
+                // Set the authorId to current user's ID
+                thread.set('authorId', currentUserId);
+                console.log('Set authorId on new thread:', {
+                  threadId: thread.id,
+                  authorId: currentUserId,
+                  currentUserId: currentUserId
+                });
+              }
+            } catch (e) {
+              console.warn('Could not set authorId on new thread:', e);
+            }
+          }
+        }
+        
+        // Update isResolvable based on permissions for newly added threads
+        // Use setTimeout to ensure thread is fully initialized with authorId
+        setTimeout(() => {
+          // Re-fetch thread to ensure it still exists
+          const currentThread = commentsRepository.getCommentThread(data.threadId);
+          if (!currentThread) {
+            console.warn('Thread is undefined in setTimeout callback for new thread');
+            return;
+          }
+          if (currentThread.set && typeof currentThread.set === 'function') {
+            const canResolve = canResolveComment(currentThread);
+            console.log('Setting isResolvable for new thread:', {
+              threadId: currentThread.id,
+              authorId: currentThread.get ? currentThread.get('authorId') : currentThread.authorId,
+              currentUserId: commentServiceInstance.currentUser?.id,
+              canResolve
+            });
+            try {
+              currentThread.set('isResolvable', canResolve);
+            } catch (e) {
+              console.warn('Could not set isResolvable on new thread:', e);
+            }
+          }
+        }, 100);
+      }
       handleNewCommentThread(data.threadId);
     }, {priority: 'low'});
 
@@ -207,6 +374,11 @@ export class CommentService {
       const threadId = field.id + ":" + channelId + Date.now();
 
       try {
+        // Check if current user can resolve comments
+        // When creating a new comment, the creator is the owner, so they can resolve it
+        // Secretary/Super Admin can also resolve any comment
+        const canResolve = commentServiceInstance.userRole === 'Secretary' || commentServiceInstance.userRole === 'Super Admin' || true; // Creator can always resolve their own comment
+        
         commentsRepository.openNewCommentThread({
           channelId: channelId as any,
           threadId,
@@ -215,7 +387,7 @@ export class CommentService {
             type: 'text',
             value: getCustomContextMessage(field)
           },
-          isResolvable: true
+          isResolvable: canResolve // Set based on permissions
         });
       } catch (error) {
         console.error('Error opening comment thread:', error);
