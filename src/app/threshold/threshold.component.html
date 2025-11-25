@@ -21,7 +21,7 @@
                     <div class="page-card-div">
                       <div class="page-card-body">
                         <div class="table-responsive">
-                          <div class="approach-table tbl-div custom-table pb-5">
+                          <div class="approach-table tbl-div custom-table">
                             <table class="table table-wrapper">
                               <thead>
                                 <tr class="sticky">
@@ -61,7 +61,7 @@
                                   </td>
                                   <td>{{ threshold.contractValueLimit }}</td>
                                   <td>
-                                    <div ngbDropdown placement="bottom-end" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
+                                    <div ngbDropdown placement="bottom-end" container="body" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
                                       <button type="button" class="btn" [id]="'dropdown-internal-' + threshold.id" ngbDropdownToggle>
                                         <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
                                           xmlns="http://www.w3.org/2000/svg">
@@ -101,7 +101,7 @@
                     <div class="page-card-div">
                       <div class="page-card-body">
                         <div class="table-responsive">
-                          <div class="approach-table custom-table pb-5">
+                          <div class="approach-table custom-table">
                             <table class="table">
                               <thead>
                                 <tr>
@@ -142,7 +142,7 @@
                                   </td>
                                   <td>{{ threshold.contractValueLimit }}</td>
                                   <td>
-                                    <div ngbDropdown placement="bottom-end" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
+                                    <div ngbDropdown placement="bottom-end" container="body" [autoClose]="'outside'" class="d-inline-block user-action-dropdown">
                                       <button type="button" class="btn" [id]="'dropdown-partner-' + threshold.id" ngbDropdownToggle>
                                         <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
                                           xmlns="http://www.w3.org/2000/svg">

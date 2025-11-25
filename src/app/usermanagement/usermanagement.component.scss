@@ -43,8 +43,19 @@
     background-color: #ffffff;
     overflow: hidden;
   }
-  .user-action-dropdown {
+  .page-card-body {
     position: relative;
+    overflow: visible;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+  }
+  
+  .user-action-dropdown {
+    position: static;
     
     ::ng-deep .dropdown-toggle {
       background-color: transparent;
@@ -82,7 +93,9 @@
       gap: 2px;
       min-width: 160px;
       margin-top: 4px;
+      position: fixed !important;
       z-index: 1050;
+      transform: none !important;
       
       .dropdown-item {
         padding: 0;
