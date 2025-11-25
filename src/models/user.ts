@@ -25,6 +25,8 @@ export interface LoginUser {
   isActive: boolean,
   departmentId: number,
   displayName: string,
+  commiteeType?: string,
+  psa?: string,
   email: string,
   roleId: number
   roleName: string
