@@ -234,7 +234,8 @@ this.loadUserDetails()
 
   getPaperCommentLogs(paperId: number) {
     this.paperService.getPaperCommentLogs(paperId).subscribe(value => {
-      this.logs = value.data;
+      // Reverse the array to show newest comments first
+      this.logs = value.data ? [...value.data].reverse() : [];
     })
   }
 
