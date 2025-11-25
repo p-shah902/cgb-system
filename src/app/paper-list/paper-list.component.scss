@@ -3,6 +3,17 @@
   border: 1px solid #DCDCDC;
   border-radius: 12px;
   background-color: #ffffff;
+  .page-card-body {
+    position: relative;
+    overflow: visible;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+  }
+  
   .approach-table {
     thead {
       tr {
