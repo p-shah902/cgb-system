@@ -62,14 +62,17 @@ export class BatchPaperListComponent implements OnInit {
   paperList: PaperConfig[] = [];
   batchPaperList: any[] = [];
   userDetails: any[] = [];
+  bltUserDetails: any[] = [];
   creatPaperList: any[] = [];
   aToZ: string = 'Z A';
   user: LoginUser | null = null;
   isLoading: boolean = false;
   isCreating: boolean = false;
+  selectedBatchPaper: any = null;
   form: any = {
     papers: [],
     pdm: null,
+    blt: null,
     name: ""
   }
 
@@ -87,6 +90,7 @@ export class BatchPaperListComponent implements OnInit {
   ngOnInit(): void {
     this.loadPaperConfigList();
     this.loadUserDetails();
+    this.loadBLTUserDetails();
     this.loadBatchPapersList();
   }
 
@@ -104,6 +108,27 @@ export class BatchPaperListComponent implements OnInit {
         if (response.status && response.data) {
           const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
           this.userDetails = dataList.filter(f => f.roleName === 'PDM').map(d => ({value: d.id, label: d.displayName}));
+        }
+      }, error: (error) => {
+        console.log('error', error);
+      }
+    })
+  }
+
+  loadBLTUserDetails() {
+    const request: GetUsersListRequest = {
+      filter: {},
+      paging: {
+        start: 0,
+        length: 1000
+      }
+    };
+    
+    this.userService.getUserDetailsList(request).subscribe({
+      next: (response) => {
+        if (response.status && response.data) {
+          const dataList = response.data && response.data.length > 0 ? response.data.filter(item => item.isActive) : [];
+          this.bltUserDetails = dataList.filter(f => f.roleName === 'BLT').map(d => ({value: d.id, label: d.displayName}));
         }
       }, error: (error) => {
         console.log('error', error);
@@ -144,7 +169,13 @@ export class BatchPaperListComponent implements OnInit {
     this.batchPaperService.getBatchPapersList().subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.batchPaperList = response.data;
+          // Sort by latest date first (descending order)
+          // Use lastModifyDate if available, otherwise use createdDate
+          this.batchPaperList = response.data.sort((a: any, b: any) => {
+            const dateA = new Date(a.lastModifyDate || a.createdDate || 0).getTime();
+            const dateB = new Date(b.lastModifyDate || b.createdDate || 0).getTime();
+            return dateB - dateA; // Descending order (latest first)
+          });
         }
       },
       error: (error) => {
@@ -189,6 +220,7 @@ export class BatchPaperListComponent implements OnInit {
 
   open(event: Event, content: TemplateRef<any>) {
     event.preventDefault();
+    this.resetForm();
     this._mdlSvc
       .open(content, {
         ariaLabelledBy: 'modal-basic-title',
@@ -198,9 +230,11 @@ export class BatchPaperListComponent implements OnInit {
       .result.then(
         (result) => {
           // Handle modal close
+          this.resetForm();
         },
         (reason) => {
           // Handle modal dismiss
+          this.resetForm();
         }
       );
   }
@@ -241,19 +275,22 @@ export class BatchPaperListComponent implements OnInit {
       this.toastService.show("Please select batch paper PDM", "danger");
       return;
     }
-    if (this.form.papers.length <= 0) {
-      this.toastService.show("Please select papers to create batch paper", "danger");
-      return;
-    }
     this.isCreating = true;
-    this.batchPaperService.createBatchPaper({
-      "paperId": this.form.papers,
+    const payload: any = {
+      "paperId": this.form.papers || [],
       "paperProvision": this.form.name,
       "pdManagerName": this.form.pdm,
       "purposeRequired": 'batch'
-    }).subscribe({
+    };
+    
+    if (this.form.blt) {
+      payload.bltMember = this.form.blt;
+    }
+    
+    this.batchPaperService.createBatchPaper(payload).subscribe({
       next: (response) => {
         this.loadBatchPapersList();
+        this.resetForm();
         modal.close('Save click');
       },
       error: (error) => {
@@ -268,8 +305,57 @@ export class BatchPaperListComponent implements OnInit {
     })
   }
 
+  resetForm() {
+    this.form = {
+      papers: [],
+      pdm: null,
+      blt: null,
+      name: ""
+    };
+  }
+
   update(event: any, key: any) {
     this.form[key] = event.value;
+  }
+
+  openBatchPaperDetails(event: Event, content: TemplateRef<any>, paper: any) {
+    event.preventDefault();
+    this.selectedBatchPaper = paper;
+    this._mdlSvc
+      .open(content, {
+        ariaLabelledBy: 'modal-basic-title',
+        centered: true,
+        size: 'xl', // Use xl for larger modal to show table
+      })
+      .result.then(
+        (result) => {
+          this.selectedBatchPaper = null;
+        },
+        (reason) => {
+          this.selectedBatchPaper = null;
+        }
+      );
+  }
+
+  getStatusNameById(statusId: number): string {
+    // Map status IDs to status names
+    const statusMap: { [key: number]: string } = {
+      1: 'Draft',
+      3: 'Registered',
+      4: 'Waiting for PDM',
+      5: 'Approved by PDM',
+      6: 'On Pre-CGB',
+      7: 'Approved by Pre-CGB',
+      8: 'Action Required by Pre-CGB',
+      10: 'On CGB',
+      11: 'Approved by CGB',
+      12: 'Action Required by CGB',
+      14: 'On JV Approval',
+      19: 'Approved',
+      23: 'On Partner Approval 1st',
+      24: 'On Partner Approval 2nd',
+    };
+    return statusMap[statusId] || 'Unknown';
   }
 
 }

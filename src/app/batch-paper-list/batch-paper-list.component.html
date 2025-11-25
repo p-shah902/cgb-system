@@ -63,12 +63,9 @@
                     <th>CGB Item Ref</th>
                     <th>Title (Provision of)</th>
                     <th>Paper Status</th>
-                    <th>Contract Value</th>
                     <th>Created By</th>
-                    <th>PD Manager</th>
-                    <th>PTs</th>
-                    <th>CAM</th>
-                    <th>VP-1</th>
+                    <th>PDM Manager</th>
+                    <th>BLT</th>
                     <th>Last Modify</th>
                   </tr>
                   </thead>
@@ -86,7 +83,7 @@
                     <td>
                       <div class="paper-name">
                         <div class="paper-detail">
-                          <p class="cursor-pointer">
+                          <p class="cursor-pointer" (click)="openBatchPaperDetails($event, batchPaperDetailsModal, paper)">
                             {{ paper.paperProvision }}
                           </p>
                         </div>
@@ -99,14 +96,11 @@
                         </span>
                       </div>
                     </td>
-                    <td>{{ paper.contractValue | currency:'USD':'symbol':'1.2-2' }}</td>
                     <td>{{ paper.createdName || '-' }}</td>
                     <td>{{ paper.pdManagerUserName || '-' }}</td>
-                    <td>{{ paper.procurementSPAUsersName || paper.procurementSPAUsers || '-' }}</td>
-                    <td>{{ paper.camUserName || '-' }}</td>
-                    <td>{{ paper.vP1UserName || '-' }}</td>
+                    <td>{{ paper.bltMemberName || '-' }}</td>
                     <td class="text-nowrap">
-                      {{ paper.createdDate | date : "dd-MMMM-yyyy" }}
+                      {{ (paper.lastModifyDate || paper.createdDate) | date : "dd-MMMM-yyyy" }}
                     </td>
                   </tr>
                   </tbody>
@@ -135,10 +129,65 @@
     <div class="mb-3">
       <ng-select2 [data]="userDetails" [value]="form.pdm" (update)="update($event, 'pdm')" placeholder="Select PDM"/>
     </div>
+    <div class="mb-3">
+      <ng-select2 [data]="bltUserDetails" [value]="form.blt" (update)="update($event, 'blt')" placeholder="Select BLT"/>
+    </div>
   </div>
   <div class="modal-footer filter-btn-div">
     <button type="button" class="btn create-btn create-btn-paper d-flex align-items-center gap-3 justify-content-center" [disabled]="isCreating" (click)="addBatchPaper(modal)">
       <div class="spinner" *ngIf="isCreating"></div> Save
     </button>
+  </div>
+</ng-template>
+
+<ng-template #batchPaperDetailsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ selectedBatchPaper?.paperProvision || 'Batch Paper Details' }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="selectedBatchPaper && selectedBatchPaper.batchPapers && selectedBatchPaper.batchPapers.length > 0">
+      <h5 class="mb-3">Batch Papers List</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Paper Provision</th>
+              <th>Paper Status</th>
+              <th>CGB Item Ref</th>
+              <th>Contract Value</th>
+              <th>PDM Manager</th>
+              <th>PTs</th>
+              <th>CAM</th>
+              <th>VP-1</th>
+              <th>Created By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let batchPaper of selectedBatchPaper.batchPapers">
+              <td>{{ batchPaper.paperProvision || '-' }}</td>
+              <td>
+                <span [ngClass]="getStatusClass(getStatusNameById(batchPaper.paperStatusId))">
+                  {{ getStatusNameById(batchPaper.paperStatusId) || '-' }}
+                </span>
+              </td>
+              <td>{{ batchPaper.cgbItemRefNo || '-' }}</td>
+              <td>{{ batchPaper.contractValue ? (batchPaper.contractValue | currency:'USD':'symbol':'1.2-2') : '-' }}</td>
+              <td>{{ batchPaper.pdManagerUserName || '-' }}</td>
+              <td>{{ batchPaper.procurementSPAName || batchPaper.procurementSPAUsers || '-' }}</td>
+              <td>{{ batchPaper.camUserName || '-' }}</td>
+              <td>{{ batchPaper.vP1UserName || '-' }}</td>
+              <td>{{ batchPaper.createdName || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="selectedBatchPaper && (!selectedBatchPaper.batchPapers || selectedBatchPaper.batchPapers.length === 0)" class="text-center py-4">
+      <p class="text-muted">No batch papers found for this batch.</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Close</button>
   </div>
 </ng-template>
