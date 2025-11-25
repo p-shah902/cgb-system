@@ -242,10 +242,17 @@ export class PaperconfigurationComponent implements OnInit {
 
   sortByModifiedDate() {
     this.paperList.sort((a, b) => {
-      return (
-        new Date(a.lastModifyDate).getTime() -
-        new Date(b.lastModifyDate).getTime()
-      );
+      const dateA = a.lastModifyDate || (a as any).createdDate;
+      const dateB = b.lastModifyDate || (b as any).createdDate;
+      
+      if (dateA && dateB) {
+        return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+      }
+      
+      // Fallback to paperID if dates are null
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
+      return b.paperID - a.paperID; // DESC (newest first)
     });
   }
 }

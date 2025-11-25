@@ -195,10 +195,10 @@ export class PaperListComponent implements OnInit {
             paper.paperType !== 'Batch Paper'
           );
           
-          // Sort Draft papers by createdDate/lastModifyDate (newest first)
+          // Sort Draft papers by lastModifyDate or createdDate (newest first)
           this.allPaperList.sort((a: any, b: any) => {
-            const dateA = a.createdDate || a.lastModifyDate;
-            const dateB = b.createdDate || b.lastModifyDate;
+            const dateA = a.lastModifyDate || a.createdDate;
+            const dateB = b.lastModifyDate || b.createdDate;
             
             if (dateA && dateB) {
               return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
@@ -269,8 +269,10 @@ export class PaperListComponent implements OnInit {
             bValue = b.statusName?.toLowerCase() || '';
             break;
           case 'lastModify':
-            aValue = new Date(a.lastModifyDate).getTime();
-            bValue = new Date(b.lastModifyDate).getTime();
+            const dateA = a.lastModifyDate || a.createdDate;
+            const dateB = b.lastModifyDate || b.createdDate;
+            aValue = dateA ? new Date(dateA).getTime() : 0;
+            bValue = dateB ? new Date(dateB).getTime() : 0;
             break;
           default:
             return 0;
@@ -281,10 +283,10 @@ export class PaperListComponent implements OnInit {
         return 0;
       });
     } else {
-      // Default sorting by createdDate/lastModifyDate (newest first)
+      // Default sorting by lastModifyDate or createdDate (newest first)
       filtered.sort((a: any, b: any) => {
-        const dateA = a.createdDate || a.lastModifyDate;
-        const dateB = b.createdDate || b.lastModifyDate;
+        const dateA = a.lastModifyDate || a.createdDate;
+        const dateB = b.lastModifyDate || b.createdDate;
         
         if (dateA && dateB) {
           return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
@@ -638,10 +640,10 @@ export class PaperListComponent implements OnInit {
 
   sortByDate() {
     this.paperList.sort((a, b) => {
-      // For Draft papers, try to use createdDate or lastModifyDate
+      // For Draft papers, use lastModifyDate or createdDate
       // If both are null, use paperID as fallback (higher ID = newer)
-      const dateA = (a as any).createdDate || a.lastModifyDate;
-      const dateB = (b as any).createdDate || b.lastModifyDate;
+      const dateA = a.lastModifyDate || (a as any).createdDate;
+      const dateB = b.lastModifyDate || (b as any).createdDate;
       
       // If both have dates, sort by date
       if (dateA && dateB) {

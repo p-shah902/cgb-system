@@ -243,9 +243,17 @@ export class PreCgbReviewComponent implements OnInit {
 
   sortByDate() {
     this.paperList.sort((a, b) => {
-      const dateA = new Date(a.lastModifyDate).getTime();
-      const dateB = new Date(b.lastModifyDate).getTime();
-      return dateB - dateA;
+      const dateA = a.lastModifyDate || (a as any).createdDate;
+      const dateB = b.lastModifyDate || (b as any).createdDate;
+      
+      if (dateA && dateB) {
+        return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+      }
+      
+      // Fallback to paperID if dates are null
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
+      return b.paperID - a.paperID; // DESC (newest first)
     });
   }
 

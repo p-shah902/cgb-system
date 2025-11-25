@@ -235,15 +235,18 @@ export class PaperListComponent implements OnInit, AfterViewInit {
             return !isBatchPaper && !isDraft;
           });
           
-          // Sort by lastModifyDate (newest first)
+          // Sort by lastModifyDate or createdDate (newest first)
           this.allPaperList.sort((a: any, b: any) => {
-            if (a.lastModifyDate && b.lastModifyDate) {
-              return new Date(b.lastModifyDate).getTime() - new Date(a.lastModifyDate).getTime(); // DESC (newest first)
+            const dateA = a.lastModifyDate || a.createdDate;
+            const dateB = b.lastModifyDate || b.createdDate;
+            
+            if (dateA && dateB) {
+              return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
             }
             
             // Fallback to paperID if dates are null
-            if (a.lastModifyDate && !b.lastModifyDate) return -1;
-            if (!a.lastModifyDate && b.lastModifyDate) return 1;
+            if (dateA && !dateB) return -1;
+            if (!dateA && dateB) return 1;
             return b.paperID - a.paperID; // DESC (newest first)
           });
           
@@ -307,7 +310,9 @@ export class PaperListComponent implements OnInit, AfterViewInit {
     if (this.filter.fromDate && this.filter.fromDate !== '') {
       const fromDate = new Date(this.filter.fromDate);
       filtered = filtered.filter(paper => {
-        const paperDate = new Date(paper.lastModifyDate);
+        const paperDateValue = paper.lastModifyDate || paper.createdDate;
+        if (!paperDateValue) return false; // Exclude papers without dates
+        const paperDate = new Date(paperDateValue);
         return paperDate >= fromDate;
       });
     }
@@ -316,7 +321,9 @@ export class PaperListComponent implements OnInit, AfterViewInit {
       const toDate = new Date(this.filter.toDate);
       toDate.setHours(23, 59, 59, 999); // Include entire day
       filtered = filtered.filter(paper => {
-        const paperDate = new Date(paper.lastModifyDate);
+        const paperDateValue = paper.lastModifyDate || paper.createdDate;
+        if (!paperDateValue) return false; // Exclude papers without dates
+        const paperDate = new Date(paperDateValue);
         return paperDate <= toDate;
       });
     }
@@ -363,8 +370,10 @@ export class PaperListComponent implements OnInit, AfterViewInit {
             bValue = b.statusName?.toLowerCase() || '';
             break;
           case 'lastModify':
-            aValue = new Date(a.lastModifyDate).getTime();
-            bValue = new Date(b.lastModifyDate).getTime();
+            const dateA = a.lastModifyDate || a.createdDate;
+            const dateB = b.lastModifyDate || b.createdDate;
+            aValue = dateA ? new Date(dateA).getTime() : 0;
+            bValue = dateB ? new Date(dateB).getTime() : 0;
             break;
           default:
             return 0;
@@ -375,11 +384,19 @@ export class PaperListComponent implements OnInit, AfterViewInit {
         return 0;
       });
     } else {
-      // Default sorting by last modify date (DESC)
+      // Default sorting by last modify date or created date (DESC - newest first)
       filtered.sort((a, b) => {
-        const dateA = new Date(a.lastModifyDate).getTime();
-        const dateB = new Date(b.lastModifyDate).getTime();
-        return dateB - dateA;
+        const dateA = a.lastModifyDate || a.createdDate;
+        const dateB = b.lastModifyDate || b.createdDate;
+        
+        if (dateA && dateB) {
+          return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+        }
+        
+        // Fallback to paperID if dates are null
+        if (dateA && !dateB) return -1;
+        if (!dateA && dateB) return 1;
+        return b.paperID - a.paperID; // DESC (newest first)
       });
     }
     
@@ -735,9 +752,17 @@ export class PaperListComponent implements OnInit, AfterViewInit {
 
   sortByDate() {
     this.paperList.sort((a, b) => {
-      const dateA = new Date(a.lastModifyDate).getTime();
-      const dateB = new Date(b.lastModifyDate).getTime();
-      return dateB - dateA;
+      const dateA = a.lastModifyDate || a.createdDate;
+      const dateB = b.lastModifyDate || b.createdDate;
+      
+      if (dateA && dateB) {
+        return new Date(dateB).getTime() - new Date(dateA).getTime(); // DESC (newest first)
+      }
+      
+      // Fallback to paperID if dates are null
+      if (dateA && !dateB) return -1;
+      if (!dateA && dateB) return 1;
+      return b.paperID - a.paperID; // DESC (newest first)
     });
   }
 
