@@ -4169,6 +4169,12 @@ export class Template3Component implements AfterViewInit {
     const isOnPreCGB = status === 'On Pre-CGB' || status === 'on pre-cgb' || status === 'On CGB' || status === 'on cgb';
     const userRole = this.loggedInUser?.roleName || '';
     const isSecretary = userRole === 'Secretary' || userRole === 'Super Admin';
+    const isJVAdmin = userRole === 'JV Admin';
+    
+    // Disable CKEditor for JV Admin users
+    if (isJVAdmin) {
+      return true;
+    }
     
     // If status is On Pre-CGB and user is not Secretary, disable CKEditor
     return isOnPreCGB && !isSecretary;

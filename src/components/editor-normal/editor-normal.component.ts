@@ -44,6 +44,7 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
   @ViewChild('editorMenuBarElement') private editorMenuBar!: ElementRef<HTMLDivElement>;
   value: string = '';
   private editorInstance: DecoupledEditor | null = null;
+  private isDisabled: boolean = false;
 
   onChange = (_: any) => { };
   onTouched = () => { };
@@ -72,6 +73,18 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
 
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled = isDisabled;
+    // Update editor read-only state when form control is disabled
+    if (this.editorInstance) {
+      if (isDisabled) {
+        this.editorInstance.enableReadOnlyMode('restricted-editing');
+      } else {
+        this.editorInstance.disableReadOnlyMode('restricted-editing');
+      }
+    }
   }
 
   onEditorChange({ editor }: any): void {
@@ -393,6 +406,11 @@ export class EditorNormalComponent implements OnInit, ControlValueAccessor {
 
     this.editorToolbar.nativeElement.appendChild(editor.ui.view.toolbar.element!);
     this.editorMenuBar.nativeElement.appendChild(editor.ui.view.menuBarView.element!);
+    
+    // Set initial read-only state if form control is disabled
+    if (this.isDisabled) {
+      editor.enableReadOnlyMode('restricted-editing');
+    }
   }
 }
 
