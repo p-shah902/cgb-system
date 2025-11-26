@@ -178,6 +178,174 @@ a {
   }
 }
 
+/* Common Button Styles - Use across all pages and modals */
+
+// Base button styles
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// Primary Button (Filled - Purple)
+.btn-primary,
+.btn-filled {
+  background-color: #582AA2;
+  border-color: #582AA2;
+  color: #ffffff;
+  
+  &:hover:not(:disabled) {
+    background-color: #451c82;
+    border-color: #451c82;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 8px rgba(88, 42, 162, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: #3a1769;
+    border-color: #3a1769;
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(88, 42, 162, 0.25);
+  }
+}
+
+// Outline Button (Secondary)
+.btn-outline,
+.btn-outline-secondary {
+  background-color: transparent;
+  border-color: #DCDCDC;
+  color: #626262;
+  
+  &:hover:not(:disabled) {
+    background-color: #F8F9FB;
+    border-color: #582AA2;
+    color: #582AA2;
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: #E6EFFC;
+    border-color: #451c82;
+    color: #451c82;
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 220, 220, 0.25);
+  }
+}
+
+// Danger Button (Red - for delete/destructive actions)
+.btn-danger,
+.btn-delete {
+  background-color: #EC4747;
+  border-color: #EC4747;
+  color: #ffffff;
+  
+  &:hover:not(:disabled) {
+    background-color: #d63030;
+    border-color: #d63030;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 8px rgba(236, 71, 71, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: #c02828;
+    border-color: #c02828;
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(236, 71, 71, 0.25);
+  }
+}
+
+// Danger Outline Button
+.btn-outline-danger {
+  background-color: transparent;
+  border-color: #EC4747;
+  color: #EC4747;
+  
+  &:hover:not(:disabled) {
+    background-color: #FEE2E2;
+    border-color: #d63030;
+    color: #d63030;
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: #FCD5D5;
+    border-color: #c02828;
+    color: #c02828;
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(236, 71, 71, 0.25);
+  }
+}
+
+// Success Button (Green - for approve/success actions)
+.btn-success {
+  background-color: #007007;
+  border-color: #007007;
+  color: #ffffff;
+  
+  &:hover:not(:disabled) {
+    background-color: #005a05;
+    border-color: #005a05;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 8px rgba(0, 112, 7, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    background-color: #004a04;
+    border-color: #004a04;
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 112, 7, 0.25);
+  }
+}
+
+// Button Sizes
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.btn-lg {
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+// Legacy support - keep existing classes working
 .ff-btn-list {
   .btn {
     padding: 12px 25px;
@@ -189,12 +357,142 @@ a {
   .btn-outline-dark {
     border-color: #DCDCDC;
     color: #626262;
+    
+    &:hover:not(:disabled) {
+      background-color: #F8F9FB;
+      border-color: #582AA2;
+      color: #582AA2;
+    }
   }
 
   .btn-primary {
     background-color: #582AA2;
     border-color: #582AA2;
     color: #ffffff;
+    
+    &:hover:not(:disabled) {
+      background-color: #451c82;
+      border-color: #451c82;
+    }
+  }
+}
+
+// Create button (legacy support)
+.create-btn {
+  background-color: #582AA2;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 15px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid #582AA2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #451c82;
+    border-color: #451c82;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 8px rgba(88, 42, 162, 0.3);
+  }
+
+  &:active:not(:disabled),
+  &:focus-visible {
+    background-color: #3a1769 !important;
+    border-color: #3a1769 !important;
+    color: #fff !important;
+  }
+}
+
+// Update button (legacy support)
+.update-btn {
+  background-color: #1160D8;
+  color: #fff;
+  font-size: 14px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #1160D8;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #0e4fb0;
+    border-color: #0e4fb0;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 8px rgba(17, 96, 216, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    background-color: #0c3f8f;
+    border-color: #0c3f8f;
+    transform: translateY(0);
+  }
+}
+
+// Normal button (legacy support)
+.normal-btn {
+  background-color: transparent;
+  color: #626262;
+  font-size: 14px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #DCDCDC;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #F8F9FB;
+    border-color: #582AA2;
+    color: #582AA2;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    background-color: #E6EFFC;
+    transform: translateY(0);
+  }
+}
+
+// Action button (legacy support - icon buttons)
+.action-btn {
+  background-color: transparent;
+  color: #626262;
+  font-size: 14px;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  height: 36px;
+
+  &:hover:not(:disabled) {
+    background-color: #F8F9FB;
+    color: #582AA2;
+  }
+
+  &:active:not(:disabled) {
+    background-color: #E6EFFC;
+  }
+  
+  &.text-danger {
+    color: #EC4747;
+    
+    &:hover:not(:disabled) {
+      background-color: #FEE2E2;
+      color: #d63030;
+    }
   }
 }
 
