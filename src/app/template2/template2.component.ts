@@ -1328,6 +1328,18 @@ export class Template2Component implements AfterViewInit {
           this.generalInfoForm.get('generalInfo.bltMember')?.setValue(selectedBatch.bltMemberId || selectedBatch.bltMemberUserId);
         }
       }
+      
+      // Disable PDM and BLT fields when batch paper is selected (only in create mode)
+      if (!this.paperId || this.isCopy) {
+        this.generalInfoForm.get('generalInfo.pdManagerName')?.disable();
+        this.generalInfoForm.get('generalInfo.bltMember')?.disable();
+      }
+    } else {
+      // Enable PDM and BLT fields when batch paper is deselected (only in create mode)
+      if (!this.paperId || this.isCopy) {
+        this.generalInfoForm.get('generalInfo.pdManagerName')?.enable();
+        this.generalInfoForm.get('generalInfo.bltMember')?.enable();
+      }
     }
   }
 

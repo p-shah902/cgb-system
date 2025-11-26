@@ -368,7 +368,7 @@
                 <div class="col-sm-6 col-md-6">
                   <div class="form-group mb-3">
                     <label>PDM (Project Delivery Manager)</label>
-                    <select class="form-control allow-comments" formControlName="pdManagerName" id="pdManagerName">
+                    <select class="form-control allow-comments" formControlName="pdManagerName" id="pdManagerName" [disabled]="hasBatchPaperSelected()">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'PDM'" [value]="user.id">
@@ -402,7 +402,7 @@
                 <div class="col-md-6">
                   <div class="form-group mb-3">
                     <label>BLT Member<span class="danger">*</span> </label>
-                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember">
+                    <select class="form-control allow-comments" formControlName="bltMember" id="bltMember" [disabled]="hasBatchPaperSelected()">
                       <option [value]="null">Select</option>
                       <ng-container *ngFor="let user of userDetails">
                         <option *ngIf="user.roleName === 'BLT'" [value]="user.id">
