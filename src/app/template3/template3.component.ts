@@ -1322,11 +1322,43 @@ export class Template3Component implements AfterViewInit {
   }
 
   addPaperToBatch(batchId: number, paperId: number) {
-    const payload = {
-      batchId: batchId,
-      paperId: [paperId],
+    // Get the batch paper object to use its data
+    const batchPaper = this.batchPaperList.find(batch => batch.id === batchId || batch.batchId === batchId || batch.batchPaperId === batchId) || this.selectedBatchPaper;
+    
+    if (!batchPaper) {
+      this.toastService.show('Batch paper not found', 'danger');
+      return;
+    }
+
+    // Get existing paper IDs from the batch (if batchPapers array exists)
+    let existingPaperIds: number[] = [];
+    if (batchPaper.batchPapers && Array.isArray(batchPaper.batchPapers)) {
+      existingPaperIds = batchPaper.batchPapers
+        .map((bp: any) => bp.paperID || bp.paperId || bp.id)
+        .filter((id: any) => id != null)
+        .map((id: any) => Number(id));
+    }
+
+    // Add the new paper ID to the existing array (avoid duplicates)
+    if (!existingPaperIds.includes(paperId)) {
+      existingPaperIds.push(paperId);
+    }
+
+    // Build payload with all batch paper fields as-is, only update paperId array
+    // Use spread operator to copy all fields from batchPaper, then override paperId and add action
+    const finalBatchId = batchPaper.id || batchPaper.batchId || batchPaper.batchPaperId || batchId;
+    
+    const payload: any = {
+      ...batchPaper, // Copy all fields from batch paper object
+      BatchId: finalBatchId, // API expects BatchId (capital B and I)
+      paperId: existingPaperIds, // All existing papers + the new one
       action: "Add"
     };
+    
+    // Remove batchPapers array from payload as it's not needed in the API
+    delete payload.batchPapers;
+    // Remove id if it exists, as we're using BatchId instead
+    delete payload.id;
 
     this.batchPaperService.upsertBatchPaper(payload).subscribe({
       next: (response: any) => {
@@ -3106,6 +3138,15 @@ export class Template3Component implements AfterViewInit {
           const docId = response.data.paperId || null
           this.uploadFiles(docId)
           this.deleteMultipleDocuments(docId)
+
+          // Handle batch paper if selected and paper is being registered
+          if (updateStatus && docId) {
+            const selectedBatchId = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
+            if (selectedBatchId) {
+              this.addPaperToBatch(selectedBatchId, docId);
+            }
+          }
+
           if (updateStatus) {
             // Call setPaperStatus only if in edit mode and pendingStatus exists
             if (this.paperId && !this.isCopy && this.pendingStatus) {

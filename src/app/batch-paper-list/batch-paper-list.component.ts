@@ -154,8 +154,9 @@ export class BatchPaperListComponent implements OnInit {
     this.paperConfigService.getPaperConfigList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
+          // Filter to show only Registered papers (exclude Batch Papers)
           this.paperList = response.data.filter((paper: any) =>
-            !paper.statusName?.toLowerCase().includes('draft') && paper.paperType !== 'Batch Paper'
+            paper.statusName?.toLowerCase() === 'registered' && paper.paperType !== 'Batch Paper'
           );
           this.creatPaperList = this.paperList.map(paper => ({value: paper.paperID, label: paper.description}))
         }
