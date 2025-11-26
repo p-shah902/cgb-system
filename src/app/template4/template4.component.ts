@@ -164,7 +164,6 @@ export class Template4Component  implements AfterViewInit{
             }
             this.fetchPaperDetails(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
-            this.checkPartnerApprovalStatus(Number(this.paperId));
           } else {
             this.isExpanded = false;
             if (!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
@@ -602,7 +601,7 @@ export class Template4Component  implements AfterViewInit{
             });
 
           this.isInitialLoad = false;
-          
+
           // Recalculate totals and values after form is patched with data
           this.setupPSACalculationsManually();
         }, 500)
@@ -610,7 +609,7 @@ export class Template4Component  implements AfterViewInit{
 
         this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners();
-        
+
         // Open consultation section if requested via query param
         if ((this as any).shouldOpenConsultation) {
           setTimeout(() => {
@@ -621,7 +620,7 @@ export class Template4Component  implements AfterViewInit{
             }, 200);
           }, 200);
         }
-        
+
         // Setup percentage calculation listeners after form is patched in edit mode
         // Recalculate totals after listeners are set up (similar to template5)
         setTimeout(() => {
@@ -629,7 +628,7 @@ export class Template4Component  implements AfterViewInit{
           // Recalculate totals after listeners are set up
           this.calculateTotal();
         }, 600);
-        
+
         // Disable all fields for JV Admin (except Consultation section)
         // Call multiple times with delays to catch controls that get enabled later
         this.applyJVAdminReadOnlyMode();
@@ -654,8 +653,9 @@ export class Template4Component  implements AfterViewInit{
         setTimeout(() => {
           this.updateAllJVAlignedStates();
         }, 1500);
-        
+
         this.getUploadedDocs(paperId);
+        this.checkPartnerApprovalStatus(Number(this.paperId));
       }
       },
       error: (error) => {
@@ -990,7 +990,7 @@ export class Template4Component  implements AfterViewInit{
         });
       }
     });
-    
+
     // Calculate total after setting up listeners
     this.calculateTotal();
   }
@@ -1658,7 +1658,7 @@ export class Template4Component  implements AfterViewInit{
         setTimeout(() => {
           const row = this.consultationRows.at(index);
           const jvAlignedControl = row?.get('jvAligned');
-          
+
           if (jvAlignedControl) {
             // If isJVReviewDone is true, checkbox should be checked and disabled (read-only)
             if (isJVReviewDone) {
@@ -1694,21 +1694,21 @@ export class Template4Component  implements AfterViewInit{
     if (isJVReviewDone) {
       return false;
     }
-    
+
     if (!this.loggedInUser || !jvReviewUserId) {
       return false;
     }
-    
+
     const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
     const statusLower = (paperStatus || '').toLowerCase().trim();
-    
+
     // Check if user matches jvReviewUserId (handle both string and number types)
     const loggedInUserId = Number(this.loggedInUser.id);
     const reviewUserId = Number(jvReviewUserId);
     if (loggedInUserId !== reviewUserId) {
       return false;
     }
-    
+
     // JV Admin can edit JV Aligned at any stage between Registered and Approved by Pre-CGB
     if (this.loggedInUser.roleName === 'JV Admin') {
       const allowedStatuses = [
@@ -1720,12 +1720,12 @@ export class Template4Component  implements AfterViewInit{
       ];
       return allowedStatuses.includes(statusLower);
     }
-    
+
     // For other users, JV Aligned is only editable when status is "On JV Approval"
     if (paperStatus === 'On JV Approval') {
       return true;
     }
-    
+
     return false;
   }
 
@@ -1742,15 +1742,15 @@ export class Template4Component  implements AfterViewInit{
       const jvReviewUserId = row.get('jvReview')?.value;
       const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
       const loggedInUserId = Number(this.loggedInUser?.id);
-      
+
       if (!reviewUserId || loggedInUserId !== reviewUserId) {
         return false;
       }
-      
+
       // Check if this row has isJVReviewDone from original API data
       const originalItem = consultationsData[index] as any;
       const isJVReviewDone = originalItem?.isJVReviewDone === true;
-      
+
       // User can only update if the checkbox is enabled (not already reviewed)
       return !isJVReviewDone && this.canEditJVAligned(reviewUserId, isJVReviewDone);
     });
@@ -1769,10 +1769,10 @@ export class Template4Component  implements AfterViewInit{
   isBPGroup100Percent(): boolean {
     const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
     if (!costAllocation) return false;
-    
+
     const bpGroupPercentageControl = costAllocation.get('percentage_isBPGroup');
     if (!bpGroupPercentageControl) return false;
-    
+
     const percentage = Number(bpGroupPercentageControl.value);
     return !isNaN(percentage) && percentage === 100;
   }
@@ -1784,7 +1784,7 @@ export class Template4Component  implements AfterViewInit{
     if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
       return false;
     }
-    
+
     // Check if logged-in JV Admin user has any consultation row with JV Aligned checked
     const loggedInUserId = Number(this.loggedInUser.id);
     return this.consultationRows.controls.some(row => {
@@ -1800,23 +1800,23 @@ export class Template4Component  implements AfterViewInit{
     if (!this.loggedInUser) {
       return false;
     }
-    
+
     const consultationsData = this.paperDetails?.consultationsDetails || [];
     const loggedInUserId = Number(this.loggedInUser?.id);
-    
+
     // Check if user has any consultation row where they can edit the checkbox
     return this.consultationRows.controls.some((row, index) => {
       const jvReviewUserId = row.get('jvReview')?.value;
       const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
-      
+
       if (!reviewUserId || loggedInUserId !== reviewUserId) {
         return false;
       }
-      
+
       // Check if this row has isJVReviewDone from original API data
       const originalItem = consultationsData[index] as any;
       const isJVReviewDone = originalItem?.isJVReviewDone === true;
-      
+
       // User can edit if checkbox is not already reviewed and they have permission
       return !isJVReviewDone && this.canEditJVAligned(reviewUserId);
     });
@@ -1927,7 +1927,7 @@ export class Template4Component  implements AfterViewInit{
 
     const statusName = this.paperDetails?.paperDetails?.paperStatusName || '';
     const isBPGroup100 = this.isBPGroup100Percent();
-    
+
     // Check if status is after PDM Approval
     const pdmApprovedStatuses = [
       'approved by pdm',
@@ -1940,10 +1940,10 @@ export class Template4Component  implements AfterViewInit{
       'on partner approval 2nd',
       'approved'
     ];
-    
+
     const statusLower = statusName.toLowerCase().trim();
     const isAfterPDMApproved = pdmApprovedStatuses.some(s => statusLower === s);
-    
+
     if (!isAfterPDMApproved) {
       return; // Only apply after PDM Approval
     }
@@ -1967,7 +1967,7 @@ export class Template4Component  implements AfterViewInit{
           if (key === 'govtReprAlignedComment' && !isBPGroup100) {
             return; // Keep this field enabled
           }
-          
+
           const control = group.get(key);
           if (control && !control.disabled) {
             control.disable({ emitEvent: false });
@@ -2011,7 +2011,7 @@ export class Template4Component  implements AfterViewInit{
         jvAlignedControl.disable();
         return;
       }
-      
+
       // Convert to number if it's a string to ensure proper comparison
       const userId = jvReviewUserId ? Number(jvReviewUserId) : null;
 
@@ -2039,17 +2039,17 @@ export class Template4Component  implements AfterViewInit{
   updateAllJVAlignedStates(): void {
     // Get the original consultations data to check isJVReviewDone
     const consultationsData = this.paperDetails?.consultationsDetails || [];
-    
+
     this.consultationRows.controls.forEach((row, index) => {
       const jvReviewUserId = row.get('jvReview')?.value;
       const jvAlignedValue = row.get('jvAligned')?.value;
       // Convert to number if it's a string to ensure proper comparison
       const userId = jvReviewUserId ? Number(jvReviewUserId) : null;
-      
+
       // Check if this row has isJVReviewDone from original API data
       const originalItem = consultationsData[index] as any;
       const isJVReviewDone = originalItem?.isJVReviewDone === true;
-      
+
       if (userId) {
         const jvAlignedControl = row.get('jvAligned');
         if (jvAlignedControl) {
@@ -2455,7 +2455,7 @@ export class Template4Component  implements AfterViewInit{
     }
 
     this.isSubmitting = true;
-    
+
     // Status ID 4 = "Waiting for PDM" (as per paper-status.component.ts)
     this.paperConfigService.updateMultiplePaperStatus([{
       paperId: Number(this.paperId),
@@ -2553,18 +2553,76 @@ export class Template4Component  implements AfterViewInit{
           const hasUserApproved = response.data.some(
             (status) => status.approvedByUserId === this.loggedInUser?.id
           );
-          this.canShowPartnerApproveReject = !hasUserApproved;
+          
+          // If user hasn't approved, check PSA matching conditions
+          if (!hasUserApproved) {
+            this.canShowPartnerApproveReject = this.checkPSAMatch();
+          } else {
+            this.canShowPartnerApproveReject = false;
+          }
         } else {
-          // Default to showing buttons if API fails or returns no data
-          this.canShowPartnerApproveReject = true;
+          // If API returns no data, check PSA matching conditions
+          this.canShowPartnerApproveReject = this.checkPSAMatch();
         }
       },
       error: (error) => {
         console.error('Error fetching partner approval status:', error);
-        // Default to showing buttons if API fails
-        this.canShowPartnerApproveReject = true;
+        // On error, check PSA matching conditions
+        this.canShowPartnerApproveReject = this.checkPSAMatch();
       }
     });
+  }
+
+  private checkPSAMatch(): boolean {
+    if (!this.loggedInUser || !this.paperDetails) {
+      return false;
+    }
+
+    const userPSA = this.loggedInUser.psa;
+    const committeeType = this.loggedInUser.commiteeType;
+    const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
+    const jvApprovals = this.paperDetails?.jvApprovals?.[0];
+
+    if (!userPSA || !committeeType || !paperStatus || !jvApprovals) {
+      return false;
+    }
+
+    // Map PSA label to internal name
+    // 1st Committee labels: "CMC", "SDCC", "SCP Co CC", "BTC CC"
+    // 2nd Committee labels: "SC", "SDMC", "SCP Board"
+    const psaToInternalName: { [key: string]: string } = {
+      // 1st Committee labels
+      "cmc": "acg",
+      "sdcc": "shah deniz",
+      "scp co cc": "scp",
+      "scp": "scp",
+      "btc cc": "btc",
+      "btc": "btc",
+      // 2nd Committee labels
+      "sc": "acg",
+      "sdmc": "shah deniz",
+      "scp board": "scp"
+    };
+    
+    const internalPSAName = psaToInternalName[userPSA.toLowerCase()] || userPSA.toLowerCase();
+
+    // Check for 1st Committee
+    if (committeeType === '1st Commitee' && paperStatus === 'On Partner Approval 1st') {
+      const fieldName = this.getFirstCommitteeControlName(internalPSAName);
+      if (fieldName && jvApprovals[fieldName as keyof typeof jvApprovals] === true) {
+        return true;
+      }
+    }
+
+    // Check for 2nd Committee
+    if (committeeType === '2nd Commitee' && paperStatus === 'On Partner Approval 2nd') {
+      const fieldName = this.getSecondCommitteeControlName(internalPSAName);
+      if (fieldName && jvApprovals[fieldName as keyof typeof jvApprovals] === true) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   handlePartnerApproveReject(status: string) {
@@ -2799,12 +2857,12 @@ export class Template4Component  implements AfterViewInit{
     const userRole = this.loggedInUser?.roleName || '';
     const isSecretary = userRole === 'Secretary' || userRole === 'Super Admin';
     const isJVAdmin = userRole === 'JV Admin';
-    
+
     // Disable CKEditor for JV Admin users
     if (isJVAdmin) {
       return true;
     }
-    
+
     // If status is On Pre-CGB and user is not Secretary, disable CKEditor
     return isOnPreCGB && !isSecretary;
   }

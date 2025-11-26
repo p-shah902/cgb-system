@@ -170,7 +170,6 @@ export class Template5Component  implements AfterViewInit{
             }
             this.fetchPaperDetails(Number(this.paperId))
             this.getPaperCommentLogs(Number(this.paperId));
-            this.checkPartnerApprovalStatus(Number(this.paperId));
           } else {
             this.isExpanded = false;
             if (!this.paperId && this.loggedInUser && this.loggedInUser?.roleName === 'Procurement Tag') {
@@ -337,12 +336,12 @@ export class Template5Component  implements AfterViewInit{
   }
   private setupJVAlignedAutoReset() {
     if (!this.generalInfoForm) { return; }
-    
+
     // Flag to track if jvAligned is being changed (to skip reset)
     let isJVAlignedChanging = false;
     // Track subscribed controls to avoid duplicates
     const subscribedControls = new Set<any>();
-    
+
     // Subscribe to each jvAligned control individually to detect when they change
     const setupJVAlignedListeners = () => {
       const rows = this.consultationRows;
@@ -360,10 +359,10 @@ export class Template5Component  implements AfterViewInit{
         }
       });
     };
-    
+
     // Initial setup of listeners
     setupJVAlignedListeners();
-    
+
     // Also setup listeners when rows are added/removed (check length changes)
     let previousRowCount = this.consultationRows.length;
     this.consultationRows.valueChanges.subscribe(() => {
@@ -373,23 +372,23 @@ export class Template5Component  implements AfterViewInit{
         setupJVAlignedListeners();
       }
     });
-    
+
     this.generalInfoForm.valueChanges.subscribe(() => {
       // Skip reset during initial load to preserve values from edit mode
       if (this.isInitialLoad) {
         return;
       }
-      
+
       // Skip reset if change came from jvAligned control itself
       if (isJVAlignedChanging) {
         return;
       }
-      
+
       // Skip reset during programmatic form updates (like ensureCostAllocationFormControls)
       if (this.isProgrammaticFormUpdate) {
         return;
       }
-      
+
       // Reset jvAligned for other form changes
       const rows = this.consultationRows;
       rows.controls.forEach((row) => {
@@ -618,7 +617,7 @@ export class Template5Component  implements AfterViewInit{
 
         this.addConsultationRow(true, false, consultationsData);
         this.setupPSAListeners();
-        
+
         // Open consultation section if requested via query param
         if ((this as any).shouldOpenConsultation) {
           setTimeout(() => {
@@ -629,7 +628,7 @@ export class Template5Component  implements AfterViewInit{
             }, 200);
           }, 200);
         }
-        
+
         // Disable all fields for JV Admin (except Consultation section)
         // Call multiple times with delays to catch controls that get enabled later
         this.applyJVAdminReadOnlyMode();
@@ -645,13 +644,14 @@ export class Template5Component  implements AfterViewInit{
         setTimeout(() => {
           this.updateAllJVAlignedStates();
         }, 1500);
-        
+
         // Setup percentage calculation listeners after form is patched in edit mode
         setTimeout(() => {
           this.setupPSACalculations();
           // Recalculate totals after listeners are set up
           this.calculateTotal();
         }, 600);
+        this.checkPartnerApprovalStatus(Number(this.paperId));
       }
       },
       error: (error) => {
@@ -1776,7 +1776,7 @@ export class Template5Component  implements AfterViewInit{
         const isJVReviewDone = item.isJVReviewDone === true; // Store if review is already done
         const initialJVAlignedValue = item.isJVReviewDone === true || item.jvAligned === true;
         const jvReviewValue = item.jvReview || item.jvReviewId || null;
-        
+
         const formGroup = this.fb.group({
           psa: [{ value: item.psa || item.psaValue || '', disabled: true }, Validators.required],
           technicalCorrect: [{ value: item.technicalCorrect || item.technicalCorrectId || null, disabled: true }, Validators.required],
@@ -1794,7 +1794,7 @@ export class Template5Component  implements AfterViewInit{
         setTimeout(() => {
           const row = this.consultationRows.at(index);
           const jvAlignedControl = row?.get('jvAligned');
-          
+
           if (jvAlignedControl) {
             // If isJVReviewDone is true, checkbox should be checked and disabled (read-only)
             if (isJVReviewDone) {
@@ -1830,21 +1830,21 @@ export class Template5Component  implements AfterViewInit{
     if (isJVReviewDone) {
       return false;
     }
-    
+
     if (!this.loggedInUser || !jvReviewUserId) {
       return false;
     }
-    
+
     const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
     const statusLower = (paperStatus || '').toLowerCase().trim();
-    
+
     // Check if user matches jvReviewUserId
     const loggedInUserId = Number(this.loggedInUser.id);
     const reviewUserId = Number(jvReviewUserId);
     if (loggedInUserId !== reviewUserId) {
       return false;
     }
-    
+
     // JV Admin can edit JV Aligned at any stage between Registered and Approved by Pre-CGB
     if (this.loggedInUser.roleName === 'JV Admin') {
       const allowedStatuses = [
@@ -1856,12 +1856,12 @@ export class Template5Component  implements AfterViewInit{
       ];
       return allowedStatuses.includes(statusLower);
     }
-    
+
     // For other users, JV Aligned is only editable when status is "On JV Approval"
     if (paperStatus === 'On JV Approval') {
       return true;
     }
-    
+
     return false;
   }
 
@@ -1884,10 +1884,10 @@ export class Template5Component  implements AfterViewInit{
   isBPGroup100Percent(): boolean {
     const costAllocation = this.generalInfoForm.get('costAllocation') as FormGroup;
     if (!costAllocation) return false;
-    
+
     const bpGroupPercentageControl = costAllocation.get('percentage_isBPGroup');
     if (!bpGroupPercentageControl) return false;
-    
+
     const percentage = Number(bpGroupPercentageControl.value);
     return !isNaN(percentage) && percentage === 100;
   }
@@ -1899,7 +1899,7 @@ export class Template5Component  implements AfterViewInit{
     if (!this.loggedInUser || this.loggedInUser.roleName !== 'JV Admin') {
       return false;
     }
-    
+
     // Check if logged-in JV Admin user has any consultation row with JV Aligned
     const loggedInUserId = Number(this.loggedInUser.id);
     return this.consultationRows.controls.some(row => {
@@ -1915,23 +1915,23 @@ export class Template5Component  implements AfterViewInit{
     if (!this.loggedInUser) {
       return false;
     }
-    
+
     const consultationsData = this.paperDetails?.consultationsDetails || [];
     const loggedInUserId = Number(this.loggedInUser?.id);
-    
+
     // Check if user has any consultation row where they can edit the checkbox
     return this.consultationRows.controls.some((row, index) => {
       const jvReviewUserId = row.get('jvReview')?.value;
       const reviewUserId = jvReviewUserId ? Number(jvReviewUserId) : null;
-      
+
       if (!reviewUserId || loggedInUserId !== reviewUserId) {
         return false;
       }
-      
+
       // Check if this row has isJVReviewDone from original API data
       const originalItem = consultationsData[index] as any;
       const isJVReviewDone = originalItem?.isJVReviewDone === true;
-      
+
       // User can edit if checkbox is not already reviewed and they have permission
       return !isJVReviewDone && this.canEditJVAligned(reviewUserId, isJVReviewDone);
     });
@@ -1948,17 +1948,17 @@ export class Template5Component  implements AfterViewInit{
   updateAllJVAlignedStates(): void {
     // Get the original consultations data to check isJVReviewDone
     const consultationsData = this.paperDetails?.consultationsDetails || [];
-    
+
     this.consultationRows.controls.forEach((row, index) => {
       const jvReviewUserId = row.get('jvReview')?.value;
       const jvAlignedValue = row.get('jvAligned')?.value;
       // Convert to number if it's a string to ensure proper comparison
       const userId = jvReviewUserId ? Number(jvReviewUserId) : null;
-      
+
       // Check if this row has isJVReviewDone from original API data
       const originalItem = consultationsData[index] as any;
       const isJVReviewDone = originalItem?.isJVReviewDone === true;
-      
+
       if (userId) {
         const jvAlignedControl = row.get('jvAligned');
         if (jvAlignedControl) {
@@ -2093,7 +2093,7 @@ export class Template5Component  implements AfterViewInit{
 
       // Convert to number if it's a string to ensure proper comparison
       const userId = jvReviewUserId ? Number(jvReviewUserId) : null;
-      
+
       if (this.canEditJVAligned(userId, isJVReviewDone)) {
         jvAlignedControl.enable();
         // Preserve the value when enabling
@@ -2220,13 +2220,13 @@ export class Template5Component  implements AfterViewInit{
       this.sectionVisibility['section4'] = true;
       // Set flag to prevent jvAligned reset during programmatic form updates
       this.isProgrammaticFormUpdate = true;
-      
+
       // Ensure form controls are created for selected PSAs
       const selectedPSAJV = this.generalInfoForm.get('generalInfo.psajv')?.value || [];
       selectedPSAJV.forEach((psaName: string) => {
         this.addPSAJVFormControls(psaName);
       });
-      
+
       // Keep flag set until after payload is built to prevent any form changes from resetting jvAligned
       // We'll reset it after reading form values
     }
@@ -2272,11 +2272,11 @@ export class Template5Component  implements AfterViewInit{
     const costAllocationValues = this.generalInfoForm?.getRawValue()?.costAllocation // Use getRawValue to include disabled controls
     // Use getRawValue to include disabled controls (like jvAligned which might be disabled)
     const consultationsValue = this.generalInfoForm?.getRawValue()?.consultation || this.generalInfoForm?.value?.consultation
-    
+
     // Reset flag immediately after reading form values to allow normal auto-reset behavior
     // The flag was only needed to prevent reset during programmatic form setup
     this.isProgrammaticFormUpdate = false;
-    
+
     const ccdValues = this.generalInfoForm?.getRawValue()?.ccd
     const toIsoOrNull = (v: any) => v ? new Date(v).toISOString() : null;
 
@@ -2380,12 +2380,12 @@ export class Template5Component  implements AfterViewInit{
         if (costAllocationFormGroup) {
           // Get raw values from the form group (includes disabled controls)
           const rawCostAllocationValues = costAllocationFormGroup.getRawValue();
-          
+
           Object.keys(jvApprovalObj).forEach((key) => {
             if (key !== 'contractCommittee_ShAsimanValue' && key !== 'contractCommittee_BPGroupValue') {
               // Read from raw values (includes disabled controls)
               const controlValue = rawCostAllocationValues?.[key];
-              
+
               if (controlValue !== undefined && controlValue !== null) {
                 jvApprovalObj[key] = controlValue === true || controlValue === 'true' || controlValue === 1;
               }
@@ -2488,7 +2488,7 @@ export class Template5Component  implements AfterViewInit{
     }
 
     this.isSubmitting = true;
-    
+
     // Status ID 4 = "Waiting for PDM" (as per paper-status.component.ts)
     this.paperConfigService.updateMultiplePaperStatus([{
       paperId: Number(this.paperId),
@@ -2586,18 +2586,76 @@ export class Template5Component  implements AfterViewInit{
           const hasUserApproved = response.data.some(
             (status) => status.approvedByUserId === this.loggedInUser?.id
           );
-          this.canShowPartnerApproveReject = !hasUserApproved;
+
+          // If user hasn't approved, check PSA matching conditions
+          if (!hasUserApproved) {
+            this.canShowPartnerApproveReject = this.checkPSAMatch();
+          } else {
+            this.canShowPartnerApproveReject = false;
+          }
         } else {
-          // Default to showing buttons if API fails or returns no data
-          this.canShowPartnerApproveReject = true;
+          // If API returns no data, check PSA matching conditions
+          this.canShowPartnerApproveReject = this.checkPSAMatch();
         }
       },
       error: (error) => {
         console.error('Error fetching partner approval status:', error);
-        // Default to showing buttons if API fails
-        this.canShowPartnerApproveReject = true;
+        // On error, check PSA matching conditions
+        this.canShowPartnerApproveReject = this.checkPSAMatch();
       }
     });
+  }
+
+  private checkPSAMatch(): boolean {
+    if (!this.loggedInUser || !this.paperDetails) {
+      return false;
+    }
+
+    const userPSA = this.loggedInUser.psa;
+    const committeeType = this.loggedInUser.commiteeType;
+    const paperStatus = this.paperDetails?.paperDetails?.paperStatusName;
+    const jvApprovals = this.paperDetails?.jvApprovals?.[0];
+
+    if (!userPSA || !committeeType || !paperStatus || !jvApprovals) {
+      return false;
+    }
+
+    // Map PSA label to internal name
+    // 1st Committee labels: "CMC", "SDCC", "SCP Co CC", "BTC CC"
+    // 2nd Committee labels: "SC", "SDMC", "SCP Board"
+    const psaToInternalName: { [key: string]: string } = {
+      // 1st Committee labels
+      "cmc": "acg",
+      "sdcc": "shah deniz",
+      "scp co cc": "scp",
+      "scp": "scp",
+      "btc cc": "btc",
+      "btc": "btc",
+      // 2nd Committee labels
+      "sc": "acg",
+      "sdmc": "shah deniz",
+      "scp board": "scp"
+    };
+
+    const internalPSAName = psaToInternalName[userPSA.toLowerCase()] || userPSA.toLowerCase();
+
+    // Check for 1st Committee
+    if (committeeType === '1st Commitee' && paperStatus === 'On Partner Approval 1st') {
+      const fieldName = this.getFirstCommitteeControlName(internalPSAName);
+      if (fieldName && jvApprovals[fieldName as keyof typeof jvApprovals] === true) {
+        return true;
+      }
+    }
+
+    // Check for 2nd Committee
+    if (committeeType === '2nd Commitee' && paperStatus === 'On Partner Approval 2nd') {
+      const fieldName = this.getSecondCommitteeControlName(internalPSAName);
+      if (fieldName && jvApprovals[fieldName as keyof typeof jvApprovals] === true) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   handlePartnerApproveReject(status: string) {
@@ -2720,12 +2778,12 @@ export class Template5Component  implements AfterViewInit{
     const userRole = this.loggedInUser?.roleName || '';
     const isSecretary = userRole === 'Secretary' || userRole === 'Super Admin';
     const isJVAdmin = userRole === 'JV Admin';
-    
+
     // Disable CKEditor for JV Admin users
     if (isJVAdmin) {
       return true;
     }
-    
+
     // If status is On Pre-CGB and user is not Secretary, disable CKEditor
     return isOnPreCGB && !isSecretary;
   }
