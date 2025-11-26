@@ -94,13 +94,6 @@
                                       </td>
                                       <ng-container *ngFor="let role of roles">
                                         <td>
-                                          <div class="form-check-list d-flex gap-3 flex-wrap">
-                                            <div class="form-check-box position-relative">
-                                              <input type="checkbox" (change)="updateUserRole($event, role, access, particular)"
-                                                     [checked]="getRolesChecked(role, access, particular)">
-                                              <label><span class="opacity-0">1</span></label>
-                                            </div>
-                                          </div>
                                         </td>
                                       </ng-container>
                                     </tr>

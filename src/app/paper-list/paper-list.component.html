@@ -308,14 +308,6 @@
                 <table class="table table-wrapper">
                   <thead>
                     <tr class="sticky">
-                      <th width="5%">
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox" />
-                            <label><span class="opacity-0">-</span></label>
-                          </div>
-                        </div>
-                      </th>
                       <th class="sortable" (click)="sortByColumn('title')">
                         <div class="d-flex align-items-center gap-2">
                           <span>Title</span>
@@ -406,7 +398,7 @@
                   </thead>
                   <tbody>
                     <tr *ngIf="paperList.length === 0">
-                      <td [attr.colspan]="7" class="text-center py-5">
+                      <td [attr.colspan]="6" class="text-center py-5">
                         <div class="d-flex flex-column align-items-center justify-content-center">
                           <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No papers found</p>
                           <p class="text-muted mt-2" style="font-size: 14px;">There are no papers available at this time.</p>
@@ -414,15 +406,6 @@
                       </td>
                     </tr>
                     <tr *ngFor="let paper of paperList; let i = index">
-                      <td>
-                        <div class="form-check-list d-flex gap-3 flex-wrap">
-                          <div class="form-check-box position-relative">
-                            <input type="checkbox" />
-                            <label><span class="opacity-0">-</span></label>
-                          </div>
-                        </div>
-                      </td>
-
                       <td>
                         <div class="paper-name">
                           <div class="paper-detail">

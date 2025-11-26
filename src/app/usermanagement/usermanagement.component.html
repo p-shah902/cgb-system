@@ -63,20 +63,6 @@
                           <table class="table table-wrapper">
                             <thead>
                               <tr class="sticky">
-                                <th width="5%">
-                                  <div
-                                    class="form-check-list d-flex gap-3 flex-wrap"
-                                  >
-                                    <div
-                                      class="form-check-box position-relative"
-                                    >
-                                      <input type="checkbox" />
-                                      <label
-                                        ><span class="opacity-0">-</span></label
-                                      >
-                                    </div>
-                                  </div>
-                                </th>
                                 <th>ID</th>
                                 <th>User Name</th>
                                 <th>Email</th>
@@ -89,7 +75,7 @@
                             </thead>
                             <tbody>
                               <tr *ngIf="getActiveUsers().length === 0">
-                                <td [attr.colspan]="8" class="text-center py-5">
+                                <td [attr.colspan]="7" class="text-center py-5">
                                   <div class="d-flex flex-column align-items-center justify-content-center">
                                     <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No users found</p>
                                     <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
@@ -102,20 +88,6 @@
                                   let i = index
                                 "
                               >
-                                <td>
-                                  <div
-                                    class="form-check-list d-flex gap-3 flex-wrap"
-                                  >
-                                    <div
-                                      class="form-check-box position-relative"
-                                    >
-                                      <input type="checkbox" />
-                                      <label
-                                        ><span class="opacity-0">-</span></label
-                                      >
-                                    </div>
-                                  </div>
-                                </td>
                                 <td>
                                   {{ user.id }}
                                 </td>
@@ -301,20 +273,6 @@
                           <table class="table">
                             <thead>
                               <tr>
-                                <th width="5%">
-                                  <div
-                                    class="form-check-list d-flex gap-3 flex-wrap"
-                                  >
-                                    <div
-                                      class="form-check-box position-relative"
-                                    >
-                                      <input type="checkbox" />
-                                      <label
-                                        ><span class="opacity-0">-</span></label
-                                      >
-                                    </div>
-                                  </div>
-                                </th>
                                 <th>ID</th>
                                 <th>User Name</th>
                                 <th>Email</th>
@@ -327,7 +285,7 @@
                             </thead>
                             <tbody>
                               <tr *ngIf="getInActiveUsers().length === 0">
-                                <td [attr.colspan]="9" class="text-center py-5">
+                                <td [attr.colspan]="8" class="text-center py-5">
                                   <div class="d-flex flex-column align-items-center justify-content-center">
                                     <p class="text-muted mb-0" style="font-size: 16px; font-weight: 500;">No users found</p>
                                     <p class="text-muted mt-2" style="font-size: 14px;">Try adjusting your search criteria</p>
@@ -340,20 +298,6 @@
                                   let i = index
                                 "
                               >
-                                <td>
-                                  <div
-                                    class="form-check-list d-flex gap-3 flex-wrap"
-                                  >
-                                    <div
-                                      class="form-check-box position-relative"
-                                    >
-                                      <input type="checkbox" />
-                                      <label
-                                        ><span class="opacity-0">-</span></label
-                                      >
-                                    </div>
-                                  </div>
-                                </td>
                                 <td>
                                   {{ user.id }}
                                 </td>
