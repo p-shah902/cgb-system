@@ -200,7 +200,7 @@
         <div class="st-div low-st d-none">
           Low
         </div>
-        <h4 class="cursor-pointer paper-title" (click)="goToApproachToMarket(paper)">{{ paper.description }}</h4>
+        <h4 class="cursor-pointer paper-title" (click)="paper.paperType === 'Batch Paper' ? openBatchPaperDetails($event, batchPaperDetailsModal, paper) : goToApproachToMarket(paper)">{{ paper.description }}</h4>
         <div class="paper-type mb-2">
           <span class="paper-type-badge">{{ paper.paperType }}</span>
         </div>
@@ -285,5 +285,58 @@
       <span *ngIf="isInitiatingCgbCycle" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       <span>{{ isInitiatingCgbCycle ? 'Initiating...' : 'Initiate Cycle' }}</span>
     </button>
+  </div>
+</ng-template>
+
+<ng-template #batchPaperDetailsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ selectedBatchPaper?.paperProvision || 'Batch Paper Details' }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="selectedBatchPaper && selectedBatchPaper.batchPapers && selectedBatchPaper.batchPapers.length > 0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr class="sticky">
+              <th>Paper Provision</th>
+              <th>Paper Type</th>
+              <th>CGB Item Ref</th>
+              <th>Contract Value</th>
+              <th>PDM Manager</th>
+              <th>PTs</th>
+              <th>CAM</th>
+              <th>VP-1</th>
+              <th>Created By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let batchPaper of selectedBatchPaper.batchPapers">
+              <td>
+                <div class="paper-name">
+                  <div class="paper-detail">
+                    <p>{{ batchPaper.paperProvision || '-' }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ batchPaper.paperType || '-' }}</td>
+              <td>{{ batchPaper.cgbItemRefNo || '-' }}</td>
+              <td>{{ batchPaper.contractValue ? (batchPaper.contractValue | currency:'USD':'symbol':'1.2-2') : '-' }}</td>
+              <td>{{ batchPaper.pdManagerUserName || '-' }}</td>
+              <td>{{ batchPaper.procurementSPAName || batchPaper.procurementSPAUsers || '-' }}</td>
+              <td>{{ batchPaper.camUserName || '-' }}</td>
+              <td>{{ batchPaper.vP1UserName || '-' }}</td>
+              <td>{{ batchPaper.createdName || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="selectedBatchPaper && (!selectedBatchPaper.batchPapers || selectedBatchPaper.batchPapers.length === 0)" class="text-center py-4">
+      <p class="text-muted">No batch papers found for this batch.</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Close</button>
   </div>
 </ng-template>

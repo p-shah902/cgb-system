@@ -3,7 +3,7 @@ import {NgbDropdown, NgbDropdownMenu, NgbDropdownToggle, NgbModal, NgbToastModul
 import {PaperConfig} from '../../models/paper';
 import {PaperConfigService} from '../../service/paper/paper-config.service';
 import {GetPaperConfigurationsListRequest, PaperFilter} from '../../models/general';
-import {CommonModule, KeyValuePipe, NgForOf, NgIf} from '@angular/common';
+import {CommonModule, KeyValuePipe, NgForOf, NgIf, CurrencyPipe} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ToastService} from '../../service/toast.service';
 import {VotingService} from '../../service/voting.service';
@@ -13,6 +13,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {first} from 'rxjs/operators';
 import {AuthService} from '../../service/auth.service';
 import {LoginUser} from '../../models/user';
+import {BatchService} from '../../service/batch.service';
 
 @Component({
   selector: 'app-paper-status',
@@ -23,6 +24,7 @@ import {LoginUser} from '../../models/user';
     NgbDropdownToggle,
     NgForOf,
     KeyValuePipe,
+    CurrencyPipe,
     FormsModule,
     NgIf,
     NgbToastModule,
@@ -108,7 +110,9 @@ export class PaperStatusComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private batchPaperService = inject(BatchService);
   loggedInUser: LoginUser | null = null;
+  selectedBatchPaper: any = null;
 
   slugify(text: string): string {
     return text
@@ -141,8 +145,148 @@ export class PaperStatusComponent implements OnInit {
   }
 
   goToApproachToMarket(paper: any): void {
+    if (paper.paperType === 'Batch Paper') {
+      return; // Don't navigate for batch papers, they will open modal
+    }
     const routePath = this.slugify(paper.paperType);
     this.router.navigate([`/${routePath}`, paper.paperID]);
+  }
+
+  openBatchPaperDetails(event: Event, content: TemplateRef<any>, paper: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // If batchPapers array is not present, fetch the full batch paper details
+    if (!paper.batchPapers || paper.batchPapers.length === 0) {
+      const batchId = paper.paperID || paper.id || paper.batchId || paper.batchPaperId;
+      if (batchId) {
+        this.batchPaperService.getBatchPapersList().subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              const fullBatchPaper = response.data.find((bp: any) => 
+                (bp.id === batchId) || (bp.batchId === batchId) || (bp.batchPaperId === batchId) || (bp.paperID === batchId)
+              );
+              this.selectedBatchPaper = fullBatchPaper || paper;
+              this._mdlSvc
+                .open(content, {
+                  ariaLabelledBy: 'modal-basic-title',
+                  centered: true,
+                  size: 'xl',
+                })
+                .result.then(
+                  (result) => {
+                    this.selectedBatchPaper = null;
+                  },
+                  (reason) => {
+                    this.selectedBatchPaper = null;
+                  }
+                );
+            } else {
+              this.selectedBatchPaper = paper;
+              this._mdlSvc
+                .open(content, {
+                  ariaLabelledBy: 'modal-basic-title',
+                  centered: true,
+                  size: 'xl',
+                })
+                .result.then(
+                  (result) => {
+                    this.selectedBatchPaper = null;
+                  },
+                  (reason) => {
+                    this.selectedBatchPaper = null;
+                  }
+                );
+            }
+          },
+          error: (error) => {
+            console.log('Error fetching batch paper details:', error);
+            this.selectedBatchPaper = paper;
+            this._mdlSvc
+              .open(content, {
+                ariaLabelledBy: 'modal-basic-title',
+                centered: true,
+                size: 'xl',
+              })
+              .result.then(
+                (result) => {
+                  this.selectedBatchPaper = null;
+                },
+                (reason) => {
+                  this.selectedBatchPaper = null;
+                }
+              );
+          }
+        });
+      } else {
+        this.selectedBatchPaper = paper;
+        this._mdlSvc
+          .open(content, {
+            ariaLabelledBy: 'modal-basic-title',
+            centered: true,
+            size: 'xl',
+          })
+          .result.then(
+            (result) => {
+              this.selectedBatchPaper = null;
+            },
+            (reason) => {
+              this.selectedBatchPaper = null;
+            }
+          );
+      }
+    } else {
+      this.selectedBatchPaper = paper;
+      this._mdlSvc
+        .open(content, {
+          ariaLabelledBy: 'modal-basic-title',
+          centered: true,
+          size: 'xl',
+        })
+        .result.then(
+          (result) => {
+            this.selectedBatchPaper = null;
+          },
+          (reason) => {
+            this.selectedBatchPaper = null;
+          }
+        );
+    }
+  }
+
+  getStatusNameById(statusId: number): string {
+    const statusMap: { [key: number]: string } = {
+      1: 'Draft',
+      3: 'Registered',
+      4: 'Waiting for PDM',
+      5: 'Approved by PDM',
+      6: 'On Pre-CGB',
+      7: 'Approved by Pre-CGB',
+      8: 'Action Required by Pre-CGB',
+      10: 'On CGB',
+      11: 'Approved by CGB',
+      12: 'Action Required by CGB',
+      14: 'On JV Approval',
+      19: 'Approved',
+      23: 'On Partner Approval 1st',
+      24: 'On Partner Approval 2nd',
+    };
+    return statusMap[statusId] || 'Unknown';
+  }
+
+  getStatusClass(status: string): string {
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('approved')) {
+      return 'p-approved';
+    } else if (statusLower.includes('draft')) {
+      return 'p-draft';
+    } else if (statusLower.includes('registered')) {
+      return 'p-registered';
+    } else if (statusLower.includes('waiting')) {
+      return 'p-waiting';
+    } else {
+      return 'p-archive';
+    }
   }
 
   constructor(public toastService: ToastService) {
@@ -404,7 +548,7 @@ export class PaperStatusComponent implements OnInit {
     this.paperService.getPaperConfigList(request).subscribe({
       next: (response) => {
         if (response.status && response.data) {
-          this.paperList = response.data.filter(d => d.statusName !== 'Draft' && d.paperType !== 'Batch Paper');
+          this.paperList = response.data.filter(d => d.statusName !== 'Draft');
           Object.keys(this.originalGroupedPaper).forEach(key => {
             // Case-insensitive matching for status names
             this.originalGroupedPaper[key] = this.paperList.filter(f => {

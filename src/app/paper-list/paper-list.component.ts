@@ -6,7 +6,7 @@ import {
   AfterViewInit,
   TemplateRef,
 } from '@angular/core';
-import { CommonModule, DatePipe, NgForOf } from '@angular/common';
+import { CommonModule, DatePipe, NgForOf, CurrencyPipe } from '@angular/common';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 
 import {
@@ -31,6 +31,7 @@ import { FormsModule } from '@angular/forms';
 import { PaperconfigurationComponent } from '../paperconfiguration/paperconfiguration.component';
 import { SafeHtmlPipe } from '../../pipes/safe-html.pipe';
 import { SafeHtmlDirective } from '../../directives/safe-html.directive';
+import {BatchService} from '../../service/batch.service';
 
 @Component({
   selector: 'app-paper-list',
@@ -38,6 +39,7 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
   imports: [
     DatePipe,
     NgForOf,
+    CurrencyPipe,
     NgbDropdown,
     NgbDropdownItem,
     NgbDropdownMenu,
@@ -105,9 +107,12 @@ export class PaperListComponent implements OnInit, AfterViewInit {
   itemsPerPage: number = 10; // Default page size
   pageSizeOptions: number[] = [10, 25, 50, 100];
 
+  selectedBatchPaper: any = null;
+
   constructor(
     private authService: AuthService,
-    public toastService: ToastService
+    public toastService: ToastService,
+    private batchPaperService: BatchService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.user = d;
@@ -247,11 +252,10 @@ export class PaperListComponent implements OnInit, AfterViewInit {
         }
         
         if (data.status && data.data) {
-          // Filter out batch papers and draft papers
+          // Filter out draft papers only (keep batch papers)
           this.allPaperList = data.data.filter((paper: any) => {
-            const isBatchPaper = paper.paperType === 'Batch Paper';
             const isDraft = paper.statusName?.toLowerCase().includes('draft');
-            return !isBatchPaper && !isDraft;
+            return !isDraft;
           });
           
           // Sort by lastModifyDate or createdDate (newest first)
@@ -593,6 +597,128 @@ export class PaperListComponent implements OnInit, AfterViewInit {
     } else {
       return 'status-red';
     }
+  }
+
+  openBatchPaperDetails(event: Event, content: TemplateRef<any>, paper: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // If batchPapers array is not present, fetch the full batch paper details
+    if (!paper.batchPapers || paper.batchPapers.length === 0) {
+      const batchId = paper.paperID || paper.id || paper.batchId || paper.batchPaperId;
+      if (batchId) {
+        this.batchPaperService.getBatchPapersList().subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              const fullBatchPaper = response.data.find((bp: any) => 
+                (bp.id === batchId) || (bp.batchId === batchId) || (bp.batchPaperId === batchId) || (bp.paperID === batchId)
+              );
+              this.selectedBatchPaper = fullBatchPaper || paper;
+              this._mdlSvc
+                .open(content, {
+                  ariaLabelledBy: 'modal-basic-title',
+                  centered: true,
+                  size: 'xl',
+                })
+                .result.then(
+                  (result) => {
+                    this.selectedBatchPaper = null;
+                  },
+                  (reason) => {
+                    this.selectedBatchPaper = null;
+                  }
+                );
+            } else {
+              this.selectedBatchPaper = paper;
+              this._mdlSvc
+                .open(content, {
+                  ariaLabelledBy: 'modal-basic-title',
+                  centered: true,
+                  size: 'xl',
+                })
+                .result.then(
+                  (result) => {
+                    this.selectedBatchPaper = null;
+                  },
+                  (reason) => {
+                    this.selectedBatchPaper = null;
+                  }
+                );
+            }
+          },
+          error: (error) => {
+            console.log('Error fetching batch paper details:', error);
+            this.selectedBatchPaper = paper;
+            this._mdlSvc
+              .open(content, {
+                ariaLabelledBy: 'modal-basic-title',
+                centered: true,
+                size: 'xl',
+              })
+              .result.then(
+                (result) => {
+                  this.selectedBatchPaper = null;
+                },
+                (reason) => {
+                  this.selectedBatchPaper = null;
+                }
+              );
+          }
+        });
+      } else {
+        this.selectedBatchPaper = paper;
+        this._mdlSvc
+          .open(content, {
+            ariaLabelledBy: 'modal-basic-title',
+            centered: true,
+            size: 'xl',
+          })
+          .result.then(
+            (result) => {
+              this.selectedBatchPaper = null;
+            },
+            (reason) => {
+              this.selectedBatchPaper = null;
+            }
+          );
+      }
+    } else {
+      this.selectedBatchPaper = paper;
+      this._mdlSvc
+        .open(content, {
+          ariaLabelledBy: 'modal-basic-title',
+          centered: true,
+          size: 'xl',
+        })
+        .result.then(
+          (result) => {
+            this.selectedBatchPaper = null;
+          },
+          (reason) => {
+            this.selectedBatchPaper = null;
+          }
+        );
+    }
+  }
+
+  getStatusNameById(statusId: number): string {
+    const statusMap: { [key: number]: string } = {
+      1: 'Draft',
+      3: 'Registered',
+      4: 'Waiting for PDM',
+      5: 'Approved by PDM',
+      6: 'On Pre-CGB',
+      7: 'Approved by Pre-CGB',
+      8: 'Action Required by Pre-CGB',
+      10: 'On CGB',
+      11: 'Approved by CGB',
+      12: 'Action Required by CGB',
+      14: 'On JV Approval',
+      19: 'Approved',
+      23: 'On Partner Approval 1st',
+      24: 'On Partner Approval 2nd',
+    };
+    return statusMap[statusId] || 'Unknown';
   }
 
   isDisabled(status: string): boolean {

@@ -171,7 +171,7 @@
                 <div class="bill-detail">
                   <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="flex-grow-1">
-                      <h5 class="mb-2 cursor-pointer paper-title" (click)="goToApproachToMarket(paper)">
+                      <h5 class="mb-2 cursor-pointer paper-title" (click)="paper.paperType === 'Batch Paper' ? openBatchPaperDetails($event, batchPaperDetailsModal, paper) : goToApproachToMarket(paper)">
                         {{ paper.description }}
                       </h5>
                       <div class="mb-2">
@@ -268,7 +268,7 @@
                           stroke="#0C0C0C" stroke-width="1.125" />
                       </svg>
                     </button>
-                    <button class="btn action-btn" (click)="
+                    <button class="btn action-btn" *ngIf="paper.paperType !== 'Batch Paper'" (click)="
                         goToPreview(paper)">
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -276,7 +276,7 @@
                           fill="#626262" />
                       </svg>
                     </button>
-                    <button class="btn action-btn" (click)="
+                    <button class="btn action-btn" *ngIf="paper.paperType !== 'Batch Paper'" (click)="
                         goToApproachToMarket(paper)
                       ">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -409,7 +409,7 @@
                       <td>
                         <div class="paper-name">
                           <div class="paper-detail">
-                            <p class="cursor-pointer paper-title" (click)="goToApproachToMarket(paper)">
+                            <p class="cursor-pointer paper-title" (click)="paper.paperType === 'Batch Paper' ? openBatchPaperDetails($event, batchPaperDetailsModal, paper) : goToApproachToMarket(paper)">
                               {{ paper.description }}
                             </p>
                           </div>
@@ -454,7 +454,7 @@
                             </svg>
                           </button>
                           <div class="action-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                            <a class="links cursor-pointer" ngbDropdownItem (click)="goToApproachToMarket(paper)">
+                            <a class="links cursor-pointer" *ngIf="paper.paperType !== 'Batch Paper'" ngbDropdownItem (click)="goToApproachToMarket(paper)">
                               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -464,7 +464,7 @@
 
                               Edit
                             </a>
-                            <a class="links cursor-pointer" ngbDropdownItem (click)="goToPreview(paper)">
+                            <a class="links cursor-pointer" *ngIf="paper.paperType !== 'Batch Paper'" ngbDropdownItem (click)="goToPreview(paper)">
                               <svg width="16" height="14" viewBox="0 0 16 14" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_202_1532)">
@@ -679,5 +679,58 @@
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Deleting...</span>
     </button>
+  </div>
+</ng-template>
+
+<ng-template #batchPaperDetailsModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ selectedBatchPaper?.paperProvision || 'Batch Paper Details' }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="selectedBatchPaper && selectedBatchPaper.batchPapers && selectedBatchPaper.batchPapers.length > 0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr class="sticky">
+              <th>Paper Provision</th>
+              <th>Paper Type</th>
+              <th>CGB Item Ref</th>
+              <th>Contract Value</th>
+              <th>PDM Manager</th>
+              <th>PTs</th>
+              <th>CAM</th>
+              <th>VP-1</th>
+              <th>Created By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let batchPaper of selectedBatchPaper.batchPapers">
+              <td>
+                <div class="paper-name">
+                  <div class="paper-detail">
+                    <p>{{ batchPaper.paperProvision || '-' }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ batchPaper.paperType || '-' }}</td>
+              <td>{{ batchPaper.cgbItemRefNo || '-' }}</td>
+              <td>{{ batchPaper.contractValue ? (batchPaper.contractValue | currency:'USD':'symbol':'1.2-2') : '-' }}</td>
+              <td>{{ batchPaper.pdManagerUserName || '-' }}</td>
+              <td>{{ batchPaper.procurementSPAName || batchPaper.procurementSPAUsers || '-' }}</td>
+              <td>{{ batchPaper.camUserName || '-' }}</td>
+              <td>{{ batchPaper.vP1UserName || '-' }}</td>
+              <td>{{ batchPaper.createdName || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="selectedBatchPaper && (!selectedBatchPaper.batchPapers || selectedBatchPaper.batchPapers.length === 0)" class="text-center py-4">
+      <p class="text-muted">No batch papers found for this batch.</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('Close click')">Close</button>
   </div>
 </ng-template>
