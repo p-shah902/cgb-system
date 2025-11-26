@@ -59,6 +59,7 @@
                     <th>PDM Manager</th>
                     <th>BLT</th>
                     <th>Last Modify</th>
+                    <th>Action</th>
                   </tr>
                   </thead>
                   <tbody>
@@ -86,6 +87,15 @@
                     <td class="text-nowrap">
                       {{ (paper.lastModifyDate || paper.createdDate) | date : "dd-MMMM-yyyy" }}
                     </td>
+                    <td>
+                      <div class="edit-btb-div">
+                        <button class="btn" (click)="openEditBatchPaper($event, content, paper)" title="Edit Batch Paper">
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11.3333 1.99999C11.5084 1.82488 11.7163 1.686 11.9444 1.59123C12.1726 1.49646 12.4163 1.44775 12.6667 1.44775C12.917 1.44775 13.1607 1.49646 13.3889 1.59123C13.617 1.686 13.8249 1.82488 14 1.99999C14.1751 2.1741 14.314 2.38204 14.4088 2.61019C14.5035 2.83834 14.5522 3.08201 14.5522 3.33232C14.5522 3.58263 14.5035 3.8263 14.4088 4.05445C14.314 4.2826 14.1751 4.49054 14 4.66465L5.00001 13.6646L1.33334 14.6646L2.33334 10.998L11.3333 1.99999Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                   </tbody>
                 </table>
@@ -99,7 +109,7 @@
 </div>
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title">Create Batch Paper</h4>
+    <h4 class="modal-title">{{ isEditMode ? 'Edit Batch Paper' : 'Create Batch Paper' }}</h4>
     <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
   </div>
   <div class="modal-body">
@@ -118,8 +128,8 @@
     </div>
   </div>
   <div class="modal-footer filter-btn-div">
-    <button type="button" class="btn create-btn create-btn-paper d-flex align-items-center gap-3 justify-content-center" [disabled]="isCreating" (click)="addBatchPaper(modal)">
-      <div class="spinner" *ngIf="isCreating"></div> Save
+    <button type="button" class="btn create-btn create-btn-paper d-flex align-items-center gap-3 justify-content-center" [disabled]="isCreating" (click)="isEditMode ? updateBatchPaper(modal) : addBatchPaper(modal)">
+      <div class="spinner" *ngIf="isCreating"></div> {{ isEditMode ? 'Update' : 'Save' }}
     </button>
   </div>
 </ng-template>

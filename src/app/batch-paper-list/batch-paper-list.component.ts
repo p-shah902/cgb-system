@@ -69,6 +69,8 @@ export class BatchPaperListComponent implements OnInit {
   isLoading: boolean = false;
   isCreating: boolean = false;
   selectedBatchPaper: any = null;
+  isEditMode: boolean = false;
+  editingBatchPaperId: number | null = null;
   form: any = {
     papers: [],
     pdm: null,
@@ -220,6 +222,8 @@ export class BatchPaperListComponent implements OnInit {
 
   open(event: Event, content: TemplateRef<any>) {
     event.preventDefault();
+    this.isEditMode = false;
+    this.editingBatchPaperId = null;
     this.resetForm();
     this._mdlSvc
       .open(content, {
@@ -231,12 +235,118 @@ export class BatchPaperListComponent implements OnInit {
         (result) => {
           // Handle modal close
           this.resetForm();
+          this.isEditMode = false;
+          this.editingBatchPaperId = null;
         },
         (reason) => {
           // Handle modal dismiss
           this.resetForm();
+          this.isEditMode = false;
+          this.editingBatchPaperId = null;
         }
       );
+  }
+
+  openEditBatchPaper(event: Event, content: TemplateRef<any>, paper: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isEditMode = true;
+    this.editingBatchPaperId = paper.id || paper.batchId || paper.batchPaperId;
+    
+    // Pre-populate form with batch paper data
+    this.selectedBatchPaper = paper;
+    
+    // Extract PDM ID - try multiple possible field names
+    // The dropdown expects number values, so keep as number
+    let pdmId: number | null = null;
+    if (paper.pdManagerId) {
+      pdmId = Number(paper.pdManagerId);
+    } else if (paper.pdManagerUserId) {
+      pdmId = Number(paper.pdManagerUserId);
+    } else if (paper.pdManagerNameId) {
+      pdmId = Number(paper.pdManagerNameId);
+    } else if (paper.pdManagerUserName) {
+      // Try to find by name in userDetails
+      const pdmUser = this.userDetails.find(u => u.label === paper.pdManagerUserName);
+      if (pdmUser) {
+        pdmId = Number(pdmUser.value);
+      }
+    }
+    
+    // Extract BLT ID - try multiple possible field names
+    let bltId: number | null = null;
+    if (paper.bltMemberId) {
+      bltId = Number(paper.bltMemberId);
+    } else if (paper.bltMemberUserId) {
+      bltId = Number(paper.bltMemberUserId);
+    } else if (paper.bltMemberName) {
+      // Try to find by name in bltUserDetails
+      const bltUser = this.bltUserDetails.find(u => u.label === paper.bltMemberName);
+      if (bltUser) {
+        bltId = Number(bltUser.value);
+      }
+    }
+    
+    // Extract paper IDs - keep as numbers to match creatPaperList format
+    let paperIds: number[] = [];
+    if (paper.batchPapers && Array.isArray(paper.batchPapers) && paper.batchPapers.length > 0) {
+      paperIds = paper.batchPapers
+        .map((bp: any) => bp.paperID || bp.paperId || bp.id)
+        .filter((id: any) => id != null)
+        .map((id: any) => Number(id));
+    }
+    
+    // Pre-populate form with available data
+    this.form = {
+      name: paper.paperProvision || "",
+      pdm: pdmId,
+      blt: bltId,
+      papers: paperIds
+    };
+
+    // Open modal
+    const modalRef = this._mdlSvc.open(content, {
+      ariaLabelledBy: 'modal-basic-title',
+      centered: true,
+      size: 'lg',
+    });
+    
+    // Use setTimeout to ensure ng-select2 components are fully rendered before setting values
+    // Multiple timeouts to handle different rendering stages
+    setTimeout(() => {
+      // Create new object reference to trigger change detection
+      this.form = {
+        name: paper.paperProvision || "",
+        pdm: pdmId,
+        blt: bltId,
+        papers: [...paperIds] // Create new array reference
+      };
+    }, 100);
+    
+    setTimeout(() => {
+      // Second update to ensure values are set after all components are initialized
+      this.form = {
+        ...this.form,
+        pdm: pdmId,
+        blt: bltId,
+        papers: [...paperIds]
+      };
+    }, 500);
+
+    modalRef.result.then(
+      (result) => {
+        this.resetForm();
+        this.isEditMode = false;
+        this.editingBatchPaperId = null;
+        this.selectedBatchPaper = null;
+      },
+      (reason) => {
+        this.resetForm();
+        this.isEditMode = false;
+        this.editingBatchPaperId = null;
+        this.selectedBatchPaper = null;
+      }
+    );
   }
 
   openPage(value: any, modal: any) {
@@ -312,6 +422,58 @@ export class BatchPaperListComponent implements OnInit {
       blt: null,
       name: ""
     };
+    this.isEditMode = false;
+    this.editingBatchPaperId = null;
+  }
+
+  updateBatchPaper(modal: any) {
+    if (!this.form.name) {
+      this.toastService.show("Please enter batch paper name", "danger");
+      return;
+    }
+    if (!this.form.pdm) {
+      this.toastService.show("Please select batch paper PDM", "danger");
+      return;
+    }
+    if (!this.editingBatchPaperId) {
+      this.toastService.show("Batch paper ID not found", "danger");
+      return;
+    }
+    
+    this.isCreating = true;
+    const payload: any = {
+      "id": this.editingBatchPaperId,
+      "paperId": this.form.papers || [],
+      "paperProvision": this.form.name,
+      "pdManagerName": this.form.pdm,
+      "purposeRequired": 'batch'
+    };
+    
+    if (this.form.blt) {
+      payload.bltMember = this.form.blt;
+    }
+    
+    this.batchPaperService.upsertBatchPaper(payload).subscribe({
+      next: (response) => {
+        this.loadBatchPapersList();
+        this.resetForm();
+        modal.close('Save click');
+        this.toastService.show("Batch paper updated successfully", "success");
+      },
+      error: (error) => {
+        let errors = error.error?.errors;
+        if (errors) {
+          let firstError = Object.keys(errors)[0];
+          this.toastService.show(errors[firstError][0] || "Error updating batch paper.", "danger");
+        } else {
+          this.toastService.show(error.error?.message || "Error updating batch paper.", "danger");
+        }
+        this.isCreating = false;
+      },
+      complete: () => {
+        this.isCreating = false;
+      }
+    })
   }
 
   update(event: any, key: any) {

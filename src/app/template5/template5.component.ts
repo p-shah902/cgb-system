@@ -42,13 +42,14 @@ import {CommentableDirective} from '../../directives/commentable.directive';
 import {EditorNormalComponent} from '../../components/editor-normal/editor-normal.component';
 import {TimeAgoPipe} from '../../pipes/time-ago.pipe';
 import {NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
-import {cleanObject} from '../../utils/index';
+import {cleanObject, base64ToFile, getMimeTypeFromFileName} from '../../utils/index';
 import {format} from 'date-fns';
 import {ToggleService} from '../shared/services/toggle.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PermissionService } from '../shared/services/permission.service';
 import { ActionBarComponent } from '../shared/components/action-bar/action-bar.component';
 import {BatchService} from '../../service/batch.service';
+import {UploadService} from '../../service/document.service';
 
 @Component({
   selector: 'app-template5',
@@ -106,6 +107,7 @@ export class Template5Component  implements AfterViewInit{
   highlightClass = 'highlight'; // CSS class for highlighting
   selectedFiles: any[] = [];
   isDragging = false;
+  deletedFiles: number[] = [];
   private allApisDone$ = new BehaviorSubject<boolean>(false);
   private completedCount = 0;
   private totalCalls = 3;
@@ -126,11 +128,13 @@ export class Template5Component  implements AfterViewInit{
     section3: false,
     section4: false,
     section5: false,
+    section6: false,
   };
   constructor(private router: Router,private toggleService: ToggleService, private route: ActivatedRoute, private dictionaryService: DictionaryService,
               private fb: FormBuilder, private countryService: Generalervice, private renderer: Renderer2, public toastService: ToastService,
               public permission: PermissionService,
-              private batchPaperService: BatchService
+              private batchPaperService: BatchService,
+              private uploadService: UploadService
   ) {
     this.authService.userDetails$.subscribe((d) => {
       this.loggedInUser = d;
@@ -448,6 +452,11 @@ export class Template5Component  implements AfterViewInit{
       if (selectedPaperStatus?.paperStatus !== "Draft") {
         this.isRegisterPaper = true
         this.commentService.loadPaper(paperId);
+      }
+
+      // Load uploaded documents
+      if (paperId && !this.isCopy) {
+        this.getUploadedDocs(paperId);
       }
 
       console.log("==isRegisterPaper", this.isRegisterPaper)
@@ -2453,6 +2462,10 @@ export class Template5Component  implements AfterViewInit{
     this.paperService.upsertInfoNote(params).subscribe({
       next: (response) => {
         if (response.status && response.data) {
+          const docId = response.data.paperId || null;
+          this.uploadFiles(docId);
+          this.deleteMultipleDocuments(docId);
+
           if (updateStatus) {
             // Call setPaperStatus only if in edit mode and pendingStatus exists
             if (this.paperId && !this.isCopy && this.pendingStatus) {
@@ -2817,6 +2830,137 @@ export class Template5Component  implements AfterViewInit{
 
     // If status is On Pre-CGB and user is not Secretary, disable CKEditor
     return isOnPreCGB && !isSecretary;
+  }
+
+  // Attachment methods
+  getUploadedDocs(paperId: number): void {
+    this.uploadService.getDocItemsListByPaperId(paperId).subscribe(value => {
+      const response = value?.data;
+
+      if (response && Array.isArray(response) && response.length > 0) {
+        this.selectedFiles = response.map((doc: any) => {
+          const mimeType = getMimeTypeFromFileName(doc.docName);
+          return {
+            name: doc.docName,
+            preview: `data:${mimeType};base64,${doc.fileData}`,
+            file: null,
+            isImage: mimeType.startsWith('image'),
+            id: doc.id
+          };
+        });
+        // Set attachment section visibility to true if there are files
+        this.sectionVisibility['section6'] = true;
+      } else {
+        this.selectedFiles = []; // Clear or handle empty state
+      }
+    });
+  }
+
+  onFileSelected(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files) {
+      Array.from(inputElement.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileType = getMimeTypeFromFileName(file.name);
+          this.selectedFiles.push({ file, name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+
+    if (event.dataTransfer?.files) {
+      Array.from(event.dataTransfer.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const fileType = getMimeTypeFromFileName(file.name);
+          this.selectedFiles.push({ file, name: file.name, preview: e.target?.result as string, isImage: fileType.startsWith('image'), id: null });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  // Remove a selected file
+  removeFile(index: number, file: any = null) {
+    this.selectedFiles.splice(index, 1);
+    if(file?.id && !this.isCopy) {
+      this.deletedFiles.push(Number(file.id));
+    }
+  }
+
+  deleteMultipleDocuments(paperId: number | null) {
+    if (!paperId || this.deletedFiles.length === 0) return;
+
+    this.deletedFiles.forEach(docId => {
+      this.uploadService.deleteDocuments(paperId, docId).subscribe({
+        next: (res) => {
+          if (res.success) {
+            console.log(`Deleted docId: ${docId}`);
+          }
+        },
+        error: (err) => {
+          console.error(`Failed to delete docId ${docId}:`, err);
+        }
+      });
+    });
+  }
+
+  uploadFiles(docId: number | null) {
+    if (!docId || this.selectedFiles.length === 0) return;
+
+    const formData = new FormData();
+
+    this.selectedFiles.forEach(item => {
+      let file: File | null = null;
+
+      if (item.file) {
+        file = item.file;
+      } else if (item.preview && item.id && this.isCopy) {
+        const base64 = item.preview.split(',')[1];
+        const mimeType = getMimeTypeFromFileName(item.name);
+        file = base64ToFile(base64, item.name, mimeType);
+      }
+
+      if (file) {
+        formData.append('Files', file);
+      }
+    });
+
+    if (formData.has('Files')) {
+      this.uploadService.uploadDocuments(docId, formData).subscribe({
+        next: (response) => {
+          if (response.status && response.data) {
+            console.log('Files uploaded successfully!');
+            this.selectedFiles = [];
+          }
+        },
+        error: (error) => {
+          console.error('Upload error:', error);
+        },
+        complete: () => {
+          // Optionally reload the documents list
+          if (docId) {
+            this.getUploadedDocs(docId);
+          }
+        }
+      });
+    }
   }
 
 }

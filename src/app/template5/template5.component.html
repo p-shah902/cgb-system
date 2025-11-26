@@ -34,6 +34,7 @@
                     <option value="section3">3. CDD (Counterparty Due Diligence)</option>
                     <option value="section4">4. Cost Allocation and PSA Approval</option>
                     <option value="section5">5. Consultation</option>
+                    <option value="section6">6. Attachments</option>
                   </select>
                 </div>
                 <div class="fh-search">
@@ -247,7 +248,7 @@
 
                 <div class="col-sm-6 col-md-4">
                   <div class="form-group mb-3">
-                    <label>Previous CGB Item Reference</label>
+                    <label>Previous CGB Item Reference <span class="danger">*</span></label>
                     <ng-select2
                       placeholder="Search by Ref# or Title..."
                       displaySearchStatus="always"
@@ -741,7 +742,76 @@
             </div>
 
             <!--            form end===========================================================================-->
+            <div id="section6" data-section="section6" (click)="toggleSection('section6')"
+                 class="fb-title-div cursor-pointer bg-header d-flex justify-content-between align-items-center px-3">
+              <h4 class="mb-0">6. Attachments</h4>
+              <span class="btn collapse-btn">
+              <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                   width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path [attr.d]="sectionVisibility['section6'] ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'" stroke="currentColor"
+                      stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+              </svg>
+            </span>
+            </div>
+            <div *ngIf="sectionVisibility['section6']" class="fb-form">
+              <div class="form-group mb-3">
+                <div class="mb-2">
+                  <label>Supporting Documents: (Allowed File Types: PDF, DOCX, XLSX.)</label>
+                </div>
+                <div class="document-attachment">
+                  <!-- Show selected files with preview and delete option -->
+                  <div class="image-slider">
+                    <div class="slider-container">
+                      <div class="attach-thumb bg-white slider-item"
+                           *ngFor="let file of selectedFiles; let i = index">
 
+                        <!-- Show Image Preview for image files -->
+                        <img *ngIf="file.preview && file.isImage" [src]="file.preview" alt="Document Image"
+                             class="uploaded-image"/>
+
+                        <!-- Default icon for non-image files -->
+                        <img *ngIf="file.preview && !file.isImage" [src]="'/img/bill.png'" alt="Document Image"
+                             class="uploaded-image"/>
+
+                        <div class="file-info d-flex justify-content-between align-items-center">
+                          <p class="m-0 file-name">
+                            {{ file.name }}
+                          </p>
+
+                          <!-- Delete Icon -->
+                          <svg width="13" height="14" viewBox="0 0 13 14" fill="none"
+                               xmlns="http://www.w3.org/2000/svg"
+                               (click)="removeFile(i, file)" style="cursor: pointer;">
+                            <g clip-path="url(#clip0_202_3810)">
+                              <path
+                                d="M4.07187 0.483984C4.21953 0.185938 4.52305 0 4.85391 0H8.14609C8.47695 0 8.78047 0.185938 8.92812 0.483984L9.125 0.875H11.75C12.234 0.875 12.625 1.26602 12.625 1.75C12.625 2.23398 12.234 2.625 11.75 2.625H1.25C0.766016 2.625 0.375 2.23398 0.375 1.75C0.375 1.26602 0.766016 0.875 1.25 0.875H3.875L4.07187 0.483984ZM1.25 3.5H11.75V12.25C11.75 13.2152 10 14 10 14H3C2.03477 14 1.25 13.2152 1.25 12.25V3.5ZM3.875 5.25C3.63438 5.25 3.4375 5.44688 3.4375 5.6875V11.8125C3.4375 12.0531 3.63438 12.25 3.875 12.25C4.11562 12.25 4.3125 12.0531 4.3125 11.8125V5.6875C4.3125 5.44688 4.11562 5.25 3.875 5.25ZM6.5 5.25C6.25938 5.25 6.0625 5.44688 6.0625 5.6875V11.8125C6.0625 12.0531 6.25938 12.25 6.5 12.25C6.74062 12.25 6.9375 12.0531 6.9375 11.8125V5.6875C6.9375 5.44688 6.74062 5.25 6.5 5.25ZM9.125 5.25C8.88437 5.25 8.6875 5.44688 8.6875 5.6875V11.8125C8.6875 12.0531 8.88437 12.25 9.125 12.25C9.36563 12.25 9.5625 12.0531 9.5625 11.8125V5.6875C9.5625 5.44688 9.36563 5.25 9.125 5.25Z"
+                                fill="#DC3545"/>
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_202_3810">
+                                <rect width="12.25" height="14" fill="white" transform="translate(0.375)"/>
+                              </clipPath>
+                            </defs>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <!-- Drag & Drop Area -->
+                  <div class="drag-drop text-center bg-white" (dragover)="onDragOver($event)"
+                       (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" [class.dragging]="isDragging">
+                    <input type="file" id="document-upload" class="d-none allow-comments"
+                           (change)="onFileSelected($event)" accept=".pdf, .docx, .xlsx, .jpg, .jpeg, .png" multiple/>
+                    <h4>Drag & Drop</h4>
+                    <p>Or</p>
+                    <label for="document-upload" class="upload-label">Upload Files</label>
+                    <p class="mt-3 mb-0">Max File Size: 10 MB.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="fb-form pt-3">
               <app-action-bar
