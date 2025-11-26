@@ -1398,19 +1398,8 @@ export class Template5Component  implements AfterViewInit{
       return;
     }
 
-    // Get existing paper IDs from the batch (if batchPapers array exists)
-    let existingPaperIds: number[] = [];
-    if (batchPaper.batchPapers && Array.isArray(batchPaper.batchPapers)) {
-      existingPaperIds = batchPaper.batchPapers
-        .map((bp: any) => bp.paperID || bp.paperId || bp.id)
-        .filter((id: any) => id != null)
-        .map((id: any) => Number(id));
-    }
-
-    // Add the new paper ID to the existing array (avoid duplicates)
-    if (!existingPaperIds.includes(paperId)) {
-      existingPaperIds.push(paperId);
-    }
+    // Always pass only the current paper ID (new or updated), not existing batch papers
+    const paperIdsToSend = [paperId];
 
     // Build payload with all batch paper fields as-is, only update paperId array
     // Use spread operator to copy all fields from batchPaper, then override paperId and add action
@@ -1419,7 +1408,7 @@ export class Template5Component  implements AfterViewInit{
     const payload: any = {
       ...batchPaper, // Copy all fields from batch paper object
       BatchId: finalBatchId, // API expects BatchId (capital B and I)
-      paperId: existingPaperIds, // All existing papers + the new one
+      paperId: paperIdsToSend, // Only current paper ID for updates, all papers for new
       action: "Add"
     };
     
