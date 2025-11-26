@@ -1541,22 +1541,6 @@ export class Template3Component implements AfterViewInit {
   }
 
   onConflictofInterestChange() {
-    // Handle contractValues.isConflictOfInterest (for contract values section)
-    this.generalInfoForm.get('contractValues.isConflictOfInterest')?.valueChanges.subscribe((value) => {
-      const conflictCommentControl = this.generalInfoForm.get('contractValues.conflictOfInterestComment');
-
-      if (value === true) {
-        conflictCommentControl?.setValidators([Validators.required]);
-        conflictCommentControl?.enable();
-      } else {
-        conflictCommentControl?.clearValidators();
-        conflictCommentControl?.disable();
-        conflictCommentControl?.setValue(''); // Clear value when disabled
-      }
-
-      conflictCommentControl?.updateValueAndValidity();
-    });
-
     // Handle contractInfo.isConflictOfInterest (for Section 3 - Contract Information)
     this.generalInfoForm.get('contractInfo.isConflictOfInterest')?.valueChanges.subscribe((value) => {
       const conflictCommentControl = this.generalInfoForm.get('contractInfo.conflictOfInterestComment');
