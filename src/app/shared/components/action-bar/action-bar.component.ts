@@ -26,6 +26,7 @@ export class ActionBarComponent {
   @Input() isBPGroup100Percent: boolean = false; // Whether BP Group PSA split = 100%
   @Input() hasJVAlignedConsultation: boolean = false; // Whether JV Admin has assigned consultation with JV Aligned
   @Input() canEditAnyJVAlignedCheckbox: boolean = false; // Whether JV Admin can edit any JV Aligned checkbox
+  @Input() hasBatchPaperSelected: boolean = false; // Whether a batch paper is selected (hide Draft button in create mode)
 
   @Output() setStatus = new EventEmitter<string>();
   @Output() openReturn = new EventEmitter<Event>();

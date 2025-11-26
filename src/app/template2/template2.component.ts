@@ -1331,6 +1331,15 @@ export class Template2Component implements AfterViewInit {
     }
   }
 
+  hasBatchPaperSelected(): boolean {
+    // Check if batch paper is selected and we're in create mode (no paperId or isCopy)
+    if (this.paperId && !this.isCopy) {
+      return false; // In edit mode, always show Draft button
+    }
+    const batchPaperValue = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
+    return batchPaperValue !== null && batchPaperValue !== undefined && batchPaperValue !== '';
+  }
+
   addPaperToBatch(batchId: number, paperId: number) {
     const payload = {
       batchId: batchId,

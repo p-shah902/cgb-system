@@ -683,6 +683,15 @@ export class Template1Component implements AfterViewInit  {
     return this.generalInfoForm.get('generalInfo.batchPaper');
   }
 
+  hasBatchPaperSelected(): boolean {
+    // Check if batch paper is selected and we're in create mode (no paperId or isCopy)
+    if (this.paperId && !this.isCopy) {
+      return false; // In edit mode, always show Draft button
+    }
+    const batchPaperValue = this.generalInfoForm.get('generalInfo.batchPaper')?.value;
+    return batchPaperValue !== null && batchPaperValue !== undefined && batchPaperValue !== '';
+  }
+
   /**
    * Check if CKEditor fields should be disabled
    * On Pre-CGB: Only Secretary (and Super Admin) can edit CKEditor fields

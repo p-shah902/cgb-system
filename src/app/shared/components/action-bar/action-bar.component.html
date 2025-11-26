@@ -2,7 +2,10 @@
   <!-- Create mode: show Draft/Register -->
   <ng-container
     *ngIf="!paperId || (paperId && isCopy) && (permission.canShowDraftRegisterInEdit(roleName, statusName))">
-    <button class="btn  btn-outline-dark" type="submit" data-status="Draft" [disabled]="isLoading">
+    <!-- Hide Draft button when batch paper is selected during creation -->
+    <button class="btn  btn-outline-dark" type="submit" data-status="Draft" 
+      *ngIf="!hasBatchPaperSelected"
+      [disabled]="isLoading">
       <span *ngIf="!isLoading">Draft</span>
       <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
       <span *ngIf="isLoading">Loading...</span>
