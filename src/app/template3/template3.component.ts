@@ -1279,6 +1279,37 @@ export class Template3Component implements AfterViewInit {
       this.removePaperFromBatch(this.selectedBatchPaper.id, Number(this.paperId));
     }
     this.selectedBatchPaper = selectedBatch;
+    
+    // Auto-select PDM and BLT from batch paper
+    if (selectedBatch) {
+      // Find PDM user ID by matching name
+      if (selectedBatch.pdManagerUserName) {
+        const pdmUser = this.userDetails.find(user => 
+          user.roleName === 'PDM' && 
+          user.displayName === selectedBatch.pdManagerUserName
+        );
+        if (pdmUser) {
+          this.generalInfoForm.get('generalInfo.pdManagerName')?.setValue(pdmUser.id);
+        } else if (selectedBatch.pdManagerId || selectedBatch.pdManagerUserId) {
+          // If batch paper has direct ID
+          this.generalInfoForm.get('generalInfo.pdManagerName')?.setValue(selectedBatch.pdManagerId || selectedBatch.pdManagerUserId);
+        }
+      }
+      
+      // Find BLT user ID by matching name
+      if (selectedBatch.bltMemberName) {
+        const bltUser = this.userDetails.find(user => 
+          user.roleName === 'BLT' && 
+          user.displayName === selectedBatch.bltMemberName
+        );
+        if (bltUser) {
+          this.generalInfoForm.get('generalInfo.bltMember')?.setValue(bltUser.id);
+        } else if (selectedBatch.bltMemberId || selectedBatch.bltMemberUserId) {
+          // If batch paper has direct ID
+          this.generalInfoForm.get('generalInfo.bltMember')?.setValue(selectedBatch.bltMemberId || selectedBatch.bltMemberUserId);
+        }
+      }
+    }
   }
 
   addPaperToBatch(batchId: number, paperId: number) {
