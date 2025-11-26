@@ -141,40 +141,41 @@
   </div>
   <div class="modal-body">
     <div *ngIf="selectedBatchPaper && selectedBatchPaper.batchPapers && selectedBatchPaper.batchPapers.length > 0">
-      <h5 class="mb-3">Batch Papers List</h5>
       <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>Paper Provision</th>
-              <th>Paper Status</th>
-              <th>CGB Item Ref</th>
-              <th>Contract Value</th>
-              <th>PDM Manager</th>
-              <th>PTs</th>
-              <th>CAM</th>
-              <th>VP-1</th>
-              <th>Created By</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let batchPaper of selectedBatchPaper.batchPapers">
-              <td>{{ batchPaper.paperProvision || '-' }}</td>
-              <td>
-                <span [ngClass]="getStatusClass(getStatusNameById(batchPaper.paperStatusId))">
-                  {{ getStatusNameById(batchPaper.paperStatusId) || '-' }}
-                </span>
-              </td>
-              <td>{{ batchPaper.cgbItemRefNo || '-' }}</td>
-              <td>{{ batchPaper.contractValue ? (batchPaper.contractValue | currency:'USD':'symbol':'1.2-2') : '-' }}</td>
-              <td>{{ batchPaper.pdManagerUserName || '-' }}</td>
-              <td>{{ batchPaper.procurementSPAName || batchPaper.procurementSPAUsers || '-' }}</td>
-              <td>{{ batchPaper.camUserName || '-' }}</td>
-              <td>{{ batchPaper.vP1UserName || '-' }}</td>
-              <td>{{ batchPaper.createdName || '-' }}</td>
-            </tr>
-          </tbody>
-        </table>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr class="sticky">
+                <th>Paper Provision</th>
+                <th>Paper Type</th>
+                <th>CGB Item Ref</th>
+                <th>Contract Value</th>
+                <th>PDM Manager</th>
+                <th>PTs</th>
+                <th>CAM</th>
+                <th>VP-1</th>
+                <th>Created By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let batchPaper of selectedBatchPaper.batchPapers">
+                <td>
+                  <div class="paper-name">
+                    <div class="paper-detail">
+                      <p>{{ batchPaper.paperProvision || '-' }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ batchPaper.paperType || '-' }}</td>
+                <td>{{ batchPaper.cgbItemRefNo || '-' }}</td>
+                <td>{{ batchPaper.contractValue ? (batchPaper.contractValue | currency:'USD':'symbol':'1.2-2') : '-' }}</td>
+                <td>{{ batchPaper.pdManagerUserName || '-' }}</td>
+                <td>{{ batchPaper.procurementSPAName || batchPaper.procurementSPAUsers || '-' }}</td>
+                <td>{{ batchPaper.camUserName || '-' }}</td>
+                <td>{{ batchPaper.vP1UserName || '-' }}</td>
+                <td>{{ batchPaper.createdName || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
       </div>
     </div>
     <div *ngIf="selectedBatchPaper && (!selectedBatchPaper.batchPapers || selectedBatchPaper.batchPapers.length === 0)" class="text-center py-4">
