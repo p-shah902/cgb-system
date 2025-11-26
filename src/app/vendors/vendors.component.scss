@@ -81,9 +81,8 @@
       }
     }
     
-    ::ng-deep .dropdown-menu,
     .action-menu {
-      padding: 6px;
+      padding: 8px;
       background: #FFFFFF;
       border: 1px solid #E8E8E8;
       box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
@@ -91,33 +90,25 @@
       left: auto !important;
       right: 0 !important;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
+      width: 100%;
       min-width: 160px;
-      margin-top: 4px;
+      margin-top: 8px;
       position: fixed !important;
       z-index: 1050;
       transform: none !important;
       
-      .dropdown-item {
-        padding: 0;
-        margin: 0;
-        border: none;
-        
-        &::after,
-        &::before {
-          display: none;
-        }
-        
-        &:hover {
-          background-color: transparent;
-        }
+      ::ng-deep .dropdown-item::after,
+      ::ng-deep .dropdown-item::before {
+        display: none !important;
+        content: none !important;
       }
-      
+
       .links {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 8px 12px;
+        gap: 10px;
+        padding: 10px 14px;
         background-color: transparent;
         border-radius: 8px;
         font-size: 14px;
@@ -128,17 +119,40 @@
         margin: 0;
         border: none;
         width: 100%;
+        cursor: pointer;
         white-space: nowrap;
-        
+
+        &::after,
+        &::before {
+          display: none !important;
+          content: none !important;
+        }
+
+        svg {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+        }
+
         &:hover {
           background-color: #F8F9FB;
           color: #582AA2;
+          transform: translateX(2px);
+
+          svg {
+            transform: scale(1.1);
+          }
+
+          svg path,
+          svg g path {
+            fill: #582AA2;
+            stroke: #582AA2;
+          }
         }
-        
-        svg {
-          width: 16px;
-          height: 16px;
-          flex-shrink: 0;
+
+        &:active {
+          background-color: #E6EFFC;
+          transform: translateX(1px);
         }
       }
     }
