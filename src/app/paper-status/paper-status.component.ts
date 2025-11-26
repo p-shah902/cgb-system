@@ -70,7 +70,6 @@ export class PaperStatusComponent implements OnInit {
     'On CGB': [],
     'Action Required by CGB': [],
     'Approved by CGB': [],
-    'On JV Approval': [],
     'On Partner Approval 1st': [],
     'On Partner Approval 2nd': [],
     'Approved': [],
@@ -86,7 +85,6 @@ export class PaperStatusComponent implements OnInit {
     'On CGB': [],
     'Action Required by CGB': [],
     'Approved by CGB': [],
-    'On JV Approval': [],
     'On Partner Approval 1st': [],
     'On Partner Approval 2nd': [],
     'Approved': [],
@@ -101,7 +99,6 @@ export class PaperStatusComponent implements OnInit {
     // {label: 'On CGB', value: 10},
     {label: 'Action Required by CGB', value: 12},
     {label: 'Approved by CGB', value: 11},
-    {label: 'On JV Approval', value: 14},
     {label: 'On Partner Approval 1st', value: 23},
     {label: 'On Partner Approval 2nd', value: 24},
     {label: 'Approved', value: 19},
@@ -266,7 +263,6 @@ export class PaperStatusComponent implements OnInit {
       10: 'On CGB',
       11: 'Approved by CGB',
       12: 'Action Required by CGB',
-      14: 'On JV Approval',
       19: 'Approved',
       23: 'On Partner Approval 1st',
       24: 'On Partner Approval 2nd',
@@ -508,7 +504,6 @@ export class PaperStatusComponent implements OnInit {
         const sectionKey = params['scrollTo'];
         // Map query param to section name
         const sectionMap: { [key: string]: string } = {
-          'on-jv-approval': 'On JV Approval'
         };
         const targetSection = sectionMap[sectionKey];
         if (targetSection) {
