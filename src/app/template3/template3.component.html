@@ -1338,6 +1338,9 @@
                 (partnerApproveReject)="handlePartnerApproveReject($event)"
                 (sendForPDM)="handleSendForPDM()"
               ></app-action-bar>
+              <p class="text-end text-success" *ngIf="approvalMessage">
+                {{approvalMessage}}
+              </p>
             </div>
           </div>
         </form>

@@ -114,6 +114,7 @@ export class Template2Component implements AfterViewInit {
   reviewBy: string = '';
   partnerApprovalStatuses: PartnerApprovalStatus[] = [];
   canShowPartnerApproveReject: boolean = false;
+  approvalMessage: string = '';
   private readonly _mdlSvc = inject(NgbModal);
   thresholdData: ThresholdType[] = []
   deletedFiles: number[] = []
@@ -1298,13 +1299,13 @@ export class Template2Component implements AfterViewInit {
       this.removePaperFromBatch(this.selectedBatchPaper.id, Number(this.paperId));
     }
     this.selectedBatchPaper = selectedBatch;
-    
+
     // Auto-select PDM and BLT from batch paper
     if (selectedBatch) {
       // Find PDM user ID by matching name
       if (selectedBatch.pdManagerUserName) {
-        const pdmUser = this.userDetails.find(user => 
-          user.roleName === 'PDM' && 
+        const pdmUser = this.userDetails.find(user =>
+          user.roleName === 'PDM' &&
           user.displayName === selectedBatch.pdManagerUserName
         );
         if (pdmUser) {
@@ -1314,11 +1315,11 @@ export class Template2Component implements AfterViewInit {
           this.generalInfoForm.get('generalInfo.pdManagerName')?.setValue(selectedBatch.pdManagerId || selectedBatch.pdManagerUserId);
         }
       }
-      
+
       // Find BLT user ID by matching name
       if (selectedBatch.bltMemberName) {
-        const bltUser = this.userDetails.find(user => 
-          user.roleName === 'BLT' && 
+        const bltUser = this.userDetails.find(user =>
+          user.roleName === 'BLT' &&
           user.displayName === selectedBatch.bltMemberName
         );
         if (bltUser) {
@@ -1328,7 +1329,7 @@ export class Template2Component implements AfterViewInit {
           this.generalInfoForm.get('generalInfo.bltMember')?.setValue(selectedBatch.bltMemberId || selectedBatch.bltMemberUserId);
         }
       }
-      
+
       // Disable PDM and BLT fields when batch paper is selected (only in create mode)
       if (!this.paperId || this.isCopy) {
         this.generalInfoForm.get('generalInfo.pdManagerName')?.disable();
@@ -1355,7 +1356,7 @@ export class Template2Component implements AfterViewInit {
   addPaperToBatch(batchId: number, paperId: number) {
     // Get the batch paper object to use its data
     const batchPaper = this.batchPaperList.find(batch => batch.id === batchId || batch.batchId === batchId || batch.batchPaperId === batchId) || this.selectedBatchPaper;
-    
+
     if (!batchPaper) {
       this.toastService.show('Batch paper not found', 'danger');
       return;
@@ -1367,14 +1368,14 @@ export class Template2Component implements AfterViewInit {
     // Build payload with all batch paper fields as-is, only update paperId array
     // Use spread operator to copy all fields from batchPaper, then override paperId and add action
     const finalBatchId = batchPaper.id || batchPaper.batchId || batchPaper.batchPaperId || batchId;
-    
+
     const payload: any = {
       ...batchPaper, // Copy all fields from batch paper object
       BatchId: finalBatchId, // API expects BatchId (capital B and I)
       paperId: paperIdsToSend, // Only current paper ID for updates, all papers for new
       action: "Add"
     };
-    
+
     // Remove batchPapers array from payload as it's not needed in the API
     delete payload.batchPapers;
     // Remove id if it exists, as we're using BatchId instead
@@ -3050,7 +3051,7 @@ export class Template2Component implements AfterViewInit {
       const updatedParams = cleanObject(params);
 
       this.generatePaper(updatedParams)
-    } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval") {
+    } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval" || this.currentPaperStatus === "On CGB" || this.currentPaperStatus === "Action Required by CGB") {
       this.generatePaper(params, false)
     }
   }
@@ -4563,6 +4564,10 @@ export class Template2Component implements AfterViewInit {
           if (!hasUserApproved) {
             this.canShowPartnerApproveReject = this.checkPSAMatch();
           } else {
+            let findDetails = response.data.find(
+              (status) => status.approvedByUserId === this.loggedInUser?.id
+            )
+            this.approvalMessage = findDetails!.approvalStatus === 'Approved' ? 'You have already approved this paper' : 'You have rejected this paper';
             this.canShowPartnerApproveReject = false;
           }
         } else {

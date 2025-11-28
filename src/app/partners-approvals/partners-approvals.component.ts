@@ -64,7 +64,7 @@ export class PartnersApprovalsComponent implements OnInit {
       key: 'SCP',
       label: 'SCP',
       subColumns: [
-        { key: 'SCP_CC', label: 'SCP CC' },
+        { key: 'SCP_CC', label: 'SCP Co CC' },
         { key: 'SCP_Board', label: 'SCP Board' }
       ]
     },
@@ -100,7 +100,7 @@ export class PartnersApprovalsComponent implements OnInit {
 
   loadPapers() {
     this.isLoading = true;
-    
+
     // Load papers that are in Partner Approval statuses
     // Use the same approach as paper-status component
     const request: GetPaperConfigurationsListRequest = {
@@ -122,17 +122,17 @@ export class PartnersApprovalsComponent implements OnInit {
             'On Partner Approval 1st',
             'On Partner Approval 2nd'
           ];
-          
+
           this.papers = response.data.filter((paper: PaperConfig) => {
             const paperStatus = (paper.statusName || '').toLowerCase().trim();
-            
+
             // Check if paper status matches any of the target statuses (case-insensitive)
             return targetStatuses.some(targetStatus => {
               const targetStatusLower = targetStatus.toLowerCase().trim();
               return paperStatus === targetStatusLower;
             });
           });
-          
+
           // Load approval data for each paper
           this.loadApprovalData();
         } else {
@@ -177,10 +177,10 @@ export class PartnersApprovalsComponent implements OnInit {
               }
             });
           }
-          
+
           // Add to array at correct index to maintain order
           this.paperApprovalData[index] = approvalData;
-          
+
           loadedCount++;
           if (loadedCount === this.papers.length) {
             // Filter out any undefined entries and update
@@ -190,10 +190,10 @@ export class PartnersApprovalsComponent implements OnInit {
         },
         error: (error) => {
           console.error(`Error loading approval status for paper ${paper.paperID}:`, error);
-          
+
           // Add to array at correct index even on error
           this.paperApprovalData[index] = approvalData;
-          
+
           loadedCount++;
           if (loadedCount === this.papers.length) {
             // Filter out any undefined entries and update
@@ -226,29 +226,29 @@ export class PartnersApprovalsComponent implements OnInit {
 
   mapPsaToPartnerKey(psa: string): string | null {
     if (!psa) return null;
-    
+
     const psaUpper = psa.toUpperCase();
-    
+
     // Map PSA names to partner keys
-    if (psaUpper.includes('CMC') || psaUpper.includes('CO-VENTURER') && psaUpper.includes('CMC')) {
+    if (psaUpper === 'CMC') {
       return 'CMC';
     }
-    if (psaUpper.includes('SC') || psaUpper.includes('STEERING COMMITTEE')) {
+    if (psaUpper === 'SC') {
       return 'SC';
     }
-    if (psaUpper.includes('SDCC') || psaUpper.includes('SD') && psaUpper.includes('CC')) {
+    if (psaUpper === 'SDCC') {
       return 'SDCC';
     }
-    if (psaUpper.includes('SDMC') || psaUpper.includes('SD') && psaUpper.includes('MC')) {
+    if (psaUpper === 'SDMC') {
       return 'SDMC';
     }
-    if (psaUpper.includes('SCP') && psaUpper.includes('CC')) {
+    if (psaUpper === 'SCP CO CC') {
       return 'SCP_CC';
     }
-    if (psaUpper.includes('SCP') && psaUpper.includes('BOARD')) {
+    if (psaUpper === 'SCP BORAD') {
       return 'SCP_Board';
     }
-    if (psaUpper.includes('BTC') && psaUpper.includes('CC')) {
+    if (psaUpper === 'BTC CC') {
       return 'BTC_CC';
     }
     if (psaUpper.includes('BTC') && psaUpper.includes('BOARD')) {
@@ -263,18 +263,18 @@ export class PartnersApprovalsComponent implements OnInit {
     if (psaUpper.includes('SH-ASIMAN') || psaUpper.includes('SHASIMAN')) {
       return 'Sh-Asiman';
     }
-    
+
     return null;
   }
 
   getPartnerApprovalStatus(paperData: PaperApprovalData, partnerKey: string, subKey?: string): string {
     const key = subKey || partnerKey;
     const approval = paperData.partnerApprovals[key];
-    
+
     if (!approval) {
       return 'pending';
     }
-    
+
     const status = (approval.approvalStatus || '').toLowerCase();
     if (status.includes('approved')) {
       return 'approved';
@@ -282,7 +282,7 @@ export class PartnersApprovalsComponent implements OnInit {
     if (status.includes('rejected') || status.includes('reject')) {
       return 'rejected';
     }
-    
+
     return 'pending';
   }
 
