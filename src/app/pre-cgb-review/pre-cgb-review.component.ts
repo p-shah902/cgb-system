@@ -4,7 +4,7 @@ import {
   OnInit,
   TemplateRef,
 } from '@angular/core';
-import { CommonModule, DatePipe, NgForOf } from '@angular/common';
+import { CommonModule, DatePipe, NgForOf, CurrencyPipe } from '@angular/common';
 import {
   NgbDropdown,
   NgbDropdownItem,
@@ -16,6 +16,7 @@ import {
 import { ToastService } from '../../service/toast.service';
 import { PaperConfigService } from '../../service/paper/paper-config.service';
 import { PaperService } from '../../service/paper.service';
+import { BatchService } from '../../service/batch.service';
 import { Router, RouterLink } from '@angular/router';
 import { GetPaperConfigurationsListRequest, PaperFilter } from '../../models/general';
 import { PaperConfig } from '../../models/paper';
@@ -31,6 +32,7 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
   imports: [
     DatePipe,
     NgForOf,
+    CurrencyPipe,
     NgbDropdown,
     NgbDropdownItem,
     NgbDropdownMenu,
@@ -48,6 +50,7 @@ import { SafeHtmlDirective } from '../../directives/safe-html.directive';
 export class PreCgbReviewComponent implements OnInit {
   private paperConfigService = inject(PaperConfigService);
   private paperService = inject(PaperService);
+  private batchPaperService = inject(BatchService);
   public router = inject(Router);
   filter: PaperFilter;
   paperList: PaperConfig[] = [];
@@ -55,6 +58,7 @@ export class PreCgbReviewComponent implements OnInit {
   approvalRemark: string = '';
   reviewBy: string = '';
   selectedPaper: any = '';
+  selectedBatchPaper: any = null;
   isLoading: boolean = false;
   isSubmitting: boolean = false;
   openType: string = '';
@@ -87,15 +91,62 @@ export class PreCgbReviewComponent implements OnInit {
       .replace(/\s+/g, '-')     // Replace spaces with dashes
   }
 
-  goToPreview(paper: any): void {
-    const routePath = this.slugify(paper.paperType);
+  private getPaperTypeRoute(paperType: string, isPreview: boolean = false): string {
+    // Map paper types to their exact route paths (case-insensitive)
+    const typeMap: { [key: string]: { edit: string; preview: string } } = {
+      'approach to market': { edit: 'approach-to-market', preview: 'approach-to-market' },
+      'contract award': { edit: 'contract-award', preview: 'contract-award' },
+      'variation paper': { edit: 'variation-paper', preview: 'variation-paper' },
+      'approval of sale / disposal form': { edit: 'approval-of-sale-disposal-form', preview: 'approval-of-sale-disposal-form' },
+      'approval of sale/disposal form': { edit: 'approval-of-sale-disposal-form', preview: 'approval-of-sale-disposal-form' },
+      'info note': { edit: 'info-note', preview: 'info-note' },
+      'info-note': { edit: 'info-note', preview: 'info-note' },
+    };
 
-    this.router.navigate([`/preview/${routePath}`, paper.paperID]);
+    const normalizedType = paperType?.trim().toLowerCase();
+    const route = typeMap[normalizedType] || { 
+      edit: this.slugify(paperType), 
+      preview: this.slugify(paperType) 
+    };
+
+    return isPreview ? route.preview : route.edit;
   }
 
-  goToApproachToMarket(paper: any, isCopy: boolean = false): void {
-    const routePath = this.slugify(paper.paperType);
+  goToPreview(paper: any, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
+    // For batch papers, this should not be called - handled in HTML
+    if (paper.paperType === 'Batch Paper') {
+      return;
+    }
+
+    if (!paper || !paper.paperID) {
+      console.error('Invalid paper data:', paper);
+      return;
+    }
+
+    const routePath = this.getPaperTypeRoute(paper.paperType, true);
+    this.router.navigate([`/preview/${routePath}`, paper.paperID]).catch(error => {
+      console.error('Navigation error:', error);
+      this.toastService.show('Failed to navigate to preview page', 'danger');
+    });
+  }
+
+  goToApproachToMarket(paper: any, isCopy: boolean = false, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (!paper || !paper.paperID) {
+      console.error('Invalid paper data:', paper);
+      return;
+    }
+
+    const routePath = this.getPaperTypeRoute(paper.paperType, false);
     const queryParams: any = {};
     if (isCopy) {
       queryParams.isCopy = 'true';
@@ -103,6 +154,9 @@ export class PreCgbReviewComponent implements OnInit {
 
     this.router.navigate([`/${routePath}`, paper.paperID], {
       queryParams: queryParams
+    }).catch(error => {
+      console.error('Navigation error:', error);
+      this.toastService.show('Failed to navigate to edit page', 'danger');
     });
   }
 
@@ -286,6 +340,110 @@ export class PreCgbReviewComponent implements OnInit {
       "Super Admin",
     ];
     return preCGBRoles.includes(roleName);
+  }
+
+  openBatchPaperDetails(event: Event | null, content: TemplateRef<any>, paper: any) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
+    // If batchPapers array is not present, fetch the full batch paper details
+    if (!paper.batchPapers || paper.batchPapers.length === 0) {
+      const batchId = paper.paperID || paper.id || paper.batchId || paper.batchPaperId;
+      if (batchId) {
+        this.batchPaperService.getBatchPapersList().subscribe({
+          next: (response) => {
+            if (response.status && response.data) {
+              const fullBatchPaper = response.data.find((bp: any) => 
+                (bp.id === batchId) || (bp.batchId === batchId) || (bp.batchPaperId === batchId) || (bp.paperID === batchId)
+              );
+              this.selectedBatchPaper = fullBatchPaper || paper;
+              this._mdlSvc
+                .open(content, {
+                  ariaLabelledBy: 'modal-basic-title',
+                  centered: true,
+                  size: 'xl',
+                })
+                .result.then(
+                  (result) => {
+                    this.selectedBatchPaper = null;
+                  },
+                  (reason) => {
+                    this.selectedBatchPaper = null;
+                  }
+                );
+            } else {
+              this.selectedBatchPaper = paper;
+              this._mdlSvc
+                .open(content, {
+                  ariaLabelledBy: 'modal-basic-title',
+                  centered: true,
+                  size: 'xl',
+                })
+                .result.then(
+                  (result) => {
+                    this.selectedBatchPaper = null;
+                  },
+                  (reason) => {
+                    this.selectedBatchPaper = null;
+                  }
+                );
+            }
+          },
+          error: (error) => {
+            console.log('Error fetching batch paper details:', error);
+            this.selectedBatchPaper = paper;
+            this._mdlSvc
+              .open(content, {
+                ariaLabelledBy: 'modal-basic-title',
+                centered: true,
+                size: 'xl',
+              })
+              .result.then(
+                (result) => {
+                  this.selectedBatchPaper = null;
+                },
+                (reason) => {
+                  this.selectedBatchPaper = null;
+                }
+              );
+          }
+        });
+      } else {
+        this.selectedBatchPaper = paper;
+        this._mdlSvc
+          .open(content, {
+            ariaLabelledBy: 'modal-basic-title',
+            centered: true,
+            size: 'xl',
+          })
+          .result.then(
+            (result) => {
+              this.selectedBatchPaper = null;
+            },
+            (reason) => {
+              this.selectedBatchPaper = null;
+            }
+          );
+      }
+    } else {
+      this.selectedBatchPaper = paper;
+      this._mdlSvc
+        .open(content, {
+          ariaLabelledBy: 'modal-basic-title',
+          centered: true,
+          size: 'xl',
+        })
+        .result.then(
+          (result) => {
+            this.selectedBatchPaper = null;
+          },
+          (reason) => {
+            this.selectedBatchPaper = null;
+          }
+        );
+    }
   }
 
 }

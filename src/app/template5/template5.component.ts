@@ -2412,6 +2412,7 @@ export class Template5Component  implements AfterViewInit{
         ltccNotes: '', // Not in form, defaulting to empty string
         isIFRS16: false, // Not in form, defaulting to false
         contractNo: generalInfoValue?.contractNumber || '',
+        totalContractValue: Number(generalInfoValue?.contractValue) || 0,
         isRetrospectiveApproval: generalInfoValue?.isRetrospectiveApproval || false,
         retrospectiveApprovalReason: generalInfoValue?.retrospectiveApprovalReason || '',
         isGIAAPCheck: false, // Not in form, defaulting to false
@@ -2493,7 +2494,7 @@ export class Template5Component  implements AfterViewInit{
       }
       const updatedParams = cleanObject(params);
       this.generatePaper(updatedParams);
-    } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval") {
+    } else if (this.currentPaperStatus === "On Pre-CGB" || this.currentPaperStatus === "On JV Approval" || this.currentPaperStatus === "On CGB") {
       this.generatePaper(params, false)
     }
 
