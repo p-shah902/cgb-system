@@ -69,6 +69,7 @@ export class BatchPaperListComponent implements OnInit {
   isLoading: boolean = false;
   isCreating: boolean = false;
   selectedBatchPaper: any = null;
+  selectedPaper: number | null = null;
   isEditMode: boolean = false;
   editingBatchPaperId: number | null = null;
   form: any = {
@@ -519,6 +520,53 @@ export class BatchPaperListComponent implements OnInit {
       24: 'On Partner Approval 2nd',
     };
     return statusMap[statusId] || 'Unknown';
+  }
+
+  openDeleteModal(event: Event, content: TemplateRef<any>, paper: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    const paperId = paper.id || paper.batchId || paper.batchPaperId || paper.paperID;
+    if (paperId) {
+      this.selectedPaper = Number(paperId);
+      this._mdlSvc
+        .open(content, {
+          ariaLabelledBy: 'modal-basic-title',
+          centered: true,
+          size: 'md',
+        })
+        .result.then(
+          (result) => {
+            this.selectedPaper = null;
+          },
+          (reason) => {
+            this.selectedPaper = null;
+          }
+        );
+    }
+  }
+
+  deleteBatchPaper(modal: any) {
+    if (this.selectedPaper && this.selectedPaper > 0) {
+      this.isLoading = true;
+      this.paperConfigService.deletePaperById(this.selectedPaper)
+        .subscribe({
+          next: (response) => {
+            this.isLoading = false;
+            if (response.status) {
+              this.toastService.show(response.message || 'Batch paper deleted successfully', 'success');
+              modal.close('Delete click');
+              this.loadBatchPapersList();
+            } else {
+              this.toastService.show(response.message || 'Failed to delete batch paper', 'danger');
+            }
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('Delete error', error);
+            this.toastService.show(error.error?.message || 'Failed to delete batch paper', 'danger');
+          },
+        });
+    }
   }
 
 }

@@ -16,7 +16,7 @@ export class PermissionService {
 
   // Archive: PT or Secretary and status Registered/Withdrawn
   canShowArchive(role: UserRole, status: PaperStatus): boolean {
-    return this.is(role, ['Procurement Tag', 'Secretary']) && (status === 'Registered' || status === 'Withdrawn');
+    return this.is(role, ['Procurement Tag', 'Secretary', 'Super Admin']) && (status === 'Registered' || status === 'Withdrawn');
   }
 
   // Send For PDM: PT or CAM and status Registered

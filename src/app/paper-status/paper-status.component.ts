@@ -49,6 +49,7 @@ export class PaperStatusComponent implements OnInit {
   openType: string = '';
   approvalRemark = "";
   deadlineDate: string = "";
+  deadlineDateError: string = "";
   isLoading: boolean = false;
   isInitiatingCgbCycle: boolean = false; // Loading state for CGB cycle initiation
 
@@ -332,6 +333,8 @@ export class PaperStatusComponent implements OnInit {
   open(event: Event, content: TemplateRef<any>, type: string) {
     event.preventDefault();
     this.openType = type;
+    // Reset fields when opening modal
+    this.resetModalFields();
     this._mdlSvc.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       centered: true,  // Ensure modal is centered
@@ -771,20 +774,29 @@ export class PaperStatusComponent implements OnInit {
       } else if (this.openType === 'cgb') {
         const selectedPapers = this.getSelectedPapers(this.openType);
         
-        // Validate deadline date is not today or in the past (must be future date)
-        if (this.deadlineDate) {
-          const selectedDate = new Date(this.deadlineDate);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0); // Set to start of today for comparison
-          
-          const selectedDateOnly = new Date(selectedDate);
-          selectedDateOnly.setHours(0, 0, 0, 0);
-          
-          if (selectedDateOnly <= today) {
-            this.toastService.show('Deadline Date must be a future date. Please select tomorrow or a later date.', 'warning');
-            return;
-          }
+        // Validate deadline date is required
+        if (!this.deadlineDate || this.deadlineDate.trim() === '') {
+          this.deadlineDateError = 'Deadline Date is required';
+          this.toastService.show('Please select a Deadline Date', 'warning');
+          return;
         }
+        
+        // Validate deadline date is not today or in the past (must be future date)
+        const selectedDate = new Date(this.deadlineDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to start of today for comparison
+        
+        const selectedDateOnly = new Date(selectedDate);
+        selectedDateOnly.setHours(0, 0, 0, 0);
+        
+        if (selectedDateOnly <= today) {
+          this.deadlineDateError = 'Deadline Date must be a future date';
+          this.toastService.show('Deadline Date must be a future date. Please select tomorrow or a later date.', 'warning');
+          return;
+        }
+        
+        // Clear error if validation passes
+        this.deadlineDateError = "";
         
         // Set loading state
         this.isInitiatingCgbCycle = true;
@@ -911,6 +923,14 @@ export class PaperStatusComponent implements OnInit {
   resetModalFields() {
     this.approvalRemark = "";
     this.deadlineDate = "";
+    this.deadlineDateError = "";
+  }
+
+  onDeadlineDateChange() {
+    // Clear error when user selects a date
+    if (this.deadlineDate && this.deadlineDate.trim() !== '') {
+      this.deadlineDateError = "";
+    }
   }
 
   getMinDateTime(): string {
